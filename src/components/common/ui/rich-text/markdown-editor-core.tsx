@@ -32,9 +32,29 @@ import {
   Underline as UnderlineIcon,
 } from 'lucide-react';
 import { common, createLowlight } from 'lowlight'; // eslint-disable-line import/order
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
+import {
+  MARKDOWN_IMAGE_DEFAULT_WIDTH,
+  MARKDOWN_IMAGE_MAX_WIDTH,
+  MARKDOWN_IMAGE_MIN_WIDTH,
+  MARKDOWN_IMAGE_WIDTH_STEP,
+  clampImageWidth,
+  getExtensionFromMime,
+  getImageFileNormalizationErrorMessage,
+  normalizeImageFileForUpload,
+  parseImageWidth,
+  toFileFromBlob,
+} from '@/components/common/ui/editor/image-utils';
 import {
   CODE_LANGUAGES,
   HEADING_OPTIONS,
@@ -58,31 +78,11 @@ lowlight.register('swift', swift);
 lowlight.register('dart', dart);
 
 const IMAGE_URL_PATTERN =
-  /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i;
-const IMAGE_WIDTH_MIN = 80;
-const IMAGE_WIDTH_DEFAULT = 200;
-const IMAGE_WIDTH_MAX = 400;
-const IMAGE_WIDTH_STEP = 10;
+  /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif|heic|heif)(\?[^\s]*)?$/i;
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 
 const isImageUrl = (text: string): boolean => {
   return IMAGE_URL_PATTERN.test(text.trim());
-};
-
-const clampImageWidth = (value: number) => {
-  return Math.min(
-    IMAGE_WIDTH_MAX,
-    Math.max(IMAGE_WIDTH_MIN, Math.round(value)),
-  );
-};
-
-const parseImageWidth = (value: unknown): number => {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    return IMAGE_WIDTH_DEFAULT;
-  }
-
-  return clampImageWidth(parsed);
 };
 
 const formatFileSizeLimit = (bytes: number) => {
@@ -117,7 +117,7 @@ const MarkdownImageExtension = ImageExtension.extend({
     return {
       ...this.parent?.(),
       width: {
-        default: IMAGE_WIDTH_DEFAULT,
+        default: MARKDOWN_IMAGE_DEFAULT_WIDTH,
         parseHTML: (element: HTMLElement) =>
           parseImageWidth(element.getAttribute('width')),
         renderHTML: (attributes: Record<string, unknown>) => ({
@@ -127,21 +127,6 @@ const MarkdownImageExtension = ImageExtension.extend({
     };
   },
 });
-
-const toFileFromBlob = (blob: Blob, fileName: string): File => {
-  return new File([blob], fileName, { type: blob.type });
-};
-
-const guessExtensionFromMime = (mimeType: string): string => {
-  const map: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
-  };
-
-  return map[mimeType] ?? 'png';
-};
 
 export interface MarkdownImageUploadTicket {
   uploadUrl: string;
@@ -188,7 +173,10 @@ function MarkdownEditorCore({
   const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const isInternalUpdate = useRef(false);
-  const [, setRenderKey] = useState(0);
+  const [, forceEditorRender] = useReducer(
+    (renderCount: number) => renderCount + 1,
+    0,
+  );
 
   const allowedExtensionsLabel = useMemo(() => {
     return allowedImageExtensions.join('/');
@@ -225,11 +213,30 @@ function MarkdownEditorCore({
         .focus()
         .setImage({
           src: ticket.publicUrl,
-          width: IMAGE_WIDTH_DEFAULT,
+          width: MARKDOWN_IMAGE_DEFAULT_WIDTH,
         })
         .run();
     },
     [requestImageUploadTicket, uploadImageFile],
+  );
+
+  const collectUploadErrors = useCallback(
+    async (editor: Editor, files: File[]) => {
+      const uploadErrors: string[] = [];
+
+      for (const file of files) {
+        try {
+          await uploadAndInsertFile(editor, file);
+        } catch (error) {
+          uploadErrors.push(
+            `${file.name}: ${getMarkdownEditorErrorMessage(error, '업로드에 실패했습니다.')}`,
+          );
+        }
+      }
+
+      return uploadErrors;
+    },
+    [uploadAndInsertFile],
   );
 
   const validateImageFile = useCallback(
@@ -283,11 +290,19 @@ function MarkdownEditorCore({
       const errors: string[] = [];
 
       for (const file of targetFiles) {
-        const error = validateImageFile(file);
+        let normalizedFile: File;
+        try {
+          normalizedFile = await normalizeImageFileForUpload(file);
+        } catch (error) {
+          errors.push(getImageFileNormalizationErrorMessage(file.name, error));
+          continue;
+        }
+
+        const error = validateImageFile(normalizedFile);
         if (error) {
           errors.push(error);
         } else {
-          validFiles.push(file);
+          validFiles.push(normalizedFile);
         }
       }
 
@@ -303,15 +318,7 @@ function MarkdownEditorCore({
       setImageInsertError('');
 
       try {
-        for (const file of validFiles) {
-          try {
-            await uploadAndInsertFile(editor, file);
-          } catch (error) {
-            errors.push(
-              `${file.name}: ${getMarkdownEditorErrorMessage(error, '업로드에 실패했습니다.')}`,
-            );
-          }
-        }
+        errors.push(...(await collectUploadErrors(editor, validFiles)));
 
         if (files.length > remaining) {
           errors.push(
@@ -326,7 +333,7 @@ function MarkdownEditorCore({
         setIsUploadingImages(false);
       }
     },
-    [isUploadingImages, maxImageCount, uploadAndInsertFile, validateImageFile],
+    [collectUploadErrors, isUploadingImages, maxImageCount, validateImageFile],
   );
 
   const handlePasteImageUrl = useCallback(
@@ -350,22 +357,19 @@ function MarkdownEditorCore({
         }
 
         const blob = await response.blob();
-        if (!blob.type.startsWith('image/')) {
-          throw new Error('이미지 파일이 아닙니다.');
-        }
+        const extension = getExtensionFromMime(blob.type) || 'png';
+        const normalizedFile = await normalizeImageFileForUpload(
+          toFileFromBlob(blob, `pasted-image.${extension}`),
+        );
+        const error = validateImageFile(normalizedFile);
 
-        const ext = guessExtensionFromMime(blob.type);
-        const file = toFileFromBlob(blob, `pasted-image.${ext}`);
-
-        if (file.size > maxImageFileSize) {
-          setImageInsertError(
-            `이미지가 ${maxImageFileSizeLabel}를 초과합니다.`,
-          );
+        if (error) {
+          setImageInsertError(error);
 
           return;
         }
 
-        await uploadAndInsertFile(editor, file);
+        await uploadAndInsertFile(editor, normalizedFile);
       } catch (error) {
         setImageInsertError(
           getMarkdownEditorErrorMessage(
@@ -377,12 +381,7 @@ function MarkdownEditorCore({
         setIsUploadingImages(false);
       }
     },
-    [
-      maxImageCount,
-      maxImageFileSize,
-      maxImageFileSizeLabel,
-      uploadAndInsertFile,
-    ],
+    [maxImageCount, uploadAndInsertFile, validateImageFile],
   );
 
   const editor = useEditor({
@@ -417,7 +416,7 @@ function MarkdownEditorCore({
       onChange(updatedEditor.getHTML());
     },
     onTransaction() {
-      setRenderKey((prev) => prev + 1);
+      forceEditorRender();
     },
     onSelectionUpdate: ({ editor: nextEditor }) => {
       if (nextEditor.isActive('image')) {
@@ -571,7 +570,7 @@ function MarkdownEditorCore({
   const selectedImageWidth =
     editor && selectedImagePos !== null
       ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
-      : IMAGE_WIDTH_DEFAULT;
+      : MARKDOWN_IMAGE_DEFAULT_WIDTH;
 
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
@@ -692,9 +691,9 @@ function MarkdownEditorCore({
           </span>
           <input
             type="range"
-            min={IMAGE_WIDTH_MIN}
-            max={IMAGE_WIDTH_MAX}
-            step={IMAGE_WIDTH_STEP}
+            min={MARKDOWN_IMAGE_MIN_WIDTH}
+            max={MARKDOWN_IMAGE_MAX_WIDTH}
+            step={MARKDOWN_IMAGE_WIDTH_STEP}
             value={selectedImageWidth}
             onChange={(event) => {
               handleImageWidthChange(Number(event.target.value));
@@ -708,9 +707,9 @@ function MarkdownEditorCore({
             type="button"
             color="secondary"
             size="small"
-            onClick={() => handleImageWidthChange(IMAGE_WIDTH_DEFAULT)}
+            onClick={() => handleImageWidthChange(MARKDOWN_IMAGE_DEFAULT_WIDTH)}
           >
-            기본 200px
+            {`기본 ${MARKDOWN_IMAGE_DEFAULT_WIDTH}px`}
           </Button>
         </div>
       )}

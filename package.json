@@ -64,6 +64,7 @@
     "framer-motion": "^12.27.1",
     "googleapis": "^164.1.0",
     "hashids": "^2.3.0",
+    "heic2any": "0.0.4",
     "highlight.js": "^11.11.1",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.475.0",

@@ -10,9 +10,11 @@ import {
 import {
   type MarkdownEditorImageConfig,
   MARKDOWN_IMAGE_DEFAULT_WIDTH,
+  getImageFileUploadValidationError,
+  getImageFileNormalizationErrorMessage,
   getExtensionFromMime,
+  normalizeImageFileForUpload,
   toFileFromBlob,
-  validateImageFileForUpload,
 } from './image-utils';
 
 const maxImageCountError = (count: number) =>
@@ -57,6 +59,23 @@ export function useImageUpload(
     [resolvedImageConfig],
   );
 
+  const collectUploadErrors = useCallback(
+    async (editor: Editor, files: File[]) => {
+      const uploadErrors: string[] = [];
+
+      for (const file of files) {
+        try {
+          await uploadAndInsertFile(editor, file);
+        } catch {
+          uploadErrors.push(`${file.name}: 업로드 실패`);
+        }
+      }
+
+      return uploadErrors;
+    },
+    [uploadAndInsertFile],
+  );
+
   /**
    * 여러 이미지 파일들을 유효성 검사 후 에디터에 삽입합니다.
    * 최대 개수 제한, 파일 크기 제한, 확장자 검증을 수행합니다.
@@ -93,11 +112,22 @@ export function useImageUpload(
           break;
         }
 
-        const error = validateImageFileForUpload(file, resolvedImageConfig);
+        let normalizedFile: File;
+        try {
+          normalizedFile = await normalizeImageFileForUpload(file);
+        } catch (error) {
+          errors.push(getImageFileNormalizationErrorMessage(file.name, error));
+          continue;
+        }
+
+        const error = getImageFileUploadValidationError(
+          normalizedFile,
+          resolvedImageConfig,
+        );
         if (error) {
           errors.push(error);
         } else {
-          validFiles.push(file);
+          validFiles.push(normalizedFile);
         }
       }
 
@@ -113,13 +143,7 @@ export function useImageUpload(
       setImageInsertError('');
 
       try {
-        for (const file of validFiles) {
-          try {
-            await uploadAndInsertFile(editor, file);
-          } catch {
-            errors.push(`${file.name}: 업로드 실패`);
-          }
-        }
+        errors.push(...(await collectUploadErrors(editor, validFiles)));
 
         if (hitLimit) {
           errors.push(maxImageCountError(maxImageCount));
@@ -132,7 +156,7 @@ export function useImageUpload(
         setIsUploadingImages(false);
       }
     },
-    [isUploadingImages, resolvedImageConfig, uploadAndInsertFile],
+    [collectUploadErrors, isUploadingImages, resolvedImageConfig],
   );
 
   /**
@@ -170,25 +194,33 @@ export function useImageUpload(
         }
 
         const blob = await response.blob();
-        if (!blob.type.startsWith('image/')) {
-          throw new Error('이미지 파일이 아닙니다.');
-        }
+        const extension = getExtensionFromMime(blob.type) || 'png';
+        const normalizedFile = await normalizeImageFileForUpload(
+          toFileFromBlob(blob, `pasted-image.${extension}`),
+        );
 
-        const extension = getExtensionFromMime(blob.type);
-        const filename = extension
-          ? `pasted-image.${extension}`
-          : 'pasted-image';
-        const file = toFileFromBlob(blob, filename);
-
-        const error = validateImageFileForUpload(file, resolvedImageConfig);
+        const error = getImageFileUploadValidationError(
+          normalizedFile,
+          resolvedImageConfig,
+        );
         if (error) {
           setImageInsertError(error);
 
           return;
         }
 
-        await uploadAndInsertFile(editor, file);
-      } catch {
+        await uploadAndInsertFile(editor, normalizedFile);
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.trim() &&
+          error.message !== 'Failed to fetch'
+        ) {
+          setImageInsertError(error.message.trim());
+
+          return;
+        }
+
         setImageInsertError(
           '이미지 URL을 가져올 수 없습니다. 이미지를 직접 복사(우클릭 → 이미지 복사)하거나 파일로 업로드해주세요.',
         );
@@ -196,7 +228,7 @@ export function useImageUpload(
         setIsUploadingImages(false);
       }
     },
-    [resolvedImageConfig, uploadAndInsertFile, isUploadingImages],
+    [isUploadingImages, resolvedImageConfig, uploadAndInsertFile],
   );
 
   /**

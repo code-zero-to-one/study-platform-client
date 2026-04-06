@@ -16,6 +16,8 @@ export const GROUP_STUDY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS = [
   'png',
   'webp',
   'gif',
+  'heic',
+  'heif',
 ] as const;
 
 export interface SerializedGroupStudyDescription {

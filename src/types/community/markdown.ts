@@ -13,6 +13,8 @@ export const COMMUNITY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS = [
   'png',
   'webp',
   'gif',
+  'heic',
+  'heif',
 ] as const;
 export const COMMUNITY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS_LABEL =
   COMMUNITY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS.join(', ');
