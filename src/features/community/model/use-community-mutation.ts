@@ -295,8 +295,8 @@ export const useCreateCommunityPostMutation = () => {
       idempotencyKey: Parameters<typeof createCommunityPost>[1];
     }) => createCommunityPost(request, idempotencyKey),
     onError: () => {},
-    onSuccess: async () => {
-      await invalidateCommunityFeedQueries(queryClient);
+    onSuccess: () => {
+      invalidateCommunityFeedQueries(queryClient).catch(() => {});
     },
   });
 };
@@ -315,11 +315,11 @@ export const useUpdateCommunityPostMutation = () => {
       request: Parameters<typeof updateCommunityPost>[2];
     }) => updateCommunityPost(postId, revision, request),
     onError: () => {},
-    onSuccess: async (_, variables) => {
-      await Promise.all([
+    onSuccess: (_, variables) => {
+      Promise.all([
         invalidateCommunityFeedQueries(queryClient),
         invalidateCommunityPostQueries(queryClient, variables.postId),
-      ]);
+      ]).catch(() => {});
     },
   });
 };
