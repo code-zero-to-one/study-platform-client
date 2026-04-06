@@ -43,6 +43,7 @@ import {
 } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
+import EditorVisibleTextCounter from '@/components/common/ui/editor/editor-visible-text-counter';
 import {
   MARKDOWN_IMAGE_DEFAULT_WIDTH,
   MARKDOWN_IMAGE_MAX_WIDTH,
@@ -64,6 +65,7 @@ import {
   extractImageUrls,
   getFileExtension,
 } from '@/lib/rich-text/markdown-utils';
+import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
 
 const lowlight = createLowlight(common);
 lowlight.register('kotlin', kotlin);
@@ -137,6 +139,10 @@ export interface MarkdownEditorCoreProps {
   value: string;
   onChange: (next: string) => void;
   placeholder?: string;
+  visibleTextCounter?: {
+    helperText?: string;
+    maxLength: number;
+  };
   allowedImageExtensions: readonly string[];
   maxImageCount: number;
   maxImageFileSize: number;
@@ -162,6 +168,7 @@ function MarkdownEditorCore({
   value,
   onChange,
   placeholder,
+  visibleTextCounter,
   allowedImageExtensions,
   maxImageCount,
   maxImageFileSize,
@@ -177,6 +184,9 @@ function MarkdownEditorCore({
     (renderCount: number) => renderCount + 1,
     0,
   );
+  const currentVisibleTextLength = useMemo(() => {
+    return getRichContentVisibleTextLength(value);
+  }, [value]);
 
   const allowedExtensionsLabel = useMemo(() => {
     return allowedImageExtensions.join('/');
@@ -752,6 +762,14 @@ function MarkdownEditorCore({
           </p>
         </div>
       )}
+
+      {visibleTextCounter ? (
+        <EditorVisibleTextCounter
+          currentLength={currentVisibleTextLength}
+          helperText={visibleTextCounter.helperText}
+          maxLength={visibleTextCounter.maxLength}
+        />
+      ) : null}
 
       {imageInsertError && (
         <p className="font-designer-12r text-text-error px-150 pb-100">

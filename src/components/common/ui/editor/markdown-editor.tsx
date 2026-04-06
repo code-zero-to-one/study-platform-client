@@ -32,7 +32,9 @@ import {
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
+import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
 import { hasClipboardImageHint } from './clipboard-utils';
+import EditorVisibleTextCounter from './editor-visible-text-counter';
 import {
   InstantCodeBlockExtension,
   lowlight,
@@ -67,6 +69,10 @@ interface MarkdownEditorProps {
   uploadImage?: (file: File) => Promise<string>;
   normalizeContent?: (content: unknown) => string;
   imageConfig?: MarkdownEditorImageConfig;
+  visibleTextCounter?: {
+    helperText?: string;
+    maxLength: number;
+  };
   'aria-invalid'?: boolean;
   'aria-describedby'?: string;
 }
@@ -85,6 +91,7 @@ function MarkdownEditor({
   uploadImage,
   normalizeContent = normalizeMarkdownContent,
   imageConfig,
+  visibleTextCounter,
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedBy,
 }: MarkdownEditorProps) {
@@ -97,6 +104,9 @@ function MarkdownEditor({
   const editorRef = useRef<Editor | null>(null);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeContent(value);
+  const currentVisibleTextLength = useMemo(() => {
+    return getRichContentVisibleTextLength(normalizedValue);
+  }, [normalizedValue]);
 
   /**
    * 유효한 에디터 인스턴스를 반환합니다.
@@ -704,6 +714,14 @@ function MarkdownEditor({
           </p>
         </div>
       )}
+
+      {visibleTextCounter ? (
+        <EditorVisibleTextCounter
+          currentLength={currentVisibleTextLength}
+          helperText={visibleTextCounter.helperText}
+          maxLength={visibleTextCounter.maxLength}
+        />
+      ) : null}
 
       {imageInsertError && (
         <p className="font-designer-12r text-text-error px-150 pb-100">

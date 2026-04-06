@@ -9,8 +9,10 @@ import {
   hasUnsafeCommunityMarkdownHtml,
   isCommunityMarkdownImageUrl,
 } from '@/types/community/markdown';
+import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
 
 export const COMMUNITY_WRITE_TITLE_MAX_LENGTH = 120;
+export const COMMUNITY_WRITE_CONTENT_MAX_VISIBLE_LENGTH = 5_000;
 
 const COMMUNITY_BOARD_VALUES = [
   COMMUNITY_BOARD.QNA,
@@ -18,6 +20,70 @@ const COMMUNITY_BOARD_VALUES = [
   COMMUNITY_BOARD.ACHIEVEMENT,
   COMMUNITY_BOARD.KNOWLEDGE,
 ] as const;
+
+interface ValidateCommunityWriteContentParams {
+  content: string;
+  ctx: z.RefinementCtx;
+  maxVisibleTextLength: number;
+  maxVisibleTextMessage: string;
+}
+
+export const validateCommunityWriteContent = ({
+  content,
+  ctx,
+  maxVisibleTextLength,
+  maxVisibleTextMessage,
+}: ValidateCommunityWriteContentParams) => {
+  if (hasUnsafeCommunityMarkdownHtml(content)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['content'],
+      message: '허용되지 않는 HTML 또는 스크립트는 사용할 수 없습니다.',
+    });
+  }
+
+  if (!hasMeaningfulCommunityMarkdownContent(content)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['content'],
+      message: '본문을 입력해주세요.',
+    });
+  }
+
+  const imageUrls = extractImageUrls(content);
+
+  if (imageUrls.length > COMMUNITY_MARKDOWN_MAX_IMAGE_COUNT) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['content'],
+      message: `이미지는 최대 ${COMMUNITY_MARKDOWN_MAX_IMAGE_COUNT}개까지 첨부할 수 있습니다.`,
+    });
+  }
+
+  if (!imageUrls.every(isCommunityMarkdownImageUrl)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['content'],
+      message: '이미지 주소는 업로드된 안전한 URL만 사용할 수 있습니다.',
+    });
+  }
+
+  if (!imageUrls.every(hasAllowedCommunityMarkdownImageExtension)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['content'],
+      message: `이미지는 ${COMMUNITY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS_LABEL} 형식만 사용할 수 있습니다.`,
+    });
+  }
+
+  if (getRichContentVisibleTextLength(content) > maxVisibleTextLength) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['content'],
+      message: maxVisibleTextMessage,
+    });
+  }
+};
 
 export const communityWriteSchema = z
   .object({
@@ -33,47 +99,12 @@ export const communityWriteSchema = z
     content: z.string(),
   })
   .superRefine((values, ctx) => {
-    if (hasUnsafeCommunityMarkdownHtml(values.content)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['content'],
-        message: '허용되지 않는 HTML 또는 스크립트는 사용할 수 없습니다.',
-      });
-    }
-
-    if (!hasMeaningfulCommunityMarkdownContent(values.content)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['content'],
-        message: '본문을 입력해주세요.',
-      });
-    }
-
-    const imageUrls = extractImageUrls(values.content);
-
-    if (imageUrls.length > COMMUNITY_MARKDOWN_MAX_IMAGE_COUNT) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['content'],
-        message: `이미지는 최대 ${COMMUNITY_MARKDOWN_MAX_IMAGE_COUNT}개까지 첨부할 수 있습니다.`,
-      });
-    }
-
-    if (!imageUrls.every(isCommunityMarkdownImageUrl)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['content'],
-        message: '이미지 주소는 업로드된 안전한 URL만 사용할 수 있습니다.',
-      });
-    }
-
-    if (!imageUrls.every(hasAllowedCommunityMarkdownImageExtension)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['content'],
-        message: `이미지는 ${COMMUNITY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS_LABEL} 형식만 사용할 수 있습니다.`,
-      });
-    }
+    validateCommunityWriteContent({
+      content: values.content,
+      ctx,
+      maxVisibleTextLength: COMMUNITY_WRITE_CONTENT_MAX_VISIBLE_LENGTH,
+      maxVisibleTextMessage: `본문은 보이는 글자수 기준 ${COMMUNITY_WRITE_CONTENT_MAX_VISIBLE_LENGTH.toLocaleString()}자 이하여야 합니다.`,
+    });
   });
 
 export type CommunityWriteFormValues = z.infer<typeof communityWriteSchema>;
