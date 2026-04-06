@@ -17,8 +17,16 @@ import {
   updateCommunityComment,
   updateCommunityPost,
 } from '@/features/community/api/community-api';
-import type { CommunityPost } from '@/types/community/domain';
-import type { CommunityFeedData } from '@/types/community/query';
+import { mapCommunityComment } from '@/features/community/model/community-api.mapper';
+import {
+  COMMUNITY_COMMENT_REACTION,
+  type CommunityComment,
+  type CommunityPost,
+} from '@/types/community/domain';
+import type {
+  CommunityCommentsPageData,
+  CommunityFeedData,
+} from '@/types/community/query';
 import { communityQueryKeys } from '@/types/community/query';
 
 const invalidateCommunityFeedQueries = (queryClient: QueryClient) => {
@@ -42,6 +50,38 @@ const updateCommunityPostViewCount = (
   };
 };
 
+const updateCommunityPostReaction = (
+  post: CommunityPost,
+  postId: number,
+  reactionCount: number,
+  viewerReaction: CommunityPost['viewerReaction'],
+) => {
+  if (post.id !== postId) {
+    return post;
+  }
+
+  return {
+    ...post,
+    reactionCount,
+    viewerReaction,
+  };
+};
+
+const updateCommunityPostCommentCount = (
+  post: CommunityPost,
+  postId: number,
+  commentCount: number,
+) => {
+  if (post.id !== postId) {
+    return post;
+  }
+
+  return {
+    ...post,
+    commentCount,
+  };
+};
+
 const updateCommunityFeedViewCount = (
   current: CommunityFeedData | undefined,
   postId: number,
@@ -62,6 +102,61 @@ const updateCommunityFeedViewCount = (
   };
 };
 
+const updateCommunityFeedReactionCount = (
+  current: CommunityFeedData | undefined,
+  postId: number,
+  reactionCount: number,
+  viewerReaction: CommunityPost['viewerReaction'],
+) => {
+  if (!current) {
+    return current;
+  }
+
+  return {
+    ...current,
+    popularItems: current.popularItems.map((post) =>
+      updateCommunityPostReaction(post, postId, reactionCount, viewerReaction),
+    ),
+    items: current.items.map((post) =>
+      updateCommunityPostReaction(post, postId, reactionCount, viewerReaction),
+    ),
+  };
+};
+
+const updateCommunityFeedCommentCount = (
+  current: CommunityFeedData | undefined,
+  postId: number,
+  commentCount: number,
+) => {
+  if (!current) {
+    return current;
+  }
+
+  return {
+    ...current,
+    popularItems: current.popularItems.map((post) =>
+      updateCommunityPostCommentCount(post, postId, commentCount),
+    ),
+    items: current.items.map((post) =>
+      updateCommunityPostCommentCount(post, postId, commentCount),
+    ),
+  };
+};
+
+const updateCommunityRelatedPostCommentCount = (
+  current: readonly CommunityPost[] | undefined,
+  postId: number,
+  commentCount: number,
+) => {
+  if (!current) {
+    return current;
+  }
+
+  return current.map((post) =>
+    updateCommunityPostCommentCount(post, postId, commentCount),
+  );
+};
+
 const invalidateCommunityPostQueries = (
   queryClient: QueryClient,
   postId: number,
@@ -77,6 +172,115 @@ const invalidateCommunityPostQueries = (
       queryKey: communityQueryKeys.commentsByPost(postId),
     }),
   ]);
+};
+
+const updateCommunityCommentTree = (
+  comments: readonly CommunityComment[],
+  commentId: number,
+  updater: (comment: CommunityComment) => CommunityComment,
+): readonly CommunityComment[] => {
+  let changed = false;
+
+  const nextComments = comments.map((comment) => {
+    if (comment.id === commentId) {
+      const updatedComment = updater(comment);
+
+      if (updatedComment !== comment) {
+        changed = true;
+      }
+
+      return updatedComment;
+    }
+
+    if (comment.replies.length === 0) {
+      return comment;
+    }
+
+    const nextReplies = updateCommunityCommentTree(
+      comment.replies,
+      commentId,
+      updater,
+    );
+
+    if (nextReplies === comment.replies) {
+      return comment;
+    }
+
+    changed = true;
+
+    return {
+      ...comment,
+      replies: nextReplies,
+    };
+  });
+
+  return changed ? nextComments : comments;
+};
+
+const normalizeCommunityCommentReaction = (
+  value?: string,
+): CommunityComment['viewerReaction'] => {
+  return value === COMMUNITY_COMMENT_REACTION.LIKE ||
+    value === COMMUNITY_COMMENT_REACTION.DISLIKE
+    ? value
+    : COMMUNITY_COMMENT_REACTION.NONE;
+};
+
+const updateCommunityCommentsPageData = (
+  current: CommunityCommentsPageData | undefined,
+  updater: (page: CommunityCommentsPageData) => CommunityCommentsPageData,
+) => {
+  if (!current) {
+    return current;
+  }
+
+  return updater(current);
+};
+
+const updateCommunityCommentsTotalCount = (
+  queryClient: QueryClient,
+  postId: number,
+  totalCommentCount: number,
+) => {
+  queryClient.setQueriesData<CommunityCommentsPageData>(
+    { queryKey: communityQueryKeys.commentsByPost(postId) },
+    (current) =>
+      updateCommunityCommentsPageData(current, (page) => ({
+        ...page,
+        totalCommentCount,
+        totalPages: Math.max(1, Math.ceil(totalCommentCount / page.size)),
+      })),
+  );
+};
+
+const setCommunityPostCommentCount = (
+  queryClient: QueryClient,
+  postId: number,
+  commentCount: number,
+) => {
+  queryClient.setQueriesData(
+    { queryKey: communityQueryKeys.detail(postId) },
+    (current: CommunityPost | undefined) => {
+      if (!current) {
+        return current;
+      }
+
+      return updateCommunityPostCommentCount(current, postId, commentCount);
+    },
+  );
+
+  queryClient.setQueriesData<CommunityFeedData>(
+    { queryKey: communityQueryKeys.feeds() },
+    (current) => updateCommunityFeedCommentCount(current, postId, commentCount),
+  );
+
+  queryClient.setQueriesData<readonly CommunityPost[]>(
+    { queryKey: communityQueryKeys.relatedPostsByPost(postId) },
+    (current) =>
+      updateCommunityRelatedPostCommentCount(current, postId, commentCount),
+  );
+
+  updateCommunityCommentsTotalCount(queryClient, postId, commentCount);
 };
 
 export const useCreateCommunityPostMutation = () => {
@@ -180,6 +384,9 @@ export const useAssignCommunityPostReactionMutation = () => {
     }) => assignCommunityPostReaction(postId, { type }),
     onError: () => {},
     onSuccess: async (response, variables) => {
+      const nextViewerReaction =
+        response.myPostReaction === 'like' ? 'like' : 'none';
+
       queryClient.setQueriesData(
         { queryKey: communityQueryKeys.detail(variables.postId) },
         (current: CommunityPost | undefined) => {
@@ -190,13 +397,21 @@ export const useAssignCommunityPostReactionMutation = () => {
           return {
             ...current,
             reactionCount: response.likeCount,
-            viewerReaction:
-              response.myPostReaction === 'like' ? 'like' : 'none',
+            viewerReaction: nextViewerReaction,
           };
         },
       );
 
-      await invalidateCommunityFeedQueries(queryClient);
+      queryClient.setQueriesData<CommunityFeedData>(
+        { queryKey: communityQueryKeys.feeds() },
+        (current) =>
+          updateCommunityFeedReactionCount(
+            current,
+            variables.postId,
+            response.likeCount,
+            nextViewerReaction,
+          ),
+      );
     },
   });
 };
@@ -215,11 +430,16 @@ export const useCreateCommunityCommentMutation = () => {
       idempotencyKey: string;
     }) => createCommunityComment(postId, { content }, idempotencyKey),
     onError: () => {},
-    onSuccess: async (_, variables) => {
-      await Promise.all([
-        invalidateCommunityFeedQueries(queryClient),
-        invalidateCommunityPostQueries(queryClient, variables.postId),
-      ]);
+    onSuccess: async (response, variables) => {
+      setCommunityPostCommentCount(
+        queryClient,
+        variables.postId,
+        response.postCommentCount,
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: communityQueryKeys.commentsByPost(variables.postId),
+      });
     },
   });
 };
@@ -240,11 +460,16 @@ export const useCreateCommunityReplyMutation = () => {
       idempotencyKey: string;
     }) => createCommunityReply(postId, commentId, { content }, idempotencyKey),
     onError: () => {},
-    onSuccess: async (_, variables) => {
-      await Promise.all([
-        invalidateCommunityFeedQueries(queryClient),
-        invalidateCommunityPostQueries(queryClient, variables.postId),
-      ]);
+    onSuccess: async (response, variables) => {
+      setCommunityPostCommentCount(
+        queryClient,
+        variables.postId,
+        response.postCommentCount,
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: communityQueryKeys.commentsByPost(variables.postId),
+      });
     },
   });
 };
@@ -265,10 +490,29 @@ export const useUpdateCommunityCommentMutation = () => {
       content: string;
     }) => updateCommunityComment(postId, commentId, revision, { content }),
     onError: () => {},
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: communityQueryKeys.commentsByPost(variables.postId),
-      });
+    onSuccess: async (response, variables) => {
+      const nextComment = mapCommunityComment(response.comment);
+
+      queryClient.setQueriesData<CommunityCommentsPageData>(
+        { queryKey: communityQueryKeys.commentsByPost(variables.postId) },
+        (current) =>
+          updateCommunityCommentsPageData(current, (page) => {
+            const nextItems = updateCommunityCommentTree(
+              page.items,
+              variables.commentId,
+              () => nextComment,
+            );
+
+            if (nextItems === page.items) {
+              return page;
+            }
+
+            return {
+              ...page,
+              items: nextItems,
+            };
+          }),
+      );
     },
   });
 };
@@ -287,11 +531,37 @@ export const useDeleteCommunityCommentMutation = () => {
       revision: number;
     }) => deleteCommunityComment(postId, commentId, revision),
     onError: () => {},
-    onSuccess: async (_, variables) => {
-      await Promise.all([
-        invalidateCommunityFeedQueries(queryClient),
-        invalidateCommunityPostQueries(queryClient, variables.postId),
-      ]);
+    onSuccess: async (response, variables) => {
+      setCommunityPostCommentCount(
+        queryClient,
+        variables.postId,
+        response.postCommentCount,
+      );
+
+      queryClient.setQueriesData<CommunityCommentsPageData>(
+        { queryKey: communityQueryKeys.commentsByPost(variables.postId) },
+        (current) =>
+          updateCommunityCommentsPageData(current, (page) => {
+            const nextItems = updateCommunityCommentTree(
+              page.items,
+              variables.commentId,
+              () => mapCommunityComment(response.comment),
+            );
+
+            if (nextItems === page.items) {
+              return page;
+            }
+
+            return {
+              ...page,
+              items: nextItems,
+            };
+          }),
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: communityQueryKeys.commentsByPost(variables.postId),
+      });
     },
   });
 };
@@ -310,10 +580,34 @@ export const useAssignCommunityCommentReactionMutation = () => {
       type: Parameters<typeof assignCommunityCommentReaction>[2]['type'];
     }) => assignCommunityCommentReaction(postId, commentId, { type }),
     onError: () => {},
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: communityQueryKeys.commentsByPost(variables.postId),
-      });
+    onSuccess: async (response, variables) => {
+      queryClient.setQueriesData<CommunityCommentsPageData>(
+        { queryKey: communityQueryKeys.commentsByPost(variables.postId) },
+        (current) =>
+          updateCommunityCommentsPageData(current, (page) => {
+            const nextItems = updateCommunityCommentTree(
+              page.items,
+              variables.commentId,
+              (comment) => ({
+                ...comment,
+                likeCount: response.likeCount,
+                dislikeCount: response.dislikeCount,
+                viewerReaction: normalizeCommunityCommentReaction(
+                  response.myCommentReaction ?? undefined,
+                ),
+              }),
+            );
+
+            if (nextItems === page.items) {
+              return page;
+            }
+
+            return {
+              ...page,
+              items: nextItems,
+            };
+          }),
+      );
     },
   });
 };

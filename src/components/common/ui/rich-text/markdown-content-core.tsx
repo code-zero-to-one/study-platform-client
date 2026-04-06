@@ -155,6 +155,9 @@ const applyPostSanitizeAttributes = ({
       return;
     }
 
+    imageElement.setAttribute('loading', 'lazy');
+    imageElement.setAttribute('decoding', 'async');
+
     const bucket = widthBucketsBySrc.get(src);
     if (!bucket || bucket.length === 0) {
       return;
@@ -205,7 +208,7 @@ export default function MarkdownContentCore({
   }, [content, hasContent]);
 
   useEffect(() => {
-    if (!containerRef.current) {
+    if (!containerRef.current || !sanitizedHtml) {
       return;
     }
 
@@ -246,6 +249,7 @@ export default function MarkdownContentCore({
         '[&_hr]:border-border-subtle [&_hr]:my-200',
         className,
       )}
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: DOMPurify sanitize + post-processing을 거친 HTML만 렌더링한다.
       dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
     />
   );

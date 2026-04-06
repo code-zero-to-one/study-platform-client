@@ -76,6 +76,8 @@ export const mapCommunityQnaQuestionSummary = (
   revision: response.revision,
   title: response.title,
   excerpt: response.excerpt ?? '',
+  previewImage: response.previewImageUrl ?? undefined,
+  previewImageAlt: response.previewImageAlt ?? undefined,
   author: mapCommunityQnaAuthor(response.author),
   stats: {
     viewCount: response.stats.viewCount,
@@ -96,6 +98,8 @@ export const mapCommunityQnaQuestionDetail = (
   title: response.title,
   contentHtml: response.contentHtml,
   excerpt: response.excerpt ?? '',
+  previewImage: response.previewImageUrl ?? undefined,
+  previewImageAlt: response.previewImageAlt ?? undefined,
   author: mapCommunityQnaAuthor(response.author),
   stats: {
     viewCount: response.stats.viewCount,

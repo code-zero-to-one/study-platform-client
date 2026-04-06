@@ -31,6 +31,8 @@ export interface CommunityQnaQuestionSummaryApiResponse {
   revision: number;
   title: string;
   excerpt: string;
+  previewImageUrl?: string | null;
+  previewImageAlt?: string | null;
   author: CommunityQnaAuthorApiResponse;
   stats: CommunityQnaQuestionStatsApiResponse;
   accepted: boolean;
@@ -45,6 +47,8 @@ export interface CommunityQnaQuestionDetailApiResponse {
   title: string;
   contentHtml: string;
   excerpt: string;
+  previewImageUrl?: string | null;
+  previewImageAlt?: string | null;
   author: CommunityQnaAuthorApiResponse;
   stats: CommunityQnaQuestionStatsApiResponse;
   acceptedAnswerId?: number | null;

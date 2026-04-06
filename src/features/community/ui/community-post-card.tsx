@@ -43,6 +43,7 @@ export default function CommunityPostCard({
   };
 
   return (
+    /* biome-ignore lint/a11y/useKeyWithClickEvents: 카드 내부에 상세 링크와 소유자 액션이 함께 있어 기존 전체 클릭 패턴을 유지한다. */
     <article
       className="flex h-full cursor-pointer flex-col rounded-200 border border-border-default bg-background-default p-250"
       onClick={handleCardClick}
@@ -116,8 +117,8 @@ export default function CommunityPostCard({
             alt={post.previewImageAlt ?? post.title}
             width={1200}
             height={800}
+            sizes="(max-width: 767px) 100vw, 50vw"
             className="h-auto w-full"
-            unoptimized
           />
         </Link>
       ) : null}
