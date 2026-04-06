@@ -32,6 +32,25 @@ interface CommunityPostContentSectionProps {
   title: string;
 }
 
+const buildCommunityParagraphItems = (
+  postId: number,
+  content: readonly string[],
+) => {
+  const paragraphCounts = new Map<string, number>();
+
+  return content.map((paragraph) => {
+    const baseKey = `${postId}-${paragraph.slice(0, 48)}-${paragraph.length}`;
+    const occurrence = (paragraphCounts.get(baseKey) ?? 0) + 1;
+
+    paragraphCounts.set(baseKey, occurrence);
+
+    return {
+      key: `${baseKey}-${occurrence}`,
+      paragraph,
+    };
+  });
+};
+
 const CommunityPostContentSection = memo(function CommunityPostContentSection({
   content,
   contentHtml,
@@ -41,6 +60,7 @@ const CommunityPostContentSection = memo(function CommunityPostContentSection({
   title,
 }: CommunityPostContentSectionProps) {
   const hasRichContent = Boolean(contentHtml?.trim());
+  const paragraphItems = buildCommunityParagraphItems(postId, content);
 
   return (
     <CommunitySectionShell className="gap-300">
@@ -61,9 +81,9 @@ const CommunityPostContentSection = memo(function CommunityPostContentSection({
         <CommunityMarkdownContent content={contentHtml ?? ''} />
       ) : (
         <div className="flex flex-col gap-250">
-          {content.map((paragraph) => (
+          {paragraphItems.map(({ key, paragraph }) => (
             <p
-              key={`${postId}-${paragraph.slice(0, 48)}-${paragraph.length}`}
+              key={key}
               className="font-designer-16r leading-300 text-text-default"
             >
               {paragraph}
