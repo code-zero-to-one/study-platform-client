@@ -54,7 +54,7 @@ const ROLE_META: Record<
 > = {
   [COMMUNITY_MEMBER_ROLE.NEWCOMER]: {
     color: 'gray',
-    label: '일반인',
+    label: 'IT문자',
   },
   [COMMUNITY_MEMBER_ROLE.DEVELOPER]: {
     color: 'blue',
