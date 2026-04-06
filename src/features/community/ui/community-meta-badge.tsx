@@ -48,8 +48,9 @@ const BOARD_META: Record<
 export const getCommunityBoardMeta = (board: CommunityPostBoard) =>
   BOARD_META[board];
 
-const ROLE_META: Record<
-  CommunityMemberRole,
+const COMMUNITY_ROLE_BADGE_META: Record<
+  | typeof COMMUNITY_MEMBER_ROLE.NEWCOMER
+  | typeof COMMUNITY_MEMBER_ROLE.DEVELOPER,
   { color: BadgeColor; label: string }
 > = {
   [COMMUNITY_MEMBER_ROLE.NEWCOMER]: {
@@ -60,18 +61,17 @@ const ROLE_META: Record<
     color: 'blue',
     label: '개발자',
   },
-  [COMMUNITY_MEMBER_ROLE.MENTOR]: {
-    color: 'orange',
-    label: '멘토',
-  },
-  [COMMUNITY_MEMBER_ROLE.UNKNOWN]: {
-    color: 'gray',
-    label: '사용자',
-  },
 } as const;
 
+const COMMUNITY_DEVELOPER_ROLE_SET = new Set<CommunityMemberRole>([
+  COMMUNITY_MEMBER_ROLE.DEVELOPER,
+  COMMUNITY_MEMBER_ROLE.MENTOR,
+]);
+
 export const getCommunityRoleMeta = (role: CommunityMemberRole) =>
-  ROLE_META[role];
+  COMMUNITY_DEVELOPER_ROLE_SET.has(role)
+    ? COMMUNITY_ROLE_BADGE_META[COMMUNITY_MEMBER_ROLE.DEVELOPER]
+    : COMMUNITY_ROLE_BADGE_META[COMMUNITY_MEMBER_ROLE.NEWCOMER];
 
 export function CommunityBoardBadge({
   board,
