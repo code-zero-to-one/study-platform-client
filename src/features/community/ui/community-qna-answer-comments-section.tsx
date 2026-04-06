@@ -14,12 +14,14 @@ interface CommunityQnaAnswerCommentsSectionProps {
   answer: CommunityQnaAnswerItem;
   onRefetchQuestionDetail: () => Promise<unknown>;
   questionId: number;
+  viewerImage: string;
 }
 
 export default function CommunityQnaAnswerCommentsSection({
   answer,
   onRefetchQuestionDetail,
   questionId,
+  viewerImage,
 }: CommunityQnaAnswerCommentsSectionProps) {
   const { state, actions, viewModel } = useCommunityQnaAnswerCommentsController(
     {
@@ -46,35 +48,32 @@ export default function CommunityQnaAnswerCommentsSection({
         </button>
 
         {state.isExpanded ? (
-          <div className="flex flex-col gap-150 rounded-200 bg-fill-static-default p-200">
+          <div className="flex flex-col gap-250">
             {answer.viewer.canComment ? (
               <div className="flex flex-col gap-100">
                 <CommunityCommentForm
-                  authorImage=""
+                  authorImage={viewerImage}
                   placeholder="이 답변에 댓글을 남겨보세요."
                   submitLabel="댓글 등록"
                   value={viewModel.createDraft}
                   onChange={actions.handleCreateDraftChange}
                   onSubmit={actions.handleSubmitComment}
                   disabled={state.isSubmitting}
-                  isCompact={true}
                 />
                 <FieldErrorText message={viewModel.createError} />
               </div>
             ) : (
-              <p className="font-designer-14r text-text-subtle">
+              <p className="py-300 font-designer-14r text-text-subtle">
                 로그인 후 답변 댓글을 작성할 수 있습니다.
               </p>
             )}
 
             {state.isLoading ? (
-              <div className="rounded-200 border border-border-default bg-background-default p-250">
-                <p className="font-designer-14r text-text-subtle">
-                  답변 댓글을 불러오는 중입니다.
-                </p>
-              </div>
+              <p className="py-300 font-designer-14r text-text-subtle">
+                답변 댓글을 불러오는 중입니다.
+              </p>
             ) : viewModel.errorMessage ? (
-              <div className="flex flex-col gap-150 rounded-200 border border-border-default bg-background-default p-250">
+              <div className="flex flex-col gap-150 py-300">
                 <p className="font-designer-14r text-text-subtle">
                   {viewModel.errorMessage}
                 </p>
@@ -90,17 +89,16 @@ export default function CommunityQnaAnswerCommentsSection({
                 </div>
               </div>
             ) : state.comments.length === 0 ? (
-              <div className="rounded-200 border border-border-default bg-background-default p-250">
-                <p className="font-designer-14r text-text-subtle">
-                  아직 답변 댓글이 없습니다.
-                </p>
-              </div>
+              <p className="py-300 font-designer-14r text-text-subtle">
+                아직 답변 댓글이 없습니다. 첫 댓글을 남겨보세요.
+              </p>
             ) : (
               <div className="flex flex-col gap-150">
                 {state.comments.map((comment) => (
                   <CommunityQnaCommentItem
                     key={comment.id}
                     comment={comment}
+                    viewerImage={viewerImage}
                     editError={
                       state.editingCommentId === comment.id
                         ? viewModel.editError
