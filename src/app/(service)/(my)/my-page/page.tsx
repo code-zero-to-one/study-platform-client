@@ -4,14 +4,14 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 import Link from 'next/link';
+import {
+  SERVER_USER_PROFILE_RESULT_KINDS,
+  tryGetUserProfileInServer,
+} from '@/api/endpoints/user/get-user-profile.server';
 import Button from '@/components/common/ui/button';
 import Profile from '@/components/my-page/profile';
 import ProfileInfo from '@/components/my-page/profile-info';
 import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
-import {
-  SERVER_USER_PROFILE_RESULT_KINDS,
-  tryGetUserProfileInServer,
-} from '@/features/auth/model/server-user-profile-result';
 import type { GetUserProfileResponse } from '@/types/api/user.types';
 
 export default async function MyPage() {

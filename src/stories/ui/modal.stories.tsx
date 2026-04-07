@@ -26,12 +26,7 @@ export const Default: Story = {
             <Modal.Body>Modal Body</Modal.Body>
             <Modal.Footer className="flex justify-end">
               <Modal.Close asChild>
-                <button
-                  className="cursor-pointer"
-                  onClick={() => {
-                    console.log('확인 요청하기');
-                  }}
-                >
+                <button className="cursor-pointer" onClick={() => {}}>
                   확인
                 </button>
               </Modal.Close>

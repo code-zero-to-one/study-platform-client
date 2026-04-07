@@ -27,6 +27,8 @@ export const addStudyReview = async (data: AddStudyReviewRequest) => {
   return res.data.content;
 };
 
+const baseReviewURL = `/study/reviews/members/keywords`;
+
 export const getUserPositiveKeywords = async ({
   memberId,
   pageSize,
@@ -40,10 +42,7 @@ export const getUserPositiveKeywords = async ({
     params['page-size'] = pageSize;
   }
 
-  const res = await axiosInstance.get(
-    '/study/reviews/members/keywords/positive',
-    { params },
-  );
+  const res = await axiosInstance.get(`${baseReviewURL}/positive`, { params });
 
   return res.data.content;
 };
@@ -57,19 +56,17 @@ export const getMyNegativeKeywords = async ({
     params['page-size'] = pageSize;
   }
 
-  const res = await axiosInstance.get(
-    '/study/reviews/members/keywords/negative',
-    { params },
-  );
+  const res = await axiosInstance.get(`${baseReviewURL}/negative`, { params });
 
   return res.data.content;
 };
 
 export const getMyReviews = async ({
   cursor,
+  pageSize = 10,
 }: MyReviewsRequest): Promise<MyReviewsResponse> => {
   const params: Record<string, number> = {
-    'page-size': 10,
+    'page-size': pageSize,
   };
 
   // cursor 전송하지 않는 경우 첫 데이터부터 조회

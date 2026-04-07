@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: '/mentoring', loginRequired: false, label: '1:1 멘토링' },
   { href: '/group-study', loginRequired: false, label: '그룹스터디' },
   { href: '/premium-study', loginRequired: false, label: '멘토스터디' },
+  { href: '/community', loginRequired: false, label: '커뮤니티' },
   { href: '/insights', loginRequired: false, label: '인사이트' },
 ];
 

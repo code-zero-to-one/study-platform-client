@@ -83,7 +83,7 @@ function SidebarItem({
   onClick: () => void;
 }) {
   return (
-    <div className="flex py-175 pr-150 pl-150">
+    <div className="flex py-[14px] pr-150 pl-150">
       <button
         type="button"
         onClick={onClick}

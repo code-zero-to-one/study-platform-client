@@ -96,16 +96,17 @@ const createOverriddenServerAuthSession = (
 
 const readCookieBackedServerAuthSession =
   async (): Promise<ServerAuthSession> => {
-    const [accessToken, memberId] = await Promise.all([
+    const [accessToken, memberId, refreshToken] = await Promise.all([
       getServerCookie(AUTH_COOKIE_NAMES.ACCESS_TOKEN),
       getServerCookie(AUTH_COOKIE_NAMES.MEMBER_ID),
+      getServerCookie(AUTH_COOKIE_NAMES.REFRESH_TOKEN),
     ]);
     const decodedToken = decodeServerTokenSafely(accessToken);
     const { sessionState, resolvedMemberId } = resolveTokenBackedSession({
       accessToken,
       memberId,
       decodedToken,
-      allowExpiredTokenRecovery: true,
+      allowExpiredTokenRecovery: Boolean(refreshToken),
     });
 
     return createServerAuthSession({

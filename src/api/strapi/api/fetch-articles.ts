@@ -55,10 +55,31 @@ export interface Category {
   publishedAt: string;
 }
 
-// 전체 아티클 목록 조회
-export async function fetchArticles(categorySlug?: string) {
+// 카테고리 탭 노출 순서 (slug 기준, 앞에 없는 항목은 뒤로 정렬)
+const CATEGORY_SLUG_ORDER = [
+  'insight-wrap',
+  'career-boost',
+  'named-recipe',
+  'patch-note',
+];
+
+interface FetchArticlesParams {
+  categorySlug?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+// 전체 아티클 목록 조회 (최신 publishedAt 내림차순, 카테고리 slug로 필터링 가능)
+export async function fetchArticles({
+  categorySlug,
+  page = 1,
+  pageSize = 10,
+}: FetchArticlesParams = {}) {
   const query = new URLSearchParams();
   query.append('populate', '*');
+  query.append('sort', 'publishedAt:desc');
+  query.append('pagination[page]', String(page));
+  query.append('pagination[pageSize]', String(pageSize));
 
   if (categorySlug) {
     query.append('filters[category][slug][$eq]', categorySlug);
@@ -71,9 +92,20 @@ export async function fetchArticles(categorySlug?: string) {
 
 // 카테고리 목록 조회
 export async function fetchCategories() {
-  return strapiFetch<StrapiCollectionResponse<Category>>(
+  const res = await strapiFetch<StrapiCollectionResponse<Category>>(
     '/api/categories?populate=*',
   );
+
+  const sorted = [...res.data].sort((a, b) => {
+    const ai = CATEGORY_SLUG_ORDER.indexOf(a.slug);
+    const bi = CATEGORY_SLUG_ORDER.indexOf(b.slug);
+    const aOrder = ai === -1 ? Infinity : ai;
+    const bOrder = bi === -1 ? Infinity : bi;
+
+    return aOrder - bOrder;
+  });
+
+  return { ...res, data: sorted };
 }
 
 // 특정 slug로 아티클 조회

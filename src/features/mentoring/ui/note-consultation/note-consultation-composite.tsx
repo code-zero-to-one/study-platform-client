@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { MessageCircle, Paperclip, Search, SendHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import { MENTORING_REQUEST_STATUS_META } from '@/features/mentoring/model/management-status-meta';
@@ -33,11 +34,12 @@ function UserAvatar({
 
   return (
     <div
-      className={`flex h-44 w-44 shrink-0 items-center justify-center rounded-full ${
+      className={cn(
+        'flex h-44 w-44 shrink-0 items-center justify-center rounded-full',
         color === 'brand'
           ? 'bg-fill-brand-subtle-default text-text-brand'
-          : 'bg-fill-neutral-default-default text-text-subtle'
-      }`}
+          : 'bg-fill-neutral-default-default text-text-subtle',
+      )}
     >
       <span className="font-designer-16b">{initial}</span>
     </div>
@@ -59,11 +61,12 @@ function RequestListCard({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-150 w-full px-175 py-175 text-left transition-colors ${
+      className={cn(
+        'rounded-150 w-full px-175 py-175 text-left transition-colors',
         selected
           ? 'bg-fill-brand-subtle-default'
-          : 'hover:bg-background-alternative'
-      }`}
+          : 'hover:bg-background-alternative',
+      )}
     >
       <div className="flex items-start gap-150">
         <UserAvatar name={item.displayName} />
@@ -86,9 +89,6 @@ function RequestListCard({
             {isUnreadLike && (
               <span className="bg-fill-brand-default-default text-text-inverse font-designer-11m inline-flex h-20 min-w-[20px] shrink-0 items-center justify-center rounded-full px-50">
                 {item.mentorReplyCount}
-                <p className="font-designer-11m text-text-subtlest mt-25 truncate">
-                  {item.displayRole || '상담 참여자'}
-                </p>
               </span>
             )}
           </div>
@@ -384,22 +384,24 @@ export function NoteConsultationFilters({
         <button
           type="button"
           onClick={() => onActiveChannelChange('sent')}
-          className={`font-designer-13m rounded-75 h-36 flex-1 ${
+          className={cn(
+            'font-designer-13m rounded-75 h-36 flex-1',
             activeChannel === 'sent'
               ? 'bg-fill-brand-subtle-default text-text-brand'
-              : 'text-text-subtle'
-          }`}
+              : 'text-text-subtle',
+          )}
         >
           내가 신청한 상담
         </button>
         <button
           type="button"
           onClick={() => onActiveChannelChange('received')}
-          className={`font-designer-13m rounded-75 h-36 flex-1 ${
+          className={cn(
+            'font-designer-13m rounded-75 h-36 flex-1',
             activeChannel === 'received'
               ? 'bg-fill-brand-subtle-default text-text-brand'
-              : 'text-text-subtle'
-          }`}
+              : 'text-text-subtle',
+          )}
         >
           받은 쪽지 신청
         </button>

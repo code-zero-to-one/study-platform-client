@@ -18,6 +18,7 @@ import {
   MENTOR_CAREER_ENTRY_MAX_COUNT,
   WEEKDAY_KEYS,
 } from '@/types/mentoring/settings';
+import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
 
 export const MENTORING_TITLE_MIN_LENGTH = 10;
 export const MENTORING_TITLE_MAX_LENGTH = 40;
@@ -29,7 +30,7 @@ export const CAREER_ENTRY_MAX_COUNT = MENTOR_CAREER_ENTRY_MAX_COUNT;
 export const MAJOR_HISTORY_ENTRY_MAX_LENGTH = 60;
 export const SCHEDULE_DAY_MAX_SLOT_COUNT = 48;
 export const MENTOR_DESCRIPTION_MIN_LENGTH = 30;
-export const MENTOR_DESCRIPTION_MAX_LENGTH = 30_000;
+export const MENTOR_DESCRIPTION_MAX_LENGTH = 5_000;
 export const INTERVIEW_QUESTION_MIN_LENGTH = 8;
 export const INTERVIEW_QUESTION_MAX_LENGTH = 120;
 export const INTERVIEW_QUESTION_MAX_COUNT = 8;
@@ -356,14 +357,7 @@ export const mentorRegistrationSchema = z
     scheduleDrafts: scheduleDraftsSchema.default(
       createEmptyMentorScheduleDrafts,
     ),
-    detailedDescription: z
-      .string()
-      .trim()
-      .max(
-        MENTOR_DESCRIPTION_MAX_LENGTH,
-        `멘토 소개는 ${MENTOR_DESCRIPTION_MAX_LENGTH.toLocaleString()}자 이하로 입력해주세요.`,
-      )
-      .default(''),
+    detailedDescription: z.string().trim().default(''),
     interviewQuestions: z
       .array(
         z
@@ -391,6 +385,9 @@ export const mentorRegistrationSchema = z
   .superRefine((values, ctx) => {
     const normalizedDescription = normalizeMentorMarkdownContent(
       values.detailedDescription,
+    );
+    const mentorDescriptionVisibleTextLength = getRichContentVisibleTextLength(
+      normalizedDescription,
     );
     const validateEnabledPriceRange = ({
       enabled,
@@ -422,12 +419,13 @@ export const mentorRegistrationSchema = z
 
     if (
       normalizedDescription.length > 0 &&
-      normalizedDescription.length < MENTOR_DESCRIPTION_MIN_LENGTH
+      (mentorDescriptionVisibleTextLength < MENTOR_DESCRIPTION_MIN_LENGTH ||
+        mentorDescriptionVisibleTextLength > MENTOR_DESCRIPTION_MAX_LENGTH)
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['detailedDescription'],
-        message: `멘토 소개는 ${MENTOR_DESCRIPTION_MIN_LENGTH}자 이상 입력해주세요.`,
+        message: `멘토 소개는 보이는 글자수 기준 ${MENTOR_DESCRIPTION_MIN_LENGTH.toLocaleString()}자 이상 ${MENTOR_DESCRIPTION_MAX_LENGTH.toLocaleString()}자 이하여야 합니다.`,
       });
     }
 

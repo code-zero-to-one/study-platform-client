@@ -21,8 +21,8 @@ interface GroupStudyReviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   groupStudyId: number;
-  detailInfo: Pick<GroupStudyDetailInfoResponseDto, 'title'>;
-  basicInfo: Pick<GroupStudyBasicInfoResponseDto, 'startDate' | 'endDate'>;
+  detailInfo: GroupStudyDetailInfoResponseDto;
+  basicInfo: GroupStudyBasicInfoResponseDto;
   onSubmitSuccess?: () => void;
 }
 
@@ -48,6 +48,7 @@ export default function GroupStudyReviewModal({
         <Modal.Overlay />
         <Modal.Content
           onInteractOutside={(e) => e.preventDefault()}
+          mobileFullscreen
           description="스터디 경험 후기 작성"
         >
           <Modal.Header variant="form">

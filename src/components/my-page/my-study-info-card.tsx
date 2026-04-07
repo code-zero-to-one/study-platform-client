@@ -7,34 +7,37 @@ import Button from '@/components/common/ui/button';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 interface MyStudyInfoCardProps extends MemberStudyItem {
-  type: 'GROUP_STUDY';
+  type: 'GROUP_STUDY' | 'MENTOR_STUDY';
 }
 
 export default function MyStudyInfoCard({
   studyId,
+  type,
   thumbnail,
   status,
   startTime,
   endTime,
   participantsCount,
   maxMembersCount,
+  pendingCount,
   studyRole,
   title,
 }: MyStudyInfoCardProps) {
   const startDate = dayjs(startTime).format('YYYY.MM.DD');
   const endDate = endTime ? dayjs(endTime).format('YYYY.MM.DD') : null;
+  const studyHref =
+    type === 'MENTOR_STUDY'
+      ? `/premium-study/${studyId}`
+      : `/group-study/${studyId}`;
 
   return (
     <li className="flex w-full flex-col gap-100">
-      <Link
-        href={`/group-study/${studyId}`}
-        className="flex w-full flex-col gap-100"
-      >
+      <Link href={studyHref} className="flex w-full flex-col gap-100">
         <div className="relative">
           <Image
             src={thumbnail?.resizedImages[0]?.resizedImageUrl ?? undefined}
             alt={`${studyId}`}
-            className={`rounded-100 h-study-card w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
+            className={`rounded-100 h-[244px] w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
             width={244}
             height={210}
           />
@@ -78,14 +81,15 @@ export default function MyStudyInfoCard({
         </div>
       </Link>
 
-      {(status === 'RECRUITING' ||
-        status === 'ENDING_SOON' ||
-        status === 'IN_PROGRESS') &&
+      {!!pendingCount &&
+        (status === 'RECRUITING' ||
+          status === 'ENDING_SOON' ||
+          status === 'IN_PROGRESS') &&
         participantsCount < maxMembersCount &&
         studyRole === 'LEADER' && (
           <Link href={`/application-list/${studyId}`}>
             <Button color="secondary" className="w-full">
-              신청자 N명 확인하기
+              {`신청자 ${pendingCount}명 확인하기`}
             </Button>
           </Link>
         )}

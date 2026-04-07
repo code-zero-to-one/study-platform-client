@@ -68,21 +68,23 @@ export default function GroupStudyListPage() {
     <div className="mx-auto w-full max-w-7xl px-400 py-600">
       {/* 미작성 후기 모달 — 완료된 스터디 후기를 아직 작성하지 않은 경우 자동으로 열림 */}
       {reviewStudyId && reviewDetailInfo && reviewBasicInfo && (
-        <GroupStudyReviewModal
-          open={showReviewModal}
-          onOpenChange={setShowReviewModal}
-          groupStudyId={reviewStudyId}
-          detailInfo={reviewDetailInfo}
-          basicInfo={reviewBasicInfo}
-          onSubmitSuccess={() =>
-            setTimeout(() => setShowCompletionModal(true), 300)
-          }
-        />
+        <>
+          <GroupStudyReviewModal
+            open={showReviewModal}
+            onOpenChange={setShowReviewModal}
+            groupStudyId={reviewStudyId}
+            detailInfo={reviewDetailInfo}
+            basicInfo={reviewBasicInfo}
+            onSubmitSuccess={() =>
+              setTimeout(() => setShowCompletionModal(true), 300)
+            }
+          />
+          <StudyCompletionModal
+            open={showCompletionModal}
+            onOpenChange={setShowCompletionModal}
+          />
+        </>
       )}
-      <StudyCompletionModal
-        open={showCompletionModal}
-        onOpenChange={setShowCompletionModal}
-      />
 
       {/* 배너 */}
       <div className="mb-600">

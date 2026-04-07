@@ -146,12 +146,11 @@ export default function SignupModal({
           return;
         }
 
-        if (signupData.file) {
+        if (signupData.file && content?.uploadUrl) {
           const formData = new FormData();
           formData.append('file', signupData.file);
           uploadProfileImage.mutate({
-            memberId: Number(memberId),
-            filename: `profile-${memberId}`,
+            uploadUrl: content.uploadUrl,
             file: formData,
           });
         }
@@ -273,6 +272,7 @@ export default function SignupModal({
               <div className="flex items-center justify-between">
                 {currentStepIndex > 0 ? (
                   <button
+                    type="button"
                     onClick={handleBack}
                     className="rounded-100 hover:bg-fill-neutral-default-default text-text-subtle p-100 transition-colors"
                   >
