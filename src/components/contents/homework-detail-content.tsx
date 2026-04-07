@@ -181,7 +181,9 @@ function PeerReviewSection({
   const handleSubmitReview = () => {
     if (!reviewText.trim()) return;
 
-    if (isHydrated && !isAuthenticated) {
+    if (!isHydrated) return;
+
+    if (!isAuthenticated) {
       loginTriggerRef.current?.click();
 
       return;
@@ -213,9 +215,9 @@ function PeerReviewSection({
         {/* 피어 리뷰 목록 */}
         {peerReviews.length > 0 && (
           <div className="flex flex-col gap-200">
-            {peerReviews.map((review) => (
+            {peerReviews.map((review, index) => (
               <PeerReviewItem
-                key={review.peerReviewId}
+                key={review.peerReviewId ?? index}
                 review={review}
                 homeworkId={homeworkId}
               />
