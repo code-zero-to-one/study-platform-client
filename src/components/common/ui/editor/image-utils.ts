@@ -297,7 +297,13 @@ export const getImageFileNormalizationErrorMessage = (
  * toImageInputAccept(['jpg', 'png', 'webp']) // '.jpg,.png,.webp'
  */
 export const toImageInputAccept = (extensions: readonly string[]) => {
-  return extensions.map((extension) => `.${extension}`).join(',');
+  const mimeTypes = Object.entries(IMAGE_EXTENSION_BY_MIME)
+    .filter(([, ext]) => extensions.includes(ext))
+    .map(([mime]) => mime);
+
+  const extensionParts = extensions.map((extension) => `.${extension}`);
+
+  return [...mimeTypes, ...extensionParts].join(',');
 };
 
 /**
