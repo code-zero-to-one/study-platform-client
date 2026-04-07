@@ -9,6 +9,7 @@ import { buildCommunityListHref } from '@/features/community/model/community-rou
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
 import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
 import { useUserStore } from '@/stores/useUserStore';
+import type { CommunityBoard } from '@/types/community/domain';
 import CommunityAuthorNameTrigger from '../community-author-name-trigger';
 import CommunityCommentSection from '../community-comment-section';
 import CommunityDetailBodySection from '../community-detail-body-section';
@@ -23,11 +24,13 @@ import CommunitySectionShell from '../community-section-shell';
 
 interface CommunityDetailPageClientProps {
   postId: number;
+  returnBoard?: CommunityBoard;
   returnPage?: number;
 }
 
 export default function CommunityDetailPageClient({
   postId,
+  returnBoard,
   returnPage,
 }: CommunityDetailPageClientProps) {
   const { state, actions, viewModel } = useCommunityDetailController({
@@ -35,7 +38,7 @@ export default function CommunityDetailPageClient({
   });
   const viewerImage = useUserStore((store) => store.profileImageUrl);
   const [isFeedVisible, setIsFeedVisible] = useState(false);
-  const backHref = buildCommunityListHref(returnPage);
+  const backHref = buildCommunityListHref(returnPage, returnBoard);
   const feedTriggerRef = useIntersectionObserver(
     () => {
       setIsFeedVisible(true);

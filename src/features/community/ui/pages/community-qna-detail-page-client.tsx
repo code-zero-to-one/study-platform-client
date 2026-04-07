@@ -8,7 +8,7 @@ import Pagination from '@/components/common/ui/pagination';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityQnaDetailController } from '@/features/community/model/use-community-qna-detail-controller';
 import { useUserStore } from '@/stores/useUserStore';
-import { COMMUNITY_BOARD } from '@/types/community/domain';
+import { COMMUNITY_BOARD, type CommunityBoard } from '@/types/community/domain';
 import { ErrorType } from '@/utils/error-handler';
 import CommunityAuthorNameTrigger from '../community-author-name-trigger';
 import CommunityMarkdownContent from '../community-markdown-content';
@@ -32,6 +32,7 @@ import CommunitySectionShell from '../community-section-shell';
 
 interface CommunityQnaDetailPageClientProps {
   questionId: number;
+  returnBoard?: CommunityBoard;
   returnPage?: number;
   initialAnswerPage?: number;
   initialCommentPage?: number;
@@ -39,6 +40,7 @@ interface CommunityQnaDetailPageClientProps {
 
 export default function CommunityQnaDetailPageClient({
   questionId,
+  returnBoard,
   returnPage,
   initialAnswerPage,
   initialCommentPage,
@@ -49,7 +51,7 @@ export default function CommunityQnaDetailPageClient({
     initialCommentPage,
   });
   const viewerImage = useUserStore((store) => store.profileImageUrl);
-  const backHref = buildCommunityListHref(returnPage);
+  const backHref = buildCommunityListHref(returnPage, returnBoard);
 
   if (!state.isResolved) {
     return <CommunityQnaRouteLoading />;
