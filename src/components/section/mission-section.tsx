@@ -175,7 +175,7 @@ export default function MissionSection({
 
         <MissionDetailContent
           missionId={Number(missionId)}
-          showMyHomework={canAccessAll}
+          showMyHomework={!!canAccessAll}
         />
       </PageContainer>
     );
