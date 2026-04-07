@@ -34,6 +34,7 @@ export default function MyHomeworkStatusCard({
   };
 
   const isSubmissionOpen = mission?.status === 'IN_PROGRESS';
+  const isSubmissionNotOpened = mission?.status === 'NOT_STARTED';
   const isSubmissionEnded = mission?.status === 'ENDED';
 
   if (!myHomework || myHomework.homeworkStatus === 'NOT_SUBMITTED') {
@@ -45,6 +46,9 @@ export default function MyHomeworkStatusCard({
         <div className="border-border-default rounded-100 flex flex-col items-center justify-center gap-200 border py-400">
           <span className="text-text-subtlest font-designer-14r">
             {isSubmissionOpen && '아직 과제를 제출하지 않았습니다.'}
+          </span>
+          <span className="text-text-subtlest font-designer-14r">
+            {isSubmissionNotOpened && '과제 제출 기간이 아닙니다.'}
           </span>
           <span className="text-text-subtlest font-designer-14r">
             {isSubmissionEnded && '제출 기간이 종료되었습니다.'}
