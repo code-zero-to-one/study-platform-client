@@ -115,10 +115,12 @@ export const useCommunityQnaDetailController = ({
     : viewer.myAnswerId
       ? myAnswer
         ? '이미 답변을 작성했습니다. 내 답변 수정 또는 삭제를 진행할 수 있습니다.'
-        : '이미 답변을 작성했지만 현재 페이지에 내 답변이 없습니다. 페이지를 이동해 확인해 주세요.'
+        : '이미 답변을 작성했습니다.'
       : viewer.canCreateAnswer
         ? '이 질문에 답변을 남겨 보세요.'
-        : '개발자 등록 사용자만 답변을 작성할 수 있습니다.';
+        : viewer.canAcceptAnswer
+          ? undefined
+          : '개발자 등록 사용자만 답변을 작성할 수 있습니다.';
 
   return {
     state: {

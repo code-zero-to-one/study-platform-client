@@ -59,6 +59,8 @@ export const COMMUNITY_QNA_API_ERROR_CODE = {
   IDEMPOTENCY_KEY_CONFLICT: 'CMQ007',
   QUESTION_NOT_FOUND: 'CMQ003',
   QUESTION_REVISION_CONFLICT: 'CMQ006',
+  SELF_ANSWER_NOT_ALLOWED: 'CMQ015',
+  SELF_ACCEPTANCE_NOT_ALLOWED: 'CMQ016',
 } as const;
 
 const COMMUNITY_QNA_DUPLICATE_ANSWER_MESSAGE_PATTERN =
@@ -192,6 +194,20 @@ export const getCommunityQnaAnswerRevisionConflictMessage = () => {
 
 export const getCommunityQnaCommentRevisionConflictMessage = () => {
   return '다른 탭에서 먼저 수정되어 최신 댓글 내용을 다시 불러왔습니다. 내용을 확인한 뒤 다시 저장해 주세요.';
+};
+
+export const isCommunityQnaSelfAnswerError = (error: unknown) => {
+  return (
+    getCommunityQnaApiErrorCode(error) ===
+    COMMUNITY_QNA_API_ERROR_CODE.SELF_ANSWER_NOT_ALLOWED
+  );
+};
+
+export const isCommunityQnaSelfAcceptanceError = (error: unknown) => {
+  return (
+    getCommunityQnaApiErrorCode(error) ===
+    COMMUNITY_QNA_API_ERROR_CODE.SELF_ACCEPTANCE_NOT_ALLOWED
+  );
 };
 
 export const getCommunityQnaQuestions = async (

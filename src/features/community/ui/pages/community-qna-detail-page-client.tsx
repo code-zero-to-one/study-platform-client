@@ -169,9 +169,11 @@ export default function CommunityQnaDetailPageClient({
                     ({viewModel.answerCount})
                   </span>
                 </p>
-                <p className="font-designer-14r text-text-subtle">
-                  {viewModel.answerCtaDescription}
-                </p>
+                {viewModel.answerCtaDescription ? (
+                  <p className="font-designer-14r text-text-subtle">
+                    {viewModel.answerCtaDescription}
+                  </p>
+                ) : null}
               </div>
               {headerAction}
             </div>
@@ -182,18 +184,23 @@ export default function CommunityQnaDetailPageClient({
               <div className="flex flex-col gap-150">
                 {state.answersPageData.items.map((answer) => {
                   const isMyAnswer = viewModel.myAnswerId === answer.id;
+                  const isSelfAnswer =
+                    answer.author.memberId !== undefined &&
+                    answer.author.memberId === state.question.author.memberId;
+                  const canAcceptThisAnswer =
+                    state.viewer.canAcceptAnswer && !isSelfAnswer;
 
                   return (
                     <CommunityQnaAnswerItem
                       key={answer.id}
                       answer={answer}
                       actionSlot={
-                        isMyAnswer || state.viewer.canAcceptAnswer ? (
+                        isMyAnswer || canAcceptThisAnswer ? (
                           <div className="flex flex-wrap items-center justify-end gap-75">
                             {isMyAnswer ? myAnswerAction : null}
                             <CommunityQnaAnswerAcceptanceActions
                               answer={answer}
-                              canAcceptAnswer={state.viewer.canAcceptAnswer}
+                              canAcceptAnswer={canAcceptThisAnswer}
                               currentAcceptedAnswerId={
                                 state.question.acceptedAnswerId
                               }
