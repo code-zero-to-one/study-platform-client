@@ -4,7 +4,10 @@ import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useRef, useState } from 'react';
 
-import type { PeerReviewResponse } from '@/api/openapi/models';
+import type {
+  EvaluationResponse,
+  PeerReviewResponse,
+} from '@/api/openapi/models';
 import LoginModal from '@/components/common/modals/login-modal';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
@@ -18,7 +21,6 @@ import {
   useDeletePeerReview,
   useUpdatePeerReview,
 } from '@/hooks/queries/peer-review-api';
-
 import { useUserStore } from '@/stores/useUserStore';
 
 import { formatExternalLink } from '@/utils/format';
@@ -38,14 +40,21 @@ const EditHomeworkModal = dynamic(
   { ssr: false },
 );
 
+const CreateEvaluationModal = dynamic(
+  () => import('@/components/common/modals/create-evaluation-modal'),
+  { ssr: false },
+);
+
 interface HomeworkDetailContentProps {
   missionId: number;
   homeworkId: number;
+  showLeaderEvaluation?: boolean;
 }
 
 export default function HomeworkDetailContent({
   homeworkId,
   missionId,
+  showLeaderEvaluation,
 }: HomeworkDetailContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -150,6 +159,13 @@ export default function HomeworkDetailContent({
           </div>
         )}
       </div>
+
+      {showLeaderEvaluation && mission.status === 'ENDED' && (
+        <LeaderEvaluationSection
+          evaluation={homework.evaluation}
+          homeworkId={homeworkId}
+        />
+      )}
 
       {/* 피어 리뷰 */}
       <PeerReviewSection
@@ -436,6 +452,52 @@ function PeerReviewInput({
         >
           {isLoading ? '등록 중...' : '등록'}
         </Button>
+      </div>
+    </div>
+  );
+}
+
+interface LeaderEvaluationSectionProps {
+  evaluation?: EvaluationResponse;
+  homeworkId: number;
+}
+
+function LeaderEvaluationSection({
+  evaluation,
+  homeworkId,
+}: LeaderEvaluationSectionProps) {
+  return (
+    <div className="flex flex-col gap-200">
+      <span className="font-designer-18b text-text-default">리더 평가</span>
+
+      <div className="border-border-default rounded-100 flex flex-col items-center justify-center gap-200 border p-400">
+        {evaluation ? (
+          <div className="flex w-full flex-col gap-200">
+            <div className="flex items-center gap-200">
+              <span className="font-designer-14b text-text-default">
+                평가 등급
+              </span>
+              <span className="text-text-brand font-designer-16b">
+                {evaluation.grade?.gradeLabel ?? '-'}
+              </span>
+            </div>
+            <div className="flex flex-col gap-100">
+              <span className="font-designer-14b text-text-default">
+                평가 코멘트
+              </span>
+              <p className="text-text-default font-designer-14r wrap-anywhere whitespace-pre-wrap">
+                {evaluation.comment?.trim() ? evaluation.comment : '-'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <span className="text-text-subtlest font-designer-14r">
+              아직 평가하지 않은 과제입니다.
+            </span>
+            <CreateEvaluationModal homeworkId={homeworkId} />
+          </>
+        )}
       </div>
     </div>
   );

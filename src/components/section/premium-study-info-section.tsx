@@ -8,7 +8,6 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
-import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 import { useIsLeader } from '@/stores/useLeaderStore';
@@ -20,6 +19,11 @@ import SummaryStudyInfo from '../summary/study-info-summary';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
+
+const MarkdownContent = dynamic(
+  () => import('@/components/common/ui/editor/markdown-content'),
   { ssr: false },
 );
 

@@ -107,6 +107,8 @@ export const createCommunityIdempotencyKey = (scope: string) => {
   return `${scope}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
+const hasKoreanText = (text: string) => /[가-힣]/.test(text);
+
 export const getCommunityErrorMessage = (
   error: unknown,
   fallbackMessage: string,
@@ -114,7 +116,15 @@ export const getCommunityErrorMessage = (
   const apiError = getCommunityApiError(error);
 
   if (apiError) {
-    return apiError.message;
+    if (apiError.statusCode >= 500) {
+      return fallbackMessage;
+    }
+
+    if (hasKoreanText(apiError.message)) {
+      return apiError.message;
+    }
+
+    return fallbackMessage;
   }
 
   if (error instanceof Error && error.message) {
