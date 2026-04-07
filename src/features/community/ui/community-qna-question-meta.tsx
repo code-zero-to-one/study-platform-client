@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Eye, MessageCircle } from 'lucide-react';
+import { CheckCircle2, Eye, Heart, MessageCircle } from 'lucide-react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import type { CommunityQnaQuestionSummary } from '@/types/community/qna-domain';
@@ -61,6 +61,12 @@ export function CommunityQnaQuestionStats({
         <MessageCircle className="h-200 w-200" />
         {formatCompactCount(question.stats.answerCount)}
       </span>
+      {question.stats.likeCount > 0 ? (
+        <span className="flex items-center gap-50">
+          <Heart className="h-200 w-200" />
+          {formatCompactCount(question.stats.likeCount)}
+        </span>
+      ) : null}
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   type CommunityQnaQuestionDetailData,
   type CommunityQnaQuestionSummary,
   type CommunityQnaQuestionViewEvent,
+  type CommunityQnaReactionResult,
 } from '@/types/community/qna-domain';
 import { formatKoreaRelativeTime } from '@/utils/time';
 import type {
@@ -35,6 +36,7 @@ import type {
   CommunityQnaQuestionListApiResponse,
   CommunityQnaQuestionSummaryApiResponse,
   CommunityQnaQuestionViewEventApiResponse,
+  CommunityQnaReactionApiResponse,
 } from '../api/community-qna-api.types';
 
 const COMMUNITY_QNA_AUTHOR_FALLBACK_NAME = '알 수 없는 사용자';
@@ -83,6 +85,7 @@ export const mapCommunityQnaQuestionSummary = (
     viewCount: response.stats.viewCount,
     answerCount: response.stats.answerCount,
     questionCommentCount: response.stats.questionCommentCount,
+    likeCount: response.stats.likeCount ?? 0,
   },
   accepted: response.accepted,
   myAnswerExists: response.myAnswerExists,
@@ -105,6 +108,7 @@ export const mapCommunityQnaQuestionDetail = (
     viewCount: response.stats.viewCount,
     answerCount: response.stats.answerCount,
     questionCommentCount: response.stats.questionCommentCount,
+    likeCount: response.stats.likeCount ?? 0,
   },
   acceptedAnswerId: response.acceptedAnswerId ?? undefined,
   createdAt: toDisplayTime(response.createdAt),
@@ -141,12 +145,14 @@ export const mapCommunityQnaAnswerItem = (
   author: mapCommunityQnaAuthor(response.author),
   stats: {
     commentCount: response.stats.commentCount,
+    likeCount: response.stats.likeCount ?? 0,
   },
   isAccepted: response.isAccepted,
   viewer: {
     canEdit: response.viewer.canEdit,
     canDelete: response.viewer.canDelete,
     canComment: response.viewer.canComment,
+    reaction: response.viewer.reaction ?? 'none',
   },
   createdAt: toDisplayTime(response.createdAt),
   updatedAt: response.updatedAt,
@@ -188,6 +194,7 @@ export const mapCommunityQnaQuestionDetailAggregate = (
     canCreateAnswer: response.viewer.canCreateAnswer,
     canAcceptAnswer: response.viewer.canAcceptAnswer,
     myAnswerId: response.viewer.myAnswerId ?? undefined,
+    questionReaction: response.viewer.questionReaction ?? 'none',
   },
   acceptedAnswer: response.acceptedAnswer
     ? mapCommunityQnaAnswerItem(response.acceptedAnswer)
@@ -240,6 +247,13 @@ export const mapCommunityQnaAcceptance = (
   questionId: response.questionId,
   acceptedAnswerId: response.acceptedAnswerId ?? undefined,
   acceptedAt: response.acceptedAt ?? undefined,
+});
+
+export const mapCommunityQnaReactionResult = (
+  response: CommunityQnaReactionApiResponse,
+): CommunityQnaReactionResult => ({
+  likeCount: response.likeCount,
+  reaction: response.reaction,
 });
 
 export const mapCommunityQnaQuestionViewEvent = (

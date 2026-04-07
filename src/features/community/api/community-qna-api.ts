@@ -19,6 +19,7 @@ import type {
   CommunityQnaQuestionListQueryParams,
   CommunityQnaQuestionUpsertRequest,
   CommunityQnaQuestionViewEventApiResponse,
+  CommunityQnaReactionApiResponse,
 } from './community-qna-api.types';
 
 const unwrap = <T>(response: { data: CommunityQnaBaseResponse<T> }) =>
@@ -453,6 +454,28 @@ export const recordCommunityQnaQuestionView = async (questionId: number) => {
   const response = await axiosInstance.post<
     CommunityQnaBaseResponse<CommunityQnaQuestionViewEventApiResponse>
   >(`/community/questions/${questionId}/views`);
+
+  return unwrap(response);
+};
+
+export const assignCommunityQnaQuestionReaction = async (
+  questionId: number,
+  body: { type: string },
+) => {
+  const response = await axiosInstance.post<
+    CommunityQnaBaseResponse<CommunityQnaReactionApiResponse>
+  >(`/community/questions/${questionId}/reactions`, body);
+
+  return unwrap(response);
+};
+
+export const assignCommunityQnaAnswerReaction = async (
+  answerId: number,
+  body: { type: string },
+) => {
+  const response = await axiosInstance.post<
+    CommunityQnaBaseResponse<CommunityQnaReactionApiResponse>
+  >(`/community/answers/${answerId}/reactions`, body);
 
   return unwrap(response);
 };

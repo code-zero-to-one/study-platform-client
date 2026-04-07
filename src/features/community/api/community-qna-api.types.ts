@@ -24,6 +24,7 @@ export interface CommunityQnaQuestionStatsApiResponse {
   viewCount: number;
   answerCount: number;
   questionCommentCount: number;
+  likeCount?: number;
 }
 
 export interface CommunityQnaQuestionSummaryApiResponse {
@@ -63,6 +64,7 @@ export interface CommunityQnaQuestionViewerApiResponse {
   canCreateAnswer: boolean;
   canAcceptAnswer: boolean;
   myAnswerId?: number | null;
+  questionReaction?: string | null;
 }
 
 export interface CommunityQnaCommentApiResponse {
@@ -88,12 +90,14 @@ export interface CommunityQnaAnswerApiResponse {
   author: CommunityQnaAuthorApiResponse;
   stats: {
     commentCount: number;
+    likeCount?: number;
   };
   isAccepted: boolean;
   viewer: {
     canEdit: boolean;
     canDelete: boolean;
     canComment: boolean;
+    reaction?: string | null;
   };
   createdAt: string;
   updatedAt: string;
@@ -184,6 +188,11 @@ export interface CommunityQnaAcceptanceApiResponse {
   questionId: number;
   acceptedAnswerId?: number | null;
   acceptedAt?: string | null;
+}
+
+export interface CommunityQnaReactionApiResponse {
+  likeCount: number;
+  reaction: string;
 }
 
 export interface CommunityQnaQuestionViewEventApiResponse {

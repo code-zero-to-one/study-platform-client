@@ -294,8 +294,10 @@ export const useCommunityDetailController = ({
       try {
         await navigator.share({ title, url });
         return;
-      } catch {
-        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
       }
     }
 
@@ -333,7 +335,6 @@ export const useCommunityDetailController = ({
       comments,
       currentCommentsPage,
       isLikedByViewer: post?.viewerReaction === 'like',
-      isPostReactionEnabled: isAuthenticated,
       reactionCount: post?.reactionCount ?? 0,
       showCommentPagination: totalCommentPages > COMMUNITY_COMMENTS_PAGE,
       totalCommentPages,

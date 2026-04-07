@@ -1,7 +1,8 @@
 'use client';
 
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Eye, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
+import Avatar from '@/components/common/ui/avatar';
 import PageContainer from '@/components/common/ui/page-container';
 import Pagination from '@/components/common/ui/pagination';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
@@ -9,13 +10,16 @@ import { useCommunityQnaDetailController } from '@/features/community/model/use-
 import { useUserStore } from '@/stores/useUserStore';
 import { COMMUNITY_BOARD } from '@/types/community/domain';
 import { ErrorType } from '@/utils/error-handler';
+import CommunityAuthorNameTrigger from '../community-author-name-trigger';
 import CommunityMarkdownContent from '../community-markdown-content';
-import { CommunityBoardBadge } from '../community-meta-badge';
+import {
+  CommunityBoardBadge,
+  CommunityMemberRoleBadge,
+} from '../community-meta-badge';
 import CommunityQnaAnswerAcceptanceActions from '../community-qna-answer-acceptance-actions';
 import CommunityQnaAnswerCommentsSection from '../community-qna-answer-comments-section';
 import CommunityQnaAnswerComposeSection from '../community-qna-answer-compose-section';
 import CommunityQnaAnswerItem from '../community-qna-answer-item';
-import CommunityQnaAuthorSummary from '../community-qna-author-summary';
 import CommunityQnaQuestionCommentsSection from '../community-qna-question-comments-section';
 import CommunityQnaQuestionOwnerActions from '../community-qna-question-owner-actions';
 import {
@@ -23,6 +27,7 @@ import {
   CommunityQnaRouteErrorState,
   CommunityQnaRouteLoading,
 } from '../community-qna-route-fallback';
+import CommunityReactionButton from '../community-reaction-button';
 import CommunitySectionShell from '../community-section-shell';
 
 interface CommunityQnaDetailPageClientProps {
@@ -84,7 +89,7 @@ export default function CommunityQnaDetailPageClient({
 
   return (
     <PageContainer className="flex flex-col gap-400 xl:gap-500">
-      <CommunitySectionShell className="gap-250 border-b border-border-default pb-300">
+      <CommunitySectionShell className="gap-200 border-b border-border-default pb-300">
         <Link
           href={backHref}
           className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
@@ -93,8 +98,35 @@ export default function CommunityQnaDetailPageClient({
           커뮤니티로 돌아가기
         </Link>
 
-        <div className="flex flex-wrap items-center gap-100">
+        <div className="mt-200 self-start">
           <CommunityBoardBadge board={COMMUNITY_BOARD.QNA} showIcon={false} />
+        </div>
+
+        <div className="flex items-start justify-between gap-150">
+          <h1 className="min-w-0 flex-1 font-designer-32b text-text-strong">
+            {state.question.title}
+          </h1>
+          <CommunityQnaQuestionOwnerActions
+            canDelete={state.viewer.canDeleteQuestion}
+            canEdit={state.viewer.canEditQuestion}
+            currentPage={returnPage}
+            questionId={state.question.id}
+            revision={state.question.revision}
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-100 font-designer-14r text-text-subtle">
+          <Avatar
+            image={state.question.author.profileImageUrl}
+            alt={state.question.author.name}
+            size={24}
+          />
+          <CommunityAuthorNameTrigger
+            memberId={state.question.author.memberId}
+            name={state.question.author.name}
+            className="font-designer-14m text-text-default"
+          />
+          <CommunityMemberRoleBadge role={state.question.author.role} />
           {state.question.acceptedAnswerId ? (
             <span className="rounded-full bg-fill-brand-subtle-default px-100 py-50 font-designer-12b text-text-brand">
               채택 완료
@@ -104,40 +136,35 @@ export default function CommunityQnaDetailPageClient({
               답변 대기
             </span>
           )}
-          <span className="font-designer-14r text-text-subtlest">
-            {state.question.createdAt}
+          <span className="text-text-subtlest">·</span>
+          <span>{state.question.createdAt}</span>
+          <span className="text-text-subtlest">·</span>
+          <span className="flex items-center gap-50">
+            <Eye className="h-200 w-200" />
+            {state.question.stats.viewCount}
           </span>
-        </div>
-
-        <div className="flex flex-col gap-200">
-          <div className="flex items-start justify-between gap-150">
-            <h1 className="font-designer-28b text-text-strong">
-              {state.question.title}
-            </h1>
-            <CommunityQnaQuestionOwnerActions
-              canDelete={state.viewer.canDeleteQuestion}
-              canEdit={state.viewer.canEditQuestion}
-              currentPage={returnPage}
-              questionId={state.question.id}
-              revision={state.question.revision}
-            />
-          </div>
-
-          <CommunityQnaAuthorSummary author={state.question.author} />
-
-          <div className="flex flex-wrap items-center gap-150">
-            <span className="font-designer-14r text-text-subtle">
-              조회 {state.question.stats.viewCount}
-            </span>
-            <span className="font-designer-14r text-text-subtle">
-              답변 {state.question.stats.answerCount}
-            </span>
-          </div>
+          <span className="text-text-subtlest">·</span>
+          <span className="flex items-center gap-50">
+            <MessageCircle className="h-200 w-200" />
+            {state.question.stats.answerCount}
+          </span>
         </div>
       </CommunitySectionShell>
 
       <CommunitySectionShell className="gap-300">
         <CommunityMarkdownContent content={state.question.contentHtml} />
+
+        <div className="self-start">
+          <CommunityReactionButton
+            isActive={viewModel.isQuestionLikedByViewer}
+            count={viewModel.questionLikeCount}
+            onClick={actions.handleToggleQuestionLike}
+            disabled={viewModel.isQuestionReactionPending}
+            ariaLabel={
+              viewModel.isQuestionLikedByViewer ? '좋아요 취소' : '좋아요'
+            }
+          />
+        </div>
 
         <CommunityQnaQuestionCommentsSection
           comments={state.questionCommentsPageData?.items ?? []}
@@ -231,6 +258,21 @@ export default function CommunityQnaDetailPageClient({
                     <CommunityQnaAnswerItem
                       key={answer.id}
                       answer={answer}
+                      reactionSlot={
+                        <CommunityReactionButton
+                          isActive={answer.viewer.reaction === 'like'}
+                          count={answer.stats.likeCount}
+                          onClick={() =>
+                            actions.handleToggleAnswerLike(answer.id)
+                          }
+                          disabled={viewModel.isAnswerReactionPending}
+                          ariaLabel={
+                            answer.viewer.reaction === 'like'
+                              ? '좋아요 취소'
+                              : '좋아요'
+                          }
+                        />
+                      }
                       actionSlot={
                         isMyAnswer || canAcceptThisAnswer ? (
                           <div className="flex flex-wrap items-center justify-end gap-75">

@@ -179,7 +179,6 @@ export default function CommunityDetailPageClient({
           isActive={viewModel.isLikedByViewer}
           count={viewModel.reactionCount}
           onClick={actions.handleToggleLike}
-          disabled={!viewModel.isPostReactionEnabled}
           ariaLabel={viewModel.isLikedByViewer ? '좋아요 취소' : '좋아요'}
         />
         <button
