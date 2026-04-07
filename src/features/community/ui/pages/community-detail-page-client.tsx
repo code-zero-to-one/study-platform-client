@@ -124,7 +124,7 @@ export default function CommunityDetailPageClient({
           커뮤니티로 돌아가기
         </Link>
 
-        <div className="mt-100 self-start">
+        <div className="mt-200 self-start">
           <CommunityBoardBadge board={state.post.board} />
         </div>
 
