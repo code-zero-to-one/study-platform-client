@@ -430,7 +430,6 @@ export const useCommunityDetailController = ({
         await navigator.share({ title, url });
         return;
       } catch {
-        // 사용자가 공유 시트를 닫은 경우 무시
         return;
       }
     }

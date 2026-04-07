@@ -40,47 +40,53 @@ export default function CommunityCommentForm({
   };
 
   return (
-    <div className={cn('flex items-start gap-150', isCompact && 'gap-100')}>
-      <Avatar image={authorImage} alt="댓글 작성자 프로필" size={36} />
+    <div
+      className={cn(
+        'border-b border-border-default pb-100 focus-within:border-border-brand',
+        disabled && 'border-border-disabled',
+      )}
+    >
+      <div className={cn('flex items-start gap-150', isCompact && 'gap-100')}>
+        <Avatar image={authorImage} alt="댓글 작성자 프로필" size={36} />
 
-      <div className="min-w-0 flex-1">
-        <textarea
-          value={value}
-          placeholder={placeholder}
-          rows={isCompact ? 2 : 1}
-          autoFocus={autoFocus}
-          disabled={disabled}
-          onChange={(event) => onChange(event.target.value)}
-          onFocus={() => setIsExpanded(true)}
-          onBlur={() => {
-            if (!isCompact && value.trim().length === 0) {
-              setIsExpanded(false);
-            }
-          }}
-          className={cn(
-            'w-full resize-none border-b border-border-default bg-transparent py-100 font-designer-15r leading-250 text-text-default placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
-            disabled &&
-              'cursor-not-allowed border-border-disabled text-text-disabled',
-          )}
-        />
+        <div className="min-w-0 flex-1">
+          <textarea
+            value={value}
+            placeholder={placeholder}
+            rows={isCompact ? 2 : 1}
+            autoFocus={autoFocus}
+            disabled={disabled}
+            onChange={(event) => onChange(event.target.value)}
+            onFocus={() => setIsExpanded(true)}
+            onBlur={() => {
+              if (!isCompact && value.trim().length === 0) {
+                setIsExpanded(false);
+              }
+            }}
+            className={cn(
+              'w-full resize-none bg-transparent py-100 font-designer-15r leading-250 text-text-default placeholder:text-text-subtlest focus:outline-none',
+              disabled && 'cursor-not-allowed text-text-disabled',
+            )}
+          />
 
-        {shouldShowActions ? (
-          <div className="mt-150 flex flex-wrap items-center justify-end gap-100">
-            {onCancel ? (
-              <Button color="secondary" size="small" onClick={handleCancel}>
-                취소
+          {shouldShowActions ? (
+            <div className="mt-150 flex flex-wrap items-center justify-end gap-100">
+              {onCancel ? (
+                <Button color="secondary" size="small" onClick={handleCancel}>
+                  취소
+                </Button>
+              ) : null}
+              <Button
+                color="primary"
+                size="small"
+                disabled={isSubmitDisabled}
+                onClick={onSubmit}
+              >
+                {submitLabel}
               </Button>
-            ) : null}
-            <Button
-              color="primary"
-              size="small"
-              disabled={isSubmitDisabled}
-              onClick={onSubmit}
-            >
-              {submitLabel}
-            </Button>
-          </div>
-        ) : null}
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
