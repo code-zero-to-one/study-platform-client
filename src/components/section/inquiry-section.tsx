@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
 import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
@@ -13,7 +12,6 @@ import InquiryListTable from '@/components/lists/inquiry-list-table';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useCreateAnswer,
-  useDeleteQuestion,
   useGetQuestion,
   useGetQuestions,
 } from '@/hooks/queries/question-api';
@@ -21,8 +19,8 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
 
-const EditQuestionModal = dynamic(
-  () => import('@/components/common/modals/edit-question-modal'),
+const QuestionModal = dynamic(
+  () => import('@/components/common/modals/question-modal'),
   { ssr: false },
 );
 
@@ -53,6 +51,7 @@ export default function InquirySection({
   const hasValidQuestionId =
     Number.isInteger(parsedQuestionId) && parsedQuestionId > 0;
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
 
   const handleSelectQuestion = (id: number) => {
@@ -87,6 +86,14 @@ export default function InquirySection({
           isAdmin={isAdmin}
         />
       )}
+
+      <QuestionModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        studyId={groupStudyId}
+        studyType={isPremium ? 'premium' : 'group'}
+        onAfterSubmit={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
@@ -127,10 +134,7 @@ function ListView({
         </p>
         <LoginModal
           openTrigger={
-            <button
-              type="button"
-              className="font-designer-14m text-text-brand underline"
-            >
+            <button className="font-designer-14m text-text-brand underline">
               로그인하기
             </button>
           }
@@ -195,64 +199,28 @@ function DetailView({
   isLeader = false,
   isAdmin = false,
 }: DetailViewProps) {
+  const router = useRouter();
   const { memberId } = useAuthReady();
   const showToast = useToastStore((state) => state.showToast);
   const { data, isLoading } = useGetQuestion({ groupStudyId, questionId });
-  const { mutate: deleteQuestion, isPending: isDeletePending } =
-    useDeleteQuestion();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const isQuestionAuthor = memberId === data?.authorId;
+  const canEditQuestion = memberId === data?.authorId;
 
-  const handleEditQuestion = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const handleDeleteQuestion = () => {
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (!isQuestionAuthor) {
-      showToast('문의 삭제 권한이 없습니다.', 'error');
-      setIsDeleteModalOpen(false);
-      return;
-    }
-    deleteQuestion(
-      { groupStudyId, questionId },
-      {
-        onSuccess: () => {
-          showToast('문의가 삭제되었습니다.', 'success');
-          setIsDeleteModalOpen(false);
-          onBack();
-        },
-        onError: () => {
-          showToast('문의 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
-        },
-      },
-    );
-  };
-
-  const moreMenuOptions: {
-    label: string;
-    value: string;
-    onMenuClick: () => void;
-  }[] = [];
-
-  if (isQuestionAuthor) {
-    moreMenuOptions.push({
+  const moreMenuOptions = [
+    {
       label: '수정하기',
       value: 'edit',
-      onMenuClick: handleEditQuestion,
-    });
-    if (!data?.answer) {
-      moreMenuOptions.push({
-        label: '삭제하기',
-        value: 'delete',
-        onMenuClick: handleDeleteQuestion,
-      });
-    }
-  }
+      onMenuClick: () => {
+        router.push(
+          `/inquiry?groupStudyId=${groupStudyId}&studyType=${isPremium ? 'premium' : 'group'}&editQuestionId=${questionId}`,
+        );
+      },
+    },
+    {
+      label: '삭제하기',
+      value: 'delete',
+      onMenuClick: () => showToast('준비 중인 기능입니다.', 'info'),
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -264,7 +232,6 @@ function DetailView({
     <>
       <div className="mb-400">
         <button
-          type="button"
           onClick={onBack}
           className="text-text-subtle hover:text-text-default font-designer-14r flex items-center gap-100 transition-colors"
         >
@@ -283,7 +250,7 @@ function DetailView({
                   {CATEGORY_LABEL[data.category] ?? data.category}
                 </span>
               )}
-              {moreMenuOptions.length > 0 && (
+              {canEditQuestion && (
                 <MoreMenu options={moreMenuOptions} iconSize={20} />
               )}
             </div>
@@ -404,25 +371,6 @@ function DetailView({
             </div>
           )}
         </div>
-      )}
-
-      <ConfirmDeleteModal
-        open={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
-        title="문의를 삭제하시겠습니까?"
-        content="삭제한 문의는 다시 복구할 수 없습니다."
-        confirmText="삭제하기"
-        onConfirm={handleDeleteConfirm}
-        isPending={isDeletePending}
-      />
-
-      {data && (
-        <EditQuestionModal
-          open={isEditModalOpen && isQuestionAuthor}
-          onOpenChange={setIsEditModalOpen}
-          groupStudyId={groupStudyId}
-          question={data}
-        />
       )}
     </>
   );

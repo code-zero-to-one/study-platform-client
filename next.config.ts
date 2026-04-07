@@ -1,4 +1,3 @@
-import path from 'path';
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 import type { RemotePattern } from 'next/dist/shared/lib/image-config';
@@ -37,7 +36,6 @@ const cspImgSrcHosts = [
   'https://test-api.zeroone.it.kr',
   'https://www.zeroone.it.kr',
   'https://test-blog.zeroone.it.kr',
-  'https://blog.zeroone.it.kr',
   'https://www.google.com',
   'https://www.google.co.kr',
   'https://c.clarity.ms',
@@ -84,19 +82,13 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: [
           // Report-Only 모드: 위반을 차단하지 않고 콘솔에 경고만 출력. 검증 완료 후 CSP로 전환 예정.
-          {
-            key: 'Content-Security-Policy-Report-Only',
-            value: cspDirectives,
-          },
+          { key: 'Content-Security-Policy-Report-Only', value: cspDirectives },
           // [클릭재킹 방지] 동일 출처의 iframe만 허용
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           // [MIME 스니핑 방지] 브라우저가 Content-Type을 임의로 변경하는 행위 차단
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           // [정보 유출 방지] 크로스 오리진 요청 시 origin만 전송
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           // [HTTPS 강제] 1년간 HTTPS만 허용 (프로덕션에서 유효)
           {
             key: 'Strict-Transport-Security',
@@ -157,14 +149,10 @@ const nextConfig: NextConfig = {
         port: '1337',
         pathname: '/uploads/**',
       },
+      // CMS 테스트 서버 이미지 도메인 허용 설정 (HTTPS)
       {
         protocol: 'https',
         hostname: 'test-blog.zeroone.it.kr',
-        pathname: '/uploads/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'blog.zeroone.it.kr',
         pathname: '/uploads/**',
       },
     ],
@@ -197,9 +185,7 @@ const nextConfig: NextConfig = {
       {
         test: /\.svg$/i,
         issuer: fileLoaderRule.issuer,
-        resourceQuery: {
-          not: [...fileLoaderRule.resourceQuery.not, /url/],
-        },
+        resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] },
         use: [
           {
             loader: '@svgr/webpack',
@@ -212,14 +198,6 @@ const nextConfig: NextConfig = {
       },
     );
     fileLoaderRule.exclude = /\.svg$/i;
-
-    config.resolve = {
-      ...config.resolve,
-      alias: {
-        ...config.resolve?.alias,
-        public: path.join(__dirname, 'public'),
-      },
-    };
 
     return config;
   },

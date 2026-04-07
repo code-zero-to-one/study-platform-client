@@ -19,7 +19,7 @@ interface DropdownOption {
   badgeCount?: number;
 }
 
-export default function HeaderUserDropdown({ userImg }: { userImg?: string }) {
+export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   const { mutateAsync: logout } = useLogoutMutation();
 
   const { data: authData, isAuthReady } = useAuthReady();

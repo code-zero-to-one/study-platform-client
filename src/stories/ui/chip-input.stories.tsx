@@ -20,6 +20,8 @@ type Story = StoryObj<typeof ChipInput>;
 export const Default: Story = {
   args: {
     chips: ['chip1', 'chip2', 'chip3'],
-    onChange: (chips) => {},
+    onChange: (chips) => {
+      console.log(chips);
+    },
   },
 };

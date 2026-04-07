@@ -26,7 +26,7 @@ export default function HallOfFameRankerSection({
   return (
     <div className="flex flex-col gap-300">
       <div className="flex flex-col items-start gap-150">
-        <div className="flex flex-wrap items-baseline gap-x-100 gap-y-50">
+        <div className="flex items-center gap-100">
           <h3 className="font-display-headings6 text-text-strong flex items-center gap-100">
             <span className={TAB_CONFIG[rankingType].colorClass}>
               {(() => {

@@ -301,7 +301,7 @@ export default function StudyDetailPage({
         open={showStudyFormModal}
         mode="edit"
         groupStudyId={groupStudyId}
-        onOpenChange={(open) => setShowStudyFormModal(open)}
+        onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
       {/* 플로팅 정보 바 */}
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>

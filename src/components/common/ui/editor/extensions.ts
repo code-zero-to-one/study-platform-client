@@ -15,28 +15,19 @@ import { common, createLowlight } from 'lowlight';
 import { parseImageWidth, MARKDOWN_IMAGE_DEFAULT_WIDTH } from './image-utils';
 
 export const lowlight = createLowlight(common);
-const LOWLIGHT_LANGUAGES = [
-  ['kotlin', kotlin],
-  ['sql', sql],
-  ['java', java],
-  ['python', python],
-  ['cpp', cpp],
-  ['c', c],
-  ['go', go],
-  ['rust', rust],
-  ['swift', swift],
-  ['dart', dart],
-] as const;
-
-LOWLIGHT_LANGUAGES.forEach(([name, language]) => {
-  lowlight.register(name, language);
-});
+lowlight.register('kotlin', kotlin);
+lowlight.register('sql', sql);
+lowlight.register('java', java);
+lowlight.register('python', python);
+lowlight.register('cpp', cpp);
+lowlight.register('c', c);
+lowlight.register('go', go);
+lowlight.register('rust', rust);
+lowlight.register('swift', swift);
+lowlight.register('dart', dart);
 
 const INSTANT_CODE_BLOCK_INPUT_REGEX = /^```$/;
 
-/**
- * 이미지 너비 속성을 지원하는 ResizableImage 확장입니다.
- */
 export const ResizableImageExtension = ImageExtension.extend({
   addAttributes() {
     return {
@@ -53,9 +44,6 @@ export const ResizableImageExtension = ImageExtension.extend({
   },
 });
 
-/**
- * ```. 입력으로 자동 코드블록 생성을 지원합니다.
- */
 export const InstantCodeBlockExtension = CodeBlockLowlight.extend({
   addInputRules() {
     const parentInputRules = this.parent?.() ?? [];
@@ -73,9 +61,6 @@ export const InstantCodeBlockExtension = CodeBlockLowlight.extend({
   },
 });
 
-/**
- * Mod+Y 키보드 단축키로 다시실행(Redo) 기능을 추가합니다.
- */
 export const MarkdownHistoryShortcutsExtension = Extension.create({
   addKeyboardShortcuts() {
     return {

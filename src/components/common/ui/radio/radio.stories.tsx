@@ -40,7 +40,7 @@ export const Default: Story = {
           </div>
         </RadioGroup>
 
-        <Button type="button" onClick={() => {}}>
+        <Button type="button" onClick={() => console.log(state)}>
           submit
         </Button>
       </div>

@@ -15,7 +15,7 @@ const dropzoneVariants = cva(
     variants: {
       dragging: {
         true: 'border-border-brand bg-fill-brand-subtle-hover',
-        false: 'border-border-default border-dashed',
+        false: 'border-gray-300 border-dashed',
       },
     },
     defaultVariants: {
@@ -57,13 +57,13 @@ export default function ImageUploadInput({
     fileInputRef.current?.click();
   };
 
-  const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
@@ -98,7 +98,7 @@ export default function ImageUploadInput({
   };
 
   return (
-    <div className="flex flex-col gap-50">
+    <div className="flex flex-col gap-1">
       <div
         onDrop={handleDrop}
         onDragEnter={handleDragEnter}
@@ -117,9 +117,6 @@ export default function ImageUploadInput({
               />
               <span className="font-designer-18m text-text-default">
                 드래그하여 파일 업로드
-              </span>
-              <span className="font-designer-14r text-text-assistive">
-                이미지 파일 · 최대 {(maxSizeBytes / 1024 / 1024).toFixed(0)}MB
               </span>
             </div>
             <input
@@ -145,22 +142,20 @@ export default function ImageUploadInput({
               alt="preview"
               width={240}
               height={180}
-              className="rounded-100 object-cover"
+              className="rounded-lg object-cover"
             />
             <button
               type="button"
               onClick={handleRemove}
               aria-label="이미지 삭제"
-              className="bg-background-dimmer border-border-inverse text-text-inverse absolute top-0 right-0 flex size-icon translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border"
+              className="bg-background-dimmer border-border-inverse text-text-inverse absolute top-0 right-0 flex h-[36px] w-[36px] translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border"
             >
               ✕
             </button>
           </div>
         )}
       </div>
-      {sizeError && (
-        <p className="font-designer-14r text-text-error">{sizeError}</p>
-      )}
+      {sizeError && <p className="text-text-danger text-sm">{sizeError}</p>}
     </div>
   );
 }

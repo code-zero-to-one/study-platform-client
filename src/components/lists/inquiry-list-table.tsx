@@ -2,7 +2,7 @@
 
 import { Eye, LockIcon } from 'lucide-react';
 import { useState } from 'react';
-import type { QuestionListItemResponse } from '@/api/endpoints/group-study/question';
+import type { QuestionListItemResponse } from '@/api/endpoints/group-study/question-api';
 import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
 import Pagination from '@/components/common/ui/pagination';
 import { useToastStore } from '@/stores/use-toast-store';
@@ -35,9 +35,9 @@ export default function InquiryListTable({
 
   return (
     <>
-      <div className="border-border-default rounded-100 overflow-x-auto border">
+      <div className="border-border-default rounded-100 overflow-hidden border">
         <table className="w-full">
-          <thead className="bg-background-neutral-subtle font-designer-13r text-text-subtle px-100 py-200 text-left align-middle leading-250 whitespace-nowrap">
+          <thead className="bg-background-neutral-subtle font-designer-13r text-text-subtle px-100 py-200 text-left align-middle leading-250">
             <tr className="border-border-default border-b">
               <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 번호

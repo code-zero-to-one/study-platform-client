@@ -9,6 +9,7 @@ import {
   type GroupStudyExperienceReviewDetail,
 } from '@/hooks/queries/group-study-review-api';
 import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
+
 import EvaluationSection from '../../group/[groupStudyId]/_components/evaluation-section';
 import GroupReviewCard from '../../group/[groupStudyId]/_components/group-review-card';
 import SatisfactionSection from '../../group/[groupStudyId]/_components/satisfaction-section';

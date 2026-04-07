@@ -33,8 +33,6 @@ export default function MyHomeworkStatusCard({
     router.push(`?${params.toString()}`);
   };
 
-  const isSubmissionOpen = mission?.status === 'IN_PROGRESS';
-
   // 미제출 상태
   if (!myHomework || myHomework.homeworkStatus === 'NOT_SUBMITTED') {
     return (
@@ -44,11 +42,9 @@ export default function MyHomeworkStatusCard({
         </span>
         <div className="border-border-default rounded-100 flex flex-col items-center justify-center gap-200 border py-400">
           <span className="text-text-subtlest font-designer-14r">
-            {isSubmissionOpen
-              ? '아직 과제를 제출하지 않았습니다.'
-              : '제출 기간이 종료되었습니다.'}
+            아직 과제를 제출하지 않았습니다.
           </span>
-          {isSubmissionOpen && <SubmitHomeworkModal missionId={missionId} />}
+          <SubmitHomeworkModal missionId={missionId} />
         </div>
       </div>
     );
@@ -66,7 +62,9 @@ export default function MyHomeworkStatusCard({
             {myHomework.submissionTime?.split('T')[0]}일 과제를 제출
             완료하였습니다.
           </span>
-
+          <span className="text-text-subtlest font-designer-14r">
+            리더의 과제 평가를 기다려 주세요.
+          </span>
           <Button
             color="outlined"
             className="mt-100"

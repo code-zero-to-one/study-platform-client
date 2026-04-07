@@ -1,4 +1,4 @@
-import type { QuestionListItemResponse } from '@/api/endpoints/group-study/question';
+import type { QuestionListItemResponse } from '@/api/endpoints/group-study/question-api';
 import Badge from '@/components/common/ui/badge';
 
 type InquiryStatus = QuestionListItemResponse['status'];

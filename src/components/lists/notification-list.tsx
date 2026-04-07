@@ -1,6 +1,5 @@
 import { format } from 'date-fns';
 import { MemberNotificationResponse } from '@/api/openapi';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '../common/ui/badge';
 
 const getBadgeColor = (
@@ -35,33 +34,28 @@ export default function NotificationList({
 }: NotificationListProps) {
   return (
     <ul>
-      {notifications?.map((notification, index) => (
+      {notifications?.map((notification) => (
         <li
-          key={notification.id ?? index}
+          key={notification.id}
           className="border-bottom-border-default bg-background-default hover:bg-background-neutral-subtle flex cursor-pointer items-center justify-between border-b py-150"
           onClick={() => onNotificationClick?.(notification)}
         >
-          <div className="flex min-w-0 flex-1 items-center gap-150">
+          <div className="flex items-center gap-150">
             <Badge
-              color={getBadgeColor(notification.topicType ?? '')}
+              color={getBadgeColor(notification.topicType)}
               shape="rectangle"
             >
               {notification.topicDescription}
             </Badge>
             <span
-              className={cn(
-                notification.isRead ? 'font-designer-13r' : 'font-designer-13b',
-                'text-text-default min-w-0',
-              )}
+              className={`${notification.isRead ? 'font-designer-13r' : 'font-designer-13b'} text-text-default`}
             >
               {notification.title}
             </span>
           </div>
-          <div className="flex shrink-0 items-center gap-100">
+          <div className="flex items-center gap-100">
             <span className="font-designer-11r text-text-subtlest whitespace-nowrap">
-              {notification.createdAt
-                ? format(notification.createdAt, 'yyyy.MM.dd HH:mm')
-                : '-'}
+              {format(notification.createdAt, 'yyyy.MM.dd HH:mm')}
             </span>
           </div>
         </li>

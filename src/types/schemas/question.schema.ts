@@ -18,8 +18,8 @@ export const CATEGORY_LABEL: Record<string, string> = {
 
 export const QUESTION_TITLE_MIN_LENGTH = 2;
 export const QUESTION_CONTENT_MIN_LENGTH = 20;
-export const QUESTION_TITLE_MAX_LENGTH = 50;
-export const QUESTION_CONTENT_MAX_LENGTH = 500;
+export const QUESTION_TITLE_MAX_LENGTH = 255;
+export const QUESTION_CONTENT_MAX_LENGTH = 3000;
 
 export const questionSchema = z.object({
   title: z

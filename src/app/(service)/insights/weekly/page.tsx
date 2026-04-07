@@ -47,14 +47,14 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   // 카테고리 목록과 아티클 목록을 병렬로 가져오기
   const [categoriesRes, articlesRes] = await Promise.all([
     fetchCategories(),
-    fetchArticles({ categorySlug: selectedCategorySlug }),
+    fetchArticles(selectedCategorySlug),
   ]);
 
   const categories = categoriesRes.data ?? [];
   const articles = articlesRes.data ?? [];
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-400 py-600">
+    <div className="mx-auto w-[1280px] px-400 py-600">
       <div className="flex flex-1 flex-col gap-500">
         {/* 배너 */}
         <div className="mb-600">
@@ -68,10 +68,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         </div>
 
         {/* 카테고리 탭 */}
-        <div className="flex gap-200 overflow-x-auto border-b border-[#D5D7DA]">
+        <div className="flex gap-200 border-b border-[#D5D7DA]">
           <Link
             href="/insights"
-            className={`shrink-0 whitespace-nowrap px-300 pb-200 transition-colors ${
+            className={`px-300 pb-200 transition-colors ${
               !selectedCategorySlug
                 ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
                 : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
@@ -83,7 +83,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <Link
               key={category.id}
               href={`/insights?category=${category.slug}`}
-              className={`shrink-0 whitespace-nowrap px-300 pb-200 transition-colors ${
+              className={`px-300 pb-200 transition-colors ${
                 selectedCategorySlug === category.slug
                   ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
                   : 'font-designer-15r text-[#535862] hover:text-[#181D27]'

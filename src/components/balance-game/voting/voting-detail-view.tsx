@@ -367,6 +367,16 @@ export default function VotingDetailView({
   // Adapt BalanceGame options to VotingOption for compatibility
   const votingOptions: VotingOption[] = voting.options;
 
+  // 디버깅용 로그 추가
+  console.log('Voting Data:', {
+    myVote: voting.myVote,
+    hasVoted,
+    endsAt: voting.endsAt,
+    rawIsActive: voting.isActive,
+    isActiveByEndsAt,
+    isActive,
+  });
+
   const showVoteOptions = isAuthReady && !hasVoted && isActive;
 
   return (

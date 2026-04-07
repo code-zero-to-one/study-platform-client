@@ -51,7 +51,3 @@ package-lock.json
 
 .claude/
 .agents/
-.idea/*
-
-# Claude Code 개인 설정
-CLAUDE.local.md

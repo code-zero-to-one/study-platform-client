@@ -291,7 +291,7 @@ const TopRankerCard = ({ ranker }: { ranker: Ranker }) => {
             alt={ranker.nickname}
             size={isFirst ? 120 : 80}
             className={cn(
-              'shadow-3 mb-300 border-4 border-background-default',
+              'shadow-3 mb-300 border-4 border-white',
               isFirst && 'border-fill-brand-default-default',
             )}
           />
@@ -582,10 +582,10 @@ export default function OneOnOnePage() {
 
   return (
     <div className="bg-background-alternative flex min-h-screen justify-center">
-      <div className="flex w-full max-w-screen-xl flex-col gap-400 px-400 py-600 md:flex-row md:gap-600">
+      <div className="flex w-full max-w-screen-xl gap-600 px-400 py-600">
         {/* Left Sidebar (Tabs) */}
-        <aside className="flex w-full flex-col gap-300 md:sticky md:top-400 md:h-fit md:w-[200px] md:shrink-0 md:gap-400 md:pt-100">
-          <div className="hidden flex-col gap-50 md:flex">
+        <aside className="sticky top-400 flex h-fit w-[200px] shrink-0 flex-col gap-400 pt-100">
+          <div className="flex flex-col gap-50">
             <h1 className="font-bold-h5 text-text-strong tracking-tight">
               1:1 인사이트
             </h1>
@@ -594,7 +594,7 @@ export default function OneOnOnePage() {
             </span>
           </div>
 
-          <nav className="flex flex-row gap-100 md:flex-col md:gap-50">
+          <nav className="flex flex-col gap-50">
             <button
               onClick={() => setActiveTab('RANKING')}
               className={cn(

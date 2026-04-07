@@ -8,6 +8,7 @@ import type { PeerReviewResponse } from '@/api/openapi/models';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
+import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import { useGetHomework } from '@/hooks/queries/group-study-homework-api';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import {
@@ -18,7 +19,6 @@ import {
 
 import { useUserStore } from '@/stores/useUserStore';
 import { formatExternalLink } from '@/utils/format';
-import MarkdownContent from '../common/ui/editor/markdown-content';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),

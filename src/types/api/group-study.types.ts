@@ -232,19 +232,6 @@ export type { GroupStudyCreationRequestDto } from '@/api/openapi/models/group-st
 export type { GroupStudyCreationResponse } from '@/api/openapi/models/group-study-creation-response';
 export type { GroupStudyCreationResponseDto } from '@/api/openapi/models/group-study-creation-response-dto';
 
-export interface GroupStudyWriteResponseContent {
-  groupStudyId?: number;
-  thumbnailUploadUrl?: string;
-  descriptionImageUploadUrls?: string[];
-}
-
-export interface GroupStudyWriteResponse {
-  statusCode: number;
-  timestamp: string;
-  content?: GroupStudyWriteResponseContent;
-  message?: string;
-}
-
 // 그룹 리스트 타입
 export interface GroupStudyListRequest {
   page: number;

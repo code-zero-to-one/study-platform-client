@@ -132,7 +132,7 @@ function UserProfileBody({
       />
 
       <Modal.Body className="flex flex-col gap-400 p-400">
-        <div className="flex flex-col gap-300 px-200 sm:flex-row">
+        <div className="flex flex-row gap-300 px-200">
           <UserAvatar
             image={
               profile.memberProfile.profileImage?.resizedImages[0]
@@ -141,7 +141,7 @@ function UserProfileBody({
             size={80}
           />
 
-          <div className="min-w-0 w-full">
+          <div>
             <div className="flex flex-wrap gap-75 pb-75">
               {profile.memberProfile.mbti && (
                 <Badge color="orange">{profile.memberProfile.mbti}</Badge>
@@ -193,16 +193,16 @@ function UserProfileBody({
                     ? profile.memberProfile.techStacks
                         .map((tech) => tech.techStackName)
                         .join(', ')
-                    : undefined
+                    : '-'
                 }
               />
               <Field
                 icon={<GithubIcon />}
-                value={profile.memberProfile.githubLink?.url}
+                value={profile.memberProfile.githubLink?.url ?? '-'}
               />
               <Field
                 icon={<GlobeIcon />}
-                value={profile.memberProfile.blogOrSnsLink?.url}
+                value={profile.memberProfile.blogOrSnsLink?.url ?? '-'}
               />
               {/* 본인, 운영진, 스터디 참가자에게 노출 */}
               {canSeePhoneNumber && profile.isVerified && (
@@ -332,16 +332,12 @@ function Header({ title, onClose }: { title: string; onClose: () => void }) {
 }
 
 function Field({ icon, value }: { icon: React.ReactNode; value?: string }) {
-  const displayValue = value?.trim();
-
   return (
     <div className="flex items-center gap-100">
       {icon}
-      {displayValue ? (
-        <span className="font-designer-14r text-text-subtle min-w-0 break-all leading-none">
-          {displayValue}
-        </span>
-      ) : null}
+      <span className="font-designer-14r text-text-subtle leading-none">
+        {value ?? ''}
+      </span>
     </div>
   );
 }

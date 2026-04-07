@@ -96,7 +96,7 @@ export default function TodayStudyCard({
         description={
           isInterviewee ? '당신은 지원자입니다.' : '당신은 면접관입니다.'
         }
-        className="mb-200"
+        className="mb-4"
         titleClassName="font-bold-h5"
         descriptionClassName="font-designer-14r"
       />
@@ -159,7 +159,7 @@ const renderFeedback = (
     <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
       <h3 className="font-designer-14m text-text-subtle">피드백</h3>
 
-      <div className="flex flex-col items-center justify-center gap-125">
+      <div className="flex flex-col items-center justify-center gap-[10px]">
         <Image
           src="/icons/feedback.svg"
           width={65}
@@ -282,7 +282,7 @@ function PartnerInfo({
   isInterviewee: boolean;
 }) {
   return (
-    <div className="flex flex-1 flex-col gap-150 p-300 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-1 items-center justify-between p-300">
       <div className="flex gap-150">
         <UserProfileModal
           memberId={id}
@@ -303,15 +303,14 @@ function PartnerInfo({
         </div>
       </div>
 
-      <div className="rounded-75 border-border-subtle font-designer-14m text-text-default flex h-[44px] w-full border sm:w-[200px]">
+      <div className="rounded-75 border-border-subtle font-designer-14m text-text-default flex h-[44px] w-[200px] border">
         <UserPhoneNumberCopyModal
           phoneNumber={phoneNumber}
           realName={realName ?? name}
           trigger={
             <button
-              type="button"
               data-tutorial="study-contact-button"
-              className="border-r-border-subtle rounded-l-75 hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-125 pl-150 transition"
+              className="border-r-border-subtle rounded-l-75 hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-[10px] pl-150 transition"
             >
               <Image
                 src="/icons/phone.svg"
@@ -370,7 +369,7 @@ function StudyLink({ link }: Pick<DailyStudyDetail, 'link'>) {
 
   return (
     <div className="bg-background-alternative rounded-50 col-span-2 flex items-center gap-300 px-300 py-250">
-      <span className="font-designer-14r text-text-subtle">스터디 링크</span>
+      <span className="text-sm text-gray-600">스터디 링크</span>
 
       <Link href={formatExternalLink(link)} target="_blank" rel="noreferrer">
         <div className="flex cursor-pointer gap-75">
