@@ -421,6 +421,28 @@ export const useCommunityDetailController = ({
     setCommentsPage(normalizedPage);
   };
 
+  const handleSharePost = async () => {
+    const url = window.location.href;
+    const title = post?.title ?? '';
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch {
+        // 사용자가 공유 시트를 닫은 경우 무시
+        return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('링크가 복사되었습니다.', 'success');
+    } catch {
+      showToast('링크 복사에 실패했습니다.', 'error');
+    }
+  };
+
   return {
     state: {
       commentDraft,
@@ -450,6 +472,7 @@ export const useCommunityDetailController = ({
       handleSubmitReply,
       handleToggleCommentReaction,
       handleToggleLike,
+      handleSharePost,
     },
     viewModel: {
       commentCount:

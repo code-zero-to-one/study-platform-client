@@ -75,7 +75,7 @@ export default function CommunityCommentSection({
 }: CommunityCommentSectionProps) {
   return (
     <CommunitySectionShell className="gap-250">
-      <div className="border-b border-border-default pb-150">
+      <div className="pb-150">
         <p className="font-designer-24b text-text-strong">
           댓글{' '}
           <span className="font-designer-13r text-text-subtle">
