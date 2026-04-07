@@ -463,7 +463,7 @@ function LeaderEvaluationSection({
                 평가 코멘트
               </span>
               <p className="text-text-default font-designer-14r wrap-anywhere whitespace-pre-wrap">
-                {evaluation.comment}
+                {evaluation.comment?.trim() ? evaluation.comment : '-'}
               </p>
             </div>
           </div>
