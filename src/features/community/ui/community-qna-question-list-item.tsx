@@ -80,7 +80,7 @@ export default function CommunityQnaQuestionListItem({
             </div>
           ) : (
             <div className="flex h-600 w-600 items-center justify-center rounded-150 border border-border-default bg-background-default">
-              <CircleHelp className="h-225 w-225 text-text-brand" />
+              <CircleHelp className="h-225 w-225 text-text-subtle" />
             </div>
           )}
         </Link>
