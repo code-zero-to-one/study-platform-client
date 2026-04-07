@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetMissions } from '@/hooks/queries/mission-api';
+import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import MissionCard from '../card/mission-card';
 import PageContainer from '../common/layout/page-container';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
@@ -33,7 +34,6 @@ interface MissionSectionProps {
   groupStudyId: number;
   isMember?: boolean;
   isLeader?: boolean;
-  showMyHomework?: boolean;
 }
 
 const FIRST_WEEK = 1;
@@ -42,8 +42,10 @@ export default function MissionSection({
   groupStudyId,
   isMember,
   isLeader: isLeaderProp,
-  showMyHomework,
 }: MissionSectionProps) {
+  const { data: studyDetail } = useGroupStudyDetailQuery(groupStudyId);
+  const isPremiumStudy =
+    studyDetail?.basicInfo.classification === 'MENTOR_STUDY';
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filter, setFilter] = useState<FilterType>('all');
@@ -144,6 +146,7 @@ export default function MissionSection({
         <HomeworkDetailContent
           missionId={Number(missionId)}
           homeworkId={Number(homeworkId)}
+          showLeaderEvaluation={isLeaderProp && isPremiumStudy}
         />
       </PageContainer>
     );
@@ -164,7 +167,7 @@ export default function MissionSection({
 
         <MissionDetailContent
           missionId={Number(missionId)}
-          showMyHomework={!!canAccessAll}
+          showMyHomework={canAccessAll}
         />
       </PageContainer>
     );
