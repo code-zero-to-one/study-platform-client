@@ -629,7 +629,7 @@ function MarkdownEditor({
             size="small"
             onClick={() => handleImageWidthChange(MARKDOWN_IMAGE_DEFAULT_WIDTH)}
           >
-            기본 200px
+            기본 480px
           </Button>
         </div>
       )}

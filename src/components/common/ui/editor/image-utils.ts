@@ -7,9 +7,9 @@ export interface MarkdownEditorImageConfig {
   uploadImageFile: (file: File) => Promise<string>;
 }
 
-export const MARKDOWN_IMAGE_MIN_WIDTH = 80;
-export const MARKDOWN_IMAGE_DEFAULT_WIDTH = 200;
-export const MARKDOWN_IMAGE_MAX_WIDTH = 400;
+export const MARKDOWN_IMAGE_MIN_WIDTH = 200;
+export const MARKDOWN_IMAGE_DEFAULT_WIDTH = 480;
+export const MARKDOWN_IMAGE_MAX_WIDTH = 800;
 export const MARKDOWN_IMAGE_WIDTH_STEP = 10;
 export const MARKDOWN_IMAGE_DEFAULT_MAX_COUNT = 3;
 export const MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024;
