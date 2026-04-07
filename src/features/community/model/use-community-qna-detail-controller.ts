@@ -88,6 +88,7 @@ export const useCommunityQnaDetailController = ({
 
   const question = detailQuery.data?.question;
   const viewer = detailQuery.data?.viewer;
+  const acceptedAnswer = detailQuery.data?.acceptedAnswer;
   const questionCommentsPageData = detailQuery.data?.questionCommentsPage;
   const answersPageData = detailQuery.data?.answersPage;
   const hasInvalidAggregate =
@@ -124,6 +125,7 @@ export const useCommunityQnaDetailController = ({
     state: {
       question,
       viewer,
+      acceptedAnswer,
       questionCommentsPageData,
       answersPageData,
       isResolved: detailQuery.isSuccess || detailQuery.isError,

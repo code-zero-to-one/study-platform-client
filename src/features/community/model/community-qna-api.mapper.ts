@@ -189,6 +189,9 @@ export const mapCommunityQnaQuestionDetailAggregate = (
     canAcceptAnswer: response.viewer.canAcceptAnswer,
     myAnswerId: response.viewer.myAnswerId ?? undefined,
   },
+  acceptedAnswer: response.acceptedAnswer
+    ? mapCommunityQnaAnswerItem(response.acceptedAnswer)
+    : undefined,
   questionCommentsPage: mapCommunityQnaQuestionCommentsPage(
     response.questionCommentsPage,
   ),

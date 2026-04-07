@@ -123,6 +123,7 @@ export interface CommunityQnaPageData<T> {
 export interface CommunityQnaQuestionDetailData {
   question: CommunityQnaQuestionDetail;
   viewer: CommunityQnaQuestionViewer;
+  acceptedAnswer?: CommunityQnaAnswerItem;
   questionCommentsPage: CommunityQnaPageData<CommunityQnaComment>;
   answersPage: CommunityQnaPageData<CommunityQnaAnswerItem>;
 }

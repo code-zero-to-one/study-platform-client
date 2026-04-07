@@ -35,6 +35,7 @@ import {
 } from '@/types/schemas/community-qna-answer-write-schema';
 
 interface UseCommunityQnaAnswerComposeControllerParams {
+  acceptedAnswer?: CommunityQnaAnswerItem;
   answers: readonly CommunityQnaAnswerItem[];
   onRefetchQuestionDetail: () => Promise<unknown>;
   questionId: number;
@@ -42,6 +43,7 @@ interface UseCommunityQnaAnswerComposeControllerParams {
 }
 
 export const useCommunityQnaAnswerComposeController = ({
+  acceptedAnswer,
   answers,
   onRefetchQuestionDetail,
   questionId,
@@ -62,7 +64,9 @@ export const useCommunityQnaAnswerComposeController = ({
     },
   });
   const myAnswer = viewer?.myAnswerId
-    ? answers.find((answer) => answer.id === viewer.myAnswerId)
+    ? acceptedAnswer?.id === viewer.myAnswerId
+      ? acceptedAnswer
+      : answers.find((answer) => answer.id === viewer.myAnswerId)
     : undefined;
   const hasMyAnswer = Boolean(viewer?.myAnswerId);
   const isMyAnswerVisible = Boolean(myAnswer);
