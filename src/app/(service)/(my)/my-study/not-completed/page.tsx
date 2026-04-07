@@ -16,7 +16,7 @@ const GroupStudyFormModal = dynamic(
 );
 
 interface MemberGroupStudyList extends MemberStudyItem {
-  type: 'GROUP_STUDY';
+  type: 'GROUP_STUDY' | 'MENTOR_STUDY';
   status: 'RECRUITING' | 'IN_PROGRESS';
 }
 
@@ -25,13 +25,15 @@ export default function NotCompletedPage() {
   const [page, setPage] = useState<number>(1);
   const { data, isLoading } = useMemberStudyListV2Query({
     memberId,
-    studyType: 'GROUP_STUDY',
+    studyType: 'BOTH',
     studyStatus: 'NOT_COMPLETED',
     page,
   });
 
-  // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록
-  const notCompletedStudyList = (data?.content || []) as MemberGroupStudyList[];
+  // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록 (ONE_ON_ONE_STUDY 제외)
+  const notCompletedStudyList = (data?.content || []).filter(
+    (s) => s.type === 'GROUP_STUDY' || s.type === 'MENTOR_STUDY',
+  ) as MemberGroupStudyList[];
 
   if (isLoading) {
     return null;
