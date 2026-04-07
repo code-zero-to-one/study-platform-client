@@ -50,7 +50,7 @@ export default function CommunityQnaQuestionListItem({
           <p className="truncate font-designer-18b text-text-strong">
             {question.title}
             <span className="ml-50 font-designer-16m text-text-brand">
-              ({question.stats.questionCommentCount})
+              ({question.stats.answerCount})
             </span>
           </p>
           {question.excerpt ? (

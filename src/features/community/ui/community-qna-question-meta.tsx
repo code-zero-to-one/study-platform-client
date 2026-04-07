@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Eye, ThumbsUp } from 'lucide-react';
+import { CheckCircle2, Eye, MessageCircle } from 'lucide-react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import type { CommunityQnaQuestionSummary } from '@/types/community/qna-domain';
@@ -58,7 +58,7 @@ export function CommunityQnaQuestionStats({
         {formatCompactCount(question.stats.viewCount)}
       </span>
       <span className="flex items-center gap-50">
-        <ThumbsUp className="h-200 w-200" />
+        <MessageCircle className="h-200 w-200" />
         {formatCompactCount(question.stats.answerCount)}
       </span>
     </div>

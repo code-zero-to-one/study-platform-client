@@ -139,7 +139,7 @@ export default function CommunityQnaQuestionCard({
             <p className="line-clamp-2 font-designer-20b text-text-strong">
               {question.title}
               <span className="ml-50 font-designer-16m text-text-brand">
-                ({question.stats.questionCommentCount})
+                ({question.stats.answerCount})
               </span>
             </p>
             {question.excerpt ? (
