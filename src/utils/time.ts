@@ -121,6 +121,12 @@ export interface CreateDisabledDateMatcherForMissionOptions {
   editingMissionId?: number;
 }
 
+const toDateOnly = (date: Date | string): Date => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
 export const createDisabledDateMatcherForMission = (
   options: CreateDisabledDateMatcherForMissionOptions,
 ) => {
@@ -128,53 +134,41 @@ export const createDisabledDateMatcherForMission = (
     options;
 
   return (date: Date) => {
-    const normalizedDate = new Date(date);
-    normalizedDate.setHours(0, 0, 0, 0);
+    const candidateDate = toDateOnly(date);
+    const today = toDateOnly(getKoreaDate());
 
-    const today = getKoreaDate();
-    today.setHours(0, 0, 0, 0);
+    const isPastDate = candidateDate < today;
+    if (isPastDate) return true;
 
-    if (normalizedDate <= today) {
-      return true;
-    }
-
+    // 스터디 개설일 다음날부터 선택 가능
     if (studyStartDate) {
-      const startDate = new Date(studyStartDate);
-      startDate.setHours(0, 0, 0, 0);
-      // 스터디 개설일 다음날부터 선택 가능
-      const minDate = addDays(startDate, 1);
-      if (normalizedDate < minDate) {
-        return true;
-      }
+      const studyPeriodStart = addDays(toDateOnly(studyStartDate), 1);
+      const isBeforeStudyPeriod = candidateDate < studyPeriodStart;
+      if (isBeforeStudyPeriod) return true;
     }
 
     if (studyEndDate) {
-      const endDate = new Date(studyEndDate);
-      endDate.setHours(0, 0, 0, 0);
-      if (normalizedDate > endDate) {
-        return true;
-      }
+      const isAfterStudyPeriod = candidateDate > toDateOnly(studyEndDate);
+      if (isAfterStudyPeriod) return true;
     }
 
     if (existingMissions) {
-      const targetTime = normalizedDate.getTime();
+      const candidateTime = candidateDate.getTime();
       for (const mission of existingMissions) {
-        if (editingMissionId && mission.missionId === editingMissionId)
-          continue;
+        if (mission.missionId === editingMissionId) continue;
+        if (!mission.startDate || !mission.endDate) continue;
 
-        if (mission.startDate && mission.endDate) {
-          const missionStart = new Date(mission.startDate);
-          missionStart.setHours(0, 0, 0, 0);
-          const missionEnd = new Date(mission.endDate);
-          missionEnd.setHours(0, 0, 0, 0);
+        const existingmissionStartDate = toDateOnly(
+          mission.startDate,
+        ).getTime();
 
-          if (
-            targetTime >= missionStart.getTime() &&
-            targetTime <= missionEnd.getTime()
-          ) {
-            return true;
-          }
-        }
+        const existingmissionEndDate = toDateOnly(mission.endDate).getTime();
+
+        if (
+          candidateTime >= existingmissionStartDate &&
+          candidateTime <= existingmissionEndDate
+        )
+          return true;
       }
     }
 
