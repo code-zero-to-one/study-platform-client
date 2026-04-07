@@ -16,15 +16,7 @@ import {
 import { useToastStore } from '@/stores/use-toast-store';
 
 const CreateEvaluationFormSchema = z.object({
-  gradeCode: z.enum([
-    'A_PLUS',
-    'A_MINUS',
-    'B_PLUS',
-    'B_MINUS',
-    'C_PLUS',
-    'C_MINUS',
-    'F',
-  ]),
+  gradeCode: z.string().min(1, '평가 등급을 선택해주세요.'),
   comment: z.string().min(1, '정성 코멘트를 입력해주세요.').max(1000),
 });
 
@@ -109,11 +101,11 @@ function CreateEvaluationForm({
     );
   };
 
-  const gradeOptions = grades
-    ?.sort((a, b) => a.orderNum - b.orderNum)
+  const gradeOptions = (grades ?? [])
+    .sort((a, b) => (a.orderNum ?? 0) - (b.orderNum ?? 0))
     .map((grade) => ({
       value: grade.code,
-      label: `${grade.label} (${grade.score === 0 ? '0' : grade.score.toFixed(1)})`,
+      label: `${grade.label} (${grade.score === 0 ? '0' : (grade.score?.toFixed(1) ?? '-')})`,
     }));
 
   return (

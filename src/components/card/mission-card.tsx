@@ -3,7 +3,7 @@
 import dayjs from 'dayjs';
 import { Lock } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { ComponentProps, SyntheticEvent } from 'react';
+import type { ComponentProps } from 'react';
 
 import type { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/common/ui/badge';
@@ -121,10 +121,6 @@ export default function MissionCard({
       ? getDeadlineInfo(mission.endDate)
       : undefined;
 
-  const stopActionAreaPropagation = (event: SyntheticEvent) => {
-    event.stopPropagation();
-  };
-
   // 비가입자 2주차+ 잠금 카드
   if (isLocked) {
     return (
@@ -158,24 +154,22 @@ export default function MissionCard({
   if (isLeader && mission.status === 'NOT_STARTED') {
     return (
       <li className="border-border-default rounded-100 border bg-[#fff]">
-        <button
-          type="button"
-          className="flex w-full cursor-pointer items-center justify-between p-300"
-          onClick={handleSelectMission}
-        >
-          <MissionCardContent
-            title={mission.title}
-            weekNum={mission.weekNum}
-            statusConfig={statusConfig}
-            startDate={mission.startDate}
-            endDate={mission.endDate}
-            deadlineInfo={undefined}
-          />
-          <div
-            className="flex flex-col gap-100"
-            role="none"
-            onClick={stopActionAreaPropagation}
+        <div className="flex w-full items-center justify-between p-300">
+          <button
+            type="button"
+            className="flex flex-1 cursor-pointer items-center"
+            onClick={handleSelectMission}
           >
+            <MissionCardContent
+              title={mission.title}
+              weekNum={mission.weekNum}
+              statusConfig={statusConfig}
+              startDate={mission.startDate}
+              endDate={mission.endDate}
+              deadlineInfo={undefined}
+            />
+          </button>
+          <div className="flex flex-col gap-100">
             <EditMissionModal
               missionId={mission.missionId}
               groupStudyId={groupStudyId}
@@ -185,7 +179,7 @@ export default function MissionCard({
               groupStudyId={groupStudyId}
             />
           </div>
-        </button>
+        </div>
       </li>
     );
   }

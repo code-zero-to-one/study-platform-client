@@ -40,10 +40,10 @@ export default function MissionDetailContent({
     return null;
   }
 
+  const maxCount = mission.maxHomeworkSubmissionCount || 1;
+
   const progressValue =
-    ((mission.currentHomeworkSubmissionCount ?? 0) /
-      (mission.maxHomeworkSubmissionCount ?? 1)) *
-    100;
+    ((mission.currentHomeworkSubmissionCount ?? 0) / maxCount) * 100;
 
   return (
     <div className="flex flex-col gap-400">
