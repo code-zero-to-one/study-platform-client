@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
@@ -31,8 +31,20 @@ export default function CommunityCommentForm({
   isCompact = false,
 }: CommunityCommentFormProps) {
   const [isExpanded, setIsExpanded] = useState(autoFocus || isCompact);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isSubmitDisabled = disabled || value.trim().length === 0;
   const shouldShowActions = isCompact || isExpanded || value.trim().length > 0;
+
+  const adjustTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+
+    if (!textarea) {
+      return;
+    }
+
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, []);
 
   const handleCancel = () => {
     onCancel?.();
@@ -51,12 +63,16 @@ export default function CommunityCommentForm({
 
         <div className="min-w-0 flex-1">
           <textarea
+            ref={textareaRef}
             value={value}
             placeholder={placeholder}
             rows={isCompact ? 2 : 1}
             autoFocus={autoFocus}
             disabled={disabled}
-            onChange={(event) => onChange(event.target.value)}
+            onChange={(event) => {
+              onChange(event.target.value);
+              adjustTextareaHeight();
+            }}
             onFocus={() => setIsExpanded(true)}
             onBlur={() => {
               if (!isCompact && value.trim().length === 0) {
@@ -64,7 +80,7 @@ export default function CommunityCommentForm({
               }
             }}
             className={cn(
-              'w-full resize-none bg-transparent py-100 font-designer-15r leading-250 text-text-default placeholder:text-text-subtlest focus:outline-none',
+              'w-full resize-none overflow-hidden bg-transparent py-100 font-designer-15r leading-250 text-text-default placeholder:text-text-subtlest focus:outline-none',
               disabled && 'cursor-not-allowed text-text-disabled',
             )}
           />
