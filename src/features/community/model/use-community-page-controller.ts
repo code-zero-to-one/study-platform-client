@@ -1,11 +1,21 @@
 'use client';
 
+import { useQueries } from '@tanstack/react-query';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { startTransition, useEffect, useState } from 'react';
 import { getCommunityErrorMessage } from '@/features/community/api/community-api';
-import { getCommunityQnaErrorMessage } from '@/features/community/api/community-qna-api';
+import {
+  getCommunityQnaErrorMessage,
+  getCommunityQnaQuestionDetail,
+} from '@/features/community/api/community-qna-api';
+import {
+  collectCommunityFeedQnaPreviewFallbackIds,
+  mergeCommunityFeedQnaPreviewImages,
+} from '@/features/community/model/community-feed-preview';
+import { mapCommunityQnaQuestionDetailAggregate } from '@/features/community/model/community-qna-api.mapper';
 import { useCommunityQnaQuestionListQuery } from '@/features/community/model/use-community-qna-query';
 import { useCommunityFeedQuery } from '@/features/community/model/use-community-query';
+import { useCommunityViewerQueryScope } from '@/features/community/model/use-community-viewer-query-scope';
 import {
   COMMUNITY_BOARD,
   COMMUNITY_FEED_FILTER,
@@ -48,12 +58,22 @@ const toCommunityApiBoardFilter = (
   }
 };
 
+const COMMUNITY_QNA_PREVIEW_QUERY_STALE_TIME = 60_000;
+const COMMUNITY_QNA_PREVIEW_QUERY_GC_TIME = 5 * 60_000;
+const COMMUNITY_QNA_PREVIEW_QUERY_PARAMS = {
+  answerPage: COMMUNITY_DEFAULT_PAGE,
+  answerSize: 1,
+  questionCommentPage: COMMUNITY_DEFAULT_PAGE,
+  questionCommentSize: 1,
+} as const;
+
 export const useCommunityPageController = ({
   initialPage,
 }: UseCommunityPageControllerParams) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const viewerQueryScope = useCommunityViewerQueryScope();
   const rawPageParam = searchParams.get('page');
   const requestedPage =
     rawPageParam === null
@@ -105,6 +125,55 @@ export const useCommunityPageController = ({
     hasNext: false,
     hasPrevious: false,
   };
+  const qnaPreviewFallbackIds = isQnaFilter
+    ? []
+    : collectCommunityFeedQnaPreviewFallbackIds([
+        ...feed.popularItems,
+        ...feed.items,
+      ]);
+  const qnaPreviewQueries = useQueries({
+    queries: qnaPreviewFallbackIds.map((questionId) => ({
+      queryKey: [
+        'community',
+        'qna',
+        'question-preview',
+        questionId,
+        viewerQueryScope,
+      ] as const,
+      queryFn: async () => {
+        const detail = mapCommunityQnaQuestionDetailAggregate(
+          await getCommunityQnaQuestionDetail(
+            questionId,
+            COMMUNITY_QNA_PREVIEW_QUERY_PARAMS,
+          ),
+        );
+
+        return {
+          questionId,
+          previewImage: detail.question.previewImage,
+          previewImageAlt: detail.question.previewImageAlt,
+        };
+      },
+      staleTime: COMMUNITY_QNA_PREVIEW_QUERY_STALE_TIME,
+      gcTime: COMMUNITY_QNA_PREVIEW_QUERY_GC_TIME,
+      retry: false,
+      enabled: questionId > 0,
+    })),
+  });
+  const qnaPreviewByQuestionId = new Map(
+    qnaPreviewQueries.flatMap((query) =>
+      query.data ? [[query.data.questionId, query.data] as const] : [],
+    ),
+  );
+  const hydratedFeaturedPosts = isQnaFilter
+    ? []
+    : mergeCommunityFeedQnaPreviewImages(
+        feed.popularItems,
+        qnaPreviewByQuestionId,
+      );
+  const hydratedFeedItems = isQnaFilter
+    ? []
+    : mergeCommunityFeedQnaPreviewImages(feed.items, qnaPreviewByQuestionId);
   const currentPage = isQnaFilter ? qnaQuestionList.page : feed.page;
 
   useEffect(() => {
@@ -205,10 +274,10 @@ export const useCommunityPageController = ({
         !isQnaFilter &&
         activeFilter === COMMUNITY_FEED_FILTER.ALL &&
         currentPage === COMMUNITY_DEFAULT_PAGE
-          ? feed.popularItems
+          ? hydratedFeaturedPosts
           : [],
       filterOptions: COMMUNITY_FEED_FILTER_OPTIONS,
-      paginatedPosts: isQnaFilter ? [] : feed.items,
+      paginatedPosts: hydratedFeedItems,
       qnaQuestions: isQnaFilter ? qnaQuestionList.items : [],
       postCount: isQnaFilter
         ? qnaQuestionList.totalElements

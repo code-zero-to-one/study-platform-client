@@ -124,6 +124,7 @@ export type CommunityQnaAnswersPageApiResponse =
 export interface CommunityQnaQuestionDetailAggregateApiResponse {
   question: CommunityQnaQuestionDetailApiResponse;
   viewer: CommunityQnaQuestionViewerApiResponse;
+  acceptedAnswer?: CommunityQnaAnswerApiResponse | null;
   questionCommentsPage: CommunityQnaQuestionCommentsPageApiResponse;
   answersPage: CommunityQnaAnswersPageApiResponse;
 }

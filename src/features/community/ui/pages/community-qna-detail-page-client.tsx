@@ -154,6 +154,7 @@ export default function CommunityQnaDetailPageClient({
       </CommunitySectionShell>
 
       <CommunityQnaAnswerComposeSection
+        acceptedAnswer={state.acceptedAnswer}
         answers={state.answersPageData?.items ?? []}
         onRefetchQuestionDetail={actions.refetchQuestionDetail}
         questionId={questionId}
@@ -177,6 +178,42 @@ export default function CommunityQnaDetailPageClient({
             </div>
 
             {panel}
+
+            {state.acceptedAnswer ? (
+              <CommunityQnaAnswerItem
+                answer={state.acceptedAnswer}
+                actionSlot={
+                  viewModel.myAnswerId === state.acceptedAnswer.id ||
+                  state.viewer.canAcceptAnswer ? (
+                    <div className="flex flex-wrap items-center justify-end gap-75">
+                      {viewModel.myAnswerId === state.acceptedAnswer.id
+                        ? myAnswerAction
+                        : null}
+                      <CommunityQnaAnswerAcceptanceActions
+                        answer={state.acceptedAnswer}
+                        canAcceptAnswer={state.viewer.canAcceptAnswer}
+                        currentAcceptedAnswerId={
+                          state.question.acceptedAnswerId
+                        }
+                        currentAnswerPage={viewModel.answerPage}
+                        onChangeAnswerPage={actions.handleAnswerPageChange}
+                        onRefetchQuestionDetail={actions.refetchQuestionDetail}
+                        questionId={questionId}
+                      />
+                    </div>
+                  ) : null
+                }
+                isMine={viewModel.myAnswerId === state.acceptedAnswer.id}
+                commentSection={
+                  <CommunityQnaAnswerCommentsSection
+                    answer={state.acceptedAnswer}
+                    onRefetchQuestionDetail={actions.refetchQuestionDetail}
+                    questionId={questionId}
+                    viewerImage={viewerImage ?? '/profile-default.svg'}
+                  />
+                }
+              />
+            ) : null}
 
             {state.answersPageData?.items.length ? (
               <div className="flex flex-col gap-150">
@@ -224,13 +261,13 @@ export default function CommunityQnaDetailPageClient({
                   );
                 })}
               </div>
-            ) : (
+            ) : !state.acceptedAnswer ? (
               <div className="rounded-200 border border-border-default bg-background-default p-250">
                 <p className="font-designer-14r text-text-subtle">
                   아직 등록된 답변이 없습니다.
                 </p>
               </div>
-            )}
+            ) : null}
 
             {viewModel.showAnswerPagination ? (
               <Pagination

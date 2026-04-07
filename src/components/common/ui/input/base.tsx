@@ -72,11 +72,15 @@ export const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
     ref,
   ) => {
     const isControlled = value !== undefined;
-    const current = value ?? '';
+    const [internalLength, setInternalLength] = React.useState(0);
+    const currentLength = isControlled ? (value ?? '').length : internalLength;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (typeof maxLength === 'number' && e.target.value.length > maxLength) {
         e.target.value = e.target.value.slice(0, maxLength);
+      }
+      if (!isControlled) {
+        setInternalLength(e.target.value.length);
       }
       onChange?.(e);
       onValueChange?.(e.target.value ?? '');
@@ -97,14 +101,14 @@ export const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
             className,
           )}
           {...props}
-          {...(isControlled ? { value: current } : {})}
+          {...(isControlled ? { value: value ?? '' } : {})}
           onChange={handleChange}
         />
         {!hideMeta && (
           <div className="font-designer-13r text-text-subtlest flex justify-between">
             <div>{guideText}</div>
             <div>
-              {current.length}/{maxLength}
+              {currentLength}/{maxLength}
             </div>
           </div>
         )}
