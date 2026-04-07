@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, Eye, MessageCircle } from 'lucide-react';
+import { ChevronLeft, Eye, MessageCircle, Share } from 'lucide-react';
 import Link from 'next/link';
 import Avatar from '@/components/common/ui/avatar';
 import PageContainer from '@/components/common/ui/page-container';
@@ -154,7 +154,7 @@ export default function CommunityQnaDetailPageClient({
       <CommunitySectionShell className="gap-300">
         <CommunityMarkdownContent content={state.question.contentHtml} />
 
-        <div className="self-start">
+        <div className="flex items-center gap-200 self-start rounded-100">
           <CommunityReactionButton
             isActive={viewModel.isQuestionLikedByViewer}
             count={viewModel.questionLikeCount}
@@ -164,6 +164,14 @@ export default function CommunityQnaDetailPageClient({
               viewModel.isQuestionLikedByViewer ? '좋아요 취소' : '좋아요'
             }
           />
+          <button
+            type="button"
+            onClick={actions.handleShareQuestion}
+            className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
+          >
+            <Share className="h-200 w-200" />
+            공유
+          </button>
         </div>
 
         <CommunityQnaQuestionCommentsSection

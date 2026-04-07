@@ -194,6 +194,29 @@ export const useCommunityQnaDetailController = ({
     }
   };
 
+  const handleShareQuestion = async () => {
+    const url = window.location.href;
+    const title = question?.title ?? '';
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('링크가 복사되었습니다.', 'success');
+    } catch {
+      showToast('링크 복사에 실패했습니다.', 'error');
+    }
+  };
+
   return {
     state: {
       question,
@@ -213,6 +236,7 @@ export const useCommunityQnaDetailController = ({
       handleCommentPageChange: (nextPage: number) => {
         replacePages({ nextCommentPage: nextPage });
       },
+      handleShareQuestion,
       handleToggleQuestionLike,
       handleToggleAnswerLike,
       refetchQuestionDetail: () => detailQuery.refetch(),
