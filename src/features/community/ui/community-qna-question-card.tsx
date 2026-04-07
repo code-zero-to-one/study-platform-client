@@ -6,7 +6,11 @@ import { useRouter } from 'next/navigation';
 import { useState, type MouseEvent } from 'react';
 import Avatar from '@/components/common/ui/avatar';
 import { buildCommunityQuestionHref } from '@/features/community/model/community-route';
-import { COMMUNITY_BOARD } from '@/types/community/domain';
+import {
+  COMMUNITY_BOARD,
+  type CommunityBoard,
+  isCommunityBoard,
+} from '@/types/community/domain';
 import type { CommunityQnaQuestionSummary } from '@/types/community/qna-domain';
 import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import { isCommunityCardNestedInteraction } from './community-card-navigation';
@@ -20,6 +24,7 @@ import {
 } from './community-qna-question-meta';
 
 interface CommunityQnaQuestionCardProps {
+  activeFilter?: string;
   currentPage?: number;
   question: CommunityQnaQuestionSummary;
 }
@@ -77,6 +82,7 @@ const isAllowedCommunityPreviewImageSrc = (value?: string) => {
 };
 
 export default function CommunityQnaQuestionCard({
+  activeFilter,
   currentPage,
   question,
 }: CommunityQnaQuestionCardProps) {
@@ -84,7 +90,13 @@ export default function CommunityQnaQuestionCard({
   const [failedPreviewImageSrc, setFailedPreviewImageSrc] = useState<
     string | undefined
   >();
-  const detailHref = buildCommunityQuestionHref(question.id, currentPage);
+  const resolvedBoard: CommunityBoard | undefined =
+    activeFilter && isCommunityBoard(activeFilter) ? activeFilter : undefined;
+  const detailHref = buildCommunityQuestionHref(
+    question.id,
+    currentPage,
+    resolvedBoard,
+  );
   const previewImageSrc = isAllowedCommunityPreviewImageSrc(
     question.previewImage,
   )

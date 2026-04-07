@@ -18,6 +18,7 @@ import CommunityPostOwnerActions from './community-post-owner-actions';
 import CommunityPostStats from './community-post-stats';
 
 interface CommunityPostCardProps {
+  activeFilter?: string;
   currentPage?: number;
   featuredLabel?: string;
   post: CommunityPost;
@@ -25,6 +26,7 @@ interface CommunityPostCardProps {
 }
 
 export default function CommunityPostCard({
+  activeFilter,
   currentPage,
   featuredLabel,
   post,
@@ -36,6 +38,7 @@ export default function CommunityPostCard({
     post.id,
     post.board,
     currentPage,
+    activeFilter,
   );
 
   const handleCardClick = (event: MouseEvent<HTMLElement>) => {

@@ -1,12 +1,18 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { normalizeCommunityPageParam } from '@/features/community/model/community-route';
+import {
+  normalizeCommunityBoardParam,
+  normalizeCommunityPageParam,
+} from '@/features/community/model/community-route';
 import CommunityDetailPageClient from '@/features/community/ui/pages/community-detail-page-client';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 interface CommunityDetailPageProps {
   params: Promise<{ postId: string }>;
-  searchParams: Promise<{ page?: string | string[] }>;
+  searchParams: Promise<{
+    page?: string | string[];
+    board?: string | string[];
+  }>;
 }
 
 const parsePostId = (rawPostId: string) => {
@@ -44,7 +50,7 @@ export default async function CommunityDetailPage({
   searchParams,
 }: CommunityDetailPageProps) {
   const { postId: rawPostId } = await params;
-  const { page } = await searchParams;
+  const { page, board } = await searchParams;
   const normalizedPostId = parsePostId(rawPostId);
 
   if (!normalizedPostId) {
@@ -55,6 +61,7 @@ export default async function CommunityDetailPage({
     <CommunityDetailPageClient
       postId={normalizedPostId}
       returnPage={normalizeCommunityPageParam(page)}
+      returnBoard={normalizeCommunityBoardParam(board)}
     />
   );
 }

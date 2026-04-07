@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { normalizeCommunityPageParam } from '@/features/community/model/community-route';
+import {
+  normalizeCommunityBoardParam,
+  normalizeCommunityPageParam,
+} from '@/features/community/model/community-route';
 import CommunityQnaDetailPageClient from '@/features/community/ui/pages/community-qna-detail-page-client';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 interface CommunityQuestionDetailPageProps {
   params: Promise<{ questionId: string }>;
   searchParams: Promise<{
+    board?: string | string[];
     page?: string | string[];
     answerPage?: string | string[];
     commentPage?: string | string[];
@@ -48,7 +52,7 @@ export default async function CommunityQuestionDetailPage({
   searchParams,
 }: CommunityQuestionDetailPageProps) {
   const { questionId: rawQuestionId } = await params;
-  const { page, answerPage, commentPage } = await searchParams;
+  const { board, page, answerPage, commentPage } = await searchParams;
   const normalizedQuestionId = parseQuestionId(rawQuestionId);
 
   if (!normalizedQuestionId) {
@@ -59,6 +63,7 @@ export default async function CommunityQuestionDetailPage({
     <CommunityQnaDetailPageClient
       questionId={normalizedQuestionId}
       returnPage={normalizeCommunityPageParam(page)}
+      returnBoard={normalizeCommunityBoardParam(board)}
       initialAnswerPage={normalizeCommunityPageParam(answerPage)}
       initialCommentPage={normalizeCommunityPageParam(commentPage)}
     />
