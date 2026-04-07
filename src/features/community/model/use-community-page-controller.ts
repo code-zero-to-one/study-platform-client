@@ -2,7 +2,7 @@
 
 import { useQueries } from '@tanstack/react-query';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { startTransition, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
 import { getCommunityErrorMessage } from '@/features/community/api/community-api';
 import {
   getCommunityQnaErrorMessage,
@@ -189,30 +189,30 @@ export const useCommunityPageController = ({
     : mergeCommunityFeedQnaPreviewImages(feed.items, qnaPreviewByQuestionId);
   const currentPage = isQnaFilter ? qnaQuestionList.page : feed.page;
 
-  const replaceUrlParams = (
-    nextPage: number,
-    nextFilter: CommunityFeedFilter,
-  ) => {
-    const nextSearchParams = new URLSearchParams();
-    const normalizedPage = Math.max(nextPage, COMMUNITY_DEFAULT_PAGE);
+  const replaceUrlParams = useCallback(
+    (nextPage: number, nextFilter: CommunityFeedFilter) => {
+      const nextSearchParams = new URLSearchParams();
+      const normalizedPage = Math.max(nextPage, COMMUNITY_DEFAULT_PAGE);
 
-    if (normalizedPage > COMMUNITY_DEFAULT_PAGE) {
-      nextSearchParams.set('page', String(normalizedPage));
-    }
+      if (normalizedPage > COMMUNITY_DEFAULT_PAGE) {
+        nextSearchParams.set('page', String(normalizedPage));
+      }
 
-    if (
-      nextFilter !== COMMUNITY_FEED_FILTER.ALL &&
-      isCommunityBoard(nextFilter)
-    ) {
-      nextSearchParams.set('board', nextFilter);
-    }
+      if (
+        nextFilter !== COMMUNITY_FEED_FILTER.ALL &&
+        isCommunityBoard(nextFilter)
+      ) {
+        nextSearchParams.set('board', nextFilter);
+      }
 
-    const nextQuery = nextSearchParams.toString();
+      const nextQuery = nextSearchParams.toString();
 
-    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
-      scroll: false,
-    });
-  };
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+        scroll: false,
+      });
+    },
+    [pathname, router],
+  );
 
   useEffect(() => {
     if (rawPageParam === null || rawPageParam === String(currentPage)) {
@@ -220,7 +220,7 @@ export const useCommunityPageController = ({
     }
 
     replaceUrlParams(currentPage, activeFilter);
-  }, [currentPage, pathname, rawPageParam, router, searchParams, activeFilter]);
+  }, [currentPage, rawPageParam, activeFilter, replaceUrlParams]);
 
   const replacePage = (nextPage: number) => {
     const normalizedPage = Math.max(nextPage, COMMUNITY_DEFAULT_PAGE);
