@@ -7,26 +7,37 @@ import {
   THUMBNAIL_EXTENSION,
   STUDY_METHODS,
 } from '@/config/group-study-const';
+
 import type {
   BasicInfoCommon,
   GroupStudyCreateRequest,
-  GroupStudyFormRequest,
   GroupStudyRequestCommon,
   GroupStudyUpdateRequest,
 } from '@/types/api/group-study.types';
-import { getContentTextLength } from '@/utils/markdown-content';
 import { getKoreaDate } from '@/utils/time';
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export const GROUP_STUDY_TITLE_MAX_LENGTH = 100;
 export const GROUP_STUDY_SUMMARY_MAX_LENGTH = 200;
-export const GROUP_STUDY_DESCRIPTION_MAX_LENGTH = 1000;
+export const GROUP_STUDY_DESCRIPTION_MAX_LENGTH = 2000;
 export const GROUP_STUDY_LOCATION_MAX_LENGTH = 255;
 export const GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH = 500;
 
 export const STUDY_CLASSIFICATION = ['GROUP_STUDY', 'PREMIUM_STUDY'] as const;
 export type StudyClassification = (typeof STUDY_CLASSIFICATION)[number];
+
+export interface GroupStudyPendingDescriptionImage {
+  file: File;
+  objectUrl: string;
+  macroFilename: string;
+}
+
+const GroupStudyPendingDescriptionImageSchema = z.object({
+  file: z.instanceof(File),
+  objectUrl: z.string().trim().min(1),
+  macroFilename: z.string().trim().min(1),
+});
 
 const GroupStudyBaseObjectSchema = z.object({
   classification: z.enum(STUDY_CLASSIFICATION),
@@ -91,19 +102,11 @@ const GroupStudyBaseObjectSchema = z.object({
       `한 줄 소개는 ${GROUP_STUDY_SUMMARY_MAX_LENGTH}자 이하로 입력해주세요.`,
     ),
   // 스터디 소개(2)
-  description: z
-    .string()
-    .trim()
-    .min(1, '스터디 소개를 입력해주세요.')
-    .superRefine((val, ctx) => {
-      const len = getContentTextLength(val);
-      if (len > GROUP_STUDY_DESCRIPTION_MAX_LENGTH) {
-        ctx.addIssue({
-          code: 'custom',
-          message: `스터디 소개는 ${GROUP_STUDY_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`,
-        });
-      }
-    }),
+  description: z.string().trim().min(1, '스터디 소개를 입력해주세요.'),
+  descriptionPendingImages: z
+    .array(GroupStudyPendingDescriptionImageSchema)
+    .optional()
+    .default([]),
   // 썸네일 START(2)
   thumbnailExtension: z
     .enum(THUMBNAIL_EXTENSION)
@@ -233,6 +236,7 @@ export function buildGroupStudyEditFormSchema(originalStartDate?: string) {
 export type GroupStudyFormValues = z.input<typeof GroupStudyFormSchema> & {
   thumbnailFile?: File | undefined;
   thumbnailUrl?: string | undefined;
+  descriptionPendingImages?: GroupStudyPendingDescriptionImage[] | undefined;
 };
 export type OpenGroupParsedValues = z.output<typeof GroupStudyFormSchema>;
 
@@ -257,6 +261,7 @@ export function buildOpenGroupDefaultValues(
     summary: '',
     interviewPost: [''],
     thumbnailExtension: 'DEFAULT',
+    descriptionPendingImages: [],
   };
 }
 
@@ -327,15 +332,4 @@ export function toUpdateRequest(
     ...buildCommonRequest(v),
     basicInfo: buildBasicInfoCommon(v),
   };
-}
-
-// ============================================================
-// 기존 함수 (하위 호환성 유지)
-// ============================================================
-
-/** @deprecated toCreateRequest 또는 toUpdateRequest 사용 권장 */
-export function toOpenGroupRequest(
-  v: GroupStudyFormValues,
-): GroupStudyFormRequest {
-  return toCreateRequest(v);
 }

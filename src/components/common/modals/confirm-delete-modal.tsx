@@ -12,7 +12,8 @@ interface ConfirmDeleteModalProps {
   confirmText: string;
   onConfirm: () => void;
   open: boolean;
-  onOpenChange: () => void;
+  onOpenChange: (open: boolean) => void;
+  isPending?: boolean;
 }
 
 export default function ConfirmDeleteModal({
@@ -22,6 +23,7 @@ export default function ConfirmDeleteModal({
   onConfirm,
   open,
   onOpenChange,
+  isPending = false,
 }: ConfirmDeleteModalProps) {
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -41,7 +43,8 @@ export default function ConfirmDeleteModal({
             <Button
               color="secondary"
               className="font-designer-16b h-600 px-200"
-              onClick={onOpenChange}
+              onClick={() => onOpenChange(false)}
+              disabled={isPending}
             >
               취소
             </Button>
@@ -49,6 +52,9 @@ export default function ConfirmDeleteModal({
               color="primary"
               className="font-designer-16b h-600 px-200"
               onClick={onConfirm}
+              loading={isPending}
+              loadingText={confirmText}
+              disabled={isPending}
             >
               {confirmText}
             </Button>

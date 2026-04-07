@@ -2,16 +2,22 @@
 
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import InquiryListTable from '@/components/lists/inquiry-list-table';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetQuestion, useGetQuestions } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const PAGE_SIZE = 15;
 
-const QuestionModal = dynamic(
-  () => import('@/components/common/modals/question-modal'),
+const CreateQuestionModal = dynamic(
+  () => import('@/components/common/modals/create-question-modal'),
+  { ssr: false },
+);
+
+const EditQuestionModal = dynamic(
+  () => import('@/components/common/modals/edit-question-modal'),
   { ssr: false },
 );
 
@@ -19,6 +25,7 @@ export default function InquiryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const showToast = useToastStore((state) => state.showToast);
+  const { isHydrated, memberId } = useAuthReady();
   const groupStudyIdStr = searchParams.get('groupStudyId');
   const groupStudyId = groupStudyIdStr ? Number(groupStudyIdStr) : null;
   const studyType = (searchParams.get('studyType') ?? 'group') as
@@ -32,6 +39,7 @@ export default function InquiryPage() {
 
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const blockedEditQuestionIdRef = useRef<number | null>(null);
 
   const closeEditModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -65,6 +73,38 @@ export default function InquiryPage() {
     showToast('수정할 문의 정보를 불러오지 못했습니다.', 'error');
     closeEditModal();
   }, [closeEditModal, hasValidEditQuestionId, isEditQuestionError, showToast]);
+
+  const canEditQuestion =
+    typeof memberId === 'number' && editQuestion?.authorId === memberId;
+
+  useEffect(() => {
+    if (!hasValidEditQuestionId || !editQuestion || !isHydrated) {
+      blockedEditQuestionIdRef.current = null;
+
+      return;
+    }
+
+    if (canEditQuestion) {
+      blockedEditQuestionIdRef.current = null;
+
+      return;
+    }
+
+    if (blockedEditQuestionIdRef.current === editQuestion.questionId) {
+      return;
+    }
+
+    blockedEditQuestionIdRef.current = editQuestion.questionId;
+    showToast('본인이 작성한 문의만 수정할 수 있습니다.', 'error');
+    closeEditModal();
+  }, [
+    canEditQuestion,
+    closeEditModal,
+    editQuestion,
+    hasValidEditQuestionId,
+    isHydrated,
+    showToast,
+  ]);
 
   const handleItemClick = (questionId: number) => {
     router.push(
@@ -120,38 +160,26 @@ export default function InquiryPage() {
       />
 
       {/* 문의하기 모달 */}
-      <QuestionModal
+      <CreateQuestionModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        studyId={groupStudyId}
+        groupStudyId={groupStudyId}
         studyType={studyType}
       />
 
-      <QuestionModal
-        open={hasValidEditQuestionId && !!editQuestion}
-        onOpenChange={(open) => {
-          if (!open) {
-            closeEditModal();
-          }
-        }}
-        studyId={groupStudyId}
-        studyType={studyType}
-        mode="edit"
-        questionId={editQuestionId ?? undefined}
-        initialValues={
-          editQuestion
-            ? {
-                title: editQuestion.title,
-                content: editQuestion.content,
-                category: editQuestion.category,
-                imageUrl:
-                  editQuestion.questionImage?.resizedImages?.[0]
-                    ?.resizedImageUrl,
-              }
-            : undefined
-        }
-        onAfterSubmit={closeEditModal}
-      />
+      {editQuestion && (
+        <EditQuestionModal
+          open={hasValidEditQuestionId && canEditQuestion}
+          onOpenChange={(open) => {
+            if (!open) {
+              closeEditModal();
+            }
+          }}
+          groupStudyId={groupStudyId}
+          question={editQuestion}
+          onSuccess={closeEditModal}
+        />
+      )}
 
       {hasValidEditQuestionId && isEditQuestionLoading && (
         <p className="font-designer-14r text-text-subtle mt-300 text-right">

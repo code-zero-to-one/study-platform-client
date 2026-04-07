@@ -16,7 +16,7 @@ export default function TestSentryPage() {
       // 테스트를 위해 의도적으로 null 접근 (런타임 에러 발생)
 
       const value = obj!.prop; // TypeError: Cannot read property 'prop' of null
-      console.log(value);
+      // console.log(value);
     } catch (error) {
       const errorInfo = analyzeError(error);
       sendErrorToSentry(errorInfo, { testType: 'client-error' });

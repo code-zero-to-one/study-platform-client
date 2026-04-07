@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function PostNotFound() {
   return (
-    <div className="bg-background-alternative my-500 flex h-[640px] w-[1164px]">
+    <div className="bg-background-alternative my-500 flex h-[300px] w-full sm:h-[640px]">
       <div className="m-auto flex flex-col items-center">
         <Image
           src="/images/post_not_found.png"

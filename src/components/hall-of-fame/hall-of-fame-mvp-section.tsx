@@ -16,7 +16,7 @@ export default function HallOfFameMvpSection({
 
   return (
     <div className="flex flex-col gap-300">
-      <h3 className="font-display-headings6 text-text-strong flex items-center gap-100">
+      <h3 className="font-display-headings6 text-text-strong flex items-start gap-100">
         <Users className="text-text-information h-5 w-5" />
         {weekLabel ? `${weekLabel} 스터디 MVP 팀` : '최근 스터디 MVP 팀'}
       </h3>

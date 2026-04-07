@@ -2,12 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createAnswer,
   createQuestion,
-  CreateQuestionRequest,
+  type CreateQuestionRequest,
+  deleteQuestion,
   getQuestion,
   getQuestions,
   modifyQuestion,
-  ModifyQuestionRequest,
-} from '@/api/endpoints/group-study/question-api';
+  type ModifyQuestionRequest,
+} from '@/api/endpoints/group-study/question';
 
 export const useCreateQuestion = () => {
   const queryClient = useQueryClient();
@@ -95,6 +96,32 @@ export const useModifyQuestion = () => {
     },
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
+        queryKey: ['question', variables.groupStudyId, variables.questionId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['questions', variables.groupStudyId],
+      });
+    },
+  });
+};
+
+export const useDeleteQuestion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      groupStudyId,
+      questionId,
+    }: {
+      groupStudyId: number;
+      questionId: number;
+    }) => {
+      const data = await deleteQuestion(groupStudyId, questionId);
+
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      queryClient.removeQueries({
         queryKey: ['question', variables.groupStudyId, variables.questionId],
       });
       await queryClient.invalidateQueries({

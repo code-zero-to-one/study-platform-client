@@ -39,6 +39,19 @@ export interface ToolbarButtonProps {
   onClick: () => void;
 }
 
+/**
+ * 마른다운 에디터 투바 단추늤 컴포넌트입니다.
+ * 비활성 남냁 아이콘낪니다.
+ * @param props - 단추늤 낭랇난늤 (아이콘, 라물, 상태 등)
+ * @returns 단추늤 배늨
+ * @example
+ * <ToolbarButton
+ *   icon={Bold}
+ *   label="굵으기"
+ *   isActive={isBoldActive}
+ *   onClick={() => editor.chain().focus().toggleBold().run()}
+ * />
+ */
 export function ToolbarButton({
   icon: Icon,
   label,

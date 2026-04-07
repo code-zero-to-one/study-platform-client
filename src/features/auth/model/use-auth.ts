@@ -1,7 +1,12 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { requestDocumentAuthRecovery } from '@/api/client/auth-session-recovery';
+import {
+  CLIENT_AUTH_SESSION_REFRESH_RESULT_STATES,
+  refreshClientAuthSession,
+} from '@/api/client/auth-session-refresh';
 import { getCookie } from '@/api/client/cookie';
 import { getMemberId } from '@/api/endpoints/auth/auth';
 import {
@@ -15,6 +20,7 @@ import { decodeJwt } from '@/utils/jwt';
 import { AUTH_COOKIE_NAMES } from './auth-cookie';
 import { useAuthHydration } from './auth-hydration-context';
 import { resolveTokenBackedSession, toNumberMemberId } from './auth-session';
+import { clearClientAuthState } from './client-auth-cleanup';
 import {
   isAuthSessionStorageEvent,
   subscribeAuthSessionChange,
@@ -33,6 +39,7 @@ export const useMemberId = () => {
 export interface DecodedToken {
   roleIds: AuthRoleId[];
   authVendor: AuthVendor;
+  // eslint-disable-next-line @rushstack/no-new-null
   memberId?: number | null;
   sub: string;
   iat: number;
@@ -91,6 +98,8 @@ interface ClientAuthSnapshot {
   memberId?: number;
   sessionState: AuthSessionState;
 }
+
+const CLIENT_AUTH_SESSION_RECOVERY_LEAD_MS = 10_000;
 
 const createAnonymousSnapshot = (): ClientAuthSnapshot => ({
   accessToken: undefined,
@@ -175,15 +184,37 @@ const isSameSnapshot = (
   currentSnapshot.isAuthenticated === nextSnapshot.isAuthenticated &&
   currentSnapshot.sessionState === nextSnapshot.sessionState;
 
+const getSnapshotTokenExpiryAt = (
+  snapshot: ClientAuthSnapshot,
+): number | undefined =>
+  typeof snapshot.data?.exp === 'number' ? snapshot.data.exp * 1000 : undefined;
+
+const shouldRecoverExpiringSession = (
+  snapshot: ClientAuthSnapshot,
+  now: number = Date.now(),
+): boolean => {
+  if (snapshot.sessionState === AUTH_SESSION_STATES.ANONYMOUS) {
+    return false;
+  }
+
+  const tokenExpiryAt = getSnapshotTokenExpiryAt(snapshot);
+
+  return (
+    typeof tokenExpiryAt === 'number' &&
+    tokenExpiryAt - now <= CLIENT_AUTH_SESSION_RECOVERY_LEAD_MS
+  );
+};
+
 export function useAuth(): UseAuthReturn {
   const { initialSession } = useAuthHydration();
   const [isHydrated, setIsHydrated] = useState(false);
   const [snapshot, setSnapshot] = useState<ClientAuthSnapshot>(() =>
     createClientAuthSnapshot(initialSession ?? {}),
   );
+  const snapshotRef = useRef(snapshot);
+  const sessionRecoveryTimerRef = useRef<number | undefined>(undefined);
 
-  useEffect(() => {
-    setIsHydrated(true);
+  const syncSnapshot = useCallback((): void => {
     setSnapshot((currentSnapshot) => {
       const nextSnapshot = getCurrentClientAuthSnapshot();
 
@@ -193,33 +224,75 @@ export function useAuth(): UseAuthReturn {
     });
   }, []);
 
+  const recoverClientSessionIfNeeded = useCallback(
+    async ({
+      allowWhenDocumentHidden = false,
+    }: {
+      allowWhenDocumentHidden?: boolean;
+    } = {}): Promise<void> => {
+      const currentSnapshot = snapshotRef.current;
+
+      if (!shouldRecoverExpiringSession(currentSnapshot)) {
+        syncSnapshot();
+
+        return;
+      }
+
+      if (
+        !allowWhenDocumentHidden &&
+        typeof document !== 'undefined' &&
+        document.visibilityState !== 'visible'
+      ) {
+        return;
+      }
+
+      const refreshResult = await refreshClientAuthSession();
+
+      if (
+        refreshResult.state ===
+        CLIENT_AUTH_SESSION_REFRESH_RESULT_STATES.SUCCESS
+      ) {
+        return;
+      }
+
+      if (
+        refreshResult.state ===
+        CLIENT_AUTH_SESSION_REFRESH_RESULT_STATES.INVALID
+      ) {
+        clearClientAuthState();
+        requestDocumentAuthRecovery();
+      }
+    },
+    [syncSnapshot],
+  );
+
+  const queueClientSessionRecovery = useCallback((): void => {
+    recoverClientSessionIfNeeded().catch((_error: unknown): void => {});
+  }, [recoverClientSessionIfNeeded]);
+
+  useEffect(() => {
+    snapshotRef.current = snapshot;
+  }, [snapshot]);
+
+  useEffect(() => {
+    setIsHydrated(true);
+    queueClientSessionRecovery();
+  }, [queueClientSessionRecovery]);
+
   useEffect(() => {
     return subscribeAuthSessionChange(() => {
-      setSnapshot((currentSnapshot) => {
-        const nextSnapshot = getCurrentClientAuthSnapshot();
-
-        return isSameSnapshot(currentSnapshot, nextSnapshot)
-          ? currentSnapshot
-          : nextSnapshot;
-      });
+      syncSnapshot();
     });
-  }, []);
+  }, [syncSnapshot]);
 
   useEffect(() => {
-    const syncSnapshot = (): void => {
-      setSnapshot((currentSnapshot) => {
-        const nextSnapshot = getCurrentClientAuthSnapshot();
-
-        return isSameSnapshot(currentSnapshot, nextSnapshot)
-          ? currentSnapshot
-          : nextSnapshot;
-      });
-    };
-
     const handleVisibilityChange = (): void => {
       if (document.visibilityState === 'visible') {
-        syncSnapshot();
+        queueClientSessionRecovery();
       }
+    };
+    const handleWindowFocus = (): void => {
+      queueClientSessionRecovery();
     };
     const handleStorage = (event: StorageEvent): void => {
       if (isAuthSessionStorageEvent(event)) {
@@ -228,19 +301,60 @@ export function useAuth(): UseAuthReturn {
     };
 
     // 같은 탭으로 다시 돌아왔을 때 서버/쿠키에서 바뀐 인증 상태를 다시 읽는다.
-    window.addEventListener('focus', syncSnapshot);
-    window.addEventListener('pageshow', syncSnapshot);
+    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('pageshow', handleWindowFocus);
     // 다른 탭에서 로그인/로그아웃이 일어나면 storage 이벤트로 현재 탭 auth 상태를 맞춘다.
     window.addEventListener('storage', handleStorage);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      window.removeEventListener('focus', syncSnapshot);
-      window.removeEventListener('pageshow', syncSnapshot);
+      window.removeEventListener('focus', handleWindowFocus);
+      window.removeEventListener('pageshow', handleWindowFocus);
       window.removeEventListener('storage', handleStorage);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [queueClientSessionRecovery, syncSnapshot]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const currentSnapshot = snapshotRef.current;
+    const tokenExpiryAt = getSnapshotTokenExpiryAt(currentSnapshot);
+
+    if (
+      currentSnapshot.sessionState === AUTH_SESSION_STATES.ANONYMOUS ||
+      typeof tokenExpiryAt !== 'number'
+    ) {
+      if (sessionRecoveryTimerRef.current) {
+        window.clearTimeout(sessionRecoveryTimerRef.current);
+        sessionRecoveryTimerRef.current = undefined;
+      }
+
+      return;
+    }
+
+    const recoveryDelay = Math.max(
+      tokenExpiryAt - Date.now() - CLIENT_AUTH_SESSION_RECOVERY_LEAD_MS,
+      0,
+    );
+
+    if (sessionRecoveryTimerRef.current) {
+      window.clearTimeout(sessionRecoveryTimerRef.current);
+    }
+
+    sessionRecoveryTimerRef.current = window.setTimeout(() => {
+      queueClientSessionRecovery();
+    }, recoveryDelay);
+
+    return () => {
+      if (sessionRecoveryTimerRef.current) {
+        window.clearTimeout(sessionRecoveryTimerRef.current);
+        sessionRecoveryTimerRef.current = undefined;
+      }
+    };
+  }, [queueClientSessionRecovery, snapshot]);
 
   return {
     accessToken: snapshot.accessToken,

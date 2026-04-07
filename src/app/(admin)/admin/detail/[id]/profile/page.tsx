@@ -1,5 +1,8 @@
 import { notFound } from 'next/navigation';
-import { getUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
+import {
+  SERVER_USER_PROFILE_RESULT_KINDS,
+  tryGetUserProfileInServer,
+} from '@/api/endpoints/user/get-user-profile.server';
 import ProfileInfoCard from '@/components/common/cards/profile-info-card';
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
@@ -17,14 +20,17 @@ export default async function ProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id: memberId } = await params;
-  const parsedMemberId = Number(memberId);
+  const profileResult = await tryGetUserProfileInServer(Number(memberId));
 
-  if (!Number.isFinite(parsedMemberId) || parsedMemberId <= 0) {
+  if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE) {
     notFound();
   }
 
-  const profile: GetUserProfileResponse =
-    await getUserProfileInServer(parsedMemberId);
+  if (profileResult.kind !== SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
+    throw profileResult.error;
+  }
+
+  const profile: GetUserProfileResponse = profileResult.profile;
   const temperPreset = getSincerityPresetByLevelName(
     profile.sincerityTemp.levelName,
   );

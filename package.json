@@ -25,10 +25,12 @@
     "api:on": "sh ./scripts/setup-backend.sh",
     "api:off": "docker-compose -f ../study-platform-mvp/docker-compose.yml down",
     "generate:api": "node scripts/api-generator.mjs",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
+    "@lottiefiles/dotlottie-react": "^0.18.9",
     "@microsoft/clarity": "^1.0.0",
     "@next/third-parties": "^15.3.3",
     "@radix-ui/react-avatar": "^1.1.9",
@@ -62,6 +64,7 @@
     "framer-motion": "^12.27.1",
     "googleapis": "^164.1.0",
     "hashids": "^2.3.0",
+    "heic2any": "0.0.4",
     "highlight.js": "^11.11.1",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.475.0",
@@ -117,13 +120,17 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "eslint-plugin-storybook": "^0.12.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.0.0",
     "playwright": "^1.51.1",
     "shadcn": "^2.4.0-canary.6",
     "storybook": "^8.6.12",
-    "strip-ansi": "6",
     "typescript": "^5",
     "typescript-eslint": "^8.24.0",
     "vitest": "^3.1.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,json,yml,yaml}": "biome format --write"
   },
   "resolutions": {
     "strip-ansi": "6.0.1"
