@@ -1,9 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -34,9 +32,14 @@ import {
 interface Props {
   memberProfile: MemberProfile;
   memberId: number;
+  onProfileUpdated?: () => Promise<void> | void;
 }
 
-export default function ProfileEditModal({ memberProfile, memberId }: Props) {
+export default function ProfileEditModal({
+  memberProfile,
+  memberId,
+  onProfileUpdated,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -63,6 +66,7 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
           <ProfileEditForm
             memberProfile={memberProfile}
             memberId={memberId}
+            onProfileUpdated={onProfileUpdated}
             onClose={() => setIsOpen(false)}
           />
         </Modal.Content>
@@ -74,11 +78,10 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
 function ProfileEditForm({
   memberProfile,
   memberId,
+  onProfileUpdated,
   onClose,
 }: Props & { onClose: () => void }) {
-  const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
-  const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
   const { mutateAsync: uploadProfileImage } = useUploadProfileImageMutation();
   const { data: techStacks = [] } = useTechStacksQuery();
@@ -145,10 +148,7 @@ function ProfileEditForm({
       }
     }
 
-    await queryClient.invalidateQueries({
-      queryKey: ['userProfile', memberId],
-    });
-    router.refresh();
+    await onProfileUpdated?.();
     onClose();
   };
 

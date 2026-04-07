@@ -7,6 +7,10 @@ import FormSectionCard from '@/components/common/ui/form/form-section-card';
 import MentorMarkdownEditor from '@/features/mentoring/ui/registration/markdown/mentor-markdown-editor';
 import FieldRequirementBadge from '@/features/mentoring/ui/registration/mentor-field-requirement-badge';
 import InterviewQuestionsTextarea from '@/features/mentoring/ui/registration/mentor-interview-questions-textarea';
+import {
+  MENTOR_DESCRIPTION_MAX_LENGTH,
+  MENTOR_DESCRIPTION_MIN_LENGTH,
+} from '@/types/schemas/mentor-registration-schema';
 import type { MentorRegistrationDescriptionStepProps } from './mentor-registration-step-content.types';
 
 export default function MentorRegistrationDescriptionStep({
@@ -47,6 +51,10 @@ export default function MentorRegistrationDescriptionStep({
           value={mentorDescriptionField.value ?? ''}
           onChange={mentorDescriptionField.onChange}
           placeholder="멘토 소개, 전문 분야, 상담 범위를 자유롭게 작성해주세요."
+          visibleTextCounter={{
+            helperText: `최소 ${MENTOR_DESCRIPTION_MIN_LENGTH.toLocaleString()}자`,
+            maxLength: MENTOR_DESCRIPTION_MAX_LENGTH,
+          }}
         />
         <FieldErrorText message={errors.detailedDescription?.message} />
         <section className="border-border-subtle space-y-100 border-t pt-200">

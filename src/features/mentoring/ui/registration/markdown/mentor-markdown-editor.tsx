@@ -17,12 +17,17 @@ interface MentorMarkdownEditorProps {
   value: string;
   onChange: (next: string) => void;
   placeholder?: string;
+  visibleTextCounter?: {
+    helperText?: string;
+    maxLength: number;
+  };
 }
 
 function MentorMarkdownEditor({
   value,
   onChange,
   placeholder,
+  visibleTextCounter,
 }: MentorMarkdownEditorProps) {
   const handleUploadImageFile = useCallback(async (file: File) => {
     const { name: fileName } = file;
@@ -44,6 +49,7 @@ function MentorMarkdownEditor({
       onChange={onChange}
       placeholder={placeholder}
       normalizeContent={normalizeMentorMarkdownContent}
+      visibleTextCounter={visibleTextCounter}
       imageConfig={{
         allowedImageExtensions: MENTOR_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS,
         maxImageCount: MENTOR_MARKDOWN_MAX_IMAGE_COUNT,

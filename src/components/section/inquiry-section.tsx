@@ -202,8 +202,7 @@ function DetailView({
     useDeleteQuestion();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const canEditQuestion = memberId === data?.authorId;
-  const canDeleteQuestion = canEditQuestion || isLeader || isAdmin;
+  const isQuestionAuthor = memberId === data?.authorId;
 
   const handleEditQuestion = () => {
     setIsEditModalOpen(true);
@@ -214,6 +213,11 @@ function DetailView({
   };
 
   const handleDeleteConfirm = () => {
+    if (!isQuestionAuthor) {
+      showToast('문의 삭제 권한이 없습니다.', 'error');
+      setIsDeleteModalOpen(false);
+      return;
+    }
     deleteQuestion(
       { groupStudyId, questionId },
       {
@@ -235,20 +239,19 @@ function DetailView({
     onMenuClick: () => void;
   }[] = [];
 
-  if (canEditQuestion) {
+  if (isQuestionAuthor) {
     moreMenuOptions.push({
       label: '수정하기',
       value: 'edit',
       onMenuClick: handleEditQuestion,
     });
-  }
-
-  if (canDeleteQuestion) {
-    moreMenuOptions.push({
-      label: '삭제하기',
-      value: 'delete',
-      onMenuClick: handleDeleteQuestion,
-    });
+    if (!data?.answer) {
+      moreMenuOptions.push({
+        label: '삭제하기',
+        value: 'delete',
+        onMenuClick: handleDeleteQuestion,
+      });
+    }
   }
 
   if (isLoading) {
@@ -415,7 +418,7 @@ function DetailView({
 
       {data && (
         <EditQuestionModal
-          open={isEditModalOpen && canEditQuestion}
+          open={isEditModalOpen && isQuestionAuthor}
           onOpenChange={setIsEditModalOpen}
           groupStudyId={groupStudyId}
           question={data}
