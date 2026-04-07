@@ -1,8 +1,17 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { isCommunityQnaNotFoundError } from '@/features/community/api/community-qna-api';
+import { useAuth } from '@/features/auth/model/use-auth';
+import {
+  getCommunityQnaErrorMessage,
+  isCommunityQnaNotFoundError,
+} from '@/features/community/api/community-qna-api';
+import {
+  useAssignCommunityQnaAnswerReactionMutation,
+  useAssignCommunityQnaQuestionReactionMutation,
+} from '@/features/community/model/use-community-qna-mutation';
 import { useCommunityQnaQuestionDetailQuery } from '@/features/community/model/use-community-qna-query';
+import { useToastStore } from '@/stores/use-toast-store';
 import { analyzeError, ErrorType, type ErrorInfo } from '@/utils/error-handler';
 import {
   COMMUNITY_DEFAULT_PAGE,
@@ -54,6 +63,11 @@ export const useCommunityQnaDetailController = ({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuth();
+  const showToast = useToastStore((state) => state.showToast);
+  const questionReactionMutation =
+    useAssignCommunityQnaQuestionReactionMutation();
+  const answerReactionMutation = useAssignCommunityQnaAnswerReactionMutation();
   const answerPage =
     normalizeCommunityPageParam(searchParams.get('answerPage')) ??
     initialAnswerPage;
@@ -88,6 +102,7 @@ export const useCommunityQnaDetailController = ({
 
   const question = detailQuery.data?.question;
   const viewer = detailQuery.data?.viewer;
+  const acceptedAnswer = detailQuery.data?.acceptedAnswer;
   const questionCommentsPageData = detailQuery.data?.questionCommentsPage;
   const answersPageData = detailQuery.data?.answersPage;
   const hasInvalidAggregate =
@@ -115,17 +130,101 @@ export const useCommunityQnaDetailController = ({
     : viewer.myAnswerId
       ? myAnswer
         ? '이미 답변을 작성했습니다. 내 답변 수정 또는 삭제를 진행할 수 있습니다.'
-        : '이미 답변을 작성했지만 현재 페이지에 내 답변이 없습니다. 페이지를 이동해 확인해 주세요.'
+        : '이미 답변을 작성했습니다.'
       : viewer.canCreateAnswer
         ? '이 질문에 답변을 남겨 보세요.'
-        : '개발자 등록 사용자만 답변을 작성할 수 있습니다.';
+        : viewer.canAcceptAnswer
+          ? undefined
+          : '개발자 등록 사용자만 답변을 작성할 수 있습니다.';
+
+  const handleToggleQuestionLike = async () => {
+    if (!question || !viewer || questionReactionMutation.isPending) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      showToast('로그인 후 좋아요를 누를 수 있습니다.', 'info');
+
+      return;
+    }
+
+    try {
+      await questionReactionMutation.mutateAsync({
+        questionId: question.id,
+        type: viewer.questionReaction === 'like' ? 'none' : 'like',
+      });
+    } catch (error) {
+      showToast(
+        getCommunityQnaErrorMessage(error, '좋아요 처리에 실패했습니다.'),
+        'error',
+      );
+    }
+  };
+
+  const handleToggleAnswerLike = async (answerId: number) => {
+    if (!question || answerReactionMutation.isPending) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      showToast('로그인 후 좋아요를 누를 수 있습니다.', 'info');
+
+      return;
+    }
+
+    const targetAnswer = answersPageData?.items.find(
+      (answer) => answer.id === answerId,
+    );
+
+    if (!targetAnswer) {
+      return;
+    }
+
+    try {
+      await answerReactionMutation.mutateAsync({
+        questionId: question.id,
+        answerId,
+        type: targetAnswer.viewer.reaction === 'like' ? 'none' : 'like',
+      });
+    } catch (error) {
+      showToast(
+        getCommunityQnaErrorMessage(error, '좋아요 처리에 실패했습니다.'),
+        'error',
+      );
+    }
+  };
+
+  const handleShareQuestion = async () => {
+    const url = window.location.href;
+    const title = question?.title ?? '';
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('링크가 복사되었습니다.', 'success');
+    } catch {
+      showToast('링크 복사에 실패했습니다.', 'error');
+    }
+  };
 
   return {
     state: {
       question,
       viewer,
+      acceptedAnswer,
       questionCommentsPageData,
       answersPageData,
+      isAuthenticated,
       isResolved: detailQuery.isSuccess || detailQuery.isError,
       isNotFound,
       errorInfo,
@@ -137,6 +236,9 @@ export const useCommunityQnaDetailController = ({
       handleCommentPageChange: (nextPage: number) => {
         replacePages({ nextCommentPage: nextPage });
       },
+      handleShareQuestion,
+      handleToggleQuestionLike,
+      handleToggleAnswerLike,
       refetchQuestionDetail: () => detailQuery.refetch(),
     },
     viewModel: {
@@ -146,6 +248,10 @@ export const useCommunityQnaDetailController = ({
       answerCount: question?.stats.answerCount ?? 0,
       myAnswerId: viewer?.myAnswerId,
       questionCommentCount: question?.stats.questionCommentCount ?? 0,
+      questionLikeCount: question?.stats.likeCount ?? 0,
+      isQuestionLikedByViewer: viewer?.questionReaction === 'like',
+      isQuestionReactionPending: questionReactionMutation.isPending,
+      isAnswerReactionPending: answerReactionMutation.isPending,
       answerTotalPages: Math.max(
         answersPageData?.totalPages ?? COMMUNITY_DEFAULT_PAGE,
         COMMUNITY_DEFAULT_PAGE,

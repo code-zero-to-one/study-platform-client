@@ -7,6 +7,7 @@ import {
   isCommunityQnaAccessDeniedError,
   isCommunityQnaAuthRequiredError,
   isCommunityQnaNotFoundError,
+  isCommunityQnaSelfAcceptanceError,
 } from '@/features/community/api/community-qna-api';
 import {
   useAcceptCommunityQnaAnswerMutation,
@@ -70,6 +71,13 @@ export const useCommunityQnaAnswerAcceptanceController = ({
     } catch (error) {
       if (isCommunityQnaAuthRequiredError(error)) {
         showToast(getCommunityQnaAuthRequiredMessage('답변을 채택'), 'info');
+
+        return;
+      }
+
+      if (isCommunityQnaSelfAcceptanceError(error)) {
+        await onRefetchQuestionDetail();
+        showToast('자신의 답변은 채택할 수 없습니다.', 'error');
 
         return;
       }

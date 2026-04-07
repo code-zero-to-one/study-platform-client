@@ -15,6 +15,7 @@ import CommunityMarkdownEditor from './community-markdown-editor';
 import CommunitySectionShell from './community-section-shell';
 
 interface CommunityQnaAnswerComposeSectionProps {
+  acceptedAnswer?: CommunityQnaAnswerItem;
   answers: readonly CommunityQnaAnswerItem[];
   children: (slots: {
     headerAction: ReactNode;
@@ -27,6 +28,7 @@ interface CommunityQnaAnswerComposeSectionProps {
 }
 
 export default function CommunityQnaAnswerComposeSection({
+  acceptedAnswer,
   answers,
   children,
   onRefetchQuestionDetail,
@@ -35,6 +37,7 @@ export default function CommunityQnaAnswerComposeSection({
 }: CommunityQnaAnswerComposeSectionProps) {
   const { form, state, actions, viewModel } =
     useCommunityQnaAnswerComposeController({
+      acceptedAnswer,
       answers,
       onRefetchQuestionDetail,
       questionId,

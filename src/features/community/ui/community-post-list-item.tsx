@@ -21,6 +21,7 @@ import CommunityPostOwnerActions from './community-post-owner-actions';
 import CommunityPostStats from './community-post-stats';
 
 interface CommunityPostListItemProps {
+  activeFilter?: string;
   currentPage?: number;
   featuredFrame?: boolean;
   featuredLabel?: string;
@@ -29,6 +30,7 @@ interface CommunityPostListItemProps {
 }
 
 export default function CommunityPostListItem({
+  activeFilter,
   currentPage,
   featuredFrame = false,
   featuredLabel,
@@ -44,6 +46,7 @@ export default function CommunityPostListItem({
     post.id,
     post.board,
     currentPage,
+    activeFilter,
   );
   const mediaBadge =
     featuredLabel || showBoardBadge ? (

@@ -26,11 +26,25 @@ export const resolveCommunityPage = (
   fallback = COMMUNITY_DEFAULT_PAGE,
 ) => normalizeCommunityPageParam(value) ?? fallback;
 
-export const buildCommunityListHref = (page?: number) => {
+export const buildCommunityListHref = (
+  page?: number,
+  board?: CommunityBoard,
+) => {
   const normalizedPage =
     typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const searchParams = new URLSearchParams();
 
-  return normalizedPage ? `/community?page=${normalizedPage}` : '/community';
+  if (normalizedPage) {
+    searchParams.set('page', String(normalizedPage));
+  }
+
+  if (board && isCommunityBoard(board)) {
+    searchParams.set('board', board);
+  }
+
+  const query = searchParams.toString();
+
+  return query ? `/community?${query}` : '/community';
 };
 
 export const normalizeCommunityBoardParam = (
@@ -66,23 +80,50 @@ export const buildCommunityWriteHref = (
   return query ? `/community/write?${query}` : '/community/write';
 };
 
-export const buildCommunityPostHref = (postId: number, page?: number) => {
+export const buildCommunityPostHref = (
+  postId: number,
+  page?: number,
+  board?: CommunityBoard,
+) => {
   const normalizedPage =
     typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
   const detailPath = `/community/${postId}`;
+  const searchParams = new URLSearchParams();
 
-  return normalizedPage ? `${detailPath}?page=${normalizedPage}` : detailPath;
+  if (normalizedPage) {
+    searchParams.set('page', String(normalizedPage));
+  }
+
+  if (board && isCommunityBoard(board)) {
+    searchParams.set('board', board);
+  }
+
+  const query = searchParams.toString();
+
+  return query ? `${detailPath}?${query}` : detailPath;
 };
 
 export const buildCommunityQuestionHref = (
   questionId: number,
   page?: number,
+  board?: CommunityBoard,
 ) => {
   const normalizedPage =
     typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
   const detailPath = `/community/questions/${questionId}`;
+  const searchParams = new URLSearchParams();
 
-  return normalizedPage ? `${detailPath}?page=${normalizedPage}` : detailPath;
+  if (normalizedPage) {
+    searchParams.set('page', String(normalizedPage));
+  }
+
+  if (board && isCommunityBoard(board)) {
+    searchParams.set('board', board);
+  }
+
+  const query = searchParams.toString();
+
+  return query ? `${detailPath}?${query}` : detailPath;
 };
 
 export const buildCommunityQuestionWriteHref = (page?: number) => {

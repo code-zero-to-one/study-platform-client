@@ -19,7 +19,7 @@ const GroupStudyFormModal = dynamic(
 const PREVIEW_LIMIT = 9;
 
 interface MemberGroupStudyList extends MemberStudyItem {
-  type: 'GROUP_STUDY';
+  type: 'GROUP_STUDY' | 'MENTOR_STUDY';
 }
 
 export default function MyStudy() {
@@ -28,7 +28,7 @@ export default function MyStudy() {
   const { data: notCompletedData, isLoading: isLoadingNotCompleted } =
     useMemberStudyListV2Query({
       memberId,
-      studyType: 'GROUP_STUDY',
+      studyType: 'BOTH',
       studyStatus: 'NOT_COMPLETED',
       pageSize: 50,
     });
@@ -36,7 +36,7 @@ export default function MyStudy() {
   const { data: completedData, isLoading: isLoadingCompleted } =
     useMemberStudyListV2Query({
       memberId,
-      studyType: 'GROUP_STUDY',
+      studyType: 'BOTH',
       studyStatus: 'COMPLETED',
       pageSize: 9,
     });
@@ -51,18 +51,19 @@ export default function MyStudy() {
       study.status === 'COMPLETED' ||
       (study.endTime && new Date(study.endTime) < now);
 
-    const isGroupStudy = (
+    const isGroupOrMentorStudy = (
       study: MemberStudyItem,
-    ): study is MemberGroupStudyList => study.type === 'GROUP_STUDY';
+    ): study is MemberGroupStudyList =>
+      study.type === 'GROUP_STUDY' || study.type === 'MENTOR_STUDY';
 
-    const groupStudies = allNotCompleted.filter(isGroupStudy);
+    const groupStudies = allNotCompleted.filter(isGroupOrMentorStudy);
     const active = groupStudies.filter((s) => !isEnded(s));
     const ended = groupStudies.filter(isEnded);
 
     return {
       notCompletedStudyList: active.slice(0, PREVIEW_LIMIT),
       completedStudyList: [
-        ...(completedData?.content ?? []).filter(isGroupStudy),
+        ...(completedData?.content ?? []).filter(isGroupOrMentorStudy),
         ...ended,
       ].slice(0, PREVIEW_LIMIT),
     };

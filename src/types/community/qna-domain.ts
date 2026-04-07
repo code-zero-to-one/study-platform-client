@@ -29,6 +29,7 @@ export interface CommunityQnaQuestionStats {
   viewCount: number;
   answerCount: number;
   questionCommentCount: number;
+  likeCount: number;
 }
 
 export interface CommunityQnaQuestionSummary {
@@ -68,6 +69,7 @@ export interface CommunityQnaQuestionViewer {
   canCreateAnswer: boolean;
   canAcceptAnswer: boolean;
   myAnswerId?: number;
+  questionReaction: string;
 }
 
 export interface CommunityQnaCommentViewer {
@@ -90,12 +92,14 @@ export interface CommunityQnaComment {
 
 export interface CommunityQnaAnswerStats {
   commentCount: number;
+  likeCount: number;
 }
 
 export interface CommunityQnaAnswerViewer {
   canEdit: boolean;
   canDelete: boolean;
   canComment: boolean;
+  reaction: string;
 }
 
 export interface CommunityQnaAnswerItem {
@@ -123,6 +127,7 @@ export interface CommunityQnaPageData<T> {
 export interface CommunityQnaQuestionDetailData {
   question: CommunityQnaQuestionDetail;
   viewer: CommunityQnaQuestionViewer;
+  acceptedAnswer?: CommunityQnaAnswerItem;
   questionCommentsPage: CommunityQnaPageData<CommunityQnaComment>;
   answersPage: CommunityQnaPageData<CommunityQnaAnswerItem>;
 }
@@ -158,6 +163,11 @@ export interface CommunityQnaAcceptanceData {
   questionId: number;
   acceptedAnswerId?: number;
   acceptedAt?: string;
+}
+
+export interface CommunityQnaReactionResult {
+  likeCount: number;
+  reaction: string;
 }
 
 export interface CommunityQnaQuestionViewEvent {

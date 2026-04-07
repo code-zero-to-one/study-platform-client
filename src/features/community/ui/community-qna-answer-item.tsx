@@ -10,6 +10,7 @@ import CommunityQnaAuthorSummary from './community-qna-author-summary';
 interface CommunityQnaAnswerItemProps {
   answer: CommunityQnaAnswerItemType;
   actionSlot?: ReactNode;
+  reactionSlot?: ReactNode;
   isMine?: boolean;
   commentSection?: ReactNode;
 }
@@ -17,6 +18,7 @@ interface CommunityQnaAnswerItemProps {
 export default function CommunityQnaAnswerItem({
   answer,
   actionSlot,
+  reactionSlot,
   isMine = false,
   commentSection,
 }: CommunityQnaAnswerItemProps) {
@@ -52,6 +54,8 @@ export default function CommunityQnaAnswerItem({
         />
 
         <CommunityMarkdownContent content={answer.contentHtml} />
+
+        {reactionSlot}
 
         {commentSection}
       </div>

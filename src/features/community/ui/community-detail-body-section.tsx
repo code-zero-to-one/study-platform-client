@@ -75,7 +75,7 @@ function CommunityDetailBodySection({
           {content.map((paragraph, index) => (
             <p
               key={`${postId}-${index}`}
-              className="font-designer-16r leading-300 text-text-default"
+              className="font-designer-20r leading-400 text-text-default"
             >
               {paragraph}
             </p>

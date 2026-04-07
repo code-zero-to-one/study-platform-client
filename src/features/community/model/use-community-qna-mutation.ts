@@ -7,6 +7,8 @@ import {
 } from '@tanstack/react-query';
 import {
   acceptCommunityQnaAnswer,
+  assignCommunityQnaAnswerReaction,
+  assignCommunityQnaQuestionReaction,
   clearCommunityQnaAnswerAcceptance,
   createCommunityQnaAnswer,
   createCommunityQnaAnswerComment,
@@ -28,7 +30,13 @@ import {
   mapCommunityQnaCommentDeleteResult,
   mapCommunityQnaQuestionDeleteResult,
   mapCommunityQnaQuestionDetail,
+  mapCommunityQnaReactionResult,
 } from '@/features/community/model/community-qna-api.mapper';
+import type {
+  CommunityQnaQuestionDetailData,
+  CommunityQnaQuestionSummary,
+} from '@/types/community/qna-domain';
+import type { CommunityQnaQuestionListData } from '@/types/community/qna-query';
 import { communityQnaQueryKeys } from '@/types/community/qna-query';
 
 const invalidateCommunityQnaQuestionListQueries = (
@@ -468,6 +476,144 @@ export const useDeleteCommunityQnaAnswerCommentMutation = () => {
           variables.answerId,
         ),
       ]);
+    },
+  });
+};
+
+const updateQuestionDetailReaction = (
+  current: CommunityQnaQuestionDetailData | undefined,
+  likeCount: number,
+  reaction: string,
+): CommunityQnaQuestionDetailData | undefined => {
+  if (!current) {
+    return current;
+  }
+
+  return {
+    ...current,
+    question: {
+      ...current.question,
+      stats: { ...current.question.stats, likeCount },
+    },
+    viewer: { ...current.viewer, questionReaction: reaction },
+  };
+};
+
+const updateAnswerDetailReaction = (
+  current: CommunityQnaQuestionDetailData | undefined,
+  answerId: number,
+  likeCount: number,
+  reaction: string,
+): CommunityQnaQuestionDetailData | undefined => {
+  if (!current) {
+    return current;
+  }
+
+  return {
+    ...current,
+    answersPage: {
+      ...current.answersPage,
+      items: current.answersPage.items.map((answer) =>
+        answer.id === answerId
+          ? {
+              ...answer,
+              stats: { ...answer.stats, likeCount },
+              viewer: { ...answer.viewer, reaction },
+            }
+          : answer,
+      ),
+    },
+  };
+};
+
+const updateQuestionListReaction = (
+  current: CommunityQnaQuestionListData | undefined,
+  questionId: number,
+  likeCount: number,
+): CommunityQnaQuestionListData | undefined => {
+  if (!current) {
+    return current;
+  }
+
+  return {
+    ...current,
+    items: current.items.map((question: CommunityQnaQuestionSummary) =>
+      question.id === questionId
+        ? { ...question, stats: { ...question.stats, likeCount } }
+        : question,
+    ),
+  };
+};
+
+export const useAssignCommunityQnaQuestionReactionMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ questionId, type }: { questionId: number; type: string }) =>
+      assignCommunityQnaQuestionReaction(questionId, { type }).then(
+        mapCommunityQnaReactionResult,
+      ),
+    onError: () => {},
+    onSuccess: (response, variables) => {
+      queryClient.setQueriesData<CommunityQnaQuestionDetailData>(
+        {
+          queryKey: communityQnaQueryKeys.questionDetailRoot(
+            variables.questionId,
+          ),
+        },
+        (current) =>
+          updateQuestionDetailReaction(
+            current,
+            response.likeCount,
+            response.reaction,
+          ),
+      );
+
+      queryClient.setQueriesData<CommunityQnaQuestionListData>(
+        { queryKey: communityQnaQueryKeys.questions() },
+        (current) =>
+          updateQuestionListReaction(
+            current,
+            variables.questionId,
+            response.likeCount,
+          ),
+      );
+    },
+  });
+};
+
+export const useAssignCommunityQnaAnswerReactionMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      questionId,
+      answerId,
+      type,
+    }: {
+      questionId: number;
+      answerId: number;
+      type: string;
+    }) =>
+      assignCommunityQnaAnswerReaction(answerId, { type }).then(
+        mapCommunityQnaReactionResult,
+      ),
+    onError: () => {},
+    onSuccess: (response, variables) => {
+      queryClient.setQueriesData<CommunityQnaQuestionDetailData>(
+        {
+          queryKey: communityQnaQueryKeys.questionDetailRoot(
+            variables.questionId,
+          ),
+        },
+        (current) =>
+          updateAnswerDetailReaction(
+            current,
+            variables.answerId,
+            response.likeCount,
+            response.reaction,
+          ),
+      );
     },
   });
 };

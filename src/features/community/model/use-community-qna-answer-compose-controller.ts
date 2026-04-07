@@ -18,6 +18,7 @@ import {
   isCommunityQnaDuplicateAnswerConflictError,
   isCommunityQnaIdempotencyConflictError,
   isCommunityQnaNotFoundError,
+  isCommunityQnaSelfAnswerError,
 } from '@/features/community/api/community-qna-api';
 import {
   useCreateCommunityQnaAnswerMutation,
@@ -35,6 +36,7 @@ import {
 } from '@/types/schemas/community-qna-answer-write-schema';
 
 interface UseCommunityQnaAnswerComposeControllerParams {
+  acceptedAnswer?: CommunityQnaAnswerItem;
   answers: readonly CommunityQnaAnswerItem[];
   onRefetchQuestionDetail: () => Promise<unknown>;
   questionId: number;
@@ -42,6 +44,7 @@ interface UseCommunityQnaAnswerComposeControllerParams {
 }
 
 export const useCommunityQnaAnswerComposeController = ({
+  acceptedAnswer,
   answers,
   onRefetchQuestionDetail,
   questionId,
@@ -62,7 +65,9 @@ export const useCommunityQnaAnswerComposeController = ({
     },
   });
   const myAnswer = viewer?.myAnswerId
-    ? answers.find((answer) => answer.id === viewer.myAnswerId)
+    ? acceptedAnswer?.id === viewer.myAnswerId
+      ? acceptedAnswer
+      : answers.find((answer) => answer.id === viewer.myAnswerId)
     : undefined;
   const hasMyAnswer = Boolean(viewer?.myAnswerId);
   const isMyAnswerVisible = Boolean(myAnswer);
@@ -152,6 +157,13 @@ export const useCommunityQnaAnswerComposeController = ({
           ),
           'info',
         );
+
+        return;
+      }
+
+      if (!isEditing && isCommunityQnaSelfAnswerError(error)) {
+        await onRefetchQuestionDetail();
+        showToast('자신이 작성한 질문에는 답변할 수 없습니다.', 'error');
 
         return;
       }
@@ -346,10 +358,12 @@ export const useCommunityQnaAnswerComposeController = ({
         : hasMyAnswer
           ? isMyAnswerVisible
             ? '이미 답변을 작성했습니다. 내 답변 수정 또는 삭제를 진행할 수 있습니다.'
-            : '이미 답변을 작성했지만 현재 페이지에 내 답변이 없어 이 화면에서는 수정/삭제할 수 없습니다.'
+            : '이미 답변을 작성했습니다.'
           : viewer?.canCreateAnswer
             ? '질문을 읽고 바로 답변을 작성해 보세요.'
-            : '개발자 등록 사용자만 답변을 작성할 수 있습니다.',
+            : viewer?.canAcceptAnswer
+              ? undefined
+              : '개발자 등록 사용자만 답변을 작성할 수 있습니다.',
       showEditor,
       showManageActions: hasMyAnswer && isMyAnswerVisible && !isEditing,
       composeButtonLabel: '답변 작성하기',
