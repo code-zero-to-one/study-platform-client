@@ -157,7 +157,7 @@ export default function HomeworkDetailContent({
         )}
       </div>
 
-      {showLeaderEvaluation && mission.status === 'EVALUATION_COMPLETED' && (
+      {showLeaderEvaluation && mission.status === 'ENDED' && (
         <LeaderEvaluationSection
           evaluation={homework.evaluation}
           homeworkId={homeworkId}
