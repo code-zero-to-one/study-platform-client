@@ -23,6 +23,7 @@ export default function StudyActiveTicker({
     : 0;
   const remaining = Math.max(0, safeMaxMembersCount - safeApprovedCount);
   const totalCount = safeApprovedCount;
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const messages = [

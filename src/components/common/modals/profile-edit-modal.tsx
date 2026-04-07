@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -33,9 +32,14 @@ import {
 interface Props {
   memberProfile: MemberProfile;
   memberId: number;
+  onProfileUpdated?: () => Promise<void> | void;
 }
 
-export default function ProfileEditModal({ memberProfile, memberId }: Props) {
+export default function ProfileEditModal({
+  memberProfile,
+  memberId,
+  onProfileUpdated,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -62,6 +66,7 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
           <ProfileEditForm
             memberProfile={memberProfile}
             memberId={memberId}
+            onProfileUpdated={onProfileUpdated}
             onClose={() => setIsOpen(false)}
           />
         </Modal.Content>
@@ -73,10 +78,10 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
 function ProfileEditForm({
   memberProfile,
   memberId,
+  onProfileUpdated,
   onClose,
 }: Props & { onClose: () => void }) {
   const showToast = useToastStore((state) => state.showToast);
-  const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
   const { mutateAsync: uploadProfileImage } = useUploadProfileImageMutation();
   const { data: techStacks = [] } = useTechStacksQuery();
@@ -132,20 +137,18 @@ function ProfileEditForm({
         imageFormData.append('file', defaultProfileFile);
       }
 
-      const filename = updatedProfile.profileImageUploadUrl.split('/').pop();
-      if (filename) {
-        try {
-          await uploadProfileImage({ memberId, filename, file: imageFormData });
-        } catch (error) {
-          console.error('이미지 업로드 실패:', error);
-          showToast('이미지 업로드에 실패했습니다.', 'error');
-        }
+      try {
+        await uploadProfileImage({
+          uploadUrl: updatedProfile.profileImageUploadUrl,
+          file: imageFormData,
+        });
+      } catch (error) {
+        console.error('이미지 업로드 실패:', error);
+        showToast('이미지 업로드에 실패했습니다.', 'error');
       }
     }
 
-    await queryClient.invalidateQueries({
-      queryKey: ['userProfile', memberId],
-    });
+    await onProfileUpdated?.();
     onClose();
   };
 
@@ -167,8 +170,9 @@ function ProfileEditForm({
                 setImage={setImage}
                 fileInputRef={fileInputRef}
                 handleImageChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
+                  if (e.target.files?.[0]) {
                     const file = e.target.files[0];
+                    if (image?.startsWith('blob:')) URL.revokeObjectURL(image);
                     setImage(URL.createObjectURL(file));
                   }
                 }}

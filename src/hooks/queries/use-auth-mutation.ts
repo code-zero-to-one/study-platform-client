@@ -2,12 +2,14 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useMutation } from '@tanstack/react-query';
-import { logout, signUp, uploadProfileImage } from '@/api/endpoints/auth/auth';
+import { axiosInstanceForMultipart } from '@/api/client/axios';
+import { logout, signUp } from '@/api/endpoints/auth/auth';
 import { AUTH_ROUTE_PATHS } from '@/features/auth/model/auth-route';
 import { clearClientAuthStateAndRedirect } from '@/features/auth/model/client-auth-cleanup';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
 import { hashValue } from '@/utils/hash';
+import { VIEWED_ARCHIVES_KEY } from './use-view-mutation';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
@@ -19,17 +21,18 @@ export const useSignUpMutation = () => {
 // 프로필 이미지 업로드 요청 커스텀 훅
 export function useUploadProfileImageMutation() {
   return useMutation({
-    mutationFn: (data: {
-      memberId: number;
-      filename: string;
-      file: FormData;
-    }) => uploadProfileImage(data.memberId, data.filename, data.file),
+    mutationFn: ({ uploadUrl, file }: { uploadUrl: string; file: FormData }) =>
+      axiosInstanceForMultipart.put(uploadUrl, file).then((r) => r.data),
   });
 }
 
 export const useLogoutMutation = () => {
   const { memberId } = useAuthReady();
   const finishLogout = (): void => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(VIEWED_ARCHIVES_KEY);
+    }
+
     clearClientAuthStateAndRedirect(AUTH_ROUTE_PATHS.HOME);
   };
 

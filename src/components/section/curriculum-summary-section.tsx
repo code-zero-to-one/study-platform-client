@@ -26,6 +26,7 @@ export default function CurriculumSummarySection({
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated } = useAuthReady();
+
   const loginTriggerRef = useRef<HTMLButtonElement>(null);
   const showToast = useToastStore((state) => state.showToast);
 
@@ -49,10 +50,10 @@ export default function CurriculumSummarySection({
   };
 
   return (
-    <div className="rounded-150 flex w-[335px] flex-col border border-[#D5D7DA] px-300 py-400">
+    <div className="rounded-150 flex w-full flex-col border border-border-default px-300 py-400 lg:w-[335px]">
       <div className="mb-300 flex items-center gap-100">
         <p className="font-designer-20b">커리큘럼 요약</p>
-        <span className="font-designer-16r text-[#A4A7AE]">
+        <span className="font-designer-16r text-text-subtlest">
           {curriculumSummary.length}주
         </span>
       </div>
@@ -75,7 +76,7 @@ export default function CurriculumSummarySection({
                       className="rounded-100 flex cursor-not-allowed items-center gap-150 border border-border-subtle px-200 py-300"
                       onClick={handleLockedClick}
                     >
-                      <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                      <span className="font-designer-15m w-250 shrink-0 text-center text-text-subtlest">
                         {item.weekNum}
                       </span>
                       <span className="font-designer-15m text-text-default flex-1 leading-snug">
@@ -98,7 +99,7 @@ export default function CurriculumSummarySection({
                 onClick={() => handleClickCurriculum(item.missionId)}
                 className="rounded-100 flex w-full cursor-pointer items-center gap-150 border border-border-subtle px-200 py-300 hover:bg-fill-neutral-subtle-hover"
               >
-                <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                <span className="font-designer-15m w-250 shrink-0 text-center text-text-subtlest">
                   {item.weekNum}
                 </span>
                 <span className="font-designer-15m text-text-default flex flex-1 leading-snug">
@@ -113,8 +114,8 @@ export default function CurriculumSummarySection({
       <LoginModal
         openTrigger={
           <button
-            type="button"
             ref={loginTriggerRef}
+            type="button"
             className="sr-only"
             aria-hidden
             tabIndex={-1}

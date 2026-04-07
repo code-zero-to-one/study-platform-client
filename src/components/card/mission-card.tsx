@@ -7,7 +7,6 @@ import { ComponentProps, SyntheticEvent } from 'react';
 
 import type { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/common/ui/badge';
-
 import Tooltip from '@/components/common/ui/tooltip';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
 

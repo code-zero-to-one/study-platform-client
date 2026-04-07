@@ -44,7 +44,7 @@ export default function StudySearch({
   }, []);
 
   return (
-    <div className="border-border-default bg-background-default rounded-100 flex h-500 w-[280px] items-center gap-100 border px-150">
+    <div className="border-border-default bg-background-default rounded-100 flex h-500 w-full items-center gap-100 border px-150 sm:w-[280px]">
       <Search className="text-text-subtlest size-4" />
       <input
         type="text"
