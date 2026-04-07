@@ -76,7 +76,6 @@ export interface MyReviewItem {
 
 export interface MyReviewsRequest {
   cursor: number | null;
-  pageSize?: number;
 }
 
 export interface MyReviewsResponse {

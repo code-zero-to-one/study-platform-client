@@ -59,7 +59,7 @@ describe('readServerAuthSession', () => {
     });
   });
 
-  it('keeps expired cookie-backed member tokens recoverable during SSR bootstrap when a refresh cookie exists', async () => {
+  it('keeps expired cookie-backed member tokens out of anonymous fallback during SSR hydration bootstrap', async () => {
     headersMock.mockResolvedValue(new Headers());
     getServerCookieMock.mockImplementation(async (name: string) => {
       if (name === AUTH_COOKIE_NAMES.ACCESS_TOKEN) {
@@ -68,10 +68,6 @@ describe('readServerAuthSession', () => {
 
       if (name === AUTH_COOKIE_NAMES.MEMBER_ID) {
         return '777';
-      }
-
-      if (name === AUTH_COOKIE_NAMES.REFRESH_TOKEN) {
-        return 'valid-refresh-token';
       }
 
       return undefined;
@@ -88,34 +84,6 @@ describe('readServerAuthSession', () => {
       accessToken: 'expired-access-token',
       authenticatedMemberId: 777,
       sessionState: AUTH_SESSION_STATES.AUTHENTICATED_MEMBER,
-    });
-  });
-
-  it('does not treat expired cookie-backed member tokens as recoverable during SSR bootstrap when no refresh cookie exists', async () => {
-    headersMock.mockResolvedValue(new Headers());
-    getServerCookieMock.mockImplementation(async (name: string) => {
-      if (name === AUTH_COOKIE_NAMES.ACCESS_TOKEN) {
-        return 'expired-access-token';
-      }
-
-      if (name === AUTH_COOKIE_NAMES.MEMBER_ID) {
-        return '777';
-      }
-
-      return undefined;
-    });
-    decodeJwtMock.mockReturnValue({
-      memberId: 777,
-      roleIds: ['ROLE_MEMBER'],
-      exp: Math.floor((Date.now() - 40_000) / 1000),
-    });
-
-    const { readServerAuthSession } = await import('./server-auth-session');
-
-    await expect(readServerAuthSession()).resolves.toMatchObject({
-      accessToken: 'expired-access-token',
-      authenticatedMemberId: undefined,
-      sessionState: AUTH_SESSION_STATES.ANONYMOUS,
     });
   });
 });

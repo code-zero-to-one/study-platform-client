@@ -18,7 +18,6 @@ export default function MyStudyInfoCard({
   endTime,
   participantsCount,
   maxMembersCount,
-  pendingCount,
   studyRole,
   title,
 }: MyStudyInfoCardProps) {
@@ -35,7 +34,7 @@ export default function MyStudyInfoCard({
           <Image
             src={thumbnail?.resizedImages[0]?.resizedImageUrl ?? undefined}
             alt={`${studyId}`}
-            className={`rounded-100 h-[244px] w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
+            className={`rounded-100 h-study-card w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
             width={244}
             height={210}
           />
@@ -79,15 +78,14 @@ export default function MyStudyInfoCard({
         </div>
       </Link>
 
-      {!!pendingCount &&
-        (status === 'RECRUITING' ||
-          status === 'ENDING_SOON' ||
-          status === 'IN_PROGRESS') &&
+      {(status === 'RECRUITING' ||
+        status === 'ENDING_SOON' ||
+        status === 'IN_PROGRESS') &&
         participantsCount < maxMembersCount &&
         studyRole === 'LEADER' && (
           <Link href={`/application-list/${studyId}`}>
             <Button color="secondary" className="w-full">
-              {`신청자 ${pendingCount}명 확인하기`}
+              신청자 N명 확인하기
             </Button>
           </Link>
         )}

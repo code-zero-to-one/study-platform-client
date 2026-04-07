@@ -4,7 +4,6 @@ import { DotIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { MemberNotificationResponse } from '@/api/openapi';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +38,6 @@ export default function NotificationDropdown() {
     notification: MemberNotificationResponse,
   ) => {
     if (!notification.isRead) {
-      if (!notification.id) return;
       readNotifications([notification.id]);
     }
   };
@@ -63,31 +61,25 @@ export default function NotificationDropdown() {
           )}
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        collisionPadding={16}
-        className="shadow-2 rounded-100 border-border-default bg-background-default w-[min(520px,calc(100vw-32px))] border"
-      >
+      <DropdownMenuContent className="shadow-2 rounded-100 border-border-default bg-background-default w-[520px] border">
         {/* Header */}
         <div className="border-border-default flex items-center gap-150 border-b p-200">
           <button
-            className={cn(
-              'cursor-pointer',
+            className={
               mode === 'all'
-                ? 'font-designer-12b text-text-subtle'
-                : 'font-designer-12m text-text-subtlest',
-            )}
+                ? 'font-designer-12b text-text-subtle cursor-pointer'
+                : 'font-designer-12m text-text-subtlest cursor-pointer'
+            }
             onClick={() => setMode('all')}
           >
             전체 {totalAllCount}
           </button>
           <button
-            className={cn(
-              'cursor-pointer',
+            className={
               mode === 'unread'
-                ? 'font-designer-12b text-text-subtle'
-                : 'font-designer-12m text-text-subtlest',
-            )}
+                ? 'font-designer-12b text-text-subtle cursor-pointer'
+                : 'font-designer-12m text-text-subtlest cursor-pointer'
+            }
             onClick={() => setMode('unread')}
           >
             안읽음 {totalUnreadCount}
@@ -111,7 +103,7 @@ export default function NotificationDropdown() {
         </div>
 
         {/* Footer */}
-        <div className="px-200 pb-300">
+        <div className="px-200 pb-[26px]">
           <Button
             color="outlined"
             size="medium"

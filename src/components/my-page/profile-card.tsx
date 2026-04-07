@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import {
@@ -46,19 +46,23 @@ export default function ProfileCard(props: ProfileCardProps) {
   };
 
   return (
-    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-border-subtle p-300">
+    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-[#E9EAEB] p-300">
       <div className="flex gap-150">
         <UserProfileModal
           memberId={applicant.applicantInfo.memberId}
           trigger={
-            <UserAvatar
-              image={
-                applicant.applicantInfo.profileImage?.resizedImages?.[0]
-                  ?.resizedImageUrl
-              }
-              size={48}
-              className="shrink-0 cursor-pointer"
-            />
+            <div className="relative h-600 w-600 shrink-0 cursor-pointer overflow-hidden rounded-full">
+              <Image
+                src={
+                  applicant.applicantInfo.profileImage?.resizedImages[0]
+                    .resizedImageUrl ?? ''
+                }
+                alt="profile"
+                width={48}
+                height={48}
+                className="h-full w-full object-cover"
+              />
+            </div>
           }
         />
         <div>
@@ -86,7 +90,7 @@ export default function ProfileCard(props: ProfileCardProps) {
         const matchedAnswer = applicant.answer.find((a) => a.id === q.id);
 
         return (
-          <div key={q.id} className="mb-200">
+          <div key={q.id} className="mb-4">
             <p className="font-designer-16b text-text-default">
               {q.id}. {q.question}
             </p>
@@ -98,12 +102,12 @@ export default function ProfileCard(props: ProfileCardProps) {
         );
       })}
 
-      <div className="flex w-full gap-100">
+      <div className="flex w-full justify-end gap-100">
         <Button
           size="medium"
           type="button"
           color="secondary"
-          className="flex-1 sm:flex-none sm:w-[120px]"
+          className="w-[120px]"
           onClick={() => onClick('REJECTED')}
         >
           반려
@@ -112,7 +116,7 @@ export default function ProfileCard(props: ProfileCardProps) {
           size="medium"
           type="button"
           color="primary"
-          className="flex-1 sm:flex-none sm:w-[120px]"
+          className="w-[120px]"
           onClick={() => onClick('APPROVED')}
         >
           승인

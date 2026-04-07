@@ -20,12 +20,12 @@ export default function MVPTeamCard({ team, className }: MVPTeamCardProps) {
   return (
     <div
       className={cn(
-        'rounded-200 shadow-2 relative overflow-hidden border border-yellow-200 bg-gradient-to-br from-yellow-50 to-gray-0 p-500',
+        'rounded-200 shadow-2 relative overflow-hidden border border-[#FFEBA4] bg-gradient-to-br from-[#FFF8E7] to-[#FFF] p-500',
         className,
       )}
     >
       <div className="absolute top-0 left-0 p-300 opacity-10">
-        <Trophy className="text-text-warning h-1500 w-1500" />
+        <Trophy className="text-text-warning h-[120px] w-[120px]" />
       </div>
       <div className="absolute top-400 right-400 z-20">
         <Tooltip
@@ -54,7 +54,7 @@ export default function MVPTeamCard({ team, className }: MVPTeamCardProps) {
           <span className="bg-fill-warning-subtle-default text-text-warning font-designer-12b border-border-warning-subtle rounded-[9999px] border px-150 py-50">
             {weekLabel || '최근 MVP 팀'}
           </span>
-          <h3 className="font-display-headings5 text-text-strong break-keep">
+          <h3 className="font-display-headings5 text-text-strong">
             최고의 스터디 메이트
           </h3>
         </div>
@@ -110,7 +110,7 @@ export default function MVPTeamCard({ team, className }: MVPTeamCardProps) {
                 rel="noopener noreferrer"
                 className="font-designer-13r text-text-subtle hover:text-text-information flex items-center gap-100 truncate transition-all hover:underline"
               >
-                <span className="bg-fill-neutral-subtle-default text-text-subtle font-designer-10r flex h-4 w-4 shrink-0 items-center justify-center rounded-full">
+                <span className="bg-fill-neutral-subtle-default text-text-subtle flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px]">
                   {i + 1}
                 </span>
                 {link.title}

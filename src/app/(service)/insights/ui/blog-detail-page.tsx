@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
 import { Article } from '@/api/strapi/api/fetch-articles';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface BlogDetailPageProps {
   article: Article & { id: number; documentId: string };
@@ -40,10 +39,10 @@ function ImageSlider({ files }: { files: any[] }) {
   };
 
   return (
-    <div className="mb-225 flex justify-center">
+    <div className="mb-[18px] flex justify-center">
       <div className="w-2/3">
         {/* 이미지 컨테이너 */}
-        <div className="relative overflow-hidden rounded-125 bg-background-accent-gray-subtle">
+        <div className="relative overflow-hidden rounded-[10px] bg-gray-100">
           <div
             className="flex transition-transform duration-500 ease-in-out"
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -70,17 +69,16 @@ function ImageSlider({ files }: { files: any[] }) {
 
         {/* 인디케이터 (점) */}
         {files.length > 1 && (
-          <div className="mt-100 flex justify-center gap-50">
+          <div className="mt-4 flex justify-center gap-2">
             {files.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={cn(
-                  'h-75 w-75 rounded-full transition-all',
+                className={`h-3 w-3 rounded-full transition-all ${
                   index === currentIndex
-                    ? 'w-200 bg-background-brand-default'
-                    : 'bg-fill-neutral-default-default hover:bg-fill-neutral-default-hover',
-                )}
+                    ? 'w-8 bg-[var(--color-rose-500)]'
+                    : 'bg-gray-400 hover:bg-gray-500'
+                }`}
                 aria-label={`${index + 1}번째 이미지로 이동`}
               />
             ))}
@@ -88,25 +86,25 @@ function ImageSlider({ files }: { files: any[] }) {
         )}
 
         {/* 이미지 카운터 + 좌우 버튼 */}
-        <div className="mt-50 flex items-center justify-center gap-100">
+        <div className="mt-2 flex items-center justify-center gap-4">
           {/* 이전 버튼 */}
           <button
             onClick={goToPrevious}
-            className="mr-125 flex h-500 w-500 items-center justify-center rounded-full bg-transparent text-2xl text-text-subtle transition-all hover:bg-fill-neutral-default-default"
+            className="mr-[10px] flex h-10 w-10 items-center justify-center rounded-full bg-transparent text-2xl text-gray-700 transition-all hover:bg-gray-200"
             aria-label="이전 이미지"
           >
             &lt;
           </button>
 
           {/* 카운터 */}
-          <div className="flex items-center text-lg font-bold text-text-subtle">
+          <div className="flex items-center text-lg font-bold text-gray-700">
             {currentIndex + 1} / {files.length}
           </div>
 
           {/* 다음 버튼 */}
           <button
             onClick={goToNext}
-            className="ml-125 flex h-500 w-500 items-center justify-center rounded-full bg-transparent text-2xl text-text-subtle transition-all hover:bg-fill-neutral-default-default"
+            className="ml-[10px] flex h-10 w-10 items-center justify-center rounded-full bg-transparent text-2xl text-gray-700 transition-all hover:bg-gray-200"
             aria-label="다음 이미지"
           >
             &gt;
@@ -117,193 +115,154 @@ function ImageSlider({ files }: { files: any[] }) {
   );
 }
 
-// 미디어(이미지/비디오) 블록 공통 래퍼
-function MediaFigure({
-  caption,
-  children,
-}: {
-  caption?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <figure className="my-800 w-full">
-      {children}
-      {caption && (
-        <figcaption className="mt-200 text-center font-designer-13r text-text-subtlest">
-          {caption}
-        </figcaption>
-      )}
-    </figure>
-  );
-}
-
 export default function BlogDetailPage({ article }: BlogDetailPageProps) {
+  // 마크다운 렌더러용 커스텀 컴포넌트 설정
   const MarkdownComponents = {
+    // 비디오 태그 처리
     video: (props: any) => {
-      const { src, children } = props;
-      if (!src) return null;
+      const { src, controls, style, children } = props;
+
+      if (!src) {
+        return null;
+      }
+
       const videoUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
 
       return (
-        <MediaFigure>
+        <span className="mb-[18px] flex justify-center">
           <video
-            controls
+            controls={controls !== undefined ? controls : true}
             playsInline
-            className="mx-auto w-full rounded-50 sm:w-4/5"
+            className="h-auto w-2/3 rounded-[10px]"
           >
             <source src={videoUrl} type="video/mp4" />
             {children}
           </video>
-        </MediaFigure>
+        </span>
       );
     },
-
+    // 이미지 변환 (![alt](src) -> <Image />)
     img: (image: any) => {
       const { src, alt } = image;
-      if (!src) return null;
+
+      if (!src) {
+        return null;
+      }
+
+      // 이미지 URL 처리 (상대 경로면 STRAPI_URL 붙이기)
       const imageUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
 
       return (
-        <MediaFigure>
+        <span className="mb-[18px] flex justify-center">
           <Image
             src={imageUrl}
-            alt={alt || ''}
-            width={740}
+            alt={alt || 'Article Content Image'}
+            width={800}
             height={500}
-            className="mx-auto w-full rounded-50 object-contain"
+            className="h-auto w-2/3 rounded-[10px] object-contain"
           />
-        </MediaFigure>
+        </span>
       );
     },
-
+    // 문단 (p)
     p: ({ children }: any) => (
-      <p className="mb-350 text-[16px] leading-[1.75] text-text-default [&_strong]:font-bold [&_strong]:text-text-strong sm:text-[17px]">
+      <p className="font-designer-18r mb-[18px] leading-8 text-[#333D4B]">
         {children}
       </p>
     ),
-
+    // 제목 (h1 ~ h5)
     h1: ({ children }: any) => (
-      <h1 className="mt-700 mb-250 text-[24px] font-bold leading-tight text-text-strong sm:text-[30px]">
+      <h1 className="mt-16 mb-200 text-3xl leading-tight font-bold text-[#181D27]">
         {children}
       </h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="mt-[60px] mb-300 text-[22px] font-bold leading-tight text-text-strong sm:text-[28px]">
+      <h2 className="mt-14 mb-200 text-2xl leading-tight font-bold text-[#181D27]">
         {children}
       </h2>
     ),
     h3: ({ children }: any) => (
-      <h3 className="mt-500 mb-200 text-[19px] font-bold leading-tight text-text-strong sm:text-[22px]">
+      <h3 className="mt-12 mb-200 text-xl leading-tight font-bold text-[#181D27]">
         {children}
       </h3>
     ),
     h4: ({ children }: any) => (
-      <h4 className="mt-400 mb-150 text-[17px] font-bold leading-tight text-text-strong sm:text-[18px]">
+      <h4 className="mt-10 mb-200 text-lg leading-tight font-bold text-[#181D27]">
         {children}
       </h4>
     ),
     h5: ({ children }: any) => (
-      <h5 className="mt-300 mb-125 text-[16px] font-bold leading-tight text-text-strong">
+      <h5 className="mt-8 mb-200 text-base leading-tight font-bold text-[#181D27]">
         {children}
       </h5>
     ),
-
+    // 리스트
     ul: ({ children }: any) => (
-      <ul className="mb-400 list-disc space-y-150 pl-300 text-[16px] leading-[1.75] text-text-default sm:text-[17px]">
-        {children}
-      </ul>
+      <ul className="my-8 list-inside list-disc space-y-3">{children}</ul>
     ),
     ol: ({ children }: any) => (
-      <ol className="mb-400 list-decimal space-y-150 pl-300 text-[16px] leading-[1.75] text-text-default sm:text-[17px]">
-        {children}
-      </ol>
+      <ol className="my-8 list-inside list-decimal space-y-3">{children}</ol>
     ),
-    li: ({ children }: any) => <li>{children}</li>,
-
+    li: ({ children }: any) => (
+      <li className="font-designer-18r leading-8 text-[#333D4B]">{children}</li>
+    ),
+    // 인용구
     blockquote: ({ children }: any) => (
-      <blockquote className="my-400 border-l-4 border-border-brand pl-200 text-[16px] leading-[1.75] text-text-subtle italic sm:text-[17px]">
+      <blockquote className="my-8 border-l-4 border-[var(--color-rose-500)] bg-[var(--color-rose-200)] p-6 leading-8 text-[#535862] italic">
         {children}
       </blockquote>
     ),
-
+    // 링크 (비디오 파일이면 video 태그로, 아니면 새 탭으로 열기)
     a: ({ href, children }: any) => {
-      if (!href) return <a>{children}</a>;
+      if (!href) {
+        return <a>{children}</a>;
+      }
 
+      // 비디오 파일 확장자 체크
       const isVideoFile = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(href);
+
       if (isVideoFile) {
         const videoUrl = href.startsWith('/') ? `${STRAPI_URL}${href}` : href;
 
         return (
-          <MediaFigure>
-            <video
-              controls
-              playsInline
-              className="mx-auto w-full rounded-50 sm:w-4/5"
-            >
+          <figure className="mb-[18px] flex justify-center">
+            <video controls playsInline className="h-auto w-2/3 rounded-[10px]">
               <source src={videoUrl} type="video/mp4" />
               브라우저가 비디오 태그를 지원하지 않습니다.
             </video>
-          </MediaFigure>
+          </figure>
         );
       }
 
+      // 일반 링크
       return (
         <a
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-text-brand underline-offset-2 hover:underline"
+          className="text-[var(--color-rose-500)] hover:underline"
         >
           {children}
         </a>
       );
     },
-
-    hr: () => <hr className="my-600 border-0 border-t border-border-subtle" />,
-
-    strong: ({ children }: any) => (
-      <strong className="font-bold text-text-strong">{children}</strong>
-    ),
-
-    // block code: pre가 배경/패딩/overflow 전담하므로 스타일 없이 반환
-    // inline code: 배경·색상·패딩만 담당
-    code: ({ children, className }: any) => {
-      const isBlock = className?.includes('language-');
-      if (isBlock) {
-        return (
-          <code className="font-mono font-designer-13r leading-[1.7] text-text-default">
-            {children}
-          </code>
-        );
-      }
-
-      return (
-        <code className="rounded-25 bg-background-accent-gray-subtle px-75 py-25 font-mono font-designer-13r text-text-error">
-          {children}
-        </code>
-      );
-    },
-
-    // pre가 블록 코드의 배경·패딩·overflow·radius를 단독 담당
-    pre: ({ children }: any) => (
-      <pre className="my-400 overflow-x-auto rounded-50 bg-background-alternative p-250 font-designer-13r leading-[1.7] text-text-default">
-        {children}
-      </pre>
-    ),
+    // 구분선 (---)
+    hr: () => <hr className="my-8 border-t border-[#E5E7EB]" />,
   };
 
   const renderBlock = (block: any, index: number) => {
     // 1. Rich Text
     if (block.__component?.includes('rich-text')) {
+      // Case A: 배열 데이터 (Blocks Editor)
       if (Array.isArray(block.body)) {
         return (
-          <div key={index} className="space-y-200">
+          <div key={index} className="space-y-6">
             {block.body.map((item: any, i: number) => {
               if (item.type === 'paragraph') {
                 return (
                   <p
                     key={i}
-                    className="mb-200 text-[16px] leading-[1.75] text-text-default"
+                    className="font-designer-18r mb-6 leading-8 text-[#333D4B]"
                   >
                     {item.children?.map((child: any, j: number) => (
                       <span key={j}>{child.text}</span>
@@ -318,11 +277,16 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
         );
       }
 
+      // Case B: 문자열 데이터 (Markdown)
       return (
-        <div key={index} className="text-[16px] text-text-default">
+        <div
+          key={index}
+          className="blog-content-markdown font-designer-18r text-[#333D4B]"
+        >
           {block.body ? (
             <ReactMarkdown
               components={MarkdownComponents}
+              // Markdown 내부에 있는 <u>, <span>, <br> 등의 HTML 태그를 파싱하고 렌더링하도록 허용
               rehypePlugins={[rehypeRaw]}
             >
               {block.body}
@@ -337,81 +301,131 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       return (
         <blockquote
           key={index}
-          className="my-400 rounded-r-50 border-l-4 border-border-brand bg-background-accent-rose-subtle py-200 pl-200 pr-250"
+          className="my-8 rounded-r-lg border-l-4 border-[var(--color-rose-500)] bg-[var(--color-rose-100)] p-6"
         >
           {block.title && (
-            <p className="mb-100 text-[16px] font-bold leading-[1.75] text-text-default">
+            <p className="font-designer-18b mb-3 leading-8 text-[#333D4B]">
               {block.title}
             </p>
           )}
-          <p className="text-[16px] leading-[1.75] text-text-subtle italic">
+          <p className="font-designer-18r leading-8 text-[#535862] italic">
             {block.body}
           </p>
         </blockquote>
       );
     }
 
-    // 3. 미디어
+    // 3. 미디어 (단독 블록 - Media: 이미지, 비디오, GIF 등)
     if (block.__component?.includes('media')) {
-      const resolveMedia = (raw: any) => {
-        const fileData = raw?.data || raw;
+      // block.file이 있는 경우 처리
+      if (block.file) {
+        const fileData = block.file.data || block.file;
         if (!fileData) return null;
-        const url = fileData.url?.startsWith('/')
+
+        const mediaUrl = fileData.url?.startsWith('/')
           ? `${STRAPI_URL}${fileData.url}`
           : fileData.url;
-        if (!url) return null;
 
-        return {
-          url,
-          mime: fileData.mime,
-          name: fileData.name,
-          alt: fileData.alternativeText || '',
-        };
-      };
+        if (!mediaUrl) return null;
 
-      const media = resolveMedia(block.file) ?? resolveMedia(block.data);
-      if (!media) return null;
+        // MIME 타입이나 확장자로 비디오인지 확인
+        const isVideo =
+          fileData.mime?.startsWith('video/') ||
+          mediaUrl.match(/\.(mp4|webm|ogg|mov)$/i);
 
-      const isVideo =
-        media.mime?.startsWith('video/') ||
-        /\.(mp4|webm|ogg|mov)$/i.test(media.url);
+        if (isVideo) {
+          return (
+            <figure key={index} className="mb-[18px] flex justify-center">
+              <video
+                controls
+                playsInline
+                className="h-auto w-2/3 rounded-[10px]"
+              >
+                <source src={mediaUrl} type={fileData.mime || 'video/mp4'} />
+                브라우저가 비디오 태그를 지원하지 않습니다.
+              </video>
+            </figure>
+          );
+        }
 
-      if (isVideo) {
+        // 이미지 또는 GIF 처리
         return (
-          <MediaFigure key={index}>
-            <video
-              controls
-              playsInline
-              className="mx-auto w-full rounded-50 sm:w-4/5"
-            >
-              <source src={media.url} type={media.mime || 'video/mp4'} />
-              브라우저가 비디오 태그를 지원하지 않습니다.
-            </video>
-          </MediaFigure>
+          <figure key={index} className="mb-[18px] flex justify-center">
+            <Image
+              src={mediaUrl}
+              alt={fileData.name || fileData.alternativeText || 'Media Image'}
+              width={800}
+              height={500}
+              className="h-auto w-2/3 rounded-[10px]"
+            />
+          </figure>
         );
       }
 
-      return (
-        <MediaFigure key={index}>
-          <Image
-            src={media.url}
-            alt={media.alt}
-            width={740}
-            height={500}
-            className="mx-auto w-full rounded-50 object-contain"
-          />
-        </MediaFigure>
-      );
+      // block에 직접 미디어 데이터가 있는 경우 처리
+      if (block.data) {
+        const mediaData = Array.isArray(block.data)
+          ? block.data[0]
+          : block.data;
+        const mediaUrl = mediaData?.url?.startsWith('/')
+          ? `${STRAPI_URL}${mediaData.url}`
+          : mediaData?.url;
+
+        if (!mediaUrl) return null;
+
+        // MIME 타입이나 확장자로 비디오인지 확인
+        const isVideo =
+          mediaData.mime?.startsWith('video/') ||
+          mediaUrl.match(/\.(mp4|webm|ogg|mov)$/i);
+
+        if (isVideo) {
+          return (
+            <figure key={index} className="mb-[18px] flex justify-center">
+              <video
+                controls
+                playsInline
+                className="h-auto w-2/3 rounded-[10px]"
+              >
+                <source src={mediaUrl} type={mediaData.mime || 'video/mp4'} />
+                브라우저가 비디오 태그를 지원하지 않습니다.
+              </video>
+            </figure>
+          );
+        }
+
+        // 이미지 또는 GIF 처리
+        return (
+          <figure key={index} className="mb-[18px] flex justify-center">
+            <Image
+              src={mediaUrl}
+              alt={mediaData.name || mediaData.alternativeText || 'Media Image'}
+              width={800}
+              height={500}
+              className="h-auto w-2/3 rounded-[10px]"
+            />
+          </figure>
+        );
+      }
+
+      return null;
     }
 
     // 4. 슬라이더
     if (block.__component?.includes('slider')) {
+      // files 데이터 확인 (여러 가능성 체크)
       let files = null;
-      if (block.files?.data) files = block.files.data;
-      else if (block.files && Array.isArray(block.files)) files = block.files;
-      else if (block.data && Array.isArray(block.data)) files = block.data;
 
-      if (!files || files.length === 0) return null;
+      if (block.files?.data) {
+        files = block.files.data;
+      } else if (block.files && Array.isArray(block.files)) {
+        files = block.files;
+      } else if (block.data && Array.isArray(block.data)) {
+        files = block.data;
+      }
+
+      if (!files || files.length === 0) {
+        return null;
+      }
 
       return <ImageSlider key={index} files={files} />;
     }
@@ -429,9 +443,9 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
   return (
     <div className="w-full">
-      {/* 커버 이미지 */}
+      {/* 커버 이미지 (GNB 바로 아래, 전체 너비) */}
       {coverUrl && (
-        <div className="relative h-[360px] w-full sm:h-[480px]">
+        <div className="relative h-[500px] w-full">
           <Image
             src={coverUrl}
             alt={article.title}
@@ -442,17 +456,16 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
         </div>
       )}
 
-      {/* 본문 전체 래퍼 */}
-      <div className="mx-auto w-full max-w-[740px] px-300 py-700 sm:px-500 lg:px-0">
-        <article>
-          {/* 헤더 영역 */}
-          <header className="mb-600">
-            {/* 카테고리 */}
+      <div className="flex w-full justify-center py-600">
+        <article className="mx-auto w-full max-w-5xl">
+          {/* 제목 영역 (테두리 제거) */}
+          <div className="mb-[50px] p-300">
+            {/* 카테고리 버튼 */}
             {article.category && (
-              <div className="mb-150">
+              <div className="mb-100">
                 <Link
                   href={`/insights?category=${article.category.slug}`}
-                  className="font-designer-13r inline-flex items-center gap-50 rounded-full border border-border-default px-150 py-50 text-text-subtle transition-colors hover:border-border-brand hover:text-text-brand"
+                  className="font-designer-15b inline-flex h-8 items-center justify-center gap-2 rounded-full bg-transparent px-3 text-[#535862] transition-colors hover:bg-[#F3F4F6]"
                 >
                   {article.category.name}
                 </Link>
@@ -460,66 +473,61 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             )}
 
             {/* 제목 */}
-            <h1 className="mb-200 text-[26px] font-bold leading-[1.35] text-text-strong sm:text-[34px]">
+            <h1 className="font-designer-32b mb-100 leading-tight text-[#181D27]">
               {article.title}
             </h1>
 
+            {/* 발행일 */}
+            <div className="mb-2.5 text-[#535862]">
+              <time className="font-designer-15r">
+                {formatDate(article.createdAt)}
+              </time>
+            </div>
+
             {/* 설명 */}
             {article.description && (
-              <p className="mb-200 text-[18px] font-bold leading-[1.75] text-text-default">
+              <p className="font-designer-18r leading-[1.75] text-[#535862]">
                 {article.description}
               </p>
             )}
+          </div>
 
-            {/* 발행일 */}
-            <time className="font-designer-14r text-text-subtlest">
-              {formatDate(article.publishedAt)}
-            </time>
-          </header>
-
-          {/* 본문 */}
-          <section className="min-h-[200px]">
+          {/* 본문 영역 카드 */}
+          <div className="rounded-100 mb-[75px] min-h-[200px] space-y-10 p-300">
             {article.blocks && article.blocks.length > 0 ? (
               article.blocks.map((block: any, index: number) =>
                 renderBlock(block, index),
               )
             ) : (
-              <p className="text-text-subtlest italic">내용이 없습니다.</p>
+              <p className="text-gray-400 italic">내용이 없습니다.</p>
             )}
-          </section>
+          </div>
 
-          {/* 저자 */}
+          {/* 저자 영역 카드 */}
           {article.author && (
-            <>
-              <hr className="my-600 border-0 border-t border-border-subtle" />
-              <footer className="flex items-center gap-200 rounded-100 border border-border-default p-250">
-                {article.author.avatar?.url && (
-                  <div className="relative h-[56px] w-[56px] flex-shrink-0 overflow-hidden rounded-full">
-                    <Image
-                      src={
-                        article.author.avatar.url.startsWith('/')
-                          ? `${STRAPI_URL}${article.author.avatar.url}`
-                          : article.author.avatar.url
-                      }
-                      alt={article.author.name || ''}
-                      width={56}
-                      height={56}
-                      className="object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex flex-col gap-50">
-                  <span className="font-designer-16b text-text-strong">
-                    {article.author.name}
-                  </span>
-                  {article.author.email && (
-                    <span className="font-designer-14r text-text-subtle">
-                      {article.author.email}
-                    </span>
-                  )}
+            <div className="rounded-100 flex items-center border border-solid border-[#D5D7DA] p-300">
+              {article.author.avatar?.url && (
+                <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full">
+                  <Image
+                    src={`${STRAPI_URL}${article.author.avatar.url}`}
+                    alt={article.author.name || ''}
+                    width={80}
+                    height={80}
+                    className="object-cover"
+                  />
                 </div>
-              </footer>
-            </>
+              )}
+              <div className="ml-100 flex flex-col gap-1">
+                <span className="font-designer-20b text-[#181D27]">
+                  {article.author.name}
+                </span>
+                {article.author.email && (
+                  <span className="font-designer-16r text-[#535862]">
+                    {article.author.email}
+                  </span>
+                )}
+              </div>
+            </div>
           )}
         </article>
       </div>

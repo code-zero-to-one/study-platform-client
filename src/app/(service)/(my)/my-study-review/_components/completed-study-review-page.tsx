@@ -40,15 +40,6 @@ interface StudyRoleSectionProps {
   onMemberClick?: (study: MemberStudyItem) => void;
 }
 
-const REVIEW_PERIOD_DAYS = 7;
-
-const isWithinReviewPeriod = (endTime: string) => {
-  const deadline = dayjs(endTime).add(REVIEW_PERIOD_DAYS, 'day');
-  const now = dayjs();
-
-  return now.isBefore(deadline) || now.isSame(deadline);
-};
-
 function StudyRoleSection({
   title,
   studies,
@@ -162,10 +153,6 @@ export default function CompletedStudyReviewPage({
         'info',
       );
 
-      return;
-    }
-
-    if (!isWithinReviewPeriod(study.endTime)) {
       return;
     }
 

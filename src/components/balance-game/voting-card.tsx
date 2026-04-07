@@ -53,21 +53,21 @@ export default function VotingCard({
       }
     >
       {/* 헤더: 작성자 & 상태 */}
-      <div className="mb-300 flex flex-wrap items-center justify-between gap-y-150">
+      <div className="mb-300 flex items-center justify-between">
         {/* 작성자 정보 */}
-        <div className="min-w-0" onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()}>
           <UserProfileModal
             memberId={voting.author.id}
             trigger={
-              <div className="hover:ring-fill-brand-default-default flex min-w-0 cursor-pointer items-center gap-200 rounded-full px-200 py-100 ring-1 ring-transparent transition-shadow duration-100 ring-inset">
-                <div className="shrink-0">
+              <div className="hover:ring-fill-brand-default-default flex cursor-pointer items-center gap-200 rounded-full px-200 py-100 ring-1 ring-transparent transition-shadow duration-100 ring-inset">
+                <div>
                   <UserAvatar
                     size={32}
                     image={authorImage || undefined}
                     className="relative z-10"
                   />
                 </div>
-                <span className="font-designer-13b text-text-default min-w-0 truncate">
+                <span className="font-designer-13b text-text-default">
                   {voting.author.nickname}
                 </span>
               </div>

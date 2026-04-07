@@ -1,18 +1,10 @@
 import { axiosInstance } from '@/api/client/axios';
-import type {
-  GroupStudyCreateRequest,
-  GroupStudyWriteResponse,
-} from '@/types/api/group-study.types';
+import { GroupStudyCreateRequest } from '@/types/api/group-study.types';
 
 // 그룹 스터디 개설
-export const createGroupStudy = async (
-  payload: GroupStudyCreateRequest,
-): Promise<GroupStudyWriteResponse> => {
+export const createGroupStudy = async (payload: GroupStudyCreateRequest) => {
   try {
-    const res = await axiosInstance.post<GroupStudyWriteResponse>(
-      '/group-studies',
-      payload,
-    );
+    const res = await axiosInstance.post('/group-studies', payload);
 
     return res.data;
   } catch (error) {

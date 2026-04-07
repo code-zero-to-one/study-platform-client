@@ -9,7 +9,6 @@ import { createPortal } from 'react-dom';
 
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
-import Button from '@/components/common/ui/button';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
 
@@ -22,20 +21,17 @@ const NAV_ITEMS = [
   { href: '/mentoring', label: '1:1 멘토링' },
   { href: '/group-study', label: '그룹스터디' },
   { href: '/premium-study', label: '멘토스터디' },
-  { href: '/community', label: '커뮤니티' },
   { href: '/insights', label: '인사이트' },
 ];
 
 interface MobileMenuDrawerProps {
   isLoggedIn: boolean;
   userImg?: string;
-  showDeveloperRegistrationEntry?: boolean;
 }
 
 export default function MobileMenuDrawer({
   isLoggedIn,
   userImg,
-  showDeveloperRegistrationEntry = false,
 }: MobileMenuDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -52,6 +48,7 @@ export default function MobileMenuDrawer({
     <>
       {/* 햄버거 버튼 — header 내부에 유지 */}
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
         aria-label="메뉴 열기"
         className="flex flex-col items-center justify-center gap-75 p-100"
@@ -93,7 +90,9 @@ export default function MobileMenuDrawer({
         createPortal(
           <>
             {/* 오버레이 */}
-            <div
+            <button
+              type="button"
+              aria-label="메뉴 닫기"
               className={cn(
                 'fixed inset-0 z-40 bg-background-dimmer transition-opacity duration-300',
                 isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
@@ -135,6 +134,7 @@ export default function MobileMenuDrawer({
                     </Link>
                   )}
                   <button
+                    type="button"
                     onClick={close}
                     aria-label="메뉴 닫기"
                     className="p-100"
@@ -181,18 +181,6 @@ export default function MobileMenuDrawer({
               <div className="border-t border-border-subtle px-400 py-300">
                 {isLoggedIn ? (
                   <div className="flex flex-col gap-200">
-                    {showDeveloperRegistrationEntry ? (
-                      <Button
-                        asChild
-                        size="small"
-                        color="outlined"
-                        className="font-designer-14m w-full"
-                      >
-                        <Link href="/developer-registration" onClick={close}>
-                          개발자 등록
-                        </Link>
-                      </Button>
-                    ) : null}
                     <Link
                       href="/my-page"
                       onClick={close}
@@ -201,6 +189,7 @@ export default function MobileMenuDrawer({
                       마이페이지
                     </Link>
                     <button
+                      type="button"
                       onClick={async () => {
                         close();
                         await logout();
@@ -213,7 +202,10 @@ export default function MobileMenuDrawer({
                 ) : (
                   <LoginModal
                     openTrigger={
-                      <button className="font-designer-14m text-text-subtle">
+                      <button
+                        type="button"
+                        className="font-designer-14m text-text-subtle"
+                      >
                         로그인 / 회원가입
                       </button>
                     }

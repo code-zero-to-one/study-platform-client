@@ -29,7 +29,7 @@ export default function MentoringPage() {
 
 function MentoringListPageSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-400 py-600">
+    <div className="mx-auto w-[1280px] px-400 py-600">
       <div className="flex h-[400px] items-center justify-center">
         <span className="text-text-subtle">로딩 중...</span>
       </div>

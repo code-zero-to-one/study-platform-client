@@ -45,18 +45,13 @@ export default function ApplicantPage(props: ApplicantListProps) {
           showToast('적용되었습니다.');
           await refetch();
         },
-        onError: (err: unknown) => {
-          if (err instanceof Error) {
-            throw err;
-          }
-          throw new Error('An unknown error occurred');
-        },
+        onError: (err) => console.log(err),
       },
     );
   };
 
   return (
-    <div className="m-auto flex w-full max-w-[720px] flex-col gap-300">
+    <div className="m-auto flex w-[720px] flex-col gap-300">
       <div className="font-designer-20b flex items-center">
         <Image
           src="/icons/arrow-left-line.svg"

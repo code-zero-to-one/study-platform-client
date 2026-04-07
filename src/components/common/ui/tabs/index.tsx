@@ -27,10 +27,6 @@ const lockedTabButtonClass = cn(
   'flex cursor-not-allowed items-center gap-50 border-transparent text-text-disabled',
 );
 
-// lockedTooltip이 없으면 disabled 버튼만 렌더
-// lockedTooltip이 있으면 Tooltip 래핑 + aria-disabled (pointer events 유지)
-// 웹: pointerEnter/Leave(mouse)로 hover 제어
-// 모바일: pointerDown(touch)으로 toggle 제어 — touch 시 pointerleave가 즉시 발생해 Radix가 닫히는 문제 해결
 function LockedTabButton({
   label,
   lockedTooltip,

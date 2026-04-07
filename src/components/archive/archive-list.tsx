@@ -189,7 +189,7 @@ const LibraryRow = ({
         ) : (
           <>
             <div className="flex items-center gap-100">
-              <h3 className="font-designer-16b text-text-strong group-hover:text-text-information transition-colors">
+              <h3 className="font-designer-16b text-text-strong group-hover:text-text-information truncate transition-colors">
                 {item.title}
               </h3>
               {canEdit && (

@@ -1,13 +1,25 @@
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import HeaderNav from '@/components/common/layout/header-nav';
+import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown';
+import MobileMenuDrawer from '@/components/common/layout/mobile-menu-drawer';
+import Button from '@/components/common/ui/button';
+import StudyMatchingToggle from '@/components/home/study-matching-toggle';
+import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
+import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 import {
   SERVER_USER_PROFILE_RESULT_KINDS,
   tryGetUserProfileInServer,
-} from '@/api/endpoints/user/get-user-profile.server';
-import HomeHeaderClient from '@/components/common/layout/home-header-client';
-import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
-import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
-import { tryGetMyDeveloperRegistrationInServer } from '@/features/developer/api/developer-registration-api.server';
+} from '@/features/auth/model/server-user-profile-result';
+
+const LoginModal = dynamic(
+  () => import('@/components/common/modals/login-modal'),
+);
+
+const NotificationDropdown = dynamic(
+  () => import('@/components/common/modals/notification-dropdown'),
+);
 
 export default async function Header() {
   const { sessionState, authenticatedMemberId: memberId } =
@@ -15,41 +27,18 @@ export default async function Header() {
   const isLoggedIn = isAuthenticatedMemberSessionState(sessionState);
 
   let userProfile = null;
-  let developerRegistration = null;
 
   if (isLoggedIn && memberId) {
-    const [profileSettled, developerRegistrationResult] =
-      await Promise.allSettled([
-        tryGetUserProfileInServer(memberId),
-        tryGetMyDeveloperRegistrationInServer(),
-      ]);
+    const profileResult = await tryGetUserProfileInServer(memberId);
 
-    if (profileSettled.status === 'fulfilled') {
-      const profileResult = profileSettled.value;
-
-      if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
-        userProfile = profileResult.profile;
-      } else if (
-        profileResult.kind !== SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE
-      ) {
-        console.error(
-          `[Header] Failed to fetch user profile for memberId=${memberId}`,
-          profileResult.error,
-        );
-      }
-    } else {
+    if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
+      userProfile = profileResult.profile;
+    } else if (
+      profileResult.kind !== SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE
+    ) {
       console.error(
         `[Header] Failed to fetch user profile for memberId=${memberId}`,
-        profileSettled.reason,
-      );
-    }
-
-    if (developerRegistrationResult.status === 'fulfilled') {
-      developerRegistration = developerRegistrationResult.value;
-    } else {
-      console.error(
-        `[Header] Failed to fetch developer registration for memberId=${memberId}`,
-        developerRegistrationResult.reason,
+        profileResult.error,
       );
     }
   }
@@ -58,8 +47,6 @@ export default async function Header() {
   const userImg = userProfile
     ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl
     : undefined;
-  const showDeveloperRegistrationEntry =
-    isLoggedIn && developerRegistration?.registered === false;
 
   return (
     <header className="bg-background-default py-125 mix-blend-multiply">
@@ -79,12 +66,37 @@ export default async function Header() {
           </span>
         </div>
 
-        <HomeHeaderClient
-          initialSessionState={sessionState}
-          initialAuthenticatedMemberId={memberId}
-          initialUserImg={userImg}
-          initialShowDeveloperRegistrationEntry={showDeveloperRegistrationEntry}
-        />
+        {/* 데스크톱 네비게이션 */}
+        <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-between">
+          <HeaderNav isLoggedIn={isLoggedIn} />
+
+          {isLoggedIn && (
+            <div className="flex items-center gap-200">
+              <StudyMatchingToggle />
+              <NotificationDropdown />
+            </div>
+          )}
+
+          <div className="ml-150">
+            {isLoggedIn ? (
+              <HeaderUserDropdown userImg={userImg} />
+            ) : (
+              <LoginModal
+                openTrigger={
+                  <Button size="small" className="font-designer-14m">
+                    로그인 / 회원가입
+                  </Button>
+                }
+              />
+            )}
+          </div>
+        </div>
+
+        {/* 모바일 햄버거 메뉴 */}
+        <div className="flex items-center gap-100 lg:hidden">
+          {isLoggedIn && <NotificationDropdown />}
+          <MobileMenuDrawer isLoggedIn={isLoggedIn} userImg={userImg} />
+        </div>
       </div>
     </header>
   );

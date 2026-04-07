@@ -61,14 +61,14 @@ export async function POST(request: NextRequest) {
       } catch (sheetsError) {
         console.error('Google Sheets 저장 실패:', sheetsError);
         // Google Sheets 저장 실패해도 폼 제출은 성공으로 처리
-        // console.log(
-        //   '폼 데이터 (Google Sheets 저장 실패, 로그만 기록):',
-        //   formData,
-        // );
+        console.log(
+          '폼 데이터 (Google Sheets 저장 실패, 로그만 기록):',
+          formData,
+        );
       }
     } else {
       // 환경 변수가 설정되지 않은 경우 콘솔에 로그만 출력
-      // console.log("폼 데이터 (Google Sheets 설정 없음):", formData);
+      console.log('폼 데이터 (Google Sheets 설정 없음):', formData);
     }
 
     return NextResponse.json(

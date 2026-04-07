@@ -9,10 +9,7 @@ vi.mock('@tanstack/react-query', () => ({
 vi.mock('@/api/endpoints/auth/auth', () => ({
   logout: vi.fn(),
   signUp: vi.fn(),
-}));
-
-vi.mock('@/api/client/axios', () => ({
-  axiosInstanceForMultipart: { put: vi.fn() },
+  uploadProfileImage: vi.fn(),
 }));
 
 vi.mock('@/features/auth/model/client-auth-cleanup', () => ({

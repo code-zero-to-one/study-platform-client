@@ -29,7 +29,7 @@ export default function SubComments({
     refetch: commentsRefetch,
   } = useCommentsQuery(groupStudyId, threadId);
 
-  // console.log(data, 'subcomment');
+  console.log(data, 'subcomment');
 
   const [commentText, setCommentText] = useState('');
 

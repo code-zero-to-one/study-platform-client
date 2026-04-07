@@ -25,8 +25,6 @@ interface DiscretionaryEvaluationModalProps {
   memberId: number;
 }
 
-const DISCRETION_EVALUATION_SCORE = 5;
-
 export default function DiscretionaryEvaluationModal({
   groupStudyId,
   memberId,
@@ -59,7 +57,7 @@ export default function DiscretionaryEvaluationModal({
               </Modal.Title>
               <p className="font-designer-14r text-text-subtle">
                 재량 평가는 최대 {EVALUATION_COUNT}회까지 가능하며, 각 평가별
-                {DISCRETION_EVALUATION_SCORE}점씩 부여됩니다.
+                5점씩 부여됩니다.
               </p>
             </div>
             <Modal.CloseButton onClick={() => setOpen(false)} />

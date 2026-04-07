@@ -81,11 +81,11 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
   // 마운트되지 않았거나 timeLeft가 계산되지 않았을 때는 placeholder 표시
   if (!isMounted || !timeLeft) {
     return (
-      <div className="flex shrink-0 items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
+      <div className="flex items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
         <Timer className="h-4 w-4" />
         <div className="flex items-baseline gap-150">
           <span className="font-designer-12b">남은 시간</span>
-          <span className="font-designer-14b font-mono tabular-nums whitespace-nowrap">
+          <span className="font-designer-14b font-mono tabular-nums">
             <span>00</span>
             <span className="mx-0.5 opacity-50">:</span>
             <span>00</span>
@@ -98,11 +98,11 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
   }
 
   return (
-    <div className="flex shrink-0 items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
+    <div className="flex items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
       <Timer className="h-4 w-4" />
       <div className="flex items-baseline gap-150">
         <span className="font-designer-12b">남은 시간</span>
-        <span className="font-designer-14b font-mono tabular-nums whitespace-nowrap">
+        <span className="font-designer-14b font-mono tabular-nums">
           {timeLeft.days > 0 && (
             <>
               <span>{timeLeft.days}일</span>

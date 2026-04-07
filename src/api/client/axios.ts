@@ -20,7 +20,7 @@ export const axiosInstance = axios.create({
 // multipart 요청용
 export const axiosInstanceForMultipart = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
-  timeout: 60000, // 파일 업로드 전용 — 클라이언트→백엔드 전송 + 백엔드→S3 처리 여유
+  timeout: 10000,
   headers: {
     // JS에서 formData 를 넘길땐 Content-Type 생략해야 자동으로 multipart/form-data + boundary 설정됨
   },

@@ -21,20 +21,10 @@ import {
   Underline as UnderlineIcon,
   Undo2,
 } from 'lucide-react';
-import {
-  type FormEvent,
-  memo,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
-import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
-import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
-import { hasClipboardImageHint } from './clipboard-utils';
-import EditorVisibleTextCounter from './editor-visible-text-counter';
+import { normalizeMarkdownContent } from '@/utils/markdown-content';
 import {
   InstantCodeBlockExtension,
   lowlight,
@@ -44,6 +34,7 @@ import {
 import {
   type MarkdownEditorImageConfig,
   clampImageWidth,
+  hasClipboardImageHint,
   MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS,
   MARKDOWN_IMAGE_DEFAULT_MAX_COUNT,
   MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE,
@@ -69,18 +60,10 @@ interface MarkdownEditorProps {
   uploadImage?: (file: File) => Promise<string>;
   normalizeContent?: (content: unknown) => string;
   imageConfig?: MarkdownEditorImageConfig;
-  visibleTextCounter?: {
-    helperText?: string;
-    maxLength: number;
-  };
   'aria-invalid'?: boolean;
   'aria-describedby'?: string;
 }
 
-/**
- * 마크다운 에디터 컴포넌트입니다.
- * 마크다운 문법, 이미지 업로드, 코드블록 등을 지원합니다.
- */
 function MarkdownEditor({
   id,
   name,
@@ -91,33 +74,16 @@ function MarkdownEditor({
   uploadImage,
   normalizeContent = normalizeMarkdownContent,
   imageConfig,
-  visibleTextCounter,
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedBy,
 }: MarkdownEditorProps) {
   const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
   const [, forceEditorRerender] = useState(0);
-  const [isLinkInputOpen, setIsLinkInputOpen] = useState(false);
-  const [linkInputValue, setLinkInputValue] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const editorContentWrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeContent(value);
-  const currentVisibleTextLength = useMemo(() => {
-    return getRichContentVisibleTextLength(normalizedValue);
-  }, [normalizedValue]);
-
-  /**
-   * 유효한 에디터 인스턴스를 반환합니다.
-   * null이거나 destroyed 상태이면 null을 반환합니다.
-   */
-  const getValidEditorInstance = (): Editor | null => {
-    if (!editorRef.current || editorRef.current.isDestroyed) {
-      return null;
-    }
-    return editorRef.current;
-  };
 
   const resolvedImageConfig = useMemo(() => {
     if (imageConfig) {
@@ -215,22 +181,23 @@ function MarkdownEditor({
           return false;
         }
 
-        if (!hasClipboardImageHint(clipboardData)) {
-          return false;
-        }
+        if (hasClipboardImageHint(clipboardData)) {
+          event.preventDefault();
+          const editorInstance =
+            editorRef.current && !editorRef.current.isDestroyed
+              ? editorRef.current
+              : null;
 
-        event.preventDefault();
-        const editorInstance = getValidEditorInstance();
+          if (editorInstance) {
+            handleClipboardPaste(editorInstance, clipboardData).catch(() => {
+              setImageInsertError('이미지 붙여넣기에 실패했습니다.');
+            });
+          }
 
-        if (!editorInstance) {
-          setImageInsertError('이미지 붙여넣기에 실패했습니다.');
           return true;
         }
 
-        handleClipboardPaste(editorInstance, clipboardData).catch(() => {
-          setImageInsertError('이미지 붙여넣기에 실패했습니다.');
-        });
-        return true;
+        return false;
       },
       handleDrop: (_, event) => {
         if (!resolvedImageConfig) {
@@ -251,16 +218,16 @@ function MarkdownEditor({
         }
 
         event.preventDefault();
-        const editorInstance = getValidEditorInstance();
+        const editorInstance =
+          editorRef.current && !editorRef.current.isDestroyed
+            ? editorRef.current
+            : null;
 
-        if (!editorInstance) {
-          setImageInsertError('이미지 드롭에 실패했습니다.');
-          return true;
+        if (editorInstance) {
+          handleImageFiles(editorInstance, imageFiles).catch(() => {
+            setImageInsertError('이미지 드롭에 실패했습니다.');
+          });
         }
-
-        handleImageFiles(editorInstance, imageFiles).catch(() => {
-          setImageInsertError('이미지 드롭에 실패했습니다.');
-        });
 
         return true;
       },
@@ -300,12 +267,6 @@ function MarkdownEditor({
     };
   }, []);
 
-  /**
-   * 마크다운 내용을 단순내 넣늤른 답베비는른 단진를 뎭니다.
-   * @param e - 목록 붔토 단진
-   * @example
-   * handleToggleLink()
-   */
   const handleToggleLink = () => {
     if (!editor) {
       return;
@@ -317,37 +278,15 @@ function MarkdownEditor({
       return;
     }
 
-    setLinkInputValue('https://');
-    setIsLinkInputOpen(true);
-  };
+    const url = window.prompt('링크 URL을 입력해주세요.', 'https://');
 
-  /**
-   * 링크 URL을 에디터에 적용합니다.
-   */
-  const handleLinkSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const trimmedUrl = linkInputValue.trim();
-    if (editor && trimmedUrl) {
-      editor.chain().focus().setLink({ href: trimmedUrl }).run();
+    if (!url) {
+      return;
     }
-    setIsLinkInputOpen(false);
-    setLinkInputValue('');
+
+    editor.chain().focus().setLink({ href: url.trim() }).run();
   };
 
-  /**
-   * 링크 입력 쪼랜기를 취소합니다.
-   * @example
-   * handleLinkCancel()
-   */
-  const handleLinkCancel = () => {
-    setIsLinkInputOpen(false);
-    setLinkInputValue('');
-  };
-
-  /**
-   * 코드블록 토글 기능입니다.
-   * 선택된 여러줄 텍스트를 코드블록으로 감쌀 수 있습니다.
-   */
   const handleToggleCodeBlock = () => {
     if (!editor) {
       return;
@@ -355,47 +294,42 @@ function MarkdownEditor({
 
     const { selection, doc } = editor.state;
     const { from, to, empty } = selection;
-    const isCodeBlockActive = editor?.isActive('codeBlock');
 
-    // 이미 코드블록이거나 선택이 없으면 간단히 토글
-    if (isCodeBlockActive || empty) {
+    if (editor.isActive('codeBlock') || empty) {
       editor.chain().focus().toggleCodeBlock().run();
+
       return;
     }
 
     const selectedText = doc.textBetween(from, to, '\n', '\n');
-    const hasMultipleLines = selectedText.includes('\n');
-
-    // 선택 텍스트가 한 줄이면 간단히 토글
-    if (!hasMultipleLines) {
+    if (!selectedText.includes('\n')) {
       editor.chain().focus().toggleCodeBlock().run();
+
       return;
     }
 
-    // 여러 줄이면 선택 텍스트를 코드블록으로 감싸기
-    const codeBlockContent = {
-      type: 'text',
-      text: selectedText,
-    };
-    const codeBlockNode = {
-      type: 'codeBlock',
-      attrs: {
-        language: 'plaintext',
-      },
-      content: [codeBlockContent],
-    };
-    const insertCommand = editor
+    editor
       .chain()
       .focus()
-      .insertContentAt({ from, to }, codeBlockNode)
-      .setTextSelection(from + 1);
-
-    insertCommand.run();
+      .insertContentAt(
+        { from, to },
+        {
+          type: 'codeBlock',
+          attrs: {
+            language: 'plaintext',
+          },
+          content: [
+            {
+              type: 'text',
+              text: selectedText,
+            },
+          ],
+        },
+      )
+      .setTextSelection(from + 1)
+      .run();
   };
 
-  /**
-   * 선택된 이미지의 너비를 변경합니다.
-   */
   const handleImageWidthChange = (nextWidth: number) => {
     if (!editor || selectedImagePos === null) {
       return;
@@ -408,15 +342,14 @@ function MarkdownEditor({
       return;
     }
 
-    const imageChain = editor
+    const didUpdate = editor
       .chain()
       .focus()
       .setNodeSelection(selectedImagePos)
       .updateAttributes('image', {
         width: clampImageWidth(nextWidth),
-      });
-
-    const didUpdate = imageChain.run();
+      })
+      .run();
 
     if (!didUpdate) {
       return;
@@ -432,9 +365,8 @@ function MarkdownEditor({
     editor && selectedImagePos !== null
       ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
       : MARKDOWN_IMAGE_DEFAULT_WIDTH;
-
-  const activeCodeBlockControl = useMemo(() => {
-    if (!editor?.isActive('codeBlock')) {
+  const activeCodeBlockControl = (() => {
+    if (!editor || !editor.isActive('codeBlock')) {
       return null;
     }
 
@@ -444,33 +376,27 @@ function MarkdownEditor({
     }
 
     const { $from } = editor.state.selection;
-    const parentIsCodeBlock = $from.parent.type.name === 'codeBlock';
-    if (!parentIsCodeBlock) {
+    if ($from.parent.type.name !== 'codeBlock') {
       return null;
     }
 
     const codeBlockPos = $from.before();
-    const codeBlockElement = editor.view.nodeDOM(codeBlockPos);
-    const isValidCodeBlockElement = codeBlockElement instanceof HTMLElement;
-    if (!isValidCodeBlockElement) {
+    const codeBlockNode = editor.view.nodeDOM(codeBlockPos);
+    if (!(codeBlockNode instanceof HTMLElement)) {
       return null;
     }
 
     const wrapperRect = editorContentWrapper.getBoundingClientRect();
-    const codeBlockRect = codeBlockElement.getBoundingClientRect();
-    const relativeTop = codeBlockRect.top - wrapperRect.top + 6;
-    const relativeLeft = codeBlockRect.left - wrapperRect.left + 10;
-    const language =
-      (editor.getAttributes('codeBlock').language as string | undefined) ??
-      'plaintext';
+    const codeBlockRect = codeBlockNode.getBoundingClientRect();
 
     return {
-      language,
-      top: Math.max(6, relativeTop),
-      left: Math.max(10, relativeLeft),
+      language:
+        (editor.getAttributes('codeBlock').language as string | undefined) ??
+        'plaintext',
+      top: Math.max(6, codeBlockRect.top - wrapperRect.top + 6),
+      left: Math.max(10, codeBlockRect.left - wrapperRect.left + 10),
     };
-    // editor.state는 매 트랜잭션마다 새 객체 — 선택·텍스트 변경 시 재계산
-  }, [editor]);
+  })();
 
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
@@ -569,40 +495,6 @@ function MarkdownEditor({
           </Button>
         )}
       </div>
-
-      {isLinkInputOpen && (
-        <form
-          onSubmit={handleLinkSubmit}
-          className="border-border-subtle flex items-center gap-100 border-b px-125 py-75"
-        >
-          <input
-            type="url"
-            value={linkInputValue}
-            onChange={(e) => setLinkInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') handleLinkCancel();
-            }}
-            placeholder="https://"
-            autoFocus
-            aria-label="링크 URL 입력"
-            className={cn(
-              'font-designer-14r text-text-default bg-background-default',
-              'min-w-0 flex-1 border-0 p-0 focus:outline-none',
-            )}
-          />
-          <Button type="submit" color="primary" size="small">
-            추가
-          </Button>
-          <Button
-            type="button"
-            color="secondary"
-            size="small"
-            onClick={handleLinkCancel}
-          >
-            취소
-          </Button>
-        </form>
-      )}
 
       {isImageActive && (
         <div className="border-border-subtle flex items-center gap-100 border-b px-150 py-100">
@@ -714,14 +606,6 @@ function MarkdownEditor({
           </p>
         </div>
       )}
-
-      {visibleTextCounter ? (
-        <EditorVisibleTextCounter
-          currentLength={currentVisibleTextLength}
-          helperText={visibleTextCounter.helperText}
-          maxLength={visibleTextCounter.maxLength}
-        />
-      ) : null}
 
       {imageInsertError && (
         <p className="font-designer-12r text-text-error px-150 pb-100">

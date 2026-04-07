@@ -5,58 +5,15 @@ import {
   AvatarFallback as RadixAvatarFallback,
   AvatarImage as RadixAvatarImage,
 } from '@radix-ui/react-avatar';
-import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useState } from 'react';
 import { cn } from '../(shadcn)/lib/utils';
-
-const INVALID_AVATAR_SENTINEL = 'LOCAL';
-
-const normalizeAvatarPath = (value: string) => {
-  const trimmedValue = value.trim();
-  if (!trimmedValue) {
-    return '';
-  }
-
-  const normalizedValue = trimmedValue.replace(/\/+$/, '');
-
-  return normalizedValue || '/';
-};
-
-const isKnownInvalidAvatarImage = (value: string) => {
-  const trimmedValue = value.trim();
-
-  if (!trimmedValue) {
-    return true;
-  }
-
-  if (trimmedValue.toUpperCase() === INVALID_AVATAR_SENTINEL) {
-    return true;
-  }
-
-  if (trimmedValue.startsWith('/')) {
-    return (
-      normalizeAvatarPath(trimmedValue).toUpperCase() ===
-      `/${INVALID_AVATAR_SENTINEL}`
-    );
-  }
-
-  try {
-    const parsedUrl = new URL(trimmedValue);
-
-    return (
-      normalizeAvatarPath(parsedUrl.pathname).toUpperCase() ===
-      `/${INVALID_AVATAR_SENTINEL}`
-    );
-  } catch {
-    return false;
-  }
-};
 
 interface UserAvatarProps {
   image: string | undefined;
   alt?: string;
   size?: number | string;
   className?: string;
-  fallbackSrc?: string;
 }
 
 export default function Avatar({
@@ -64,20 +21,17 @@ export default function Avatar({
   alt = 'profile-image',
   size = 32,
   className,
-  fallbackSrc = '/profile-default.svg',
   ...props
 }: UserAvatarProps) {
   const [isError, setIsError] = useState(false);
   const fallbackSize = typeof size === 'number' ? size : 32;
 
-  useEffect(() => {
-    setIsError(false);
-  }, [image]);
-
+  // 유효하지 않은 이미지 URL 필터링 (LOCAL, 빈 문자열, 상대 경로만 있는 경우 등)
   const isValidImage =
     image &&
     typeof image === 'string' &&
-    !isKnownInvalidAvatarImage(image) &&
+    image.trim() !== '' &&
+    image.toUpperCase() !== 'LOCAL' &&
     (image.startsWith('http://') ||
       image.startsWith('https://') ||
       image.startsWith('blob:') ||
@@ -108,13 +62,12 @@ export default function Avatar({
       )}
 
       <RadixAvatarFallback>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={fallbackSrc}
+        <Image
+          src="/profile-default.svg"
           alt="error-image"
-          className="h-full w-full object-cover"
           width={fallbackSize}
           height={fallbackSize}
+          className="h-full w-full object-cover"
         />
       </RadixAvatarFallback>
     </RadixAvatar>
