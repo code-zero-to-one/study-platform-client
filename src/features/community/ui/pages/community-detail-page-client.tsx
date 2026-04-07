@@ -124,7 +124,7 @@ export default function CommunityDetailPageClient({
           커뮤니티로 돌아가기
         </Link>
 
-        <div className="self-start">
+        <div className="mt-50 self-start">
           <CommunityBoardBadge board={state.post.board} />
         </div>
 
@@ -202,28 +202,18 @@ export default function CommunityDetailPageClient({
         }
         currentPage={viewModel.currentCommentsPage}
         errorMessage={state.commentsErrorMessage}
+        isAuthenticated={state.isAuthenticated}
         isLoading={state.isCommentsLoading}
         isCommentDisabled={!state.isAuthenticated}
+        resetKey={state.commentInteractionResetKey}
         showPagination={viewModel.showCommentPagination}
         totalPages={viewModel.totalCommentPages}
         viewerImage={viewerImage ?? '/profile-default.svg'}
-        commentDraft={state.commentDraft}
-        editingCommentId={state.editingCommentId}
-        editingDraft={state.editingDraft}
-        replyDraft={state.replyDraft}
-        replyTargetId={state.replyTargetId}
-        onCancelEditing={actions.handleCancelEditingComment}
-        onCloseReply={actions.handleCloseReply}
-        onCommentDraftChange={actions.handleCommentDraftChange}
+        onChangePage={actions.handleCommentPageChange}
         onDeleteComment={actions.handleDeleteComment}
-        onEditingDraftChange={actions.handleEditingDraftChange}
-        onOpenReply={actions.handleOpenReply}
-        onReplyDraftChange={actions.handleReplyDraftChange}
-        onStartEditing={actions.handleStartEditingComment}
         onSubmitComment={actions.handleSubmitComment}
         onSubmitEditedComment={actions.handleSubmitEditedComment}
         onSubmitReply={actions.handleSubmitReply}
-        onChangePage={actions.handleCommentPageChange}
         onToggleCommentReaction={actions.handleToggleCommentReaction}
       />
 

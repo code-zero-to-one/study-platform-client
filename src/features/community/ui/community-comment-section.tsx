@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Pagination from '@/components/common/ui/pagination';
+import { useToastStore } from '@/stores/use-toast-store';
 import type {
   CommunityComment,
   CommunityCommentReactionSelection,
@@ -8,6 +10,26 @@ import type {
 import CommunityCommentForm from './community-comment-form';
 import CommunityCommentItem from './community-comment-item';
 import CommunitySectionShell from './community-section-shell';
+import { getCommunityErrorMessage } from '../api/community-api';
+
+const findCommentById = (
+  comments: readonly CommunityComment[],
+  commentId: number,
+): CommunityComment | undefined => {
+  for (const comment of comments) {
+    if (comment.id === commentId) {
+      return comment;
+    }
+
+    const nestedComment = findCommentById(comment.replies, commentId);
+
+    if (nestedComment) {
+      return nestedComment;
+    }
+  }
+
+  return undefined;
+};
 
 interface CommunityCommentSectionProps {
   comments: readonly CommunityComment[];
@@ -15,28 +37,22 @@ interface CommunityCommentSectionProps {
   commentPlaceholder?: string;
   currentPage: number;
   errorMessage?: string;
+  isAuthenticated: boolean;
   isLoading?: boolean;
   isCommentDisabled?: boolean;
+  resetKey: number;
   showPagination: boolean;
   totalPages: number;
   viewerImage: string;
-  commentDraft: string;
-  editingCommentId?: number;
-  editingDraft: string;
-  replyDraft: string;
-  replyTargetId?: number;
-  onCancelEditing: () => void;
-  onCloseReply: () => void;
-  onCommentDraftChange: (nextValue: string) => void;
-  onDeleteComment: (commentId: number) => void;
-  onEditingDraftChange: (nextValue: string) => void;
-  onOpenReply: (commentId: number) => void;
-  onReplyDraftChange: (nextValue: string) => void;
-  onStartEditing: (commentId: number) => void;
-  onSubmitComment: () => void;
-  onSubmitEditedComment: () => void;
-  onSubmitReply: () => void;
   onChangePage: (page: number) => void;
+  onDeleteComment: (commentId: number) => Promise<void>;
+  onSubmitComment: (content: string) => Promise<void>;
+  onSubmitEditedComment: (
+    commentId: number,
+    revision: number,
+    content: string,
+  ) => Promise<void>;
+  onSubmitReply: (commentId: number, content: string) => Promise<void>;
   onToggleCommentReaction: (
     commentId: number,
     nextReaction: CommunityCommentReactionSelection,
@@ -49,30 +65,176 @@ export default function CommunityCommentSection({
   commentPlaceholder = '댓글을 남겨보세요.',
   currentPage,
   errorMessage,
+  isAuthenticated,
   isLoading = false,
   isCommentDisabled = false,
+  resetKey,
   showPagination,
   totalPages,
   viewerImage,
-  commentDraft,
-  editingCommentId,
-  editingDraft,
-  replyDraft,
-  replyTargetId,
-  onCancelEditing,
-  onCloseReply,
-  onCommentDraftChange,
+  onChangePage,
   onDeleteComment,
-  onEditingDraftChange,
-  onOpenReply,
-  onReplyDraftChange,
-  onStartEditing,
   onSubmitComment,
   onSubmitEditedComment,
   onSubmitReply,
-  onChangePage,
   onToggleCommentReaction,
 }: CommunityCommentSectionProps) {
+  const showToast = useToastStore((state) => state.showToast);
+  const [commentDraft, setCommentDraft] = useState('');
+  const [replyTargetId, setReplyTargetId] = useState<number | undefined>();
+  const [replyDraft, setReplyDraft] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<
+    number | undefined
+  >();
+  const [editingDraft, setEditingDraft] = useState('');
+
+  useEffect(() => {
+    setCommentDraft('');
+    setReplyTargetId(undefined);
+    setReplyDraft('');
+    setEditingCommentId(undefined);
+    setEditingDraft('');
+  }, [resetKey]);
+
+  useEffect(() => {
+    if (replyTargetId && !findCommentById(comments, replyTargetId)) {
+      setReplyTargetId(undefined);
+      setReplyDraft('');
+    }
+
+    if (editingCommentId && !findCommentById(comments, editingCommentId)) {
+      setEditingCommentId(undefined);
+      setEditingDraft('');
+    }
+  }, [comments, editingCommentId, replyTargetId]);
+
+  const handleSubmitComment = async () => {
+    const normalizedContent = commentDraft.trim();
+
+    if (!normalizedContent) {
+      return;
+    }
+
+    try {
+      await onSubmitComment(normalizedContent);
+      setCommentDraft('');
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '댓글 등록에 실패했습니다.'),
+        'error',
+      );
+    }
+  };
+
+  const handleOpenReply = (commentId: number) => {
+    const targetComment = findCommentById(comments, commentId);
+
+    if (!targetComment?.canReply) {
+      if (!isAuthenticated) {
+        showToast('로그인 후 답글을 작성할 수 있습니다.', 'info');
+      }
+
+      return;
+    }
+
+    setReplyTargetId(commentId);
+    setReplyDraft('');
+    setEditingCommentId(undefined);
+    setEditingDraft('');
+  };
+
+  const handleCloseReply = () => {
+    setReplyTargetId(undefined);
+    setReplyDraft('');
+  };
+
+  const handleSubmitReply = async () => {
+    const normalizedContent = replyDraft.trim();
+
+    if (!replyTargetId || !normalizedContent) {
+      return;
+    }
+
+    try {
+      await onSubmitReply(replyTargetId, normalizedContent);
+      setReplyDraft('');
+      setReplyTargetId(undefined);
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '답글 등록에 실패했습니다.'),
+        'error',
+      );
+    }
+  };
+
+  const handleStartEditing = (commentId: number) => {
+    const targetComment = findCommentById(comments, commentId);
+
+    if (!targetComment?.canEdit) {
+      return;
+    }
+
+    setEditingCommentId(commentId);
+    setEditingDraft(targetComment.content);
+    setReplyTargetId(undefined);
+    setReplyDraft('');
+  };
+
+  const handleCancelEditing = () => {
+    setEditingCommentId(undefined);
+    setEditingDraft('');
+  };
+
+  const handleSubmitEditedComment = async () => {
+    const normalizedContent = editingDraft.trim();
+
+    if (!editingCommentId || !normalizedContent) {
+      return;
+    }
+
+    const targetComment = findCommentById(comments, editingCommentId);
+
+    if (!targetComment?.revision) {
+      return;
+    }
+
+    try {
+      await onSubmitEditedComment(
+        editingCommentId,
+        targetComment.revision,
+        normalizedContent,
+      );
+      setEditingCommentId(undefined);
+      setEditingDraft('');
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '댓글 수정에 실패했습니다.'),
+        'error',
+      );
+    }
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    try {
+      await onDeleteComment(commentId);
+
+      if (editingCommentId === commentId) {
+        setEditingCommentId(undefined);
+        setEditingDraft('');
+      }
+
+      if (replyTargetId === commentId) {
+        setReplyTargetId(undefined);
+        setReplyDraft('');
+      }
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '댓글 삭제에 실패했습니다.'),
+        'error',
+      );
+    }
+  };
+
   return (
     <CommunitySectionShell className="gap-250">
       <div className="pb-150">
@@ -90,8 +252,8 @@ export default function CommunityCommentSection({
         submitLabel="등록하기"
         value={commentDraft}
         disabled={isCommentDisabled}
-        onChange={onCommentDraftChange}
-        onSubmit={onSubmitComment}
+        onChange={setCommentDraft}
+        onSubmit={handleSubmitComment}
       />
 
       {errorMessage ? (
@@ -113,15 +275,15 @@ export default function CommunityCommentSection({
               editingDraft={editingDraft}
               replyDraft={replyDraft}
               replyTargetId={replyTargetId}
-              onCancelEditing={onCancelEditing}
-              onCloseReply={onCloseReply}
-              onDeleteComment={onDeleteComment}
-              onEditingDraftChange={onEditingDraftChange}
-              onOpenReply={onOpenReply}
-              onReplyDraftChange={onReplyDraftChange}
-              onStartEditing={onStartEditing}
-              onSubmitEditedComment={onSubmitEditedComment}
-              onSubmitReply={onSubmitReply}
+              onCancelEditing={handleCancelEditing}
+              onCloseReply={handleCloseReply}
+              onDeleteComment={handleDeleteComment}
+              onEditingDraftChange={setEditingDraft}
+              onOpenReply={handleOpenReply}
+              onReplyDraftChange={setReplyDraft}
+              onStartEditing={handleStartEditing}
+              onSubmitEditedComment={handleSubmitEditedComment}
+              onSubmitReply={handleSubmitReply}
               onToggleCommentReaction={onToggleCommentReaction}
             />
           ))}
