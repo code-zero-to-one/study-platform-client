@@ -7,11 +7,12 @@ import Button from '@/components/common/ui/button';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 interface MyStudyInfoCardProps extends MemberStudyItem {
-  type: 'GROUP_STUDY';
+  type: 'GROUP_STUDY' | 'MENTOR_STUDY';
 }
 
 export default function MyStudyInfoCard({
   studyId,
+  type,
   thumbnail,
   status,
   startTime,
@@ -24,13 +25,14 @@ export default function MyStudyInfoCard({
 }: MyStudyInfoCardProps) {
   const startDate = dayjs(startTime).format('YYYY.MM.DD');
   const endDate = endTime ? dayjs(endTime).format('YYYY.MM.DD') : null;
+  const studyHref =
+    type === 'MENTOR_STUDY'
+      ? `/premium-study/${studyId}`
+      : `/group-study/${studyId}`;
 
   return (
     <li className="flex w-full flex-col gap-100">
-      <Link
-        href={`/group-study/${studyId}`}
-        className="flex w-full flex-col gap-100"
-      >
+      <Link href={studyHref} className="flex w-full flex-col gap-100">
         <div className="relative">
           <Image
             src={thumbnail?.resizedImages[0]?.resizedImageUrl ?? undefined}
