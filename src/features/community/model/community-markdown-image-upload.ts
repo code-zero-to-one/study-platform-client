@@ -85,3 +85,20 @@ export const uploadCommunityMarkdownImageFile = async ({
     );
   }
 };
+
+export const uploadCommunityMarkdownImage = async (
+  file: File,
+): Promise<string> => {
+  const ticket = await requestCommunityMarkdownImageUploadTicket({
+    fileName: file.name,
+    fileType: file.type,
+    fileSize: file.size,
+  });
+
+  await uploadCommunityMarkdownImageFile({
+    uploadUrl: ticket.uploadUrl,
+    file,
+  });
+
+  return ticket.publicUrl;
+};
