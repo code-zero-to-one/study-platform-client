@@ -2,13 +2,15 @@
 
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import type { PeerReviewResponse } from '@/api/openapi/models';
+import LoginModal from '@/components/common/modals/login-modal';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import MarkdownContent from '@/components/common/ui/editor/markdown-content';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetHomework } from '@/hooks/queries/group-study-homework-api';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import {
@@ -18,6 +20,7 @@ import {
 } from '@/hooks/queries/peer-review-api';
 
 import { useUserStore } from '@/stores/useUserStore';
+
 import { formatExternalLink } from '@/utils/format';
 
 const ConfirmDeleteModal = dynamic(
@@ -169,13 +172,20 @@ function PeerReviewSection({
   peerReviews,
   isMyHomework,
 }: PeerReviewSectionProps) {
-  // 자기 과제가 아닌 경우에만 리뷰 작성 가능 (리더도 허용)
+  const { isAuthenticated, isHydrated } = useAuthReady();
+  const loginTriggerRef = useRef<HTMLButtonElement>(null);
   const canWriteReview = !isMyHomework;
   const [reviewText, setReviewText] = useState('');
   const { mutate: createPeerReview, isPending } = useCreatePeerReview();
 
   const handleSubmitReview = () => {
     if (!reviewText.trim()) return;
+
+    if (isHydrated && !isAuthenticated) {
+      loginTriggerRef.current?.click();
+
+      return;
+    }
 
     createPeerReview(
       {
@@ -214,6 +224,17 @@ function PeerReviewSection({
         )}
 
         {/* 리뷰 입력 - 자기 과제가 아닌 경우에만 표시 */}
+        <LoginModal
+          openTrigger={
+            <button
+              type="button"
+              ref={loginTriggerRef}
+              className="sr-only"
+              aria-hidden
+              tabIndex={-1}
+            />
+          }
+        />
         {canWriteReview && (
           <PeerReviewInput
             value={reviewText}
