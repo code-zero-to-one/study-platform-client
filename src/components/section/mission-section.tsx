@@ -10,8 +10,16 @@ import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import MissionCard from '../card/mission-card';
 import PageContainer from '../common/layout/page-container';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
-import HomeworkDetailContent from '../contents/homework-detail-content';
-import MissionDetailContent from '../contents/mission-detail-content';
+
+const HomeworkDetailContent = dynamic(
+  () => import('../contents/homework-detail-content'),
+  { ssr: false },
+);
+
+const MissionDetailContent = dynamic(
+  () => import('../contents/mission-detail-content'),
+  { ssr: false },
+);
 
 const CreateMissionModal = dynamic(
   () => import('@/components/common/modals/create-mission-modal'),
