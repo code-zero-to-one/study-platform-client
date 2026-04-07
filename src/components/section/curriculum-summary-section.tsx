@@ -102,7 +102,7 @@ export default function CurriculumSummarySection({
                 <span className="font-designer-15m w-250 shrink-0 text-center text-text-subtlest">
                   {item.weekNum}
                 </span>
-                <span className="font-designer-15m text-text-default flex-1 leading-snug">
+                <span className="font-designer-15m text-text-default flex flex-1 leading-snug">
                   {item.title}
                 </span>
                 <ExternalLink className="h-225 w-225 shrink-0 cursor-pointer text-text-subtlest" />
