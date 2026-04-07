@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
@@ -46,6 +46,10 @@ export default function CommunityCommentForm({
     textarea.style.height = `${textarea.scrollHeight}px`;
   }, []);
 
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [value, adjustTextareaHeight]);
+
   const handleCancel = () => {
     onCancel?.();
     setIsExpanded(false);
@@ -69,10 +73,7 @@ export default function CommunityCommentForm({
             rows={isCompact ? 2 : 1}
             autoFocus={autoFocus}
             disabled={disabled}
-            onChange={(event) => {
-              onChange(event.target.value);
-              adjustTextareaHeight();
-            }}
+            onChange={(event) => onChange(event.target.value)}
             onFocus={() => setIsExpanded(true)}
             onBlur={() => {
               if (!isCompact && value.trim().length === 0) {
