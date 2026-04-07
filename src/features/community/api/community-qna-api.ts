@@ -71,6 +71,8 @@ const getCommunityQnaApiErrorCode = (error: unknown) => {
   return getCommunityQnaApiError(error)?.errorCode;
 };
 
+const hasKoreanText = (text: string) => /[가-힣]/.test(text);
+
 export const getCommunityQnaErrorMessage = (
   error: unknown,
   fallbackMessage: string,
@@ -78,6 +80,10 @@ export const getCommunityQnaErrorMessage = (
   const apiError = getCommunityQnaApiError(error);
 
   if (apiError) {
+    if (apiError.statusCode >= 500 || !hasKoreanText(apiError.message)) {
+      return fallbackMessage;
+    }
+
     return apiError.message;
   }
 
