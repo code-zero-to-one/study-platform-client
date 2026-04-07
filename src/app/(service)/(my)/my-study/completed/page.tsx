@@ -16,7 +16,7 @@ const GroupStudyFormModal = dynamic(
 );
 
 interface MemberGroupStudyList extends MemberStudyItem {
-  type: 'GROUP_STUDY';
+  type: 'GROUP_STUDY' | 'MENTOR_STUDY';
   status: 'COMPLETED';
 }
 
@@ -25,13 +25,15 @@ export default function CompletedPage() {
   const [page, setPage] = useState<number>(1);
   const { data, isLoading } = useMemberStudyListV2Query({
     memberId,
-    studyType: 'GROUP_STUDY',
+    studyType: 'BOTH',
     studyStatus: 'COMPLETED',
     page,
   });
 
-  // status가 "COMPLETED"인 스터디 목록
-  const completedStudyList = (data?.content || []) as MemberGroupStudyList[];
+  // status가 "COMPLETED"인 스터디 목록 (ONE_ON_ONE_STUDY 제외)
+  const completedStudyList = (data?.content || []).filter(
+    (list) => list.type === 'GROUP_STUDY' || list.type === 'MENTOR_STUDY',
+  ) as MemberGroupStudyList[];
 
   if (isLoading) {
     return null;

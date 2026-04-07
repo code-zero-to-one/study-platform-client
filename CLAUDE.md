@@ -9,6 +9,7 @@ This file is a reference guide for Claude Code (claude.ai/code) when working wit
 - **Limit exploration to 2–3 files max.** Do not spend the session on exploration or planning. Once you know the file path and API contract, start writing code immediately.
 - **Never fabricate API endpoints.** Do not invent endpoints that don't exist. Always verify real APIs in `src/hooks/queries/`, `src/api/`, `src/api/openapi/` before using them. If not found, leave a TODO placeholder and inform the user.
 - **Fix all issues in a single pass during code review.** Do not make multiple passes on the same file. Handle all discovered issues in one pass.
+- **Verify frontend ↔ backend alignment before finalizing any API-touching change.** Cross-check against the backend repo at `../study-platform-mvp/`. Specifically confirm: (1) endpoint path and HTTP method, (2) query/path param names and types, (3) response DTO field names, types, and optionality, (4) enum values. Report any mismatch to the user before committing.
 
 ### Completion Criteria
 

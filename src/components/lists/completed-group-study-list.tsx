@@ -1,8 +1,8 @@
 import MyStudyInfoCard from '@/components/my-page/my-study-info-card';
-import { MemberStudyItem } from '@/types/api/group-study.types';
+import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 interface MemberGroupStudyList extends MemberStudyItem {
-  type: 'GROUP_STUDY';
+  type: 'GROUP_STUDY' | 'MENTOR_STUDY';
 }
 
 interface CompletedGroupStudyListProps {

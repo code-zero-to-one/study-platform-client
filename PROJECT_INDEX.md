@@ -1,12 +1,21 @@
-# Project Index: ZERO-ONE Study Platform
+# Project Index: study-platform-client (ZERO-ONE)
 
-Generated: 2026-04-04
+Generated: 2026-04-07
 
-## Overview
+---
+
+## Project Overview
 
 A 1:1 morning study platform to start every day together.
-**Stack**: Next.js 15 (App Router) · React 19 · TypeScript 5 · Tailwind CSS 4
-**Package Manager**: Yarn 1.22+ · Node.js >=20
+
+| | |
+|---|---|
+| Framework | Next.js 15.2.8 (App Router) |
+| Language | TypeScript 5 |
+| UI | React 19, Tailwind CSS 4 |
+| Package Manager | Yarn 1.22+ (Node >= 20) |
+| Formatter | Biome 2.4.6 |
+| Test Runner | Vitest 3 |
 
 ---
 
@@ -14,208 +23,222 @@ A 1:1 morning study platform to start every day together.
 
 ```
 src/
-├── app/                        # Next.js App Router
-│   ├── (landing)/              # Public landing page (/)
-│   ├── (service)/              # Authenticated service pages
-│   │   ├── (my)/               # My-page group
-│   │   │   ├── my-page/        # My page main
-│   │   │   ├── my-study/       # My studies (completed/not-completed)
-│   │   │   ├── my-study-review/ # Review tabs (group/mentor/one-to-one)
-│   │   │   ├── payment-management/
-│   │   │   ├── settlement-management/
-│   │   │   ├── mentoring-management/
-│   │   │   └── notification/
-│   │   ├── group-study/[id]/   # Group study detail
-│   │   ├── premium-study/[id]/ # Mentor study detail
-│   │   ├── mentoring/[id]/     # Mentoring detail
-│   │   ├── insights/           # Blog / insights
-│   │   ├── payment/[id]/       # Payment
-│   │   └── application-list/[studyId]/
-│   ├── (admin)/admin/          # Admin pages (ROLE_ADMIN)
-│   └── api/                    # API Routes
-│       ├── auth/clear-session/ # Session clear
-│       └── notify-user-by-email/
-├── api/
-│   ├── client/                 # axios instances (axios.ts, axiosV2.ts, cookie.ts)
-│   ├── endpoints/              # Domain API functions (group-study, archive, channel, ...)
-│   └── openapi/                # Swagger auto-generated — DO NOT modify
+├── app/                    # Next.js App Router (routes)
+│   ├── (landing)/          # Public landing page (/)
+│   ├── (service)/          # Authenticated service pages
+│   │   ├── (my)/           # My-page group (my-page, my-study, payment-management, etc.)
+│   │   ├── group-study/    # Group study list & detail
+│   │   ├── premium-study/  # MentorStudy (group study variant)
+│   │   ├── mentoring/      # 1:1 Mentoring (separate domain)
+│   │   ├── payment/        # Payment flow
+│   │   ├── inquiry/        # Inquiry (Q&A) detail
+│   │   ├── insights/       # Blog/insights
+│   │   └── home/           # Home dashboard
+│   ├── (admin)/            # Admin pages (ROLE_ADMIN JWT claim)
+│   │   └── admin/          # admin/detail, admin/matching, admin/mentoring, admin/sales-management
+│   └── api/                # API routes (clear-session, notify-user-by-email)
+│
+├── api/                    # API layer
+│   ├── client/             # Axios instances + interceptors
+│   ├── endpoints/          # Domain-specific API call functions
+│   └── openapi/            # ⚠️ AUTO-GENERATED from Swagger — DO NOT MODIFY
+│
+├── hooks/
+│   ├── queries/            # TanStack Query hooks (domain-specific)
+│   └── common/             # Shared utility hooks
+│
 ├── components/
 │   ├── common/
-│   │   ├── ui/                 # Button, Modal, Avatar, Tabs, StarRatingInput, ...
-│   │   ├── layout/             # Header, HomeHeader, MobileMenuDrawer, MySidebar
-│   │   └── modals/             # GroupStudyReviewModal, GroupStudyFormModal, ...
-│   ├── forms/                  # Form components (group-study-form, group-study-steps/*, sign-up-steps/*)
-│   ├── pages/                  # Page-level composite components
-│   └── [domain]/               # archive/, balance-game/, card/, section/, ...
-├── features/                   # Domain feature modules (new pattern)
-│   ├── auth/                   # Auth (model, server/middleware, ui)
-│   ├── group-study/            # Group study markdown model + editor UI (added 2026-04)
-│   ├── mentoring/              # Mentoring domain
-│   ├── admin/                  # Admin (matching, mentoring)
-│   ├── study/one-to-one/       # 1:1 study (schedule, history, discussion)
-│   └── home/                   # Home search params
-├── hooks/
-│   ├── queries/                # TanStack Query hooks (per domain)
-│   └── common/                 # Shared hooks (use-auth, use-group-study-review-form, ...)
-├── stores/                     # Zustand global state
-├── types/
-│   ├── api/                    # API response types (*.types.ts)
-│   ├── schemas/                # Zod form schemas
-│   ├── auth/                   # Auth domain types
-│   └── mentoring/              # Mentoring domain types
-├── config/                     # Constants and config (query-client, sentry, *-const)
-├── utils/                      # Utilities (error-handler, format, time, jwt, seo, markdown-content, ...)
-└── middleware.ts               # Auth middleware (token validation + redirect)
+│   │   ├── ui/             # Design system (Button, Badge, Dialog, Toast, etc.)
+│   │   ├── modals/         # Shared modal components
+│   │   └── layout/         # Header, AdminSideBar, nav
+│   ├── pages/              # Page-level composite components
+│   └── [domain]/           # Domain composites (admin, archive, balance-game, calendars, etc.)
+│
+├── features/               # FSD-style feature modules (coexists with components/)
+│   ├── auth/               # OAuth redirect, client-auth-sync
+│   ├── home/               # Home page search params
+│   ├── mentoring/          # Mentor directory, registration, apply, note-consultation
+│   └── admin/
+│       ├── matching/       # Admin matching system
+│       └── mentoring/      # Admin mentoring management
+│
+├── stores/                 # Zustand global state
+├── config/                 # App constants, query-client, sentry config
+├── utils/                  # Utility functions (error-handler, seo, ssr, server-cookie)
+└── types/                  # TypeScript types & Zod schemas
 ```
 
 ---
 
 ## Entry Points
 
-| Path | Role |
-|---|---|
-| `src/app/layout.tsx` | Root layout (Provider, Sentry init) |
-| `src/middleware.ts` | Auth handling (accessToken validation, refresh, `/admin/*` guard) |
-| `src/providers/index.tsx` | QueryClient, Zustand hydration, Toast |
-| `src/instrumentation.ts` | Sentry server/edge initialization |
-
----
-
-## Core Modules
-
-### API Layer
-
-| File | Role |
-|---|---|
-| `src/api/client/axios.ts` | Legacy axios (baseURL `/api/v1/`, AUTH001 refresh queue) |
-| `src/api/client/axiosV2.ts` | V2 axios client |
-| `src/api/endpoints/group-study/` | Group study CRUD endpoints (create, update, detail, list, apply, ...) |
-| `src/api/openapi/` | Swagger auto-generated types/services — **DO NOT modify** |
-
-### TanStack Query Hooks (`src/hooks/queries/`)
-
-| File | Domain |
-|---|---|
-| `study-query.ts` | Base study queries |
-| `group-study-review-api.ts` | Group study review CRUD + statistics |
-| `group-study-member-api.ts` | Study member management |
-| `group-study-homework-api.ts` | Study homework |
-| `use-group-study-list-query.ts` | Group study list |
-| `use-group-study-mutation.ts` | Group study create/update mutations |
-| `use-group-study-notice-query.ts` | Group study notices |
-| `mission-api.ts` | Mission create/read/submit |
-| `evaluation-api.ts` | Evaluation |
-| `peer-review-api.ts` | Peer review |
-| `payment-user-api.ts` | Payment |
-| `refund-user-api.ts` | Refund |
-| `settlement-user-api.ts` | Settlement |
-| `notification-api.ts` | Notifications |
-| `use-auth.ts`, `use-auth-mutation.ts` | Auth queries/mutations |
-
-### Group Study Feature (`src/features/group-study/`) — added 2026-04
-
-| Path | Role |
-|---|---|
-| `model/group-study-markdown.ts` | Markdown image serialization (objectUrl → `@@filename@@` macro substitution) |
-| `model/group-study-markdown.test.ts` | Unit tests for markdown model |
-| `ui/group-study-markdown-editor.tsx` | Markdown editor UI for group study description |
-
-### Global State (`src/stores/`)
-
-| File | Role |
-|---|---|
-| `useUserStore.ts` | User info (persisted) |
-| `useLeaderStore.ts` | Leader status |
-| `use-toast-store.ts` | Toast global notifications |
-| `use-phone-verification-store.ts` | Phone verification state |
-
-### Auth Feature (`src/features/auth/`)
-
-| Path | Role |
-|---|---|
-| `model/client-auth-sync.ts` | Client-side auth sync |
-| `model/oauth-redirect-contract.ts` | OAuth redirect contract |
-| `model/parse-oauth-redirect-result.ts` | OAuth redirect result parsing |
-| `server/middleware/route-policy.ts` | Middleware route policy (refactored) |
-| `ui/oauth-redirect-page-client.tsx` | OAuth redirect client UI |
-
-### Error Handling
-
-| File | Role |
-|---|---|
-| `src/utils/error-handler.ts` | `analyzeError()`, `logError()`, error code→message mapping (~40 codes) |
-| `src/config/query-client.ts` | MutationCache global error handler |
-| `src/config/sentry.ts` | Sentry config (DSN, environment detection, AUTH001 exclusion) |
-
-### Markdown Utilities (`src/utils/markdown-content.ts`) — updated 2026-04
-
-Includes `extractHtmlImageUrls`, `getFileExtension`, `normalizeMarkdownContent`.
-
----
-
-## Configuration
-
 | File | Purpose |
-|---|---|
-| `next.config.ts` | SVGR, Sentry, Bundle Analyzer |
-| `tsconfig.json` | `@/*` → `./src/*` alias |
-| `src/app/global.css` | `@theme inline` — project design tokens |
-| `src/config/query-client.ts` | TanStack Query config (staleTime 60s) |
-| `.env` | `NEXT_PUBLIC_API_BASE_URL`, OAuth keys, Toss, Sentry DSN |
+|------|---------|
+| `src/app/(landing)/page.tsx` | Public landing page root |
+| `src/app/(service)/home/page.tsx` | Authenticated home |
+| `src/app/(admin)/admin/page.tsx` | Admin dashboard |
+| `src/middleware.ts` | Auth guard + token refresh (cookie-based) |
+| `src/instrumentation.ts` | Sentry server/edge init |
 
 ---
 
-## Documentation
+## API Layer
 
-| File | Content |
-|---|---|
-| `CLAUDE.md` | Full Claude Code guide (API patterns, conventions, error handling) |
-| `docs/SENTRY_GUIDE.md` | Sentry integration guide |
-| `docs/openapi-usage.md` | OpenAPI auto-generation usage |
-| `docs/2026-03-26-markdown-editor/COMMON_MARKDOWN_EDITOR_USAGE.md` | Common markdown editor usage |
-| `docs/2026-04-01-refactoring/` | AUTH middleware refactoring audit (200 propositions) |
-| `docs/2026-03-15-login-fail-fix/` | OAuth redirect + middleware refactoring docs |
+### 1. Legacy Axios (custom endpoints)
+- Instance: `src/api/client/axios.ts` (baseURL `/api/v1/`)
+- Server-side variant: `src/api/client/axios.server.ts`
+- V2 instance: `src/api/client/axiosV2.ts`
+- Auth interceptor: `src/api/client/auth-response-interceptor.ts` (AUTH001 → refresh queue)
+- Error type: `src/api/client/api-error.ts`
+
+### 2. OpenAPI Auto-generated (`src/api/openapi/`) ⚠️ READ ONLY
+- Regenerated via backend Swagger: `https://test-api.zeroone.it.kr/v3/api-docs`
+- Never manually edit files in this directory
+- Referenced by `src/api/client/open-api-instance.ts`
+
+### 3. Domain Endpoints (`src/api/endpoints/`)
+Organized by domain: `group-study/`, `auth/`, `archive/`, `balance-game/`, `channel/`, `hall-of-fame/`, `user/`, `review/`, etc.
+
+### 4. TanStack Query Hooks (`src/hooks/queries/`)
+| Hook File | Domain |
+|-----------|--------|
+| `study-query.ts` | Group study core |
+| `mission-api.ts` | Mission CRUD |
+| `group-study-homework-api.ts` | Homework |
+| `evaluation-api.ts` | Evaluations |
+| `peer-review-api.ts` | Peer reviews |
+| `payment-user-api.ts` | User payments |
+| `refund-user-api.ts` | User refunds |
+| `settlement-account-api.ts` | Settlement accounts |
+| `settlement-user-api.ts` | User settlements |
+| `admin-payment-api.ts` | Admin payments |
+| `admin-refund-api.ts` | Admin refunds |
+| `admin-settlement-api.ts` | Admin settlements |
+| `question-api.ts` | Q&A / Inquiry |
+| `notification-api.ts` | Notifications |
+| `bank-search-api.ts` | Bank search |
+| `archive-index.ts` | Archive queries |
+| `balance-game-index.ts` | Balance game |
+
+---
+
+## State Management
+
+| Layer | Package | Location |
+|-------|---------|----------|
+| Server state | TanStack Query 5 | `src/hooks/queries/` |
+| Global client state | Zustand 5 | `src/stores/` |
+| Form state | React Hook Form + Zod | `src/types/schemas/` |
+
+Key Zustand stores: `useUserStore` (persist), `useLeaderStore`, `useToastStore`
+
+Default TanStack Query `staleTime`: 60 seconds
+
+---
+
+## Domain Entities (Critical Distinction)
+
+| | Mentoring | MentorStudy (Premium Study) |
+|---|---|---|
+| URL | `/mentoring/*` | `/premium-study/*` |
+| API | `/api/v1/mentors` | `/api/v1/group-studies` |
+| Feature dir | `src/features/mentoring/` | — (shared GroupStudy hooks) |
+| Nature | 1:1 consultation | 1:N group study variant |
+
+---
+
+## Error Handling
+
+- Central handler: `src/utils/error-handler.ts` (`analyzeError`, `logError`)
+- Global mutation fallback: `src/config/query-client.ts` (MutationCache.onError → Toast + Sentry)
+- Error boundaries: `src/app/(service)/error.tsx`, `(landing)/error.tsx`, `(admin)/error.tsx`
+- Root boundary: `src/app/global-error.tsx`
+- Toast: `useToastStore.showToast()` — never use `alert()`
+
+---
+
+## Styling Conventions
+
+- Tailwind CSS 4 with `@theme inline` in `src/app/global.css`
+- **No arbitrary values** (`p-[4px]`, `w-[320px]`)
+- **No base Tailwind scale** (`p-4`, `rounded-lg`, `text-sm`) — use project tokens only
+- Class composition: always use `cn()` from `src/components/common/ui/(shadcn)/lib/utils.ts`
+- SVG: imported as React components via `@svgr/webpack`
+
+---
+
+## Auth Flow
+
+1. OAuth (Kakao/Google) → server issues JWT access + refresh tokens
+2. `accessToken` in cookie (JS-accessible), `refresh_token` in httpOnly cookie
+3. Interceptor: AUTH001 → token refresh → retry (queue prevents duplicates)
+4. Middleware: validates token server-side, redirects `/` if invalid
 
 ---
 
 ## Key Dependencies
 
 | Package | Version | Purpose |
-|---|---|---|
-| `next` | 15 | Framework |
-| `react` | 19 | UI |
-| `@tanstack/react-query` | - | Server state management |
-| `zustand` | - | Global client state |
-| `axios` | ^1.9 | HTTP client |
-| `react-hook-form` + `zod` | - | Form state + validation |
-| `@radix-ui/*` | - | UI primitives (Modal, Dialog, ...) |
-| `@sentry/nextjs` | ^10 | Error monitoring |
-| `@tosspayments/tosspayments-sdk` | - | Payments |
-| `canvas-confetti` | ^1.9 | Study completion modal effect |
-| `date-fns`, `dayjs` | - | Date handling |
-| `@tiptap/react` | ^3 | Rich text / markdown editor |
-| `class-variance-authority` | - | CVA component variants |
+|---------|---------|---------|
+| next | 15.2.8 | App Router SSR framework |
+| react | 19 | UI layer |
+| @tanstack/react-query | 5 | Server state management |
+| zustand | 5 | Client state |
+| axios | 1.9 | HTTP client |
+| react-hook-form | 7 | Form state |
+| zod | 4 | Schema validation |
+| @sentry/nextjs | 10 | Error monitoring |
+| @tiptap/react | 3 | Rich text editor |
+| @tosspayments/tosspayments-sdk | 2 | Payment integration |
+| framer-motion | 12 | Animations |
+| tailwindcss | 4 | Styling |
+| @biomejs/biome | 2.4.6 | Format + lint |
+| vitest | 3 | Unit testing |
 
 ---
 
-## Quick Start
+## Commands
 
 ```bash
-yarn install          # Install dependencies
 yarn dev              # Turbopack dev server
 yarn build            # Production build
-yarn typecheck        # TypeScript type check
 yarn lint:fix         # ESLint auto-fix
-yarn generate:api <name>  # Generate API hook boilerplate
+yarn prettier:fix     # Biome format
+yarn typecheck        # tsc --noEmit
+yarn storybook        # Storybook (port 6006)
+yarn generate:api <name>  # Generate API query hook boilerplate
+yarn test:unit        # Vitest unit tests
+```
+
+**Task completion criteria (all 3 must pass):**
+```bash
+yarn lint:fix && yarn prettier:fix && yarn typecheck
 ```
 
 ---
 
-## Constraints
+## Documentation
 
-- Never modify files under `src/api/openapi/` (auto-regenerated from Swagger)
-- No Tailwind arbitrary values (`p-[4px]`) — use custom tokens from `global.css`
-- Never fabricate API endpoints that don't exist
-- No `alert()` — use `useToastStore`
-- Never expose stack traces to users in production
-- `features/`-based and `components/`/`hooks/queries/` structures coexist — do not mix within a single PR
+| File | Topic |
+|------|-------|
+| `docs/REFACTORING_PLAN.md` | Refactoring roadmap |
+| `docs/SEO_GUIDE.md` | SEO implementation guide |
+| `docs/SENTRY_GUIDE.md` | Sentry integration guide |
+| `docs/openapi-usage.md` | OpenAPI codegen usage |
+| `docs/2026-03-15-login-fail-fix/` | Auth refactoring (OAuth, middleware) |
+| `docs/2026-03-26-markdown-editor/` | Common markdown editor |
+| `docs/2026-04-01-refactoring/` | Auth proposition audit series |
+| `docs/refactor-group-study-form-modal-srp.md` | SRP refactor plan |
+
+---
+
+## Environments
+
+| Env | URL |
+|-----|-----|
+| Staging | `https://test.zeroone.it.kr` |
+| Production | `https://www.zeroone.it.kr` |
+| Backend Swagger | `https://test-api.zeroone.it.kr/swagger-ui/index.html` |
+
+Current branch: `feat/delete-inquiry` | Main branch: `develop`
