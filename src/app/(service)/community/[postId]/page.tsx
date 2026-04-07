@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { normalizeCommunityPageParam } from '@/features/community/model/community-route';
+import {
+  normalizeCommunityBoardParam,
+  normalizeCommunityPageParam,
+} from '@/features/community/model/community-route';
 import CommunityDetailPageClient from '@/features/community/ui/pages/community-detail-page-client';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 

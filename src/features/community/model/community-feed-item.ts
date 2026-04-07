@@ -1,6 +1,8 @@
 import {
   COMMUNITY_BOARD,
+  type CommunityBoard,
   type CommunityPostBoard,
+  isCommunityBoard,
 } from '@/types/community/domain';
 import {
   buildCommunityPostHref,
@@ -26,7 +28,12 @@ export const buildCommunityFeedItemDetailHref = (
   itemId: number,
   board: CommunityPostBoard,
   page?: number,
-) =>
-  getCommunityFeedItemKind(board) === COMMUNITY_FEED_ITEM_KIND.QNA
-    ? buildCommunityQuestionHref(itemId, page)
-    : buildCommunityPostHref(itemId, page);
+  activeFilter?: string,
+) => {
+  const resolvedBoard: CommunityBoard | undefined =
+    activeFilter && isCommunityBoard(activeFilter) ? activeFilter : undefined;
+
+  return getCommunityFeedItemKind(board) === COMMUNITY_FEED_ITEM_KIND.QNA
+    ? buildCommunityQuestionHref(itemId, page, resolvedBoard)
+    : buildCommunityPostHref(itemId, page, resolvedBoard);
+};

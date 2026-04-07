@@ -6,6 +6,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { MouseEvent } from 'react';
 import { buildCommunityQuestionHref } from '@/features/community/model/community-route';
+import {
+  type CommunityBoard,
+  isCommunityBoard,
+} from '@/types/community/domain';
 import { COMMUNITY_BOARD } from '@/types/community/domain';
 import type { CommunityQnaQuestionSummary } from '@/types/community/qna-domain';
 import { isCommunityCardNestedInteraction } from './community-card-navigation';
@@ -18,16 +22,24 @@ import {
 } from './community-qna-question-meta';
 
 interface CommunityQnaQuestionListItemProps {
+  activeFilter?: string;
   currentPage?: number;
   question: CommunityQnaQuestionSummary;
 }
 
 export default function CommunityQnaQuestionListItem({
+  activeFilter,
   currentPage,
   question,
 }: CommunityQnaQuestionListItemProps) {
   const router = useRouter();
-  const detailHref = buildCommunityQuestionHref(question.id, currentPage);
+  const resolvedBoard: CommunityBoard | undefined =
+    activeFilter && isCommunityBoard(activeFilter) ? activeFilter : undefined;
+  const detailHref = buildCommunityQuestionHref(
+    question.id,
+    currentPage,
+    resolvedBoard,
+  );
 
   const handleCardClick = (event: MouseEvent<HTMLElement>) => {
     if (isCommunityCardNestedInteraction(event.target)) {

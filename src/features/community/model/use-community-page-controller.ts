@@ -22,6 +22,7 @@ import {
   COMMUNITY_FEED_VIEW,
   type CommunityFeedFilter,
   type CommunityFeedView,
+  isCommunityBoard,
 } from '@/types/community/domain';
 import { COMMUNITY_QNA_QUESTION_STATUS } from '@/types/community/qna-domain';
 import {
@@ -75,14 +76,26 @@ export const useCommunityPageController = ({
   const searchParams = useSearchParams();
   const viewerQueryScope = useCommunityViewerQueryScope();
   const rawPageParam = searchParams.get('page');
+  const rawBoardParam = searchParams.get('board');
   const requestedPage =
     rawPageParam === null
       ? COMMUNITY_DEFAULT_PAGE
       : (normalizeCommunityPageParam(rawPageParam) ?? initialPage);
 
-  const [activeFilter, setActiveFilter] = useState<CommunityFeedFilter>(
-    COMMUNITY_FEED_FILTER.ALL,
-  );
+  const resolveInitialFilter = (): CommunityFeedFilter => {
+    if (!rawBoardParam) {
+      return COMMUNITY_FEED_FILTER.ALL;
+    }
+
+    if (isCommunityBoard(rawBoardParam)) {
+      return rawBoardParam as CommunityFeedFilter;
+    }
+
+    return COMMUNITY_FEED_FILTER.ALL;
+  };
+
+  const [activeFilter, setActiveFilter] =
+    useState<CommunityFeedFilter>(resolveInitialFilter);
   const [activeView, setActiveView] = useState<CommunityFeedView>(
     COMMUNITY_FEED_VIEW.LIST,
   );
@@ -176,19 +189,38 @@ export const useCommunityPageController = ({
     : mergeCommunityFeedQnaPreviewImages(feed.items, qnaPreviewByQuestionId);
   const currentPage = isQnaFilter ? qnaQuestionList.page : feed.page;
 
-  useEffect(() => {
-    if (rawPageParam === null || rawPageParam === String(currentPage)) {
-      return;
+  const replaceUrlParams = (
+    nextPage: number,
+    nextFilter: CommunityFeedFilter,
+  ) => {
+    const nextSearchParams = new URLSearchParams();
+    const normalizedPage = Math.max(nextPage, COMMUNITY_DEFAULT_PAGE);
+
+    if (normalizedPage > COMMUNITY_DEFAULT_PAGE) {
+      nextSearchParams.set('page', String(normalizedPage));
     }
 
-    const nextSearchParams = new URLSearchParams(searchParams.toString());
-    nextSearchParams.set('page', String(currentPage));
+    if (
+      nextFilter !== COMMUNITY_FEED_FILTER.ALL &&
+      isCommunityBoard(nextFilter)
+    ) {
+      nextSearchParams.set('board', nextFilter);
+    }
+
     const nextQuery = nextSearchParams.toString();
 
     router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
       scroll: false,
     });
-  }, [currentPage, pathname, rawPageParam, router, searchParams]);
+  };
+
+  useEffect(() => {
+    if (rawPageParam === null || rawPageParam === String(currentPage)) {
+      return;
+    }
+
+    replaceUrlParams(currentPage, activeFilter);
+  }, [currentPage, pathname, rawPageParam, router, searchParams, activeFilter]);
 
   const replacePage = (nextPage: number) => {
     const normalizedPage = Math.max(nextPage, COMMUNITY_DEFAULT_PAGE);
@@ -197,13 +229,7 @@ export const useCommunityPageController = ({
       return false;
     }
 
-    const nextSearchParams = new URLSearchParams(searchParams.toString());
-    nextSearchParams.set('page', String(normalizedPage));
-    const nextQuery = nextSearchParams.toString();
-
-    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
-      scroll: false,
-    });
+    replaceUrlParams(normalizedPage, activeFilter);
 
     return true;
   };
@@ -217,7 +243,7 @@ export const useCommunityPageController = ({
       setActiveFilter(nextFilter);
     });
 
-    replacePage(COMMUNITY_DEFAULT_PAGE);
+    replaceUrlParams(COMMUNITY_DEFAULT_PAGE, nextFilter);
     scrollToCommunityFeedOnFilterChange();
   };
 

@@ -161,6 +161,7 @@ export default function CommunityFeedSection({
               {featuredTopPosts.map((post, index) => (
                 <CommunityPostCard
                   key={post.id}
+                  activeFilter={activeFilter}
                   currentPage={currentPage}
                   featuredLabel={`TOP ${index + 1}`}
                   post={post}
@@ -173,6 +174,7 @@ export default function CommunityFeedSection({
               {featuredTopPosts.map((post, index) => (
                 <CommunityPostListItem
                   key={post.id}
+                  activeFilter={activeFilter}
                   currentPage={currentPage}
                   featuredFrame={true}
                   featuredLabel={`TOP ${index + 1}`}
@@ -205,6 +207,7 @@ export default function CommunityFeedSection({
             {qnaQuestions.map((question) => (
               <CommunityQnaQuestionListItem
                 key={question.id}
+                activeFilter={activeFilter}
                 currentPage={currentPage}
                 question={question}
               />
@@ -215,6 +218,7 @@ export default function CommunityFeedSection({
             {posts.map((post) => (
               <CommunityPostListItem
                 key={post.id}
+                activeFilter={activeFilter}
                 currentPage={currentPage}
                 post={post}
               />
@@ -240,6 +244,7 @@ export default function CommunityFeedSection({
           {qnaQuestions.map((question) => (
             <CommunityQnaQuestionCard
               key={question.id}
+              activeFilter={activeFilter}
               currentPage={currentPage}
               question={question}
             />
@@ -250,6 +255,7 @@ export default function CommunityFeedSection({
           {posts.map((post) => (
             <CommunityPostCard
               key={post.id}
+              activeFilter={activeFilter}
               currentPage={currentPage}
               post={post}
             />
