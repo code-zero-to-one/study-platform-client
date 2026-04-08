@@ -7,7 +7,7 @@ import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import InlineSectionHeader from '@/components/common/ui/inline-section-header';
 import SectionHeader from '@/components/common/ui/section-header';
-import { getStatusBadge } from '@/components/interview/status-badge-map';
+import { getStatusBadge } from '@/components/one-to-one/interview/status-badge-map';
 import { TUTORIAL_DAILY_STUDY_MOCK } from '@/config/tutorial-mock';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useDailyStudyDetailQuery } from '@/hooks/queries/one-to-one/use-interview-query';

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import TableList from '@/components/common/ui/table';
-import { getStatusBadge } from '@/components/interview/status-badge-map';
+import { getStatusBadge } from '@/components/one-to-one/interview/status-badge-map';
 import { useDailyStudiesQuery } from '@/hooks/queries/one-to-one/use-schedule-query';
 import {
   type DailyStudy,

@@ -13,9 +13,9 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import React, { useState, useEffect } from 'react';
-import DailyStatsChart from '@/components/balance-game/voting/daily-stats-chart';
-import VoteResultsChart from '@/components/balance-game/voting/vote-results-chart';
-import VoteTimer from '@/components/balance-game/voting/vote-timer';
+import DailyStatsChart from '@/components/one-to-one/balance-game/voting/daily-stats-chart';
+import VoteResultsChart from '@/components/one-to-one/balance-game/voting/vote-results-chart';
+import VoteTimer from '@/components/one-to-one/balance-game/voting/vote-timer';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';

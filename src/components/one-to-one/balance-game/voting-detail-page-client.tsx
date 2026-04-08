@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import VotingDetailView from '@/components/balance-game/voting/voting-detail-view';
+import VotingDetailView from '@/components/one-to-one/balance-game/voting/voting-detail-view';
 
 interface VotingDetailPageClientProps {
   votingId: number;
