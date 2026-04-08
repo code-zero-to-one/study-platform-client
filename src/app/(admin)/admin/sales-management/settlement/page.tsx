@@ -14,7 +14,7 @@ import DatePicker from '@/components/common/ui/date-picker';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
-import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
+import { useGetSettlementsForAdmin } from '@/hooks/queries/admin/admin-settlement-api';
 import { formatToKST } from '@/utils/time';
 
 const AdminApproveSettlementModal = dynamic(

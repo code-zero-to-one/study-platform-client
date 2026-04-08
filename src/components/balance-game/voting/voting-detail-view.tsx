@@ -32,11 +32,11 @@ import {
   useDeleteBalanceGameMutation,
   useUpdateBalanceGameCommentMutation,
   useUpdateBalanceGameMutation,
-} from '@/hooks/queries/use-balance-game-mutation';
+} from '@/hooks/queries/one-to-one/use-balance-game-mutation';
 import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
-} from '@/hooks/queries/use-balance-game-query';
+} from '@/hooks/queries/one-to-one/use-balance-game-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
 import { BalanceGameComment } from '@/types/one-to-one-study/balance-game';

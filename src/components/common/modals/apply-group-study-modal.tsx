@@ -10,7 +10,7 @@ import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
 import { Modal } from '@/components/common/ui/modal';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useApplyGroupStudyMutation } from '@/hooks/queries/use-apply-group-study';
+import { useApplyGroupStudyMutation } from '@/hooks/queries/group-study/use-apply-group-study';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import { useToastStore } from '@/stores/use-toast-store';
 import { GroupStudyDetailResponse } from '@/types/api/group-study.types';

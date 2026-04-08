@@ -21,9 +21,9 @@ import {
 import {
   useCreateGroupStudyMutation,
   useUpdateGroupStudyMutation,
-} from '@/hooks/queries/use-group-study-mutation';
+} from '@/hooks/queries/group-study/use-group-study-mutation';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
-import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
+import { useGroupStudyDetailQuery } from '@/hooks/queries/one-to-one/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   buildGroupStudyEditFormSchema,

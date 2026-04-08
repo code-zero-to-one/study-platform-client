@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import PageContainer from '@/components/common/layout/page-container';
-import { usePostQuery } from '@/hooks/queries/use-channel-query';
+import { usePostQuery } from '@/hooks/queries/group-study/use-channel-query';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import Comments from './comment-section';
 import CreatePost from './create-post';

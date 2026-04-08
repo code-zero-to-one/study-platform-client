@@ -1,7 +1,7 @@
 import { UserTransactionListResponse } from '@/api/openapi';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
-import { useRequestRefund } from '@/hooks/queries/refund-user-api';
+import { useRequestRefund } from '@/hooks/queries/payment/refund-user-api';
 
 export default function PremiumStudyRefundRequestModal({
   paymentId,

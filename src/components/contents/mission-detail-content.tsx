@@ -7,7 +7,7 @@ import Avatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import Progress from '@/components/common/ui/progress';
-import { useGetMission } from '@/hooks/queries/mission-api';
+import { useGetMission } from '@/hooks/queries/group-study/mission-api';
 import MyHomeworkStatusCard from '../card/my-homework-status-card';
 
 interface MissionDetailContentProps {

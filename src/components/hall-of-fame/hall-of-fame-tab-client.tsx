@@ -7,7 +7,7 @@ import {
   type RankingType,
   type RankerWithLabel,
 } from '@/config/hall-of-fame-constants';
-import { useHallOfFameQuery } from '@/hooks/queries/use-hall-of-fame-query';
+import { useHallOfFameQuery } from '@/hooks/queries/one-to-one/use-hall-of-fame-query';
 import type { HallOfFameData } from '@/types/one-to-one-study/hall-of-fame';
 import HallOfFameHeader from './hall-of-fame-header';
 import HallOfFameMvpSection from './hall-of-fame-mvp-section';

@@ -10,7 +10,7 @@ import SectionHeader from '@/components/common/ui/section-header';
 import { getStatusBadge } from '@/components/interview/status-badge-map';
 import { TUTORIAL_DAILY_STUDY_MOCK } from '@/config/tutorial-mock';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useDailyStudyDetailQuery } from '@/hooks/queries/use-interview-query';
+import { useDailyStudyDetailQuery } from '@/hooks/queries/one-to-one/use-interview-query';
 import { DailyStudyDetail } from '@/types/api/interview.types';
 import { formatExternalLink } from '@/utils/format';
 

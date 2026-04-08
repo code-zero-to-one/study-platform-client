@@ -10,7 +10,7 @@ import { useSearchBanks } from '@/hooks/queries/bank-search-api';
 import {
   useRegisterSettlementAccount,
   useUpdateSettlementAccount,
-} from '@/hooks/queries/settlement-account-api';
+} from '@/hooks/queries/payment/settlement-account-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 // Form Schema

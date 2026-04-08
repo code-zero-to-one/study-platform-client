@@ -3,8 +3,8 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
-import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+import { useLogoutMutation } from '@/hooks/queries/auth/use-auth-mutation';
+import { useUserProfileQuery } from '@/hooks/queries/user/use-user-profile-query';
 
 export default function Sidebar() {
   const router = useRouter();

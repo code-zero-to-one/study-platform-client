@@ -17,7 +17,7 @@ import {
   ARCHIVE_SORT_OPTIONS,
   ARCHIVE_VIEW_MODES,
 } from '@/config/archive-const';
-import { useArchiveSearchSuggestionsQuery } from '@/hooks/queries/use-archive-search-suggestions-query';
+import { useArchiveSearchSuggestionsQuery } from '@/hooks/queries/one-to-one/use-archive-search-suggestions-query';
 import { useDebounce } from '@/hooks/use-debounce';
 
 interface ArchiveFiltersProps {

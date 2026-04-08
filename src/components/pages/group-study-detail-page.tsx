@@ -13,16 +13,16 @@ import {
   type StudyTabValue,
 } from '@/config/constants';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study/group-study-member-api';
 import {
   useGetGroupStudyReviewAvailability,
   useGetGroupStudyReviewWritten,
-} from '@/hooks/queries/group-study-review-api';
+} from '@/hooks/queries/group-study/group-study-review-api';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
-} from '@/hooks/queries/use-study-query';
+} from '@/hooks/queries/one-to-one/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import type { Leader } from '@/types/api/group-study.types';

@@ -7,8 +7,8 @@ import {
   groupStudyReviewDetailQueryOptions,
   useGetGroupStudyReviews,
   type GroupStudyExperienceReviewDetail,
-} from '@/hooks/queries/group-study-review-api';
-import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
+} from '@/hooks/queries/group-study/group-study-review-api';
+import { useGroupStudyDetailQuery } from '@/hooks/queries/one-to-one/use-study-query';
 import EvaluationSection from './_components/evaluation-section';
 import GroupReviewCard from './_components/group-review-card';
 import SatisfactionSection from './_components/satisfaction-section';

@@ -1,6 +1,6 @@
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
-import { useDeletePeerReview } from '@/hooks/queries/peer-review-api';
+import { useDeletePeerReview } from '@/hooks/queries/group-study/peer-review-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 interface DeletePeerReviewModalProps {

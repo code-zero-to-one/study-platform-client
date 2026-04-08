@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import MyStudyCard from '@/components/common/cards/my-study-card';
-import { useStudyDashboardQuery } from '@/hooks/queries/use-update-user-profile-mutation';
+import { useStudyDashboardQuery } from '@/hooks/queries/user/use-update-user-profile-mutation';
 
 export default function MyActivity() {
   const { data: dashboard, isLoading, isError } = useStudyDashboardQuery();

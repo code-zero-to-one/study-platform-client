@@ -9,7 +9,7 @@ import { clearClientAuthStateAndRedirect } from '@/features/auth/model/client-au
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
 import { hashValue } from '@/utils/hash';
-import { VIEWED_ARCHIVES_KEY } from './use-view-mutation';
+import { VIEWED_ARCHIVES_KEY } from '@/hooks/queries/one-to-one/use-view-mutation';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {

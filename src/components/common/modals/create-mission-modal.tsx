@@ -15,8 +15,11 @@ import {
   requestMentorMarkdownImageUploadTicket,
   uploadMarkdownImageFile,
 } from '@/features/mentoring/model/mentor-markdown-image-upload';
-import { useCreateMission, useGetMissions } from '@/hooks/queries/mission-api';
-import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
+import {
+  useCreateMission,
+  useGetMissions,
+} from '@/hooks/queries/group-study/mission-api';
+import { useGroupStudyDetailQuery } from '@/hooks/queries/one-to-one/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   createDisabledDateMatcherForMission,

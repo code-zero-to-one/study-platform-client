@@ -6,7 +6,7 @@ import Pagination from '@/components/common/ui/pagination';
 import {
   usePostThreadMutation,
   useThreadsQuery,
-} from '@/hooks/queries/use-channel-query';
+} from '@/hooks/queries/group-study/use-channel-query';
 import Comment from './comment';
 import CommentInput from './comment-input';
 import SubComments from './sub-comments';

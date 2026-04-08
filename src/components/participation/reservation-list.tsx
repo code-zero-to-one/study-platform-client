@@ -7,12 +7,12 @@ import ProfileDefault from '@/components/common/cards/icon/profile-default.svg';
 import SectionHeader from '@/components/common/ui/section-header';
 import ReservationCard from '@/components/participation/reservation-user-card';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useInfiniteReservation } from '@/hooks/queries/use-participation-query';
+import { useInfiniteReservation } from '@/hooks/queries/one-to-one/use-participation-query';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
-} from '@/hooks/queries/use-user-profile-query';
+} from '@/hooks/queries/user/use-user-profile-query';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const PhoneVerificationModal = dynamic(

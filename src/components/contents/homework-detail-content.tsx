@@ -14,13 +14,13 @@ import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useGetHomework } from '@/hooks/queries/group-study-homework-api';
-import { useGetMission } from '@/hooks/queries/mission-api';
+import { useGetHomework } from '@/hooks/queries/group-study/group-study-homework-api';
+import { useGetMission } from '@/hooks/queries/group-study/mission-api';
 import {
   useCreatePeerReview,
   useDeletePeerReview,
   useUpdatePeerReview,
-} from '@/hooks/queries/peer-review-api';
+} from '@/hooks/queries/group-study/peer-review-api';
 import { useUserStore } from '@/stores/useUserStore';
 
 import { formatExternalLink } from '@/utils/format';

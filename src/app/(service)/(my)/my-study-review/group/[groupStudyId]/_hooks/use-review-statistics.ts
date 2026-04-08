@@ -5,7 +5,7 @@ import type {
   GroupStudyExperienceReviewDetail,
   GroupStudyExperienceReviewListItem,
   SelectableReviewItem,
-} from '@/hooks/queries/group-study-review-api';
+} from '@/hooks/queries/group-study/group-study-review-api';
 
 interface GroupedItem {
   id: number;

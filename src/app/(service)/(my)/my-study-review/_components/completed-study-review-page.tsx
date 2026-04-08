@@ -8,7 +8,7 @@ import { axiosInstance } from '@/api/client/axios';
 import GroupStudyReviewModal from '@/components/common/modals/group-study-review-modal';
 import Pagination from '@/components/common/ui/pagination';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
+import { useMemberStudyListQuery } from '@/hooks/queries/user/use-member-study-list-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 import StudyReviewTabNav from './study-review-tab-nav';

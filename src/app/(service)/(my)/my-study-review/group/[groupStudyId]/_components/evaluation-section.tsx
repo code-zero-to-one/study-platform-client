@@ -5,7 +5,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type {
   GroupStudyReviewStatistics,
   GroupStudyReviewStatisticsItem,
-} from '@/hooks/queries/group-study-review-api';
+} from '@/hooks/queries/group-study/group-study-review-api';
 
 const DEFAULT_SHOW_COUNT = 5;
 

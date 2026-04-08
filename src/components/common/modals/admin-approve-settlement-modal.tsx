@@ -1,7 +1,7 @@
 import { StudySettlementSummaryResponse } from '@/api/openapi';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
-import { useApproveSettlement } from '@/hooks/queries/admin-settlement-api';
+import { useApproveSettlement } from '@/hooks/queries/admin/admin-settlement-api';
 
 export default function AdminApproveSettlementModal({
   settlementId,

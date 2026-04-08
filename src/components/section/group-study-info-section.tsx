@@ -11,7 +11,7 @@ import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
 import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
-import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/group-study/use-applicant-query';
 
 import { MARKDOWN_DESCRIPTION_CLASS } from '../common/ui/editor/markdown-utils';
 import SummaryStudyInfo from '../summary/study-info-summary';

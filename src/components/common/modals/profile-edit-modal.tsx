@@ -13,11 +13,11 @@ import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
 import SignupImageSelector from '@/components/forms/sign-up-image-selector';
 import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '@/config/my-page-const';
-import { useUploadProfileImageMutation } from '@/hooks/queries/use-auth-mutation';
+import { useUploadProfileImageMutation } from '@/hooks/queries/auth/use-auth-mutation';
 import {
   useTechStacksQuery,
   useUpdateUserProfileMutation,
-} from '@/hooks/queries/use-update-user-profile-mutation';
+} from '@/hooks/queries/user/use-update-user-profile-mutation';
 import { useToastStore } from '@/stores/use-toast-store';
 import { MemberProfile } from '@/types/api/user.types';
 

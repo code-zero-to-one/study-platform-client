@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getBalanceGameSearchSuggestions } from '@/api/endpoints/balance-game/get-balance-game-search-suggestions';
-import { BALANCE_GAME_QUERY_KEYS } from '@/hooks/queries/balance-game-keys';
+import { BALANCE_GAME_QUERY_KEYS } from '@/hooks/queries/one-to-one/balance-game-keys';
 
 export const useBalanceGameSearchSuggestionsQuery = (
   query: string,

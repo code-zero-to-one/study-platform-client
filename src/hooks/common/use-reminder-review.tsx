@@ -4,7 +4,7 @@ import {
   useDismissStudyReviewModalMutation,
   usePartnerStudyReviewQuery,
   useStudyReviewModalStateQuery,
-} from '@/hooks/queries/use-review-query';
+} from '@/hooks/queries/group-study/use-review-query';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const REVIEW_REMINDER_HIDE_UNTIL_KEY = 'reviewReminderHideUntil';

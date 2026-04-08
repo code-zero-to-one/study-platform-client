@@ -14,7 +14,7 @@ import DatePicker from '@/components/common/ui/date-picker';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
-import { useGetTransactionsForAdmin } from '@/hooks/queries/admin-payment-api';
+import { useGetTransactionsForAdmin } from '@/hooks/queries/admin/admin-payment-api';
 import { formatToKST } from '@/utils/time';
 
 const AdminForcedCancellationModal = dynamic(

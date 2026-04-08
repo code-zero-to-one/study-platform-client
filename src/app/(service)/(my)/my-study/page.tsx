@@ -8,7 +8,7 @@ import Button from '@/components/common/ui/button';
 import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useMemberStudyListV2Query } from '@/hooks/queries/use-member-study-list-query';
+import { useMemberStudyListV2Query } from '@/hooks/queries/user/use-member-study-list-query';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 const GroupStudyFormModal = dynamic(

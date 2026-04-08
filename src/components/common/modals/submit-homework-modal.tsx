@@ -11,7 +11,7 @@ import {
   requestMentorMarkdownImageUploadTicket,
   uploadMarkdownImageFile,
 } from '@/features/mentoring/model/mentor-markdown-image-upload';
-import { useSubmitHomework } from '@/hooks/queries/group-study-homework-api';
+import { useSubmitHomework } from '@/hooks/queries/group-study/group-study-homework-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { formatExternalLink } from '@/utils/format';
 import { isValidUrl } from '@/utils/validation';

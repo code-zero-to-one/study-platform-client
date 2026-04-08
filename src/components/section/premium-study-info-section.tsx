@@ -9,7 +9,7 @@ import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
 import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
-import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/group-study/use-applicant-query';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 

@@ -16,7 +16,7 @@ import NotificationList from '@/components/lists/notification-list';
 import {
   useGetNotifications,
   useReadNotifications,
-} from '@/hooks/queries/notification-api';
+} from '@/hooks/queries/user/notification-api';
 import NotiIcon from 'public/icons/notifications_none.svg';
 
 export default function NotificationDropdown() {

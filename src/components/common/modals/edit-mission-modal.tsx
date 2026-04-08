@@ -17,8 +17,8 @@ import {
   useGetMission,
   useGetMissions,
   useUpdateMission,
-} from '@/hooks/queries/mission-api';
-import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
+} from '@/hooks/queries/group-study/mission-api';
+import { useGroupStudyDetailQuery } from '@/hooks/queries/one-to-one/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   createDisabledDateMatcherForMission,

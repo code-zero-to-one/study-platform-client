@@ -15,7 +15,7 @@ import {
   ROLE_OPTIONS,
 } from '@/config/admin-member';
 import { useDebounce } from '@/hooks/common/use-debounce';
-import { useGetMemberListQuery } from '@/hooks/queries/use-member-list-query';
+import { useGetMemberListQuery } from '@/hooks/queries/user/use-member-list-query';
 import {
   type ManageableRoleId,
   type MemberStatus,

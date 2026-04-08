@@ -20,7 +20,7 @@ import {
   useCareersQuery,
   useStudyFormatTypesQuery,
   useUpdateUserProfileInfoMutation,
-} from '@/hooks/queries/use-update-user-profile-mutation';
+} from '@/hooks/queries/user/use-update-user-profile-mutation';
 import type { MemberInfo } from '@/types/api/user.types';
 import {
   ProfileInfoFormSchema,

@@ -11,7 +11,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
-import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
+import { useLogoutMutation } from '@/hooks/queries/auth/use-auth-mutation';
 
 const LoginModal = dynamic(
   () => import('@/components/common/modals/login-modal'),

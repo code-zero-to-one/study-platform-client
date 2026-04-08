@@ -10,7 +10,7 @@ import {
   type EditableQuestion,
   type QuestionImageDraft,
 } from '@/components/common/modals/question-modal.shared';
-import { useModifyQuestion } from '@/hooks/queries/question-api';
+import { useModifyQuestion } from '@/hooks/queries/group-study/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { QuestionFormValues } from '@/types/schemas/question.schema';
 

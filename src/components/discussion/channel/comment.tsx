@@ -10,7 +10,7 @@ import {
   useDeleteThreadMutation,
   useUpdateCommentMutation,
   useUpdateThreadMutation,
-} from '@/hooks/queries/use-channel-query';
+} from '@/hooks/queries/group-study/use-channel-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';

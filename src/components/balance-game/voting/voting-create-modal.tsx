@@ -11,7 +11,7 @@ import {
   BALANCE_GAME_TAG_MAX_LEN,
   BALANCE_GAME_TAG_MIN_QUERY_LEN,
 } from '@/config/balance-game-tags';
-import { useBalanceGameTagSuggestionsQuery } from '@/hooks/queries/use-balance-game-query';
+import { useBalanceGameTagSuggestionsQuery } from '@/hooks/queries/one-to-one/use-balance-game-query';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   VotingCreateFormSchema,

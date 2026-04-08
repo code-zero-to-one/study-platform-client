@@ -1,6 +1,6 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getArchive } from '@/api/endpoints/archive/get-archive';
-import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/archive-keys';
+import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/one-to-one/archive-keys';
 import { GetArchiveParams } from '@/types/one-to-one-study/archive';
 
 export const useArchiveQuery = (

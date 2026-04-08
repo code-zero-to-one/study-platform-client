@@ -13,11 +13,11 @@ import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/config/balance-game-tags';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useBalanceGameFilters } from '@/hooks/common/use-balance-game-filters';
 import { useInfiniteScroll } from '@/hooks/common/use-infinite-scroll';
-import { useCreateBalanceGameMutation } from '@/hooks/queries/use-balance-game-mutation';
+import { useCreateBalanceGameMutation } from '@/hooks/queries/one-to-one/use-balance-game-mutation';
 import {
   useBalanceGameListQuery,
   useBalanceGameTagSuggestionsQuery,
-} from '@/hooks/queries/use-balance-game-query';
+} from '@/hooks/queries/one-to-one/use-balance-game-query';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   useScrollToHomeContentOnChange,

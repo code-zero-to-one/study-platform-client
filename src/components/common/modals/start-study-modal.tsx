@@ -15,7 +15,7 @@ import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
 
 import { GroupItems } from '@/components/common/ui/toggle';
-import { useJoinStudyMutation } from '@/hooks/queries/use-participation-query';
+import { useJoinStudyMutation } from '@/hooks/queries/one-to-one/use-participation-query';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import {
   useAvailableStudyTimesQuery,
@@ -23,8 +23,8 @@ import {
   useTechStacksQuery,
   useUpdateUserProfileMutation,
   useUpdateUserProfileInfoMutation,
-} from '@/hooks/queries/use-update-user-profile-mutation';
-import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+} from '@/hooks/queries/user/use-update-user-profile-mutation';
+import { useUserProfileQuery } from '@/hooks/queries/user/use-user-profile-query';
 
 import { useToastStore } from '@/stores/use-toast-store';
 import {

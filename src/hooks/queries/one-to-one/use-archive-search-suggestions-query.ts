@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getArchiveSearchSuggestions } from '@/api/endpoints/archive/get-archive-search-suggestions';
-import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/archive-keys';
+import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/one-to-one/archive-keys';
 
 export const useArchiveSearchSuggestionsQuery = (
   query: string,

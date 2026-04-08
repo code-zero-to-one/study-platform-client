@@ -4,7 +4,7 @@ import { Modal } from '@/components/common/ui/modal';
 import {
   useApproveRefund,
   useRejectRefund,
-} from '@/hooks/queries/admin-refund-api';
+} from '@/hooks/queries/admin/admin-refund-api';
 
 interface AdminRefundApprovalModalProps
   extends Pick<

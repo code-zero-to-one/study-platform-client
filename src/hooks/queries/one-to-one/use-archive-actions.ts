@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 import type { UpdateArchiveRequest } from '@/api/endpoints/archive/update-archive';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useToggleArchiveBookmarkMutation } from '@/hooks/queries/use-bookmark-mutation';
-import { useToggleArchiveLikeMutation } from '@/hooks/queries/use-like-mutation';
-import { useUpdateArchiveMutation } from '@/hooks/queries/use-update-archive-mutation';
-import { useRecordArchiveViewMutation } from '@/hooks/queries/use-view-mutation';
-import { useToggleArchiveVisibilityMutation } from '@/hooks/queries/use-visibility-mutation';
+import { useToggleArchiveBookmarkMutation } from '@/hooks/queries/one-to-one/use-bookmark-mutation';
+import { useToggleArchiveLikeMutation } from '@/hooks/queries/one-to-one/use-like-mutation';
+import { useUpdateArchiveMutation } from '@/hooks/queries/one-to-one/use-update-archive-mutation';
+import { useRecordArchiveViewMutation } from '@/hooks/queries/one-to-one/use-view-mutation';
+import { useToggleArchiveVisibilityMutation } from '@/hooks/queries/one-to-one/use-visibility-mutation';
 interface ArchiveViewTarget {
   id: number;
   link: string;

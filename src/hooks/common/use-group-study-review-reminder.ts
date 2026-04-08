@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { axiosInstance } from '@/api/client/axios';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { groupStudyReviewQueryKeys } from '@/hooks/queries/group-study-review-api';
-import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
+import { groupStudyReviewQueryKeys } from '@/hooks/queries/group-study/group-study-review-api';
+import { useMemberStudyListQuery } from '@/hooks/queries/user/use-member-study-list-query';
 import type { MemberStudyListRequest } from '@/types/api/group-study.types';
 
 interface UseGroupStudyReviewReminderOptions {

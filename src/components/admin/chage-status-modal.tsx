@@ -6,7 +6,7 @@ import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import { RadioGroup, RadioGroupItem } from '@/components/common/ui/radio';
 import { MEMBER_STATUS_OPTIONS } from '@/config/admin-member';
-import { useChangeMemberStatusMutation } from '@/hooks/queries/use-member-list-query';
+import { useChangeMemberStatusMutation } from '@/hooks/queries/user/use-member-list-query';
 import { GetMemberListResponse, MemberStatus } from '@/types/api/admin.types';
 
 interface ChangeStatusModalProps {

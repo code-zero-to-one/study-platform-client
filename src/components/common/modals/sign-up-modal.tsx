@@ -19,7 +19,7 @@ import { writeExistingMemberSession } from '@/features/auth/model/client-auth-se
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
-} from '@/hooks/queries/use-auth-mutation';
+} from '@/hooks/queries/auth/use-auth-mutation';
 import { useToastStore } from '@/stores/use-toast-store';
 import { SignUpRequest } from '@/types/api/auth.types';
 import { getAttributionParams } from '@/utils/attribution-tracker';

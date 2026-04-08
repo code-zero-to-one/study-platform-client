@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Rocket } from 'lucide-react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useStudyFormatTypesQuery } from '@/hooks/queries/use-update-user-profile-mutation';
+import { useStudyFormatTypesQuery } from '@/hooks/queries/user/use-update-user-profile-mutation';
 import type { StudyFormatTypeResponse } from '@/types/api/my-page.types';
 import { StepHeader } from './step-header';
 

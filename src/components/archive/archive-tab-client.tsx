@@ -5,8 +5,8 @@ import React from 'react';
 import SectionShell from '@/components/common/ui/section-shell';
 import { ARCHIVE_VIEW_MODES } from '@/config/archive-const';
 import { useArchiveFilters } from '@/hooks/common/use-archive-filters';
-import { useArchiveActions } from '@/hooks/queries/use-archive-actions';
-import { useArchiveQuery } from '@/hooks/queries/use-archive-query';
+import { useArchiveActions } from '@/hooks/queries/one-to-one/use-archive-actions';
+import { useArchiveQuery } from '@/hooks/queries/one-to-one/use-archive-query';
 import { useDebounce } from '@/hooks/use-debounce'; // Assuming this hook exists, or I will create it/use raw
 import { useScrollToHomeContent } from '@/hooks/use-scroll-to-home-content';
 import {

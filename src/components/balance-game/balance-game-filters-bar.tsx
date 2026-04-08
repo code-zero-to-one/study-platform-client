@@ -3,7 +3,7 @@
 import { ArrowUpDown, Search } from 'lucide-react';
 import React from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useBalanceGameSearchSuggestionsQuery } from '@/hooks/queries/use-balance-game-search-suggestions-query';
+import { useBalanceGameSearchSuggestionsQuery } from '@/hooks/queries/one-to-one/use-balance-game-search-suggestions-query';
 import { useDebounce } from '@/hooks/use-debounce';
 import FilterPillButton from './filter-pill-button';
 import TagAutocomplete from './tag-autocomplete';

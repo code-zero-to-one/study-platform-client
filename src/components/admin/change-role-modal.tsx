@@ -6,7 +6,7 @@ import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import { RadioGroup, RadioGroupItem } from '@/components/common/ui/radio';
 import { isManageableRoleId, ROLE_OPTIONS } from '@/config/admin-member';
-import { useChangeMemberRoleMutation } from '@/hooks/queries/use-member-list-query';
+import { useChangeMemberRoleMutation } from '@/hooks/queries/user/use-member-list-query';
 import {
   type GetMemberListResponse,
   type ManageableRoleId,

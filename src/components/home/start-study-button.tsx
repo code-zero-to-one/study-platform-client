@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+import { useUserProfileQuery } from '@/hooks/queries/user/use-user-profile-query';
 
 const StartStudyModal = dynamic(
   () => import('@/components/common/modals/start-study-modal'),

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
-import { useDeleteHomework } from '@/hooks/queries/group-study-homework-api';
+import { useDeleteHomework } from '@/hooks/queries/group-study/group-study-homework-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 interface DeleteHomeworkModalProps {

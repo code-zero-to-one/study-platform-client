@@ -9,7 +9,7 @@ import type {
   GetGroupStudiesTypeEnum,
 } from '@/api/openapi/api/group-study-management-api';
 import type { StudyFilterValues } from '@/components/filtering/study-filter';
-import { useGetStudies } from '@/hooks/queries/study-query';
+import { useGetStudies } from '@/hooks/queries/one-to-one/study-query';
 
 const PAGE_SIZE = 15;
 

@@ -6,7 +6,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import InquiryListTable from '@/components/lists/inquiry-list-table';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useGetQuestion, useGetQuestions } from '@/hooks/queries/question-api';
+import {
+  useGetQuestion,
+  useGetQuestions,
+} from '@/hooks/queries/group-study/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const PAGE_SIZE = 15;

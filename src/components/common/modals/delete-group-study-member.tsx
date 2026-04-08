@@ -7,7 +7,7 @@ import Button from '@/components/common/ui/button';
 import FormField from '@/components/common/ui/form/form-field';
 import { TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
-import { useKickMember } from '@/hooks/queries/group-study-member-api';
+import { useKickMember } from '@/hooks/queries/group-study/group-study-member-api';
 import {
   DeleteGroupStudyMemberFormSchema,
   DeleteGroupStudyMemberFormValues,

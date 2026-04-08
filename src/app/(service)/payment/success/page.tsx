@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { StudyPaymentDetailResponse, VirtualAccountInfo } from '@/api/openapi';
 import Button from '@/components/common/ui/button';
-import { useConfirmTossPayment } from '@/hooks/queries/payment-user-api';
+import { useConfirmTossPayment } from '@/hooks/queries/payment/payment-user-api';
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();

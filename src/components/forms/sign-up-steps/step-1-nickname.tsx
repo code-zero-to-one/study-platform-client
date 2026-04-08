@@ -5,7 +5,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { BaseInput } from '@/components/common/ui/input';
 import SignupImageSelector from '@/components/forms/sign-up-image-selector';
 import { useDebounce } from '@/hooks/common/use-debounce';
-import { useNicknameCheckQuery } from '@/hooks/queries/use-nickname-check';
+import { useNicknameCheckQuery } from '@/hooks/queries/auth/use-nickname-check';
 import { StepHeader } from './step-header';
 
 interface NicknameStepProps {

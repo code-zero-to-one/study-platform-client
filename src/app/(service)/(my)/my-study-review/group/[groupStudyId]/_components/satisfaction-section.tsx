@@ -3,7 +3,7 @@
 import { Star } from 'lucide-react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Progress from '@/components/common/ui/progress';
-import type { GroupStudyReviewStatistics } from '@/hooks/queries/group-study-review-api';
+import type { GroupStudyReviewStatistics } from '@/hooks/queries/group-study/group-study-review-api';
 
 interface SatisfactionSectionProps {
   statistics?: GroupStudyReviewStatistics;

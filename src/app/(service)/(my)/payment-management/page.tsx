@@ -20,7 +20,7 @@ import {
   useCancelPayment,
   useGetMyTransactions,
   useGetMyTransactionsByGroupStudy,
-} from '@/hooks/queries/payment-user-api';
+} from '@/hooks/queries/payment/payment-user-api';
 import { formatToKST } from '@/utils/time';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';

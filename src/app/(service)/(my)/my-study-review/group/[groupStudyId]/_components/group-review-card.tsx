@@ -2,7 +2,7 @@
 
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
-import type { GroupStudyExperienceReviewListItem } from '@/hooks/queries/group-study-review-api';
+import type { GroupStudyExperienceReviewListItem } from '@/hooks/queries/group-study/group-study-review-api';
 import { formatDateTimeDot } from '@/utils/time';
 import { useExpandableContent } from '../../../_components/use-expandable-content';
 

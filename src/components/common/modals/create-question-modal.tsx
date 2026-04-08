@@ -9,7 +9,7 @@ import {
   type QuestionImageDraft,
   type StudyType,
 } from '@/components/common/modals/question-modal.shared';
-import { useCreateQuestion } from '@/hooks/queries/question-api';
+import { useCreateQuestion } from '@/hooks/queries/group-study/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { QuestionFormValues } from '@/types/schemas/question.schema';
 

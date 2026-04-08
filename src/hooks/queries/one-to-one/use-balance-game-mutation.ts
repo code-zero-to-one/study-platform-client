@@ -9,7 +9,7 @@ import {
   updateBalanceGameComment,
   voteBalanceGame,
 } from '@/api/endpoints/balance-game/balance-game-api';
-import { BALANCE_GAME_QUERY_KEYS } from '@/hooks/queries/balance-game-keys';
+import { BALANCE_GAME_QUERY_KEYS } from '@/hooks/queries/one-to-one/balance-game-keys';
 import { UpdateBalanceGameRequest } from '@/types/one-to-one-study/balance-game';
 
 export const useCreateBalanceGameMutation = () => {

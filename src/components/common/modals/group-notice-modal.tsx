@@ -10,7 +10,7 @@ import Button from '@/components/common/ui/button';
 import FormField from '@/components/common/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
-import { useGroupStudyNoticeMutation } from '@/hooks/queries/use-group-study-notice-query';
+import { useGroupStudyNoticeMutation } from '@/hooks/queries/group-study/use-group-study-notice-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { GroupStudyNoticeRequest } from '@/types/api/group-study.types';
 import {

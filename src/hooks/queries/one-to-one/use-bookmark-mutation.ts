@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleArchiveBookmark } from '@/api/endpoints/archive/toggle-bookmark';
-import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/archive-keys';
+import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/one-to-one/archive-keys';
 import { ArchiveResponse } from '@/types/one-to-one-study/archive';
 
 export const useToggleArchiveBookmarkMutation = () => {

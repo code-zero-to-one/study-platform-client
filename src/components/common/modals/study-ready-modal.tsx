@@ -10,7 +10,7 @@ import FormField from '@/components/common/ui/form/form-field';
 import { BaseInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
 import ModalShell from '@/components/common/ui/modal-shell';
-import { useUpdateDailyStudyMutation } from '@/hooks/queries/use-interview-query';
+import { useUpdateDailyStudyMutation } from '@/hooks/queries/one-to-one/use-interview-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import type {
   DailyStudyDetail,

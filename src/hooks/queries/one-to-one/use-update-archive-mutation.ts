@@ -3,7 +3,7 @@ import {
   updateArchive,
   type UpdateArchiveRequest,
 } from '@/api/endpoints/archive/update-archive';
-import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/archive-keys';
+import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/one-to-one/archive-keys';
 import { ArchiveResponse } from '@/types/one-to-one-study/archive';
 
 export const useUpdateArchiveMutation = () => {

@@ -11,7 +11,7 @@ import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useStudyStatusQuery,
   useWeeklyParticipationQuery,
-} from '@/hooks/queries/use-schedule-query';
+} from '@/hooks/queries/one-to-one/use-schedule-query';
 import {
   formatKoreaYMD,
   getKoreaDate,

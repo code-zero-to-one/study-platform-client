@@ -3,7 +3,7 @@ import Button from '@/components/common/ui/button';
 import {
   useCommentsQuery,
   usePostCommentMutation,
-} from '@/hooks/queries/use-channel-query';
+} from '@/hooks/queries/group-study/use-channel-query';
 import Comment from './comment';
 import CommentInput from './comment-input';
 

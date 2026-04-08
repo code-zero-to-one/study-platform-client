@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { MissionListResponse } from '@/api/openapi';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
-import { useDeleteMission } from '@/hooks/queries/mission-api';
+import { useDeleteMission } from '@/hooks/queries/group-study/mission-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 interface DeleteMissionModalProps {

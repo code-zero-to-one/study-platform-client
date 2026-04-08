@@ -4,7 +4,7 @@ import {
   useMyNegativeKeywordsQuery,
   useMyReviewsInfinityQuery,
   useUserPositiveKeywordsQuery,
-} from '@/hooks/queries/use-review-query';
+} from '@/hooks/queries/group-study/use-review-query';
 
 import { buildEvaluationStatistics } from './_utils';
 import CompletedStudyReviewPage from '../_components/completed-study-review-page';

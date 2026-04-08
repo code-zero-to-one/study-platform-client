@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import {
   useCreateGroupStudyReview,
   useGetGroupStudyReviewSelectableItems,
-} from '@/hooks/queries/group-study-review-api';
+} from '@/hooks/queries/group-study/group-study-review-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import type {
   ReviewSatisfaction,

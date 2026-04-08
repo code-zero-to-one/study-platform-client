@@ -12,7 +12,7 @@ import {
   useGetNotifications,
   useGetNotificationCategories,
   useReadNotifications,
-} from '@/hooks/queries/notification-api';
+} from '@/hooks/queries/user/notification-api';
 import NotificationIcon from 'public/images/notification.svg';
 
 const READ_STATUS_OPTIONS = [

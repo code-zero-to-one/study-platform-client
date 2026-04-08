@@ -12,7 +12,7 @@ import { GroupItems } from '@/components/common/ui/toggle';
 import {
   useCreateEvaluation,
   useGetMissionEvaluationGrades,
-} from '@/hooks/queries/evaluation-api';
+} from '@/hooks/queries/group-study/evaluation-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const CreateEvaluationFormSchema = z.object({

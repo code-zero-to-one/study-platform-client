@@ -16,7 +16,7 @@ import {
   useDeleteQuestion,
   useGetQuestion,
   useGetQuestions,
-} from '@/hooks/queries/question-api';
+} from '@/hooks/queries/group-study/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
