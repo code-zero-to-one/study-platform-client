@@ -7,10 +7,10 @@ import {
 } from '@/hooks/queries/group-study/use-review-query';
 
 import { buildEvaluationStatistics } from './_utils';
-import CompletedStudyReviewPage from '../_components/completed-study-review-page';
-import StudyReviewTabNav from '../_components/study-review-tab-nav';
+import CompletedStudyReviewPage from '@/components/group-study/review/completed-study-review-page';
+import StudyReviewTabNav from '@/components/group-study/review/study-review-tab-nav';
 import OneToOneReviewCard from './_components/one-to-one-review-card';
-import EvaluationSection from '../group/[groupStudyId]/_components/evaluation-section';
+import EvaluationSection from '@/components/group-study/review/group/detail/evaluation-section';
 
 export default function OneToOneReviewPage() {
   const { data: positiveData } = useUserPositiveKeywordsQuery({});

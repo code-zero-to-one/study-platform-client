@@ -4,7 +4,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import type { MyReviewItem } from '@/types/api/review.types';
 import { formatDateTimeDot } from '@/utils/time';
-import { useExpandableContent } from '../../_components/use-expandable-content';
+import { useExpandableContent } from '@/components/group-study/review/use-expandable-content';
 
 export default function OneToOneReviewCard({
   review,

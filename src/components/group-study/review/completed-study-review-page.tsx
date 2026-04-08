@@ -12,7 +12,7 @@ import { useMemberStudyListQuery } from '@/hooks/queries/user/use-member-study-l
 import { useToastStore } from '@/stores/use-toast-store';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 import StudyReviewTabNav from './study-review-tab-nav';
-import MemberStudyCard from '../group/_components/member-study-card';
+import MemberStudyCard from '@/components/group-study/review/group/member-study-card';
 
 const StudyCompletionModal = dynamic(
   () => import('@/components/group-study/modals/study-completion-modal'),
