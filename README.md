@@ -63,8 +63,8 @@ yarn dev  # http://localhost:3000
 
 ## 2. 브랜치 전략
 
-```
-main ◄─── develop ◄─── feat/*, fix/*, refactor/*, docs/*, chore/* ...
+```text
+main ◄─── develop ◄─── feat/*, fix/*, refactor/*, style/*, docs/*, test/*, chore/* ...
 ```
 
 ### 개발 흐름
@@ -79,7 +79,7 @@ main ◄─── develop ◄─── feat/*, fix/*, refactor/*, docs/*, chore/
 
 브랜치와 커밋 prefix를 동일하게 맞춥니다. **콜론 앞뒤 공백 필수.**
 
-```
+```text
 feat : 새 기능      →  feat/기능명
 fix : 버그 수정     →  fix/버그명
 refactor : 개선     →  refactor/이름
@@ -151,7 +151,7 @@ chore : 빌드·설정   →  chore/이름
 
 ## 5. 폴더 구조
 
-```
+```text
 src/
 ├── app/                    # Next.js App Router
 │   ├── (landing)/          # 공개 랜딩 (/)
