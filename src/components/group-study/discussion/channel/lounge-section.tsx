@@ -9,7 +9,7 @@ import Post from '@/components/group-study/discussion/channel/post';
 import PostNotFound from '@/components/group-study/discussion/channel/post-not-found';
 
 const KickedReasonModal = dynamic(
-  () => import('@/components/common/modals/kicked-reason-modal'),
+  () => import('@/components/group-study/modals/kicked-reason-modal'),
 );
 
 interface ChannelSectionProps {

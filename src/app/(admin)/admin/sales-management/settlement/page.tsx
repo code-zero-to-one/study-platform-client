@@ -18,12 +18,12 @@ import { useGetSettlementsForAdmin } from '@/hooks/queries/admin/admin-settlemen
 import { formatToKST } from '@/utils/time';
 
 const AdminApproveSettlementModal = dynamic(
-  () => import('@/components/common/modals/admin-approve-settlement-modal'),
+  () => import('@/components/payment/modals/admin-approve-settlement-modal'),
   { ssr: false },
 );
 
 const AdminCompleteSettlementModal = dynamic(
-  () => import('@/components/common/modals/admin-complete-settlement-modal'),
+  () => import('@/components/payment/modals/admin-complete-settlement-modal'),
   { ssr: false },
 );
 

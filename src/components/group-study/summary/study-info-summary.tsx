@@ -6,7 +6,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { UserTransactionDetailResponseTransactionTypeEnum } from '@/api/openapi';
-import ApplyGroupStudyModal from '@/components/common/modals/apply-group-study-modal';
+import ApplyGroupStudyModal from '@/components/group-study/modals/apply-group-study-modal';
 import Button from '@/components/common/ui/button';
 import {
   EXPERIENCE_LEVEL_LABELS,

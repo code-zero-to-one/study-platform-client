@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import DiscretionaryEvaluationModal, {
   EVALUATION_COUNT,
-} from '@/components/common/modals/discretionary-evaluation-modal';
+} from '@/components/group-study/modals/discretionary-evaluation-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import DiscretionGradeHistoryList from '@/components/home/lists/discretion-grade-history-list';
@@ -19,12 +19,12 @@ import GoldRankIcon from 'public/icons/gold-rank.svg';
 import SilverRankIcon from 'public/icons/silver-rank.svg';
 
 const DeleteGroupStudyMemberModal = dynamic(
-  () => import('@/components/common/modals/delete-group-study-member'),
+  () => import('@/components/group-study/modals/delete-group-study-member'),
   { ssr: false },
 );
 
 const EndGroupStudyModal = dynamic(
-  () => import('@/components/common/modals/end-group-study'),
+  () => import('@/components/group-study/modals/end-group-study'),
   { ssr: false },
 );
 
@@ -34,7 +34,7 @@ const UserProfileModal = dynamic(
 );
 
 const WriteGreetingModal = dynamic(
-  () => import('@/components/common/modals/write-greeting-modal'),
+  () => import('@/components/group-study/modals/write-greeting-modal'),
   { ssr: false },
 );
 

@@ -13,7 +13,7 @@ import type { GroupStudyMember } from '@/types/api/group-study.types';
 import PageContainer from '@/components/common/layout/page-container';
 
 const KickedReasonModal = dynamic(
-  () => import('@/components/common/modals/kicked-reason-modal'),
+  () => import('@/components/group-study/modals/kicked-reason-modal'),
   { ssr: false },
 );
 

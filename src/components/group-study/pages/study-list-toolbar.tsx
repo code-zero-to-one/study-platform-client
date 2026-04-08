@@ -12,7 +12,7 @@ import StudySearch from '@/components/group-study/filtering/study-search';
 import type { StudyClassification } from '@/types/schemas/group-study-form.schema';
 
 const GroupStudyFormModal = dynamic(
-  () => import('@/components/common/modals/group-study-form-modal'),
+  () => import('@/components/group-study/modals/group-study-form-modal'),
   { ssr: false },
 );
 

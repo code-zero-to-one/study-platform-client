@@ -8,7 +8,7 @@ import {
   DEFAULT_QUESTION_FORM_VALUES,
   QUESTION_CATEGORY_OPTIONS,
   type QuestionImageDraft,
-} from '@/components/common/modals/question-modal.shared';
+} from '@/components/group-study/modals/question-modal.shared';
 import Button from '@/components/common/ui/button';
 import { SingleDropdown } from '@/components/common/ui/dropdown';
 import FormField from '@/components/common/ui/form/form-field';

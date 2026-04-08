@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useRef } from 'react';
 
 import type { CurriculumSummaryDto } from '@/api/openapi';
-import LoginModal from '@/components/common/modals/login-modal';
+import LoginModal from '@/components/auth/modals/login-modal';
 import Tooltip from '@/components/common/ui/tooltip';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';

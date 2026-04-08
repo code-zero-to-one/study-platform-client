@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useState, type ReactNode } from 'react';
-import StudyReviewModal from '@/components/common/modals/study-review-modal';
+import StudyReviewModal from '@/components/group-study/modals/study-review-modal';
 import GlobalToast from '@/components/common/ui/global-toast';
 import Banner from '@/components/home/banner';
 import FeedbackLink from '@/components/home/feedback-link';
@@ -12,7 +12,7 @@ import type { HomeTab } from '@/features/home/model/home-page-search-params';
 import { useReviewReminder } from '@/hooks/common/use-reminder-review';
 
 const StudyCompletionModal = dynamic(
-  () => import('@/components/common/modals/study-completion-modal'),
+  () => import('@/components/group-study/modals/study-completion-modal'),
   { ssr: false },
 );
 

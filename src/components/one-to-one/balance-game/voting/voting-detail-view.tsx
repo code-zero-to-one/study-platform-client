@@ -48,7 +48,7 @@ import {
 import VotingEditModal from './voting-edit-modal';
 
 const LoginModal = dynamic(
-  () => import('@/components/common/modals/login-modal'),
+  () => import('@/components/auth/modals/login-modal'),
   { ssr: false },
 );
 

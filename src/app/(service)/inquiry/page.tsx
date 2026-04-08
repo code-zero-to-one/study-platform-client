@@ -15,12 +15,12 @@ import { useToastStore } from '@/stores/use-toast-store';
 const PAGE_SIZE = 15;
 
 const CreateQuestionModal = dynamic(
-  () => import('@/components/common/modals/create-question-modal'),
+  () => import('@/components/group-study/modals/create-question-modal'),
   { ssr: false },
 );
 
 const EditQuestionModal = dynamic(
-  () => import('@/components/common/modals/edit-question-modal'),
+  () => import('@/components/group-study/modals/edit-question-modal'),
   { ssr: false },
 );
 

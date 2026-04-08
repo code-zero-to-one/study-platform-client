@@ -11,7 +11,7 @@ import { formatDateDot, formatKoreaRelativeTime } from '@/utils/time';
 import { useExpandableContent } from './use-expandable-content';
 
 const MoreKeywordReviewModal = dynamic(
-  () => import('@/components/common/modals/more-keyword-review-modal'),
+  () => import('@/components/group-study/modals/more-keyword-review-modal'),
   { ssr: false },
 );
 

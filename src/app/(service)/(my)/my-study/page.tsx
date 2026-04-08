@@ -12,7 +12,7 @@ import { useMemberStudyListV2Query } from '@/hooks/queries/user/use-member-study
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 const GroupStudyFormModal = dynamic(
-  () => import('@/components/common/modals/group-study-form-modal'),
+  () => import('@/components/group-study/modals/group-study-form-modal'),
   { ssr: false },
 );
 

@@ -11,12 +11,12 @@ import Tooltip from '@/components/common/ui/tooltip';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const DeleteMissionModal = dynamic(
-  () => import('@/components/common/modals/delete-mission-modal'),
+  () => import('@/components/group-study/modals/delete-mission-modal'),
   { ssr: false },
 );
 
 const EditMissionModal = dynamic(
-  () => import('@/components/common/modals/edit-mission-modal'),
+  () => import('@/components/group-study/modals/edit-mission-modal'),
   { ssr: false },
 );
 

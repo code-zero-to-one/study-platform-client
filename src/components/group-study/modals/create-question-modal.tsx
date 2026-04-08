@@ -2,13 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import QuestionFormDialog from '@/components/common/modals/question-form-dialog';
+import QuestionFormDialog from '@/components/group-study/modals/question-form-dialog';
 import {
   finalizeQuestionSubmission,
   getRequestImageExtension,
   type QuestionImageDraft,
   type StudyType,
-} from '@/components/common/modals/question-modal.shared';
+} from '@/components/group-study/modals/question-modal.shared';
 import { useCreateQuestion } from '@/hooks/queries/group-study/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { QuestionFormValues } from '@/types/schemas/question.schema';

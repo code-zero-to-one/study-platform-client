@@ -13,7 +13,7 @@ import HeaderUserDropdown from './header-user-dropdown';
 import MobileMenuDrawer from './mobile-menu-drawer';
 
 const LoginModal = dynamic(
-  () => import('@/components/common/modals/login-modal'),
+  () => import('@/components/auth/modals/login-modal'),
 );
 
 const NotificationDropdown = dynamic(

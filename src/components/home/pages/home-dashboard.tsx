@@ -15,7 +15,7 @@ import AssignmentIcon from 'public/icons/assignment.svg';
 import SettingIcon from 'public/icons/setting.svg';
 
 const StartStudyModal = dynamic(
-  () => import('@/components/common/modals/start-study-modal'),
+  () => import('@/components/group-study/modals/start-study-modal'),
 );
 
 function HomeDashboardFallback({

@@ -8,7 +8,7 @@ import type {
   EvaluationResponse,
   PeerReviewResponse,
 } from '@/api/openapi/models';
-import LoginModal from '@/components/common/modals/login-modal';
+import LoginModal from '@/components/auth/modals/login-modal';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
@@ -31,17 +31,17 @@ const ConfirmDeleteModal = dynamic(
 );
 
 const DeleteHomeworkModal = dynamic(
-  () => import('@/components/common/modals/delete-homework-modal'),
+  () => import('@/components/group-study/modals/delete-homework-modal'),
   { ssr: false },
 );
 
 const EditHomeworkModal = dynamic(
-  () => import('@/components/common/modals/edit-homework-modal'),
+  () => import('@/components/group-study/modals/edit-homework-modal'),
   { ssr: false },
 );
 
 const CreateEvaluationModal = dynamic(
-  () => import('@/components/common/modals/create-evaluation-modal'),
+  () => import('@/components/group-study/modals/create-evaluation-modal'),
   { ssr: false },
 );
 

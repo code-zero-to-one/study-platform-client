@@ -18,7 +18,7 @@ const PhoneVerificationModal = dynamic(
 );
 
 const StartStudyModal = dynamic(
-  () => import('@/components/common/modals/start-study-modal'),
+  () => import('@/components/group-study/modals/start-study-modal'),
   { ssr: false },
 );
 

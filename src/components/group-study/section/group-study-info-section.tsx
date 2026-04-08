@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo, useRef } from 'react';
 import type { GroupStudyFullResponseDto } from '@/api/openapi';
-import ApplyGroupStudyModal from '@/components/common/modals/apply-group-study-modal';
+import ApplyGroupStudyModal from '@/components/group-study/modals/apply-group-study-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';

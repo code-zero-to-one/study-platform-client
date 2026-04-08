@@ -15,17 +15,17 @@ import { DailyStudyDetail } from '@/types/api/interview.types';
 import { formatExternalLink } from '@/utils/format';
 
 const StudyDoneModal = dynamic(
-  () => import('@/components/common/modals/study-done-modal'),
+  () => import('@/components/group-study/modals/study-done-modal'),
   { ssr: false },
 );
 
 const StudyReadyModal = dynamic(
-  () => import('@/components/common/modals/study-ready-modal'),
+  () => import('@/components/group-study/modals/study-ready-modal'),
   { ssr: false },
 );
 
 const UserPhoneNumberCopyModal = dynamic(
-  () => import('@/components/common/modals/user-phone-number-copy-modal'),
+  () => import('@/components/my-page/modals/user-phone-number-copy-modal'),
   { ssr: false },
 );
 

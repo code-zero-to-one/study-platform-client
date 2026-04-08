@@ -11,7 +11,7 @@ import Checkbox from '../common/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../common/ui/radio';
 
 const PaymentTermsModal = dynamic(
-  () => import('@/components/common/modals/payment-terms-modal'),
+  () => import('@/components/payment/modals/payment-terms-modal'),
   { ssr: false },
 );
 

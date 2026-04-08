@@ -14,7 +14,7 @@ import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import { useLogoutMutation } from '@/hooks/queries/auth/use-auth-mutation';
 
 const LoginModal = dynamic(
-  () => import('@/components/common/modals/login-modal'),
+  () => import('@/components/auth/modals/login-modal'),
 );
 
 const NAV_ITEMS = [

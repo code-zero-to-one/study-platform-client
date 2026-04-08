@@ -11,12 +11,12 @@ import GroupStudyList from '@/components/home/lists/group-study-list';
 import MyParticipatingStudiesSection from '@/components/group-study/section/my-participating-studies-section';
 
 const GroupStudyReviewModal = dynamic(
-  () => import('@/components/common/modals/group-study-review-modal'),
+  () => import('@/components/group-study/modals/group-study-review-modal'),
   { ssr: false },
 );
 
 const StudyCompletionModal = dynamic(
-  () => import('@/components/common/modals/study-completion-modal'),
+  () => import('@/components/group-study/modals/study-completion-modal'),
   { ssr: false },
 );
 

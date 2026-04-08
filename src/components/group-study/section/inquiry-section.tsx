@@ -22,12 +22,12 @@ import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
 
 const EditQuestionModal = dynamic(
-  () => import('@/components/common/modals/edit-question-modal'),
+  () => import('@/components/group-study/modals/edit-question-modal'),
   { ssr: false },
 );
 
 const LoginModal = dynamic(
-  () => import('@/components/common/modals/login-modal'),
+  () => import('@/components/auth/modals/login-modal'),
   { ssr: false },
 );
 

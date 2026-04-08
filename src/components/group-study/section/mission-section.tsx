@@ -22,12 +22,12 @@ const MissionDetailContent = dynamic(
 );
 
 const CreateMissionModal = dynamic(
-  () => import('@/components/common/modals/create-mission-modal'),
+  () => import('@/components/group-study/modals/create-mission-modal'),
   { ssr: false },
 );
 
 const LoginModal = dynamic(
-  () => import('@/components/common/modals/login-modal'),
+  () => import('@/components/auth/modals/login-modal'),
   { ssr: false },
 );
 

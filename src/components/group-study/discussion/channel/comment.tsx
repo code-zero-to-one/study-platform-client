@@ -22,7 +22,7 @@ const ConfirmDeleteModal = dynamic(
 );
 
 const DeleteGroupStudyMemberModal = dynamic(
-  () => import('@/components/common/modals/delete-group-study-member'),
+  () => import('@/components/group-study/modals/delete-group-study-member'),
 );
 
 const UserProfileModal = dynamic(
