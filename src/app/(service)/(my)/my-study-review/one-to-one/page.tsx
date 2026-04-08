@@ -1,16 +1,16 @@
 'use client';
 
+import CompletedStudyReviewPage from '@/components/group-study/review/completed-study-review-page';
+import EvaluationSection from '@/components/group-study/review/group/detail/evaluation-section';
+import StudyReviewTabNav from '@/components/group-study/review/study-review-tab-nav';
 import {
   useMyNegativeKeywordsQuery,
   useMyReviewsInfinityQuery,
   useUserPositiveKeywordsQuery,
 } from '@/hooks/queries/group-study/use-review-query';
 
-import { buildEvaluationStatistics } from './_utils';
-import CompletedStudyReviewPage from '@/components/group-study/review/completed-study-review-page';
-import StudyReviewTabNav from '@/components/group-study/review/study-review-tab-nav';
 import OneToOneReviewCard from './_components/one-to-one-review-card';
-import EvaluationSection from '@/components/group-study/review/group/detail/evaluation-section';
+import { buildEvaluationStatistics } from './_utils';
 
 export default function OneToOneReviewPage() {
   const { data: positiveData } = useUserPositiveKeywordsQuery({});

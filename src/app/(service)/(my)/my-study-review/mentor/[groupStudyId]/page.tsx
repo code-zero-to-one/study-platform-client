@@ -3,16 +3,16 @@
 import { useQueries } from '@tanstack/react-query';
 import { ChevronLeft } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import EvaluationSection from '@/components/group-study/review/group/detail/evaluation-section';
+import GroupReviewCard from '@/components/group-study/review/group/detail/group-review-card';
+import SatisfactionSection from '@/components/group-study/review/group/detail/satisfaction-section';
 import {
   groupStudyReviewDetailQueryOptions,
   useGetGroupStudyReviews,
   type GroupStudyExperienceReviewDetail,
 } from '@/hooks/queries/group-study/group-study-review-api';
-import { useGroupStudyDetailQuery } from '@/hooks/queries/one-to-one/use-study-query';
-import EvaluationSection from '@/components/group-study/review/group/detail/evaluation-section';
-import GroupReviewCard from '@/components/group-study/review/group/detail/group-review-card';
-import SatisfactionSection from '@/components/group-study/review/group/detail/satisfaction-section';
 import { useReviewStatistics } from '@/hooks/queries/group-study/use-review-statistics';
+import { useGroupStudyDetailQuery } from '@/hooks/queries/one-to-one/use-study-query';
 
 export default function MentorStudyReviewDetailPage() {
   const { groupStudyId } = useParams<{ groupStudyId: string }>();

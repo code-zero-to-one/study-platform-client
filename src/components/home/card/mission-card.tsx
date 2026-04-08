@@ -6,9 +6,9 @@ import dynamic from 'next/dynamic';
 import type { ComponentProps } from 'react';
 
 import type { MissionListResponse } from '@/api/openapi/models';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Tooltip from '@/components/common/ui/tooltip';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const DeleteMissionModal = dynamic(
   () => import('@/components/group-study/modals/delete-mission-modal'),

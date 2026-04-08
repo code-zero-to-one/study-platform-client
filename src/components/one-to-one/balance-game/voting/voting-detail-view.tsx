@@ -13,14 +13,14 @@ import {
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import React, { useState, useEffect } from 'react';
-import DailyStatsChart from '@/components/one-to-one/balance-game/voting/daily-stats-chart';
-import VoteResultsChart from '@/components/one-to-one/balance-game/voting/vote-results-chart';
-import VoteTimer from '@/components/one-to-one/balance-game/voting/vote-timer';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import Toast from '@/components/common/ui/toast';
+import DailyStatsChart from '@/components/one-to-one/balance-game/voting/daily-stats-chart';
+import VoteResultsChart from '@/components/one-to-one/balance-game/voting/vote-results-chart';
+import VoteTimer from '@/components/one-to-one/balance-game/voting/vote-timer';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
 import CommentList from '@/features/study/one-to-one/discussion/ui/comment-list';

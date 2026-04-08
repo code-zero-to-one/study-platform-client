@@ -2,11 +2,11 @@
 
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+import UserAvatar from '@/components/common/ui/avatar';
+import Button from '@/components/common/ui/button';
 import DiscretionaryEvaluationModal, {
   EVALUATION_COUNT,
 } from '@/components/group-study/modals/discretionary-evaluation-modal';
-import UserAvatar from '@/components/common/ui/avatar';
-import Button from '@/components/common/ui/button';
 import DiscretionGradeHistoryList from '@/components/home/lists/discretion-grade-history-list';
 
 import { useAuthReady } from '@/features/auth/model/use-auth';

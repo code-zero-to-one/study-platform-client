@@ -5,6 +5,7 @@ import { useState } from 'react';
 import UserAvatar from '@/components/common/ui/avatar';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 
+import CommentInput from '@/components/group-study/discussion/channel/comment-input';
 import {
   useDeleteCommentMutation,
   useDeleteThreadMutation,
@@ -15,7 +16,6 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { ResizedImage } from '@/types/api/group-study.types';
-import CommentInput from '@/components/group-study/discussion/channel/comment-input';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),

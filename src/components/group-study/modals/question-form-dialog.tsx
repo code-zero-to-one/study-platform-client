@@ -4,17 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import {
-  DEFAULT_QUESTION_FORM_VALUES,
-  QUESTION_CATEGORY_OPTIONS,
-  type QuestionImageDraft,
-} from '@/components/group-study/modals/question-modal.shared';
 import Button from '@/components/common/ui/button';
 import { SingleDropdown } from '@/components/common/ui/dropdown';
 import FormField from '@/components/common/ui/form/form-field';
 import ImageUploadInput from '@/components/common/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
+import {
+  DEFAULT_QUESTION_FORM_VALUES,
+  QUESTION_CATEGORY_OPTIONS,
+  type QuestionImageDraft,
+} from '@/components/group-study/modals/question-modal.shared';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import {
   QUESTION_CONTENT_MAX_LENGTH,

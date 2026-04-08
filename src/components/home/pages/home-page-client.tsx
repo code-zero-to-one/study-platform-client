@@ -2,8 +2,8 @@
 
 import dynamic from 'next/dynamic';
 import { useState, type ReactNode } from 'react';
-import StudyReviewModal from '@/components/group-study/modals/study-review-modal';
 import GlobalToast from '@/components/common/ui/global-toast';
+import StudyReviewModal from '@/components/group-study/modals/study-review-modal';
 import Banner from '@/components/home/banner';
 import FeedbackLink from '@/components/home/feedback-link';
 import StartStudyButton from '@/components/home/start-study-button';

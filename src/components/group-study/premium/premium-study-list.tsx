@@ -4,10 +4,9 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 
 import { GroupStudyListItemDto } from '@/api/openapi';
+import StudyCard from '@/components/home/card/study-card';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { hashValue } from '@/utils/hash';
-
-import StudyCard from '@/components/home/card/study-card';
 
 interface PremiumStudyListProps {
   studies: GroupStudyListItemDto[];

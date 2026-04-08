@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import Button from '@/components/common/ui/button';
-import {
-  useCommentsQuery,
-  usePostCommentMutation,
-} from '@/hooks/queries/group-study/use-channel-query';
 import Comment from '@/components/group-study/discussion/channel/comment';
 import CommentInput from '@/components/group-study/discussion/channel/comment-input';
 
 import { CommentReaction } from '@/components/group-study/discussion/channel/comment-reaction';
+import {
+  useCommentsQuery,
+  usePostCommentMutation,
+} from '@/hooks/queries/group-study/use-channel-query';
 
 interface SubCommentsProps {
   threadId: number;

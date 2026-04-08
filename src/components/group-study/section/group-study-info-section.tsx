@@ -5,16 +5,16 @@ import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo, useRef } from 'react';
 import type { GroupStudyFullResponseDto } from '@/api/openapi';
-import ApplyGroupStudyModal from '@/components/group-study/modals/apply-group-study-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
-import CurriculumSummarySection from '@/components/group-study/section/curriculum-summary-section';
-import { useApplicantsByStatusQuery } from '@/hooks/queries/group-study/use-applicant-query';
 
 import { MARKDOWN_DESCRIPTION_CLASS } from '@/components/common/ui/editor/markdown-utils';
+import ApplyGroupStudyModal from '@/components/group-study/modals/apply-group-study-modal';
+import CurriculumSummarySection from '@/components/group-study/section/curriculum-summary-section';
 import SummaryStudyInfo from '@/components/group-study/summary/study-info-summary';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/group-study/use-applicant-query';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),

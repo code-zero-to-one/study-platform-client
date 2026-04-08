@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import PaymentCheckoutPage from '@/components/payment/paymentActionClient';
 import OrderSummary from '@/components/group-study/summary/order-summary';
 import PriceSummary from '@/components/group-study/summary/price-summary';
+import PaymentCheckoutPage from '@/components/payment/paymentActionClient';
 import { usePreparePaymentQuery } from '@/hooks/queries/payment/payment-user-api';
 import { useToastStore } from '@/stores/use-toast-store';
 

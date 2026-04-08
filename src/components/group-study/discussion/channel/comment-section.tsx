@@ -3,14 +3,14 @@ import { MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { getComments } from '@/api/endpoints/channel/get-comments';
 import Pagination from '@/components/common/ui/pagination';
-import {
-  usePostThreadMutation,
-  useThreadsQuery,
-} from '@/hooks/queries/group-study/use-channel-query';
 import Comment from '@/components/group-study/discussion/channel/comment';
 import CommentInput from '@/components/group-study/discussion/channel/comment-input';
 import SubComments from '@/components/group-study/discussion/channel/sub-comments';
 import { ThreadReaction } from '@/components/group-study/discussion/channel/thread-reaction';
+import {
+  usePostThreadMutation,
+  useThreadsQuery,
+} from '@/hooks/queries/group-study/use-channel-query';
 
 const COMMENTS_PAGE_SIZE = 10;
 

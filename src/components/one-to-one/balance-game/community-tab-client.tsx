@@ -3,12 +3,12 @@
 import { Loader2, Vote, SearchX, Plus, MessageSquareText } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
-import VotingCreateModal from '@/components/one-to-one/balance-game/voting/voting-create-modal';
-import VotingDetailView from '@/components/one-to-one/balance-game/voting/voting-detail-view';
-import VotingCard from '@/components/one-to-one/balance-game/voting-card';
 import SectionHeader from '@/components/common/ui/section-header';
 import SectionShell from '@/components/common/ui/section-shell';
 import Toast from '@/components/common/ui/toast';
+import VotingCreateModal from '@/components/one-to-one/balance-game/voting/voting-create-modal';
+import VotingDetailView from '@/components/one-to-one/balance-game/voting/voting-detail-view';
+import VotingCard from '@/components/one-to-one/balance-game/voting-card';
 import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/config/balance-game-tags';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useBalanceGameFilters } from '@/hooks/common/use-balance-game-filters';

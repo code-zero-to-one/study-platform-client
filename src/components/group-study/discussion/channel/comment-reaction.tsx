@@ -1,12 +1,12 @@
 // features/comment/CommentReaction.tsx (대댓글용)
 import { useMutation } from '@tanstack/react-query';
 import { postCommentReaction } from '@/api/endpoints/channel/post-comment-reaction'; // 새로 분리
+import { ReactionBar } from '@/components/group-study/discussion/channel/reaction-bar';
 import {
   Counts,
   Reaction,
   useReactionLogic,
 } from '@/hooks/common/reaction-logic';
-import { ReactionBar } from '@/components/group-study/discussion/channel/reaction-bar';
 
 export function CommentReaction({
   threadId,

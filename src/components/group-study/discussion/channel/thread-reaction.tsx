@@ -1,12 +1,12 @@
 // features/thread/ThreadReaction.tsx
 import { useMutation } from '@tanstack/react-query';
 import { postThreadReaction } from '@/api/endpoints/channel/post-thread-reaction';
+import { ReactionBar } from '@/components/group-study/discussion/channel/reaction-bar';
 import {
   Counts,
   Reaction,
   useReactionLogic,
 } from '@/hooks/common/reaction-logic';
-import { ReactionBar } from '@/components/group-study/discussion/channel/reaction-bar';
 
 export function ThreadReaction({
   groupStudyId,

@@ -8,14 +8,14 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
+import { MARKDOWN_DESCRIPTION_CLASS } from '@/components/common/ui/editor/markdown-utils';
 import CurriculumSummarySection from '@/components/group-study/section/curriculum-summary-section';
+import SummaryStudyInfo from '@/components/group-study/summary/study-info-summary';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/group-study/use-applicant-query';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
 import type { GroupStudyFullResponse } from '@/types/api/group-study.types';
-import { MARKDOWN_DESCRIPTION_CLASS } from '@/components/common/ui/editor/markdown-utils';
-import SummaryStudyInfo from '@/components/group-study/summary/study-info-summary';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),

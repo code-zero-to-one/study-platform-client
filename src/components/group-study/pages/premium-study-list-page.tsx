@@ -5,10 +5,10 @@ import PageContainer from '@/components/common/layout/page-container';
 import StudyListToolbar from '@/components/group-study/pages/study-list-toolbar';
 import PremiumStudyList from '@/components/group-study/premium/premium-study-list';
 import PremiumStudyPagination from '@/components/group-study/premium/premium-study-pagination';
+import MyParticipatingStudiesSection from '@/components/group-study/section/my-participating-studies-section';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGroupStudyReviewReminder } from '@/hooks/common/use-group-study-review-reminder';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
-import MyParticipatingStudiesSection from '@/components/group-study/section/my-participating-studies-section';
 
 const GroupStudyReviewModal = dynamic(
   () => import('@/components/group-study/modals/group-study-review-modal'),

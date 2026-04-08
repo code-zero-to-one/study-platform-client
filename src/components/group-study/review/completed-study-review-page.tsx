@@ -5,14 +5,14 @@ import dayjs from 'dayjs';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { axiosInstance } from '@/api/client/axios';
-import GroupStudyReviewModal from '@/components/group-study/modals/group-study-review-modal';
 import Pagination from '@/components/common/ui/pagination';
+import GroupStudyReviewModal from '@/components/group-study/modals/group-study-review-modal';
+import MemberStudyCard from '@/components/group-study/review/group/member-study-card';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMemberStudyListQuery } from '@/hooks/queries/user/use-member-study-list-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 import StudyReviewTabNav from './study-review-tab-nav';
-import MemberStudyCard from '@/components/group-study/review/group/member-study-card';
 
 const StudyCompletionModal = dynamic(
   () => import('@/components/group-study/modals/study-completion-modal'),

@@ -7,9 +7,9 @@ import { logout, signUp } from '@/api/endpoints/auth/auth';
 import { AUTH_ROUTE_PATHS } from '@/features/auth/model/auth-route';
 import { clearClientAuthStateAndRedirect } from '@/features/auth/model/client-auth-cleanup';
 import { useAuthReady } from '@/features/auth/model/use-auth';
+import { VIEWED_ARCHIVES_KEY } from '@/hooks/queries/one-to-one/use-view-mutation';
 import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
 import { hashValue } from '@/utils/hash';
-import { VIEWED_ARCHIVES_KEY } from '@/hooks/queries/one-to-one/use-view-mutation';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {

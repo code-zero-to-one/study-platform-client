@@ -4,13 +4,12 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
+import PageContainer from '@/components/common/layout/page-container';
 import Pagination from '@/components/common/ui/pagination';
 import GroupStudyMemberItem from '@/components/home/lists/group-study-member-item';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetGroupStudyMembers } from '@/hooks/queries/group-study/group-study-member-api';
 import type { GroupStudyMember } from '@/types/api/group-study.types';
-
-import PageContainer from '@/components/common/layout/page-container';
 
 const KickedReasonModal = dynamic(
   () => import('@/components/group-study/modals/kicked-reason-modal'),

@@ -4,12 +4,12 @@ import { ChevronLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useRef, useState } from 'react';
+import PageContainer from '@/components/common/layout/page-container';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import MissionCard from '@/components/home/card/mission-card';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetMissions } from '@/hooks/queries/group-study/mission-api';
 import { useGroupStudyDetailQuery } from '@/hooks/queries/one-to-one/use-study-query';
-import MissionCard from '@/components/home/card/mission-card';
-import PageContainer from '@/components/common/layout/page-container';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const HomeworkDetailContent = dynamic(
   () => import('@/components/home/contents/homework-detail-content'),

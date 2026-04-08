@@ -5,8 +5,13 @@ import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
+import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/group-study/discussion/channel/lounge-section';
+import StudyInfoSection from '@/components/group-study/section/group-study-info-section';
+import InquirySection from '@/components/group-study/section/inquiry-section';
+import MissionSection from '@/components/group-study/section/mission-section';
+import GroupStudyMemberList from '@/components/home/lists/study-member-list';
 import {
   isStudyTabValue,
   STUDY_DETAIL_TABS,
@@ -26,12 +31,6 @@ import {
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import type { Leader } from '@/types/api/group-study.types';
-
-import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
-import GroupStudyMemberList from '@/components/home/lists/study-member-list';
-import StudyInfoSection from '@/components/group-study/section/group-study-info-section';
-import InquirySection from '@/components/group-study/section/inquiry-section';
-import MissionSection from '@/components/group-study/section/mission-section';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),
