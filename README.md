@@ -57,7 +57,7 @@ yarn dev  # http://localhost:3000
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | 구글 OAuth |
 | `NEXT_PUBLIC_TOSS_CLIENT_KEY` | 토스페이먼츠 |
 | `NEXT_PUBLIC_STRAPI_URL` | CMS URL |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN (없으면 비활성화) |
+| `NEXT_PUBLIC_GLITCHTIP_DSN` | GlitchTip DSN (없으면 비활성화) |
 
 ---
 
@@ -143,7 +143,7 @@ chore : 빌드·설정   →  chore/이름
 | API | Axios + OpenAPI Generator |
 | 결제 | Toss Payments SDK |
 | 에디터 | Tiptap, Slate |
-| 모니터링 | Sentry, Microsoft Clarity, GTM |
+| 모니터링 | GlitchTip, Microsoft Clarity, GTM |
 | 테스트 | Vitest, Playwright, Storybook + Chromatic |
 | CI/CD | GitHub Actions → Docker Hub → Cloudflare Tunnel |
 
@@ -180,7 +180,7 @@ src/
 ├── types/
 │   ├── api/                # API 응답 타입
 │   └── schemas/            # Zod 검증 스키마
-├── config/                 # query-client, sentry, 상수
+├── config/                 # query-client, glitchtip, 상수
 ├── utils/                  # error-handler 등 공통 유틸
 └── middleware.ts            # 라우트 보호 미들웨어
 ```
@@ -247,7 +247,7 @@ graph LR
 |--------|------|
 | Kakao / Google OAuth | 소셜 로그인 |
 | Toss Payments | 결제 |
-| Sentry | 에러 모니터링 (AUTH001 제외) |
+| GlitchTip | 에러 모니터링 |
 | Microsoft Clarity | UX 분석 |
 | Google Tag Manager | 마케팅 분석 (운영 only) |
 | Strapi | CMS |
