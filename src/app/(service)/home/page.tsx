@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import HomePageClient from '@/components/pages/home-page-client';
-import HomePageServerContent from '@/components/pages/home-page-server-content';
+import HomePageClient from '@/components/home/pages/home-page-client';
+import HomePageServerContent from '@/components/home/pages/home-page-server-content';
 import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
 import { parseHomePageSearchParams } from '@/features/home/model/home-page-search-params';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';

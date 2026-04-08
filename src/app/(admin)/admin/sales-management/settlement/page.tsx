@@ -14,16 +14,16 @@ import DatePicker from '@/components/common/ui/date-picker';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
-import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
+import { useGetSettlementsForAdmin } from '@/hooks/queries/admin/admin-settlement-api';
 import { formatToKST } from '@/utils/time';
 
 const AdminApproveSettlementModal = dynamic(
-  () => import('@/components/common/modals/admin-approve-settlement-modal'),
+  () => import('@/components/payment/modals/admin-approve-settlement-modal'),
   { ssr: false },
 );
 
 const AdminCompleteSettlementModal = dynamic(
-  () => import('@/components/common/modals/admin-complete-settlement-modal'),
+  () => import('@/components/payment/modals/admin-complete-settlement-modal'),
   { ssr: false },
 );
 

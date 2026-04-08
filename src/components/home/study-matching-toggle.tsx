@@ -9,7 +9,7 @@ import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verificati
 import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
-} from '@/hooks/queries/use-user-profile-query';
+} from '@/hooks/queries/user/use-user-profile-query';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const PhoneVerificationModal = dynamic(
@@ -18,7 +18,7 @@ const PhoneVerificationModal = dynamic(
 );
 
 const StartStudyModal = dynamic(
-  () => import('@/components/common/modals/start-study-modal'),
+  () => import('@/components/group-study/modals/start-study-modal'),
   { ssr: false },
 );
 

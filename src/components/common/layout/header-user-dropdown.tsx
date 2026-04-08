@@ -10,7 +10,7 @@ import {
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
+import { useLogoutMutation } from '@/hooks/queries/auth/use-auth-mutation';
 
 interface DropdownOption {
   label: string;

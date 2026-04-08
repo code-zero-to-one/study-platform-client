@@ -11,17 +11,17 @@ import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
 import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
-import { useGetSettlementAccount } from '@/hooks/queries/settlement-account-api';
-import { useGetMySettlements } from '@/hooks/queries/settlement-user-api';
+import { useGetSettlementAccount } from '@/hooks/queries/payment/settlement-account-api';
+import { useGetMySettlements } from '@/hooks/queries/payment/settlement-user-api';
 import { formatToKST } from '@/utils/time';
 
 const AccountInfoModal = dynamic(
-  () => import('@/components/common/modals/account-info-modal'),
+  () => import('@/components/payment/modals/account-info-modal'),
   { ssr: false },
 );
 
 const AddAccountModal = dynamic(
-  () => import('@/components/common/modals/add-account-modal'),
+  () => import('@/components/payment/modals/add-account-modal'),
   { ssr: false },
 );
 

@@ -23,7 +23,7 @@ import {
   useStartStudyCycleMutation,
   useUpdateAdminMatchingSchedulerConfigMutation,
   useUpdateAdminMatchingRequestMutation,
-} from '@/hooks/queries/admin-matching-api';
+} from '@/hooks/queries/admin/admin-matching-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   DEFAULT_ADMIN_MATCHING_SCHEDULED_DAY_OF_WEEK,

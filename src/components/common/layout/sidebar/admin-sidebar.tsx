@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import UserAvatar from '@/components/common/ui/avatar';
 import TabMenu from '@/components/common/ui/tab-menu';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+import { useUserProfileQuery } from '@/hooks/queries/user/use-user-profile-query';
 import OutIcon from 'public/icons/out.svg';
 
 export default function AdminSideBar() {

@@ -29,7 +29,7 @@ const PhoneVerificationModal = dynamic(
 );
 
 const ProfileEditModal = dynamic(
-  () => import('@/components/common/modals/profile-edit-modal'),
+  () => import('@/components/my-page/modals/profile-edit-modal'),
   { ssr: false },
 );
 

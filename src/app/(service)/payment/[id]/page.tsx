@@ -1,4 +1,4 @@
-import PaymentPageContent from '@/components/contents/payment-page-content';
+import PaymentPageContent from '@/components/home/contents/payment-page-content';
 
 interface PaymentPageProps {
   params: Promise<{ id: string }>;

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import {
   useSendPhoneVerificationCodeMutation,
   useVerifyPhoneCodeMutation,
-} from '@/hooks/queries/use-phone-auth-mutation';
+} from '@/hooks/queries/auth/use-phone-auth-mutation';
 import { extractErrorCode } from '@/utils/error';
 import { formatPhoneNumber } from '@/utils/format';
 

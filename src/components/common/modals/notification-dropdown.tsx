@@ -11,12 +11,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
 import Button from '@/components/common/ui/button';
-import NotificationList from '@/components/lists/notification-list';
+import NotificationList from '@/components/home/lists/notification-list';
 
 import {
   useGetNotifications,
   useReadNotifications,
-} from '@/hooks/queries/notification-api';
+} from '@/hooks/queries/user/notification-api';
 import NotiIcon from 'public/icons/notifications_none.svg';
 
 export default function NotificationDropdown() {
