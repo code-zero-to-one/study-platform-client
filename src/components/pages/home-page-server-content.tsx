@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import ArchiveTab from '@/components/archive/archive-tab';
 import CommunityTab from '@/components/balance-game/community-tab';
 import HallOfFameTab from '@/components/hall-of-fame/hall-of-fame-tab';
-import StudyTab from '@/components/schedule/home-study-tab';
+import StudyTab from '@/components/group-study/schedule/home-study-tab';
 import StudyHistoryTab from '@/components/study-history/study-history-tab';
 import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
 import { readServerAuthSession } from '@/features/auth/model/server-auth-session';

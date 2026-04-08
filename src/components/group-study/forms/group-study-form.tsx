@@ -10,15 +10,15 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 
-import GroupStudyStepBasicInfo from '@/components/forms/group-study-steps/group-study-step-basic-info';
-import GroupStudyStepIntroduction from '@/components/forms/group-study-steps/group-study-step-introduction';
+import GroupStudyStepBasicInfo from '@/components/group-study/forms/group-study-steps/group-study-step-basic-info';
+import GroupStudyStepIntroduction from '@/components/group-study/forms/group-study-steps/group-study-step-introduction';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   GroupStudyFormSchema,
   type GroupStudyFormValues,
   type StudyClassification,
 } from '@/types/schemas/group-study-form.schema';
-import GroupStudyStepApplication from './group-study-steps/group-study-step-application';
+import GroupStudyStepApplication from '@/components/group-study/forms/group-study-steps/group-study-step-application';
 
 const ClassificationContext = createContext<StudyClassification>('GROUP_STUDY');
 export const useClassification = () => useContext(ClassificationContext);

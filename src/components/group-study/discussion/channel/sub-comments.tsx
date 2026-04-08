@@ -4,10 +4,10 @@ import {
   useCommentsQuery,
   usePostCommentMutation,
 } from '@/hooks/queries/group-study/use-channel-query';
-import Comment from './comment';
-import CommentInput from './comment-input';
+import Comment from '@/components/group-study/discussion/channel/comment';
+import CommentInput from '@/components/group-study/discussion/channel/comment-input';
 
-import { CommentReaction } from './comment-reaction';
+import { CommentReaction } from '@/components/group-study/discussion/channel/comment-reaction';
 
 interface SubCommentsProps {
   threadId: number;

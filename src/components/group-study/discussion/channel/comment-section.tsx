@@ -7,10 +7,10 @@ import {
   usePostThreadMutation,
   useThreadsQuery,
 } from '@/hooks/queries/group-study/use-channel-query';
-import Comment from './comment';
-import CommentInput from './comment-input';
-import SubComments from './sub-comments';
-import { ThreadReaction } from './thread-reaction';
+import Comment from '@/components/group-study/discussion/channel/comment';
+import CommentInput from '@/components/group-study/discussion/channel/comment-input';
+import SubComments from '@/components/group-study/discussion/channel/sub-comments';
+import { ThreadReaction } from '@/components/group-study/discussion/channel/thread-reaction';
 
 const COMMENTS_PAGE_SIZE = 10;
 

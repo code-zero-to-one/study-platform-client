@@ -7,8 +7,8 @@ import Button from '@/components/common/ui/button';
 import SortDropdown from '@/components/common/ui/filters/sort-dropdown';
 import StudyFilter, {
   type StudyFilterValues,
-} from '@/components/filtering/study-filter';
-import StudySearch from '@/components/filtering/study-search';
+} from '@/components/group-study/filtering/study-filter';
+import StudySearch from '@/components/group-study/filtering/study-search';
 import type { StudyClassification } from '@/types/schemas/group-study-form.schema';
 
 const GroupStudyFormModal = dynamic(

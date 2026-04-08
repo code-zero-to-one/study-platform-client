@@ -7,7 +7,7 @@ import { GroupStudyListItemDto } from '@/api/openapi';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import StudyCard from '../card/study-card';
+import StudyCard from '@/components/card/study-card';
 
 interface PremiumStudyListProps {
   studies: GroupStudyListItemDto[];

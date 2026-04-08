@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ProfileDefault from '@/components/common/cards/icon/profile-default.svg';
 import SectionHeader from '@/components/common/ui/section-header';
-import ReservationCard from '@/components/participation/reservation-user-card';
+import ReservationCard from '@/components/group-study/participation/reservation-user-card';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useInfiniteReservation } from '@/hooks/queries/one-to-one/use-participation-query';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';

@@ -2,13 +2,13 @@
 
 import dynamic from 'next/dynamic';
 import PageContainer from '@/components/common/layout/page-container';
-import StudyListToolbar from '@/components/pages/study-list-toolbar';
-import PremiumStudyList from '@/components/premium/premium-study-list';
-import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
+import GroupStudyPagination from '@/components/lists/group-study-pagination';
+import StudyListToolbar from '@/components/group-study/pages/study-list-toolbar';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGroupStudyReviewReminder } from '@/hooks/common/use-group-study-review-reminder';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
-import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
+import GroupStudyList from '@/components/lists/group-study-list';
+import MyParticipatingStudiesSection from '@/components/group-study/section/my-participating-studies-section';
 
 const GroupStudyReviewModal = dynamic(
   () => import('@/components/common/modals/group-study-review-modal'),
@@ -25,7 +25,7 @@ const Banner = dynamic(() => import('@/components/home/banner'), {
   ssr: false,
 });
 
-export default function PremiumStudyListPage() {
+export default function GroupStudyListPage() {
   const { isAuthReady } = useAuthReady();
 
   const {
@@ -36,7 +36,7 @@ export default function PremiumStudyListPage() {
     reviewStudyId,
     reviewDetailInfo,
     reviewBasicInfo,
-  } = useGroupStudyReviewReminder({ studyType: 'MENTOR_STUDY' });
+  } = useGroupStudyReviewReminder({ studyType: 'GROUP_STUDY' });
 
   const {
     searchQuery,
@@ -51,7 +51,7 @@ export default function PremiumStudyListPage() {
     handleSearch,
     handleSortChange,
   } = useStudyListFilter({
-    classification: 'MENTOR_STUDY',
+    classification: 'GROUP_STUDY',
   });
 
   if (isLoading) {
@@ -65,24 +65,26 @@ export default function PremiumStudyListPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-400 py-600">
-      {/* 미작성 후기 모달 — 완료된 멘토스터디 후기를 아직 작성하지 않은 경우 자동으로 열림 */}
+    <div className="mx-auto w-full max-w-7xl px-400 py-600">
+      {/* 미작성 후기 모달 — 완료된 스터디 후기를 아직 작성하지 않은 경우 자동으로 열림 */}
       {reviewStudyId && reviewDetailInfo && reviewBasicInfo && (
-        <GroupStudyReviewModal
-          open={showReviewModal}
-          onOpenChange={setShowReviewModal}
-          groupStudyId={reviewStudyId}
-          detailInfo={reviewDetailInfo}
-          basicInfo={reviewBasicInfo}
-          onSubmitSuccess={() =>
-            setTimeout(() => setShowCompletionModal(true), 300)
-          }
-        />
+        <>
+          <GroupStudyReviewModal
+            open={showReviewModal}
+            onOpenChange={setShowReviewModal}
+            groupStudyId={reviewStudyId}
+            detailInfo={reviewDetailInfo}
+            basicInfo={reviewBasicInfo}
+            onSubmitSuccess={() =>
+              setTimeout(() => setShowCompletionModal(true), 300)
+            }
+          />
+          <StudyCompletionModal
+            open={showCompletionModal}
+            onOpenChange={setShowCompletionModal}
+          />
+        </>
       )}
-      <StudyCompletionModal
-        open={showCompletionModal}
-        onOpenChange={setShowCompletionModal}
-      />
 
       {/* 배너 */}
       <div className="mb-600">
@@ -90,11 +92,11 @@ export default function PremiumStudyListPage() {
       </div>
 
       {/* 내가 참여중인 스터디 섹션 */}
-      <MyParticipatingStudiesSection classification="PREMIUM_STUDY" />
+      <MyParticipatingStudiesSection classification="GROUP_STUDY" />
 
       <StudyListToolbar
-        title="멘토스터디 둘러보기"
-        classification="PREMIUM_STUDY"
+        title="그룹스터디 둘러보기"
+        classification="GROUP_STUDY"
         isAuthReady={isAuthReady}
         controls={{
           searchQuery,
@@ -107,11 +109,11 @@ export default function PremiumStudyListPage() {
       />
 
       {/* 스터디 카드 그리드 */}
-      <PremiumStudyList studies={displayStudies} />
+      <GroupStudyList studies={displayStudies} />
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <PremiumStudyPagination
+        <GroupStudyPagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}

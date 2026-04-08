@@ -7,7 +7,7 @@ import {
   getStudyTutorialScenario,
 } from '@/config/study-tutorial-steps';
 import { TutorialOverlay } from '@/features/study/one-to-one/schedule/ui/tutorial';
-import StudyCard from './study-card';
+import StudyCard from '@/components/group-study/schedule/study-card';
 
 const STUDY_TUTORIAL_KEY = 'study';
 

@@ -10,11 +10,11 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
-import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
+import CurriculumSummarySection from '@/components/group-study/section/curriculum-summary-section';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/group-study/use-applicant-query';
 
-import { MARKDOWN_DESCRIPTION_CLASS } from '../common/ui/editor/markdown-utils';
-import SummaryStudyInfo from '../summary/study-info-summary';
+import { MARKDOWN_DESCRIPTION_CLASS } from '@/components/common/ui/editor/markdown-utils';
+import SummaryStudyInfo from '@/components/group-study/summary/study-info-summary';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),

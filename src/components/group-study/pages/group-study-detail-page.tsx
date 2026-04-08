@@ -5,13 +5,8 @@ import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
-import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
-import ChannelSection from '@/components/discussion/channel/lounge-section';
-import GroupStudyMemberList from '@/components/lists/study-member-list';
-import InquirySection from '@/components/section/inquiry-section';
-import MissionSection from '@/components/section/mission-section';
-import PremiumStudyInfoSection from '@/components/section/premium-study-info-section';
+import ChannelSection from '@/components/group-study/discussion/channel/lounge-section';
 import {
   isStudyTabValue,
   STUDY_DETAIL_TABS,
@@ -30,10 +25,13 @@ import {
 } from '@/hooks/queries/one-to-one/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import type {
-  GroupStudyFullResponse,
-  Leader,
-} from '@/types/api/group-study.types';
+import type { Leader } from '@/types/api/group-study.types';
+
+import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
+import GroupStudyMemberList from '@/components/lists/study-member-list';
+import StudyInfoSection from '@/components/group-study/section/group-study-info-section';
+import InquirySection from '@/components/group-study/section/inquiry-section';
+import MissionSection from '@/components/group-study/section/mission-section';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),
@@ -55,10 +53,9 @@ const GroupStudyFormModal = dynamic(
   { ssr: false },
 );
 
-type ActionKey = 'end' | 'delete';
+type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
 const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
-
 const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
 
 const END_MODAL_CONTENT = (
@@ -75,22 +72,22 @@ const DELETE_MODAL_CONTENT = (
   </>
 );
 
-interface PremiumStudyDetailPageProps {
+interface StudyDetailPageProps {
   groupStudyId: number;
   memberId?: number;
 }
 
-export default function PremiumStudyDetailPage({
+export default function StudyDetailPage({
   groupStudyId,
   memberId,
-}: PremiumStudyDetailPageProps) {
+}: StudyDetailPageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
   const showToast = useToastStore((state) => state.showToast);
+
   const tabParam = searchParams.get('tab') ?? undefined;
-  const requestedTab = isStudyTabValue(tabParam) ? tabParam : 'intro';
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
@@ -99,9 +96,9 @@ export default function PremiumStudyDetailPage({
   const leader = studyDetail?.basicInfo.leader;
 
   const isLeader = leaderId === memberId;
+
   const { data: authData } = useAuthReady();
   const isAdmin = authData?.roleIds.includes('ROLE_ADMIN') ?? false;
-  const shouldFetchMyStatus = leaderId !== undefined && !isLeader;
 
   // 리더 정보를 Zustand store에 저장
   useEffect(() => {
@@ -112,10 +109,10 @@ export default function PremiumStudyDetailPage({
   const [confirmAction, setConfirmAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
-  const { data: myApplicationStatus, isLoading: isMyApplicationStatusLoading } =
+  const { data: myApplicationStatus, isLoading: isMyStatusLoading } =
     useGetGroupStudyMyStatus({
       groupStudyId,
-      isLeader: !shouldFetchMyStatus,
+      isLeader,
     });
 
   // 후기 모달 — PARTICIPANT 스터디원에게 자동 표시 (날짜 계산은 백엔드 위임)
@@ -159,11 +156,11 @@ export default function PremiumStudyDetailPage({
       {
         onSuccess: () => {
           sendGTMEvent({
-            event: 'premium_study_end',
+            event: 'group_study_end',
             group_study_id: String(groupStudyId),
           });
           showToast('스터디가 종료되었습니다.');
-          router.push('/premium-study');
+          router.push('/group-study');
         },
         onError: () => {
           showToast('스터디 종료에 실패하였습니다.', 'error');
@@ -181,11 +178,11 @@ export default function PremiumStudyDetailPage({
       {
         onSuccess: () => {
           sendGTMEvent({
-            event: 'premium_study_delete',
+            event: 'group_study_delete',
             group_study_id: String(groupStudyId),
           });
           showToast('스터디가 삭제되었습니다.');
-          router.push('/premium-study');
+          router.push('/group-study');
         },
         onError: () => {
           showToast('스터디 삭제에 실패하였습니다.', 'error');
@@ -242,51 +239,26 @@ export default function PremiumStudyDetailPage({
   );
 
   const activeTab = useMemo(() => {
-    const hasAccessToRequestedTab = availableTabs.some(
-      (tab) => tab.value === requestedTab,
-    );
+    const requested = isStudyTabValue(tabParam) ? tabParam : 'intro';
+    const matched = availableTabs.find((tab) => tab.value === requested);
 
-    return hasAccessToRequestedTab ? requestedTab : 'intro';
-  }, [availableTabs, requestedTab]);
+    return matched && !matched.locked ? requested : 'intro';
+  }, [availableTabs, tabParam]);
 
+  // 잠긴 탭으로 직접 진입 시 URL 정규화 (새로고침·공유·뒤로가기 대응)
   useEffect(() => {
-    const isAccessResolved =
-      leaderId !== undefined &&
-      (!shouldFetchMyStatus || !isMyApplicationStatusLoading);
-    if (!isAccessResolved) {
-      return;
-    }
+    // 권한 판단이 완료되기 전(로딩 중)에는 replace 금지 → flicker 방지
+    if (isLoading || isMyStatusLoading) return;
 
-    const nextTabParam = activeTab === 'intro' ? undefined : activeTab;
-    if (tabParam === nextTabParam) {
-      return;
-    }
+    const currentParam = tabParam ?? undefined;
+    const resolvedParam = activeTab === 'intro' ? undefined : activeTab;
+    if (currentParam === resolvedParam) return;
 
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (nextTabParam) {
-      params.set('tab', nextTabParam);
-    } else {
-      params.delete('tab');
-    }
-
-    const nextQueryString = params.toString();
-    router.replace(
-      nextQueryString ? `${pathname}?${nextQueryString}` : pathname,
-      {
-        scroll: false,
-      },
-    );
-  }, [
-    activeTab,
-    isMyApplicationStatusLoading,
-    leaderId,
-    pathname,
-    router,
-    searchParams,
-    shouldFetchMyStatus,
-    tabParam,
-  ]);
+    const newUrl = resolvedParam
+      ? `${pathname}?tab=${resolvedParam}`
+      : pathname;
+    router.replace(newUrl, { scroll: false });
+  }, [activeTab, isLoading, isMyStatusLoading, pathname, router, tabParam]);
 
   if (isLoading || !studyDetail) {
     return <div>로딩중...</div>;
@@ -329,10 +301,8 @@ export default function PremiumStudyDetailPage({
         open={showStudyFormModal}
         mode="edit"
         groupStudyId={groupStudyId}
-        classification="PREMIUM_STUDY"
         onOpenChange={(open) => setShowStudyFormModal(open)}
       />
-
       {/* 플로팅 정보 바 */}
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
         <StudyActiveTicker
@@ -346,9 +316,9 @@ export default function PremiumStudyDetailPage({
         className={`mb-500 flex ${DETAIL_CONTENT_WIDTH} items-start justify-between`}
       >
         <div className="flex w-full flex-col gap-150">
-          <p className="font-designer-28b text-text-strong">
+          <div className="font-designer-28b flex justify-between text-text-strong">
             {studyDetail?.detailInfo.title}
-          </p>
+          </div>
           <p className="font-designer-18r text-text-default">
             {studyDetail?.detailInfo.summary}
           </p>
@@ -388,16 +358,19 @@ export default function PremiumStudyDetailPage({
           const params = new URLSearchParams(searchParams.toString());
           params.set('tab', value);
           router.push(`${pathname}?${params.toString()}`, { scroll: false });
+
           sendGTMEvent({
-            event: 'premium_study_tab_change',
+            event: 'group_study_tab_change',
             group_study_id: String(groupStudyId),
             tab: value,
           });
         }}
       />
       {activeTab === 'intro' && (
-        <PremiumStudyInfoSection
-          study={studyDetail as GroupStudyFullResponse}
+        <StudyInfoSection
+          study={studyDetail}
+          isLeader={isLeader}
+          isMember={isMember}
         />
       )}
       {activeTab === 'members' && (
@@ -407,6 +380,7 @@ export default function PremiumStudyDetailPage({
           myApplicationStatus={myApplicationStatus}
         />
       )}
+
       {activeTab === 'mission' && (
         <MissionSection
           groupStudyId={groupStudyId}
@@ -424,7 +398,6 @@ export default function PremiumStudyDetailPage({
       {activeTab === 'inquiry' && (
         <InquirySection
           groupStudyId={groupStudyId}
-          isPremium
           isLeader={isLeader}
           isAdmin={isAdmin}
         />

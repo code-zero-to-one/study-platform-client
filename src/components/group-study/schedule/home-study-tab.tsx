@@ -1,4 +1,4 @@
-import StudyTutorialController from '@/components/schedule/study-tutorial-controller';
+import StudyTutorialController from '@/components/group-study/schedule/study-tutorial-controller';
 
 export default function StudyTab() {
   return (

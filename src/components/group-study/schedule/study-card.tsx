@@ -4,9 +4,9 @@ import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
 import { useMemo, useState } from 'react';
 import SectionHeader from '@/components/common/ui/section-header';
 import StudyListSection from '@/components/lists/study-list-table';
-import ReservationList from '@/components/participation/reservation-list';
-import DateSelector from '@/components/schedule/data-selector';
-import TodayStudyCard from '@/components/schedule/today-study-card';
+import ReservationList from '@/components/group-study/participation/reservation-list';
+import DateSelector from '@/components/group-study/schedule/data-selector';
+import TodayStudyCard from '@/components/group-study/schedule/today-study-card';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useStudyStatusQuery,

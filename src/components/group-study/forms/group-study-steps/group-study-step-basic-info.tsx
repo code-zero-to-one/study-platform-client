@@ -16,7 +16,7 @@ import { GroupItems } from '@/components/common/ui/toggle';
 import {
   useClassification,
   useMode,
-} from '@/components/forms/group-study-form';
+} from '@/components/group-study/forms/group-study-form';
 import {
   STUDY_TYPES,
   ROLE_OPTIONS_UI,

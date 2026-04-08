@@ -6,7 +6,7 @@ import {
   Reaction,
   useReactionLogic,
 } from '@/hooks/common/reaction-logic';
-import { ReactionBar } from './reaction-bar';
+import { ReactionBar } from '@/components/group-study/discussion/channel/reaction-bar';
 
 export function CommentReaction({
   threadId,

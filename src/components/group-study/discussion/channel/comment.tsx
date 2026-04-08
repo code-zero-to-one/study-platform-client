@@ -15,7 +15,7 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { ResizedImage } from '@/types/api/group-study.types';
-import CommentInput from './comment-input';
+import CommentInput from '@/components/group-study/discussion/channel/comment-input';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),

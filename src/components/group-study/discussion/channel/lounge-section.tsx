@@ -3,10 +3,10 @@ import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import PageContainer from '@/components/common/layout/page-container';
 import { usePostQuery } from '@/hooks/queries/group-study/use-channel-query';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import Comments from './comment-section';
-import CreatePost from './create-post';
-import Post from './post';
-import PostNotFound from './post-not-found';
+import Comments from '@/components/group-study/discussion/channel/comment-section';
+import CreatePost from '@/components/group-study/discussion/channel/create-post';
+import Post from '@/components/group-study/discussion/channel/post';
+import PostNotFound from '@/components/group-study/discussion/channel/post-not-found';
 
 const KickedReasonModal = dynamic(
   () => import('@/components/common/modals/kicked-reason-modal'),
