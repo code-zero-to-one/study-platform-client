@@ -3,7 +3,7 @@
 import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
 import { useMemo, useState } from 'react';
 import SectionHeader from '@/components/common/ui/section-header';
-import StudyListSection from '@/components/lists/study-list-table';
+import StudyListSection from '@/components/home/lists/study-list-table';
 import ReservationList from '@/components/group-study/participation/reservation-list';
 import DateSelector from '@/components/group-study/schedule/data-selector';
 import TodayStudyCard from '@/components/group-study/schedule/today-study-card';

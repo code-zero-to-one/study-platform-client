@@ -9,7 +9,7 @@ import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal'
 import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
-import InquiryListTable from '@/components/lists/inquiry-list-table';
+import InquiryListTable from '@/components/home/lists/inquiry-list-table';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useCreateAnswer,

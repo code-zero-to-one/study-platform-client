@@ -7,17 +7,17 @@ import { useRef, useState } from 'react';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetMissions } from '@/hooks/queries/group-study/mission-api';
 import { useGroupStudyDetailQuery } from '@/hooks/queries/one-to-one/use-study-query';
-import MissionCard from '@/components/card/mission-card';
+import MissionCard from '@/components/home/card/mission-card';
 import PageContainer from '@/components/common/layout/page-container';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const HomeworkDetailContent = dynamic(
-  () => import('@/components/contents/homework-detail-content'),
+  () => import('@/components/home/contents/homework-detail-content'),
   { ssr: false },
 );
 
 const MissionDetailContent = dynamic(
-  () => import('@/components/contents/mission-detail-content'),
+  () => import('@/components/home/contents/mission-detail-content'),
   { ssr: false },
 );
 

@@ -28,7 +28,7 @@ import { useLeaderStore } from '@/stores/useLeaderStore';
 import type { Leader } from '@/types/api/group-study.types';
 
 import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
-import GroupStudyMemberList from '@/components/lists/study-member-list';
+import GroupStudyMemberList from '@/components/home/lists/study-member-list';
 import StudyInfoSection from '@/components/group-study/section/group-study-info-section';
 import InquirySection from '@/components/group-study/section/inquiry-section';
 import MissionSection from '@/components/group-study/section/mission-section';

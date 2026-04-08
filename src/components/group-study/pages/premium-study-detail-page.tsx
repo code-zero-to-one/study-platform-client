@@ -8,7 +8,7 @@ import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/group-study/discussion/channel/lounge-section';
-import GroupStudyMemberList from '@/components/lists/study-member-list';
+import GroupStudyMemberList from '@/components/home/lists/study-member-list';
 import InquirySection from '@/components/group-study/section/inquiry-section';
 import MissionSection from '@/components/group-study/section/mission-section';
 import PremiumStudyInfoSection from '@/components/group-study/section/premium-study-info-section';

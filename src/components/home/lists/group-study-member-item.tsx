@@ -7,7 +7,7 @@ import DiscretionaryEvaluationModal, {
 } from '@/components/common/modals/discretionary-evaluation-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
-import DiscretionGradeHistoryList from '@/components/lists/discretion-grade-history-list';
+import DiscretionGradeHistoryList from '@/components/home/lists/discretion-grade-history-list';
 
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import type { GroupStudyMember } from '@/types/api/group-study.types';

@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Button from '@/components/common/ui/button';
-import InquiryListTable from '@/components/lists/inquiry-list-table';
+import InquiryListTable from '@/components/home/lists/inquiry-list-table';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useGetQuestion,

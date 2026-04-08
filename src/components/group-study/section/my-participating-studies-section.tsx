@@ -4,7 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo } from 'react';
-import StudyCard from '@/components/card/study-card';
+import StudyCard from '@/components/home/card/study-card';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetStudies } from '@/hooks/queries/one-to-one/study-query';
 import { useMemberStudyListV2Query } from '@/hooks/queries/user/use-member-study-list-query';

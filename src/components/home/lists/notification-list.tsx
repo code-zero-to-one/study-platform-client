@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { MemberNotificationResponse } from '@/api/openapi';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import Badge from '../common/ui/badge';
+import Badge from '@/components/common/ui/badge';
 
 const getBadgeColor = (
   topicType: string,

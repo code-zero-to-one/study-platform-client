@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
 import Button from '@/components/common/ui/button';
-import NotificationList from '@/components/lists/notification-list';
+import NotificationList from '@/components/home/lists/notification-list';
 
 import {
   useGetNotifications,
