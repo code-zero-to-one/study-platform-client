@@ -11,7 +11,7 @@ import FormField from '@/components/common/ui/form/form-field';
 import MultiItemSelector from '@/components/common/ui/form/multi-item-selector';
 import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
-import SignupImageSelector from '@/components/forms/sign-up-image-selector';
+import SignupImageSelector from '@/components/auth/forms/sign-up-image-selector';
 import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '@/config/my-page-const';
 import { useUploadProfileImageMutation } from '@/hooks/queries/auth/use-auth-mutation';
 import {

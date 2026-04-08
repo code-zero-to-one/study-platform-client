@@ -10,7 +10,7 @@ import {
   StudyFormatTypesStep,
   GoalStep,
   SuccessStep,
-} from '@/components/forms/sign-up-steps';
+} from '@/components/auth/forms/sign-up-steps';
 import {
   redirectToClearedLoginState,
   resetClientDerivedAuthStateWithQueryCache,
