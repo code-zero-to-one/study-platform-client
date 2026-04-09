@@ -6,7 +6,7 @@ import FormField from '@/components/common/ui/form/form-field';
 import ImageUploadInput from '@/components/common/ui/image-upload-input';
 import { BaseInput } from '@/components/common/ui/input';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
-import GroupStudyMarkdownEditor from '@/features/group-study/ui/group-study-markdown-editor';
+import GroupStudyMarkdownEditor from '@/app/(service)/group-study/_ui/group-study-markdown-editor';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import {
   GROUP_STUDY_DESCRIPTION_MAX_LENGTH,

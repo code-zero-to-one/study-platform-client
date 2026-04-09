@@ -8,7 +8,7 @@ import Banner from '@/components/home/banner';
 import FeedbackLink from '@/components/home/feedback-link';
 import StartStudyButton from '@/components/home/start-study-button';
 import TabNavigation from '@/components/home/tab-navigation';
-import type { HomeTab } from '@/features/home/model/home-page-search-params';
+import type { HomeTab } from '@/app/(service)/home/_model/home-page-search-params';
 import { useReviewReminder } from '@/hooks/common/use-reminder-review';
 
 const StudyCompletionModal = dynamic(

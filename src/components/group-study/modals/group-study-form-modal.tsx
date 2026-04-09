@@ -17,7 +17,7 @@ import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   hasPendingBlobImagesInGroupStudyDescription,
   serializeGroupStudyDescriptionForRequest,
-} from '@/features/group-study/model/group-study-markdown';
+} from '@/app/(service)/group-study/_model/group-study-markdown';
 import {
   useCreateGroupStudyMutation,
   useUpdateGroupStudyMutation,

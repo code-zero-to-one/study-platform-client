@@ -7,6 +7,10 @@ import {
   getFileExtension,
 } from '@/utils/markdown-content-images';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
+import {
+  replaceFirstImageSource,
+  escapeAtSymbols,
+} from '@/utils/markdown-content-serialize';
 
 export const GROUP_STUDY_MARKDOWN_MAX_IMAGE_COUNT = 3;
 export const GROUP_STUDY_MARKDOWN_MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;
@@ -48,69 +52,6 @@ const createRandomId = () => {
 };
 
 /**
- * HTML 문자열에서 특정 이미지의 src 속성을 찾아서 새로운 값으로 교체합니다.
- * 그룹 스터디 설명에서 blob URL을 서버 업로드용 매크로 파일명으로 변환할 때 사용됩니다.
- *
- * @param html - 수정할 HTML 문자열
- * @param currentSource - 교체할 기존 이미지 URL (blob URL 등)
- * @param nextSource - 교체할 새로운 이미지 URL (매크로 파일명 등)
- * @returns 수정된 HTML 문자열
- *
- * @example
- * // 따옴표로 묶인 src 속성 교체
- * const html = '<img src="blob:http://localhost:3000/abc123" alt="test">';
- * const result = replaceFirstImageSource({
- *   html,
- *   currentSource: "blob:http://localhost:3000/abc123",
- *   nextSource: "@@uploaded-image.png@@"
- * });
- * // 결과: '<img src="@@uploaded-image.png@@" alt="test">'
- *
- * @example
- * // 따옴표 없는 src 속성 교체
- * const html = '<img src=blob:http://localhost:3000/abc123>';
- * const result = replaceFirstImageSource({
- *   html,
- *   currentSource: "blob:http://localhost:3000/abc123",
- *   nextSource: "@@uploaded-image.png@@"
- * });
- * // 결과: '<img src=@@uploaded-image.png@@>'
- */
-const replaceFirstImageSource = ({
-  html,
-  currentSource,
-  nextSource,
-}: {
-  html: string;
-  currentSource: string;
-  nextSource: string;
-}) => {
-  const escapedSource = currentSource.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-  const quotedPattern = new RegExp(
-    `(<img[^>]*\\bsrc\\s*=\\s*)(["'])${escapedSource}\\2`,
-    'i',
-  );
-
-  if (quotedPattern.test(html)) {
-    return html.replace(
-      quotedPattern,
-      `$1"${nextSource.replace(/\$/g, '$$$$')}"`,
-    );
-  }
-
-  const unquotedPattern = new RegExp(
-    `(<img[^>]*\\bsrc\\s*=\\s*)${escapedSource}(?=[\\s>])`,
-    'i',
-  );
-
-  return html.replace(
-    unquotedPattern,
-    `$1${nextSource.replace(/\$/g, '$$$$')}`,
-  );
-};
-
-/**
  * 사용자가 업로드한 파일로부터 그룹 스터디 설명용 펜딩 이미지 객체를 생성합니다.
  * 파일의 확장자를 추출하고, 랜덤 ID를 부여하여 매크로 파일명을 생성합니다.
  *
@@ -139,40 +80,6 @@ export const createGroupStudyPendingDescriptionImage = (
     objectUrl: URL.createObjectURL(file),
     macroFilename: `${createRandomId()}.${normalizedExtension}`,
   };
-};
-
-/**
- * HTML 문자열에서 @ 기호를 이스케이프 처리합니다.
- * 단, @@...@@ 형식의 매크로 플레이스홀더는 보호하여 이스케이프하지 않습니다.
- * Markdown에서 @ 기호가 특수 의미를 가질 수 있어 서버 전송 시 안전하게 처리하기 위함입니다.
- *
- * @param html - 이스케이프 처리할 HTML 문자열
- * @returns @ 기호가 이스케이프된 HTML 문자열
- *
- * @example
- * const html = 'Contact @user and @@macro@@';
- * const result = escapeAtSymbols(html);
- * // 결과: 'Contact \@user and @@macro@@'
- *
- * @example
- * const html = '@@filename.png@@ and @mention';
- * const result = escapeAtSymbols(html);
- * // 결과: '@@filename.png@@ and \@mention'
- */
-const escapeAtSymbols = (html: string): string => {
-  const macroPlaceholders: string[] = [];
-  const protectedHtml = html.replace(/@@[^@]+@@/g, (match) => {
-    const index = macroPlaceholders.length;
-    macroPlaceholders.push(match);
-
-    return `\uFFF0MACRO${index}\uFFF0`;
-  });
-  const escapedHtml = protectedHtml.replace(/@/g, '\\@');
-
-  return escapedHtml.replace(
-    /\uFFF0MACRO(\d+)\uFFF0/g,
-    (_, index) => macroPlaceholders[parseInt(index, 10)],
-  );
 };
 
 /**

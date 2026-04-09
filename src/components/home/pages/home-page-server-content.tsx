@@ -6,7 +6,7 @@ import HallOfFameTab from '@/components/one-to-one/hall-of-fame/hall-of-fame-tab
 import StudyHistoryTab from '@/components/one-to-one/history/study-history-tab';
 import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
 import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
-import type { HomeTab } from '@/features/home/model/home-page-search-params';
+import type { HomeTab } from '@/app/(service)/home/_model/home-page-search-params';
 import { AUTH_SESSION_STATES } from '@/types/auth/domain';
 
 interface HomePageServerContentProps {

@@ -12,7 +12,7 @@ import {
   GROUP_STUDY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS,
   GROUP_STUDY_MARKDOWN_MAX_IMAGE_COUNT,
   GROUP_STUDY_MARKDOWN_MAX_IMAGE_FILE_SIZE,
-} from '../model/group-study-markdown';
+} from '../_model/group-study-markdown';
 
 interface GroupStudyMarkdownEditorProps {
   id?: string;
