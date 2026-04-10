@@ -11,12 +11,12 @@ import { useMemberStudyListV2Query } from '@/hooks/queries/user/use-member-study
 import { hashValue } from '@/utils/hash';
 
 interface MyParticipatingStudiesSectionProps {
-  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
+  classification: 'GROUP_STUDY' | 'MENTOR_STUDY';
 }
 
 const CLASSIFICATION_TO_STUDY_TYPE = {
   GROUP_STUDY: 'GROUP_STUDY',
-  PREMIUM_STUDY: 'MENTOR_STUDY',
+  MENTOR_STUDY: 'MENTOR_STUDY',
 } as const;
 
 export default function MyParticipatingStudiesSection({
@@ -44,7 +44,7 @@ export default function MyParticipatingStudiesSection({
   const { data: myStudiesData } = useMemberStudyListV2Query({
     memberId: memberId ?? 0,
     studyType:
-      classification === 'PREMIUM_STUDY' ? 'MENTOR_STUDY' : classification,
+      classification === 'MENTOR_STUDY' ? 'MENTOR_STUDY' : classification,
     studyStatus: 'NOT_COMPLETED', // 진행 중과 모집 중 모두 포함
     page: 1,
     pageSize: 100, // 충분히 많이 가져오기
@@ -58,16 +58,15 @@ export default function MyParticipatingStudiesSection({
     recruiting: undefined, // 모든 상태 포함 (진행 중, 모집 중 모두)
   });
 
-  // 내가 참여중인 스터디 ID Set 생성 (IN_PROGRESS, RECRUITING)
+  // 내가 참여중인 스터디 ID Set 생성 (NOT_COMPLETED — status 필터는 API 쿼리에서 처리)
+  // MENTOR_STUDY는 백엔드 V2 API에서 status를 null로 반환하므로 프론트엔드에서 status를 재필터링하지 않음
   const participatingStudyIds = useMemo(() => {
     if (!myStudiesData?.content) return new Set<number>();
 
     const studyType = CLASSIFICATION_TO_STUDY_TYPE[classification];
 
     const filtered = myStudiesData.content.filter(
-      (study) =>
-        (study.status === 'IN_PROGRESS' || study.status === 'RECRUITING') &&
-        study.type === studyType,
+      (study) => study.type === studyType,
     );
 
     return new Set(filtered.map((study) => study.studyId));

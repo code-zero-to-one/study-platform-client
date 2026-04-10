@@ -90,7 +90,7 @@ export default function PremiumStudyListPage() {
       </div>
 
       {/* 내가 참여중인 스터디 섹션 */}
-      <MyParticipatingStudiesSection classification="PREMIUM_STUDY" />
+      <MyParticipatingStudiesSection classification="MENTOR_STUDY" />
 
       <StudyListToolbar
         title="멘토스터디 둘러보기"
