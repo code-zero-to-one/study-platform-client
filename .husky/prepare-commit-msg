@@ -8,7 +8,7 @@ COMMIT_SOURCE="$2"
 
 # merge / squash / amend / cherry-pick은 건너뜀
 case "$COMMIT_SOURCE" in
-  merge|squash|commit) exit 0 ;;
+  merge|squash|commit|message) exit 0 ;;
 esac
 
 branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || exit 0
