@@ -11,12 +11,12 @@ import { useMemberStudyListV2Query } from '@/hooks/queries/user/use-member-study
 import { hashValue } from '@/utils/hash';
 
 interface MyParticipatingStudiesSectionProps {
-  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
+  classification: 'GROUP_STUDY' | 'MENTOR_STUDY';
 }
 
 const CLASSIFICATION_TO_STUDY_TYPE = {
   GROUP_STUDY: 'GROUP_STUDY',
-  PREMIUM_STUDY: 'MENTOR_STUDY',
+  MENTOR_STUDY: 'MENTOR_STUDY',
 } as const;
 
 export default function MyParticipatingStudiesSection({
@@ -44,7 +44,7 @@ export default function MyParticipatingStudiesSection({
   const { data: myStudiesData } = useMemberStudyListV2Query({
     memberId: memberId ?? 0,
     studyType:
-      classification === 'PREMIUM_STUDY' ? 'MENTOR_STUDY' : classification,
+      classification === 'MENTOR_STUDY' ? 'MENTOR_STUDY' : classification,
     studyStatus: 'NOT_COMPLETED', // 진행 중과 모집 중 모두 포함
     page: 1,
     pageSize: 100, // 충분히 많이 가져오기
