@@ -1,7 +1,7 @@
 #!/bin/bash
 # prepare-commit-msg hook
 # 브랜치명 fix/{ticket-id} / feat/{ticket-id} 패턴에서 type과 ticket-id를 추출해
-# 커밋 메시지 앞에 "{type}: [{ticket-id}] " 를 자동으로 붙입니다.
+# 커밋 메시지 앞에 "[{ticket-id}] {type}: " 를 자동으로 붙입니다.
 
 COMMIT_MSG_FILE="$1"
 COMMIT_SOURCE="$2"
@@ -29,21 +29,21 @@ stripped=$(echo "$current_msg" | sed '/^[[:space:]]*#/d' | tr -d '[:space:]')
 [ -z "$stripped" ] && exit 0
 
 # 이미 완전한 prefix가 붙어 있으면 건너뜀
-if [[ "$current_msg" == "$branch_type: [$ticket_id]"* ]]; then
+if [[ "$current_msg" == "[$ticket_id] $branch_type:"* ]]; then
   exit 0
 fi
 
 # 사용자가 이미 "fix: 메시지" 형태로 type을 직접 입력한 경우
-# → type은 유지하고 ticket만 삽입: "fix: [TICKET-ID] 메시지"
+# → ticket을 앞에 붙임: "[TICKET-ID] fix: 메시지"
 if [[ "$current_msg" =~ ^[a-z]+:[[:space:]] ]]; then
   existing_type="${current_msg%%: *}"
   rest="${current_msg#*: }"
   # ticket이 이미 있으면 건너뜀
-  if [[ "$rest" == "[$ticket_id]"* ]]; then
+  if [[ "$current_msg" == "[$ticket_id]"* ]]; then
     exit 0
   fi
-  printf '%s: [%s] %s' "$existing_type" "$ticket_id" "$rest" > "$COMMIT_MSG_FILE"
+  printf '[%s] %s: %s' "$ticket_id" "$existing_type" "$rest" > "$COMMIT_MSG_FILE"
 else
-  # prefix 없음 → type + ticket 모두 붙임
-  printf '%s: [%s] %s' "$branch_type" "$ticket_id" "$current_msg" > "$COMMIT_MSG_FILE"
+  # prefix 없음 → ticket + type 모두 붙임
+  printf '[%s] %s: %s' "$ticket_id" "$branch_type" "$current_msg" > "$COMMIT_MSG_FILE"
 fi
