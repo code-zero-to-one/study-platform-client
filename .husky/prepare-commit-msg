@@ -1,0 +1,49 @@
+#!/bin/bash
+# prepare-commit-msg hook
+# 브랜치명 fix/{ticket-id} / feat/{ticket-id} 패턴에서 type과 ticket-id를 추출해
+# 커밋 메시지 앞에 "{type}: [{ticket-id}] " 를 자동으로 붙입니다.
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# merge / squash / amend / cherry-pick은 건너뜀
+case "$COMMIT_SOURCE" in
+  merge|squash|commit) exit 0 ;;
+esac
+
+branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || exit 0
+
+# 슬래시가 없는 브랜치(main, develop 등)는 건너뜀
+[[ "$branch" != *"/"* ]] && exit 0
+
+# fix/TICKET-ID → branch_type=fix, ticket_id=TICKET-ID
+branch_type="${branch%%/*}"
+ticket_id="${branch#*/}"
+
+[ -z "$branch_type" ] || [ -z "$ticket_id" ] && exit 0
+
+current_msg=$(cat "$COMMIT_MSG_FILE")
+
+# 빈 줄이나 주석 줄로만 이루어진 경우 건너뜀
+stripped=$(echo "$current_msg" | sed '/^[[:space:]]*#/d' | tr -d '[:space:]')
+[ -z "$stripped" ] && exit 0
+
+# 이미 완전한 prefix가 붙어 있으면 건너뜀
+if [[ "$current_msg" == "$branch_type: [$ticket_id]"* ]]; then
+  exit 0
+fi
+
+# 사용자가 이미 "fix: 메시지" 형태로 type을 직접 입력한 경우
+# → type은 유지하고 ticket만 삽입: "fix: [TICKET-ID] 메시지"
+if [[ "$current_msg" =~ ^[a-z]+:[[:space:]] ]]; then
+  existing_type="${current_msg%%: *}"
+  rest="${current_msg#*: }"
+  # ticket이 이미 있으면 건너뜀
+  if [[ "$rest" == "[$ticket_id]"* ]]; then
+    exit 0
+  fi
+  printf '%s: [%s] %s' "$existing_type" "$ticket_id" "$rest" > "$COMMIT_MSG_FILE"
+else
+  # prefix 없음 → type + ticket 모두 붙임
+  printf '%s: [%s] %s' "$branch_type" "$ticket_id" "$current_msg" > "$COMMIT_MSG_FILE"
+fi
