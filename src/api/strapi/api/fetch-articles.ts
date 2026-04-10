@@ -2,14 +2,62 @@ import qs from 'qs';
 import { StrapiCollectionResponse, strapiFetch } from './common-strapi-fetch';
 
 // Media 타입
+interface MediaFormat {
+  name: string;
+  hash: string;
+  ext: string;
+  mime: string;
+  path: string | null;
+  width: number;
+  height: number;
+  size: number;
+  sizeInBytes: number;
+  url: string;
+}
+
 interface Media {
   id: number;
   documentId: string;
   name: string;
-  url: string;
+  alternativeText: string | null;
+  caption: string | null;
+  width: number;
+  height: number;
+  formats?: {
+    thumbnail?: MediaFormat;
+    small?: MediaFormat;
+    medium?: MediaFormat;
+    large?: MediaFormat;
+  };
+  hash: string;
+  ext: string;
   mime: string;
-  formats?: any;
+  size: number;
+  url: string;
+  previewUrl: string | null;
+  provider: string;
+  provider_metadata: unknown | null;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
+
+// Block 타입 (Strapi Dynamic Zone)
+interface RichTextBlock {
+  __component: 'shared.rich-text';
+  id: number;
+  body: string;
+}
+
+interface SeoBlock {
+  __component: 'shared.seo';
+  id: number;
+  metaTitle: string;
+  metaDescription: string;
+  shareImage?: Media;
+}
+
+type ArticleBlock = RichTextBlock | SeoBlock;
 
 // Strapi Article 응답 타입
 export interface Article {
@@ -32,12 +80,12 @@ export interface Article {
     email: string;
     documentId: string;
     avatar?: Media;
-  };
+  } | null;
   title: string;
   slug: string;
   description: string;
   cover?: Media;
-  blocks?: any[];
+  blocks?: ArticleBlock[];
   createdAt: string;
   updatedAt: string;
   publishedAt: string;

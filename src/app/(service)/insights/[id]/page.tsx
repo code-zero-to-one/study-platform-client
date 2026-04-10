@@ -27,8 +27,7 @@ export async function generateMetadata({
 
   // 1. SEO 블록에서 메타데이터 추출
   const seoBlock = article.blocks?.find(
-    (block: { __component?: string; [key: string]: unknown }) =>
-      block.__component === 'shared.seo',
+    (block) => block.__component === 'shared.seo',
   ) as
     | {
         metaTitle?: string;

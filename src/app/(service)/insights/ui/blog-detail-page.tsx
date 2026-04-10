@@ -9,6 +9,47 @@ import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
 import { Article } from '@/api/strapi/api/fetch-articles';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
+// Types for Strapi CMS block rendering
+interface StrapiBodyChild {
+  text?: string;
+}
+
+interface StrapiBodyItem {
+  type: string;
+  children?: StrapiBodyChild[];
+}
+
+interface StrapiMediaRaw {
+  url?: string;
+  mime?: string;
+  name?: string;
+  alternativeText?: string;
+  data?: {
+    url?: string;
+    mime?: string;
+    name?: string;
+    alternativeText?: string;
+    attributes?: { url?: string };
+  };
+}
+
+interface StrapiSliderFile {
+  id?: number;
+  url?: string;
+  name?: string;
+  alternativeText?: string;
+  mime?: string;
+}
+
+interface StrapiBlock {
+  __component?: string;
+  body?: string | StrapiBodyItem[];
+  title?: string;
+  file?: StrapiMediaRaw;
+  data?: StrapiMediaRaw | StrapiSliderFile[];
+  files?: { data?: StrapiSliderFile[] } | StrapiSliderFile[];
+}
+
 interface BlogDetailPageProps {
   article: Article & { id: number; documentId: string };
   memberId?: number;
@@ -24,7 +65,7 @@ function formatDate(dateString: string) {
 }
 
 // 이미지 슬라이더 컴포넌트
-function ImageSlider({ files }: { files: any[] }) {
+function ImageSlider({ files }: { files: StrapiSliderFile[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToPrevious = () => {
@@ -48,7 +89,7 @@ function ImageSlider({ files }: { files: any[] }) {
             className="flex transition-transform duration-500 ease-in-out"
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
           >
-            {files.map((file: any, idx: number) => {
+            {files.map((file, idx) => {
               const imageUrl = file.url?.startsWith('/')
                 ? `${STRAPI_URL}${file.url}`
                 : file.url;
@@ -71,17 +112,18 @@ function ImageSlider({ files }: { files: any[] }) {
         {/* 인디케이터 (점) */}
         {files.length > 1 && (
           <div className="mt-100 flex justify-center gap-50">
-            {files.map((_, index) => (
+            {files.map((file) => (
               <button
-                key={index}
-                onClick={() => goToSlide(index)}
+                type="button"
+                key={file.id}
+                onClick={() => goToSlide(files.indexOf(file))}
                 className={cn(
                   'h-75 w-75 rounded-full transition-all',
-                  index === currentIndex
+                  files.indexOf(file) === currentIndex
                     ? 'w-200 bg-background-brand-default'
                     : 'bg-fill-neutral-default-default hover:bg-fill-neutral-default-hover',
                 )}
-                aria-label={`${index + 1}번째 이미지로 이동`}
+                aria-label={`${files.indexOf(file) + 1}번째 이미지로 이동`}
               />
             ))}
           </div>
@@ -91,6 +133,7 @@ function ImageSlider({ files }: { files: any[] }) {
         <div className="mt-50 flex items-center justify-center gap-100">
           {/* 이전 버튼 */}
           <button
+            type="button"
             onClick={goToPrevious}
             className="mr-125 flex h-500 w-500 items-center justify-center rounded-full bg-transparent text-2xl text-text-subtle transition-all hover:bg-fill-neutral-default-default"
             aria-label="이전 이미지"
@@ -105,6 +148,7 @@ function ImageSlider({ files }: { files: any[] }) {
 
           {/* 다음 버튼 */}
           <button
+            type="button"
             onClick={goToNext}
             className="ml-125 flex h-500 w-500 items-center justify-center rounded-full bg-transparent text-2xl text-text-subtle transition-all hover:bg-fill-neutral-default-default"
             aria-label="다음 이미지"
@@ -139,8 +183,13 @@ function MediaFigure({
 
 export default function BlogDetailPage({ article }: BlogDetailPageProps) {
   const MarkdownComponents = {
-    video: (props: any) => {
-      const { src, children } = props;
+    video: ({
+      src,
+      children,
+    }: {
+      src?: string;
+      children?: React.ReactNode;
+    }) => {
       if (!src) return null;
       const videoUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
 
@@ -152,14 +201,14 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             className="mx-auto w-full rounded-50 sm:w-4/5"
           >
             <source src={videoUrl} type="video/mp4" />
+            <track kind="captions" />
             {children}
           </video>
         </MediaFigure>
       );
     },
 
-    img: (image: any) => {
-      const { src, alt } = image;
+    img: ({ src, alt }: { src?: string; alt?: string }) => {
       if (!src) return null;
       const imageUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
 
@@ -176,57 +225,57 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       );
     },
 
-    p: ({ children }: any) => (
+    p: ({ children }: { children?: React.ReactNode }) => (
       <p className="mb-350 text-[16px] leading-[1.75] text-text-default [&_strong]:font-bold [&_strong]:text-text-strong sm:text-[17px]">
         {children}
       </p>
     ),
 
-    h1: ({ children }: any) => (
+    h1: ({ children }: { children?: React.ReactNode }) => (
       <h1 className="mt-700 mb-250 text-[24px] font-bold leading-tight text-text-strong sm:text-[30px]">
         {children}
       </h1>
     ),
-    h2: ({ children }: any) => (
+    h2: ({ children }: { children?: React.ReactNode }) => (
       <h2 className="mt-[60px] mb-300 text-[22px] font-bold leading-tight text-text-strong sm:text-[28px]">
         {children}
       </h2>
     ),
-    h3: ({ children }: any) => (
+    h3: ({ children }: { children?: React.ReactNode }) => (
       <h3 className="mt-500 mb-200 text-[19px] font-bold leading-tight text-text-strong sm:text-[22px]">
         {children}
       </h3>
     ),
-    h4: ({ children }: any) => (
+    h4: ({ children }: { children?: React.ReactNode }) => (
       <h4 className="mt-400 mb-150 text-[17px] font-bold leading-tight text-text-strong sm:text-[18px]">
         {children}
       </h4>
     ),
-    h5: ({ children }: any) => (
+    h5: ({ children }: { children?: React.ReactNode }) => (
       <h5 className="mt-300 mb-125 text-[16px] font-bold leading-tight text-text-strong">
         {children}
       </h5>
     ),
 
-    ul: ({ children }: any) => (
+    ul: ({ children }: { children?: React.ReactNode }) => (
       <ul className="mb-400 list-disc space-y-150 pl-300 text-[16px] leading-[1.75] text-text-default sm:text-[17px]">
         {children}
       </ul>
     ),
-    ol: ({ children }: any) => (
+    ol: ({ children }: { children?: React.ReactNode }) => (
       <ol className="mb-400 list-decimal space-y-150 pl-300 text-[16px] leading-[1.75] text-text-default sm:text-[17px]">
         {children}
       </ol>
     ),
-    li: ({ children }: any) => <li>{children}</li>,
+    li: ({ children }: { children?: React.ReactNode }) => <li>{children}</li>,
 
-    blockquote: ({ children }: any) => (
+    blockquote: ({ children }: { children?: React.ReactNode }) => (
       <blockquote className="my-400 border-l-4 border-border-brand pl-200 text-[16px] leading-[1.75] text-text-subtle italic sm:text-[17px]">
         {children}
       </blockquote>
     ),
 
-    a: ({ href, children }: any) => {
+    a: ({ href, children }: { href?: string; children?: React.ReactNode }) => {
       if (!href) return <a>{children}</a>;
 
       const isVideoFile = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(href);
@@ -241,6 +290,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
               className="mx-auto w-full rounded-50 sm:w-4/5"
             >
               <source src={videoUrl} type="video/mp4" />
+              <track kind="captions" />
               브라우저가 비디오 태그를 지원하지 않습니다.
             </video>
           </MediaFigure>
@@ -261,13 +311,19 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
     hr: () => <hr className="my-600 border-0 border-t border-border-subtle" />,
 
-    strong: ({ children }: any) => (
+    strong: ({ children }: { children?: React.ReactNode }) => (
       <strong className="font-bold text-text-strong">{children}</strong>
     ),
 
     // block code: pre가 배경/패딩/overflow 전담하므로 스타일 없이 반환
     // inline code: 배경·색상·패딩만 담당
-    code: ({ children, className }: any) => {
+    code: ({
+      children,
+      className,
+    }: {
+      children?: React.ReactNode;
+      className?: string;
+    }) => {
       const isBlock = className?.includes('language-');
       if (isBlock) {
         return (
@@ -285,27 +341,27 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
     },
 
     // pre가 블록 코드의 배경·패딩·overflow·radius를 단독 담당
-    pre: ({ children }: any) => (
+    pre: ({ children }: { children?: React.ReactNode }) => (
       <pre className="my-400 overflow-x-auto rounded-50 bg-background-alternative p-250 font-designer-13r leading-[1.7] text-text-default">
         {children}
       </pre>
     ),
   };
 
-  const renderBlock = (block: any, index: number) => {
+  const renderBlock = (block: StrapiBlock, index: number) => {
     // 1. Rich Text
     if (block.__component?.includes('rich-text')) {
       if (Array.isArray(block.body)) {
         return (
           <div key={index} className="space-y-200">
-            {block.body.map((item: any, i: number) => {
+            {block.body.map((item, i) => {
               if (item.type === 'paragraph') {
                 return (
                   <p
                     key={i}
                     className="mb-200 text-[16px] leading-[1.75] text-text-default"
                   >
-                    {item.children?.map((child: any, j: number) => (
+                    {item.children?.map((child, j) => (
                       <span key={j}>{child.text}</span>
                     ))}
                   </p>
@@ -345,7 +401,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             </p>
           )}
           <p className="text-[16px] leading-[1.75] text-text-subtle italic">
-            {block.body}
+            {block.body as string}
           </p>
         </blockquote>
       );
@@ -353,7 +409,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
     // 3. 미디어
     if (block.__component?.includes('media')) {
-      const resolveMedia = (raw: any) => {
+      const resolveMedia = (raw: StrapiMediaRaw | null | undefined) => {
         const fileData = raw?.data || raw;
         if (!fileData) return null;
         const url = fileData.url?.startsWith('/')
@@ -369,7 +425,9 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
         };
       };
 
-      const media = resolveMedia(block.file) ?? resolveMedia(block.data);
+      const media =
+        resolveMedia(block.file) ??
+        resolveMedia(block.data as StrapiMediaRaw | undefined);
       if (!media) return null;
 
       const isVideo =
@@ -385,6 +443,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
               className="mx-auto w-full rounded-50 sm:w-4/5"
             >
               <source src={media.url} type={media.mime || 'video/mp4'} />
+              <track kind="captions" />
               브라우저가 비디오 태그를 지원하지 않습니다.
             </video>
           </MediaFigure>
@@ -407,9 +466,13 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
     // 4. 슬라이더
     if (block.__component?.includes('slider')) {
       let files = null;
-      if (block.files?.data) files = block.files.data;
-      else if (block.files && Array.isArray(block.files)) files = block.files;
-      else if (block.data && Array.isArray(block.data)) files = block.data;
+      if (block.files && !Array.isArray(block.files)) {
+        files = block.files.data ?? null;
+      } else if (block.files && Array.isArray(block.files)) {
+        files = block.files;
+      } else if (block.data && Array.isArray(block.data)) {
+        files = block.data;
+      }
 
       if (!files || files.length === 0) return null;
 
@@ -419,7 +482,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
     return null;
   };
 
-  const coverData = article.cover as any;
+  const coverData = article.cover as StrapiMediaRaw | undefined;
   const coverRawUrl = coverData?.url || coverData?.data?.attributes?.url;
   const coverUrl = coverRawUrl
     ? coverRawUrl.startsWith('/')
@@ -480,9 +543,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
           {/* 본문 */}
           <section className="min-h-[200px]">
             {article.blocks && article.blocks.length > 0 ? (
-              article.blocks.map((block: any, index: number) =>
-                renderBlock(block, index),
-              )
+              article.blocks.map((block, index) => renderBlock(block, index))
             ) : (
               <p className="text-text-subtlest italic">내용이 없습니다.</p>
             )}
