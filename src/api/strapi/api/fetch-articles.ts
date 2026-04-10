@@ -36,7 +36,7 @@ interface Media {
   url: string;
   previewUrl: string | null;
   provider: string;
-  provider_metadata: unknown | null;
+  provider_metadata: unknown;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -49,7 +49,7 @@ interface RichTextBlock {
   body: string;
 }
 
-interface SeoBlock {
+export interface SeoBlock {
   __component: 'shared.seo';
   id: number;
   metaTitle: string;

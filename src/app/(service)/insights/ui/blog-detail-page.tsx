@@ -112,18 +112,18 @@ function ImageSlider({ files }: { files: StrapiSliderFile[] }) {
         {/* 인디케이터 (점) */}
         {files.length > 1 && (
           <div className="mt-100 flex justify-center gap-50">
-            {files.map((file) => (
+            {files.map((file, index) => (
               <button
                 type="button"
-                key={file.id}
-                onClick={() => goToSlide(files.indexOf(file))}
+                key={file.id ?? index}
+                onClick={() => goToSlide(index)}
                 className={cn(
                   'h-75 w-75 rounded-full transition-all',
-                  files.indexOf(file) === currentIndex
+                  index === currentIndex
                     ? 'w-200 bg-background-brand-default'
                     : 'bg-fill-neutral-default-default hover:bg-fill-neutral-default-hover',
                 )}
-                aria-label={`${files.indexOf(file) + 1}번째 이미지로 이동`}
+                aria-label={`${index + 1}번째 이미지로 이동`}
               />
             ))}
           </div>
@@ -401,7 +401,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             </p>
           )}
           <p className="text-[16px] leading-[1.75] text-text-subtle italic">
-            {block.body as string}
+            {typeof block.body === 'string' ? block.body : ''}
           </p>
         </blockquote>
       );
