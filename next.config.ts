@@ -141,6 +141,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.zeroone.it.kr',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname:
+          'uploaded-files-qa.32cd2fa416bea795bf67cbf65411103b.r2.cloudflarestorage.com',
+        pathname: '/**',
+      },
       ...(isProd
         ? ([] as RemotePattern[])
         : ([
