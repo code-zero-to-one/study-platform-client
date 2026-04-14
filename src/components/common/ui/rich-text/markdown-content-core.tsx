@@ -23,6 +23,10 @@ import xml from 'highlight.js/lib/languages/xml';
 import { marked } from 'marked';
 import { useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import {
+  applyYouTubeIframeAttributes,
+  replaceStandaloneYouTubeLinksWithEmbeds,
+} from '@/components/common/ui/editor/youtube-utils';
 import { isHtmlContent } from '@/lib/rich-text/markdown-utils';
 
 hljs.registerLanguage('kotlin', kotlin);
@@ -65,6 +69,7 @@ const SANITIZE_OPTIONS: DOMPurifyConfig = {
     'h2',
     'h3',
     'hr',
+    'iframe',
     'img',
     'li',
     'ol',
@@ -75,7 +80,20 @@ const SANITIZE_OPTIONS: DOMPurifyConfig = {
     'u',
     'ul',
   ],
-  ALLOWED_ATTR: ['alt', 'class', 'href', 'src', 'title', 'width'],
+  ALLOWED_ATTR: [
+    'allow',
+    'allowfullscreen',
+    'alt',
+    'class',
+    'frameborder',
+    'height',
+    'href',
+    'loading',
+    'referrerpolicy',
+    'src',
+    'title',
+    'width',
+  ],
   ALLOW_DATA_ATTR: false,
   ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#)/i,
 };
@@ -171,6 +189,21 @@ const applyPostSanitizeAttributes = ({
     imageElement.setAttribute('width', String(width));
   });
 
+  document.querySelectorAll('iframe').forEach((iframeElement) => {
+    const attrs = buildYouTubeEmbedAttrs(
+      iframeElement.getAttribute('src') ?? '',
+    );
+
+    if (!attrs) {
+      iframeElement.remove();
+      return;
+    }
+
+    Object.entries(attrs).forEach(([key, value]) => {
+      iframeElement.setAttribute(key, value);
+    });
+  });
+
   return document.body.innerHTML;
 };
 
@@ -187,12 +220,14 @@ export default function MarkdownContentCore({
       return '';
     }
 
+    const contentWithEmbeds = replaceStandaloneYouTubeLinksWithEmbeds(content);
+
     let html: string;
 
-    if (isHtmlContent(content)) {
-      html = content;
+    if (isHtmlContent(contentWithEmbeds)) {
+      html = contentWithEmbeds;
     } else {
-      const rendered = marked.parse(content, {
+      const rendered = marked.parse(contentWithEmbeds, {
         breaks: true,
         gfm: true,
       });
@@ -242,6 +277,7 @@ export default function MarkdownContentCore({
         '[&_blockquote]:rounded-100 [&_blockquote]:bg-background-alternative [&_blockquote]:border-border-subtle [&_blockquote]:mb-150 [&_blockquote]:border-l-4 [&_blockquote]:px-150 [&_blockquote]:py-125',
         '[&_blockquote_p]:font-designer-16r [&_blockquote_p]:text-text-subtle [&_blockquote_p]:leading-relaxed',
         '[&_a]:text-text-brand [&_a]:underline',
+        '[&_iframe.youtube-embed]:mb-150 [&_iframe.youtube-embed]:block [&_iframe.youtube-embed]:aspect-video [&_iframe.youtube-embed]:w-full [&_iframe.youtube-embed]:max-w-full [&_iframe.youtube-embed]:rounded-100 [&_iframe.youtube-embed]:border [&_iframe.youtube-embed]:border-border-subtle',
         '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-150 [&_img]:block [&_img]:h-auto [&_img]:max-h-rich-text-image [&_img]:max-w-rich-text-image [&_img]:border [&_img]:object-contain',
         '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-25',
         '[&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-150 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100',

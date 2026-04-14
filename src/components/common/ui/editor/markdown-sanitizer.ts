@@ -1,6 +1,7 @@
 import type { Config as DOMPurifyConfig } from 'dompurify';
 import { clampImageWidth } from './image-utils';
 import { resolveMarkdownAssetUrl } from './markdown-content-assets';
+import { applyYouTubeIframeAttributes } from './youtube-utils';
 
 export const SANITIZE_OPTIONS: DOMPurifyConfig = {
   ALLOWED_TAGS: [
@@ -14,6 +15,7 @@ export const SANITIZE_OPTIONS: DOMPurifyConfig = {
     'h2',
     'h3',
     'hr',
+    'iframe',
     'img',
     'li',
     'ol',
@@ -25,7 +27,20 @@ export const SANITIZE_OPTIONS: DOMPurifyConfig = {
     'u',
     'ul',
   ],
-  ALLOWED_ATTR: ['alt', 'class', 'href', 'src', 'title', 'width'],
+  ALLOWED_ATTR: [
+    'allow',
+    'allowfullscreen',
+    'alt',
+    'class',
+    'frameborder',
+    'height',
+    'href',
+    'loading',
+    'referrerpolicy',
+    'src',
+    'title',
+    'width',
+  ],
   ALLOW_DATA_ATTR: false,
   ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#|blob:)/i,
 };
@@ -119,6 +134,27 @@ export const applyPostSanitizeAttributes = ({
     }
 
     imageElement.setAttribute('width', String(width));
+  });
+
+  document.querySelectorAll('iframe').forEach((iframeElement) => {
+    const normalizedSrc = normalizeYouTubeEmbedSource(
+      iframeElement.getAttribute('src') ?? '',
+    );
+
+    if (!normalizedSrc) {
+      iframeElement.remove();
+      return;
+    }
+
+    const attrs = buildYouTubeEmbedAttrs(normalizedSrc);
+    if (!attrs) {
+      iframeElement.remove();
+      return;
+    }
+
+    Object.entries(attrs).forEach(([key, value]) => {
+      iframeElement.setAttribute(key, value);
+    });
   });
 
   return document.body.innerHTML;

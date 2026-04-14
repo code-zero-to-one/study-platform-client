@@ -1,4 +1,9 @@
-import { Extension, textblockTypeInputRule } from '@tiptap/core';
+import {
+  Extension,
+  Node,
+  mergeAttributes,
+  textblockTypeInputRule,
+} from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import ImageExtension from '@tiptap/extension-image';
 import c from 'highlight.js/lib/languages/c';
@@ -13,6 +18,11 @@ import sql from 'highlight.js/lib/languages/sql';
 import swift from 'highlight.js/lib/languages/swift';
 import { common, createLowlight } from 'lowlight';
 import { parseImageWidth, MARKDOWN_IMAGE_DEFAULT_WIDTH } from './image-utils';
+import {
+  buildYouTubeEmbedAttrs,
+  normalizeYouTubeEmbedSource,
+  YOUTUBE_IFRAME_TITLE,
+} from './youtube-utils';
 
 export const lowlight = createLowlight(common);
 const LOWLIGHT_LANGUAGES = [
@@ -81,5 +91,64 @@ export const MarkdownHistoryShortcutsExtension = Extension.create({
     return {
       'Mod-y': () => this.editor.commands.redo(),
     };
+  },
+});
+
+/**
+ * 유튜브 임베드 iframe을 안전한 블록 노드로 관리합니다.
+ */
+export const YouTubeEmbedExtension = Node.create({
+  name: 'youtubeEmbed',
+  group: 'block',
+  atom: true,
+  selectable: true,
+  draggable: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+        parseHTML: (element: HTMLElement) => {
+          return normalizeYouTubeEmbedSource(element.getAttribute('src') ?? '');
+        },
+      },
+      title: {
+        default: 'YouTube video player',
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'iframe[src]',
+        getAttrs: (node) => {
+          const element = node instanceof HTMLElement ? node : null;
+          const src = normalizeYouTubeEmbedSource(
+            element?.getAttribute('src') ?? '',
+          );
+
+          if (!src) {
+            return false;
+          }
+
+          return {
+            src,
+            title:
+              element?.getAttribute('title')?.trim() || 'YouTube video player',
+          };
+        },
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    const attrs = buildYouTubeEmbedAttrs(HTMLAttributes.src as string);
+
+    if (!attrs) {
+      return ['p', 0];
+    }
+
+    return ['iframe', mergeAttributes(attrs)];
   },
 });

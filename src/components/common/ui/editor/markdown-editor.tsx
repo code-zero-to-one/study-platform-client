@@ -40,6 +40,7 @@ import {
   lowlight,
   MarkdownHistoryShortcutsExtension,
   ResizableImageExtension,
+  YouTubeEmbedExtension,
 } from './extensions';
 import {
   type MarkdownEditorImageConfig,
@@ -56,6 +57,7 @@ import {
 } from './image-utils';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
 import { useImageUpload } from './use-image-upload';
+import { isSingleYouTubeUrlText, YOUTUBE_IFRAME_TITLE } from './youtube-utils';
 
 export type { MarkdownEditorImageConfig } from './image-utils';
 
@@ -119,6 +121,28 @@ function MarkdownEditor({
     return editorRef.current;
   };
 
+  const insertYouTubeEmbed = (editorInstance: Editor, pastedText: string) => {
+    const youtubeEmbed = isSingleYouTubeUrlText(pastedText);
+    if (!youtubeEmbed || editorInstance.isActive('codeBlock')) {
+      return false;
+    }
+
+    return editorInstance
+      .chain()
+      .focus()
+      .insertContent([
+        {
+          type: 'youtubeEmbed',
+          attrs: {
+            src: youtubeEmbed.embedUrl,
+            title: 'YouTube video player',
+          },
+        },
+        { type: 'paragraph' },
+      ])
+      .run();
+  };
+
   const resolvedImageConfig = useMemo(() => {
     if (imageConfig) {
       return imageConfig;
@@ -156,6 +180,7 @@ function MarkdownEditor({
         defaultLanguage: 'plaintext',
       }),
       MarkdownHistoryShortcutsExtension,
+      YouTubeEmbedExtension,
       UnderlineExtension,
       LinkExtension.configure({
         openOnClick: false,
@@ -206,30 +231,30 @@ function MarkdownEditor({
         },
       },
       handlePaste: (_, event) => {
-        if (!resolvedImageConfig) {
-          return false;
-        }
-
         const clipboardData = event.clipboardData;
         if (!clipboardData) {
           return false;
         }
 
-        if (!hasClipboardImageHint(clipboardData)) {
+        const editorInstance = getValidEditorInstance();
+        if (!editorInstance) {
+          return false;
+        }
+
+        if (resolvedImageConfig && hasClipboardImageHint(clipboardData)) {
+          event.preventDefault();
+          handleClipboardPaste(editorInstance, clipboardData).catch(() => {
+            setImageInsertError('이미지 붙여넣기에 실패했습니다.');
+          });
+          return true;
+        }
+
+        const pastedText = clipboardData.getData('text/plain');
+        if (!insertYouTubeEmbed(editorInstance, pastedText)) {
           return false;
         }
 
         event.preventDefault();
-        const editorInstance = getValidEditorInstance();
-
-        if (!editorInstance) {
-          setImageInsertError('이미지 붙여넣기에 실패했습니다.');
-          return true;
-        }
-
-        handleClipboardPaste(editorInstance, clipboardData).catch(() => {
-          setImageInsertError('이미지 붙여넣기에 실패했습니다.');
-        });
         return true;
       },
       handleDrop: (_, event) => {
