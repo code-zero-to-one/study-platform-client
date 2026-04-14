@@ -136,26 +136,7 @@ export const applyPostSanitizeAttributes = ({
     imageElement.setAttribute('width', String(width));
   });
 
-  document.querySelectorAll('iframe').forEach((iframeElement) => {
-    const normalizedSrc = normalizeYouTubeEmbedSource(
-      iframeElement.getAttribute('src') ?? '',
-    );
-
-    if (!normalizedSrc) {
-      iframeElement.remove();
-      return;
-    }
-
-    const attrs = buildYouTubeEmbedAttrs(normalizedSrc);
-    if (!attrs) {
-      iframeElement.remove();
-      return;
-    }
-
-    Object.entries(attrs).forEach(([key, value]) => {
-      iframeElement.setAttribute(key, value);
-    });
-  });
+  applyYouTubeIframeAttributes(document);
 
   return document.body.innerHTML;
 };

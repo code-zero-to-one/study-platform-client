@@ -113,7 +113,7 @@ export const YouTubeEmbedExtension = Node.create({
         },
       },
       title: {
-        default: 'YouTube video player',
+        default: YOUTUBE_IFRAME_TITLE,
       },
     };
   },
@@ -135,7 +135,7 @@ export const YouTubeEmbedExtension = Node.create({
           return {
             src,
             title:
-              element?.getAttribute('title')?.trim() || 'YouTube video player',
+              element?.getAttribute('title')?.trim() || YOUTUBE_IFRAME_TITLE,
           };
         },
       },

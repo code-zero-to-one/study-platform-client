@@ -135,7 +135,7 @@ function MarkdownEditor({
           type: 'youtubeEmbed',
           attrs: {
             src: youtubeEmbed.embedUrl,
-            title: 'YouTube video player',
+            title: YOUTUBE_IFRAME_TITLE,
           },
         },
         { type: 'paragraph' },
