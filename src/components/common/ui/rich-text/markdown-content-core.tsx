@@ -207,11 +207,12 @@ export default function MarkdownContentCore({
       return '';
     }
 
+    const isOriginalHtml = isHtmlContent(content);
     const contentWithEmbeds = replaceStandaloneYouTubeLinksWithEmbeds(content);
 
     let html: string;
 
-    if (isHtmlContent(contentWithEmbeds)) {
+    if (isOriginalHtml) {
       html = contentWithEmbeds;
     } else {
       const rendered = marked.parse(contentWithEmbeds, {

@@ -1,7 +1,7 @@
 'use client';
 
 import type { Editor } from '@tiptap/react';
-import { type RefObject, useEffect, useMemo, useState } from 'react';
+import { type RefObject, useEffect, useState } from 'react';
 
 export interface ActiveCodeBlockControl {
   language: string;
@@ -25,37 +25,35 @@ export const useActiveCodeBlockControl = (
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return useMemo(() => {
-    if (!editor?.isActive('codeBlock')) {
-      return null;
-    }
+  if (!editor?.isActive('codeBlock')) {
+    return null;
+  }
 
-    const editorContentWrapper = wrapperRef.current;
-    if (!editorContentWrapper) {
-      return null;
-    }
+  const editorContentWrapper = wrapperRef.current;
+  if (!editorContentWrapper) {
+    return null;
+  }
 
-    const { $from } = editor.state.selection;
-    if ($from.parent.type.name !== 'codeBlock') {
-      return null;
-    }
+  const { $from } = editor.state.selection;
+  if ($from.parent.type.name !== 'codeBlock') {
+    return null;
+  }
 
-    const codeBlockPos = $from.before();
-    const codeBlockElement = editor.view.nodeDOM(codeBlockPos);
-    if (!(codeBlockElement instanceof HTMLElement)) {
-      return null;
-    }
+  const codeBlockPos = $from.before();
+  const codeBlockElement = editor.view.nodeDOM(codeBlockPos);
+  if (!(codeBlockElement instanceof HTMLElement)) {
+    return null;
+  }
 
-    const wrapperRect = editorContentWrapper.getBoundingClientRect();
-    const codeBlockRect = codeBlockElement.getBoundingClientRect();
-    const language =
-      (editor.getAttributes('codeBlock').language as string | undefined) ??
-      'plaintext';
+  const wrapperRect = editorContentWrapper.getBoundingClientRect();
+  const codeBlockRect = codeBlockElement.getBoundingClientRect();
+  const attrs = editor.getAttributes('codeBlock');
+  const language =
+    typeof attrs.language === 'string' ? attrs.language : 'plaintext';
 
-    return {
-      language,
-      top: Math.max(6, codeBlockRect.top - wrapperRect.top + 6),
-      left: Math.max(10, codeBlockRect.left - wrapperRect.left + 10),
-    };
-  }, [editor, wrapperRef]);
+  return {
+    language,
+    top: Math.max(6, codeBlockRect.top - wrapperRect.top + 6),
+    left: Math.max(10, codeBlockRect.left - wrapperRect.left + 10),
+  };
 };

@@ -55,12 +55,13 @@ function MarkdownContent({
       return '';
     }
 
+    const isOriginalHtml = isHtmlContent(normalizedContent);
     const normalizedContentWithEmbeds =
       replaceStandaloneYouTubeLinksWithEmbeds(normalizedContent);
 
     let html: string;
 
-    if (isHtmlContent(normalizedContentWithEmbeds)) {
+    if (isOriginalHtml) {
       html = normalizedContentWithEmbeds;
     } else {
       const rendered = marked.parse(normalizedContentWithEmbeds, {

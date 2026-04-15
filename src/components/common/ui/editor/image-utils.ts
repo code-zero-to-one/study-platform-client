@@ -99,23 +99,6 @@ export const toFileFromBlob = (blob: Blob, fileName: string): File => {
   return new File([blob], fileName, { type: blob.type });
 };
 
-/**
- * MIME 타입에서 파일 확장자를 추출합니다.
- * @example
- * getExtensionFromMime('image/jpeg') // 'jpg'
- * getExtensionFromMime('image/png') // 'png'
- * getExtensionFromMime('image/webp') // 'webp'
- * getExtensionFromMime('image/gif') // 'gif'
- * getExtensionFromMime('unknown/type') // 'type'
- */
-export const getExtensionFromMime = (mimeType: string): string => {
-  return (
-    IMAGE_MIME_TO_EXT[mimeType as SupportedImageMimeType] ??
-    mimeType.split('/')[1]?.toLowerCase() ??
-    ''
-  );
-};
-
 const normalizeImageMimeType = (
   mimeType: string | undefined,
 ): SupportedImageMimeType | undefined => {
@@ -126,6 +109,24 @@ const normalizeImageMimeType = (
   }
 
   return undefined;
+};
+
+/**
+ * MIME 타입에서 파일 확장자를 추출합니다.
+ * @example
+ * getExtensionFromMime('image/jpeg') // 'jpg'
+ * getExtensionFromMime('image/png') // 'png'
+ * getExtensionFromMime('image/webp') // 'webp'
+ * getExtensionFromMime('image/gif') // 'gif'
+ * getExtensionFromMime('unknown/type') // 'type'
+ */
+export const getExtensionFromMime = (mimeType: string): string => {
+  const normalizedMimeType = normalizeImageMimeType(mimeType);
+  return (
+    (normalizedMimeType ? IMAGE_MIME_TO_EXT[normalizedMimeType] : undefined) ??
+    mimeType.split('/')[1]?.toLowerCase() ??
+    ''
+  );
 };
 
 const hasPrefix = (bytes: Uint8Array, prefix: readonly number[]) => {

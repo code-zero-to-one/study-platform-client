@@ -147,7 +147,7 @@ export const YouTubeEmbedExtension = Node.create({
     const attrs = buildYouTubeEmbedAttrs(HTMLAttributes.src ?? '');
 
     if (!attrs) {
-      return ['p', 0];
+      return ['p'];
     }
 
     return ['iframe', mergeAttributes(attrs)];
