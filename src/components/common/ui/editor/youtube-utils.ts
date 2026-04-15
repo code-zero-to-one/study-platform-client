@@ -58,6 +58,31 @@ const extractVideoIdFromPath = (pathname: string, prefix: string) => {
   return YOUTUBE_VIDEO_ID_REGEX.test(segment) ? segment : undefined;
 };
 
+const extractVideoId = (
+  host: string,
+  pathname: string,
+  searchParams: URLSearchParams,
+): string | undefined => {
+  if (host === 'youtu.be') {
+    return extractVideoIdFromPath(pathname, '/');
+  }
+
+  if (!YOUTUBE_FULL_HOSTS.has(host)) {
+    return undefined;
+  }
+
+  if (pathname === '/watch') {
+    return searchParams.get('v') ?? undefined;
+  }
+
+  return (
+    extractVideoIdFromPath(pathname, '/shorts/') ??
+    extractVideoIdFromPath(pathname, '/live/') ??
+    extractVideoIdFromPath(pathname, '/embed/') ??
+    extractVideoIdFromPath(pathname, '/v/')
+  );
+};
+
 const parseYouTubeStartAt = (raw: string | undefined) => {
   if (!raw) return undefined;
 
@@ -125,21 +150,7 @@ export const extractYouTubeEmbedInfo = (
 
   const host = parsedUrl.hostname.replace(/^(?:www\.|m\.)/i, '').toLowerCase();
   const pathname = parsedUrl.pathname.replace(/\/+$/, '');
-  let videoId: string | undefined;
-
-  if (host === 'youtu.be') {
-    videoId = pathname.replace(/^\/+/, '').split('/')[0] || undefined;
-  } else if (YOUTUBE_FULL_HOSTS.has(host)) {
-    if (pathname === '/watch') {
-      videoId = parsedUrl.searchParams.get('v') ?? undefined;
-    } else {
-      videoId =
-        extractVideoIdFromPath(pathname, '/shorts/') ??
-        extractVideoIdFromPath(pathname, '/live/') ??
-        extractVideoIdFromPath(pathname, '/embed/') ??
-        extractVideoIdFromPath(pathname, '/v/');
-    }
-  }
+  const videoId = extractVideoId(host, pathname, parsedUrl.searchParams);
 
   if (!videoId || !YOUTUBE_VIDEO_ID_REGEX.test(videoId)) {
     return undefined;
