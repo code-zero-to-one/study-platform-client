@@ -200,7 +200,7 @@ function MarkdownEditor({
       isInternalUpdate.current = true;
       onChange?.(normalizeContent(updatedEditor.getHTML()));
     },
-    onTransaction() {
+    onTransaction: () => {
       forceEditorRerender((prev) => prev + 1);
     },
     onSelectionUpdate: ({ editor: nextEditor }) => {
@@ -278,15 +278,15 @@ function MarkdownEditor({
 
         event.preventDefault();
         const editorInstance = getValidEditorInstance();
+        const onDropError = () =>
+          setImageInsertError('이미지 드롭에 실패했습니다.');
 
         if (!editorInstance) {
-          setImageInsertError('이미지 드롭에 실패했습니다.');
+          onDropError();
           return true;
         }
 
-        handleImageFiles(editorInstance, imageFiles).catch(() => {
-          setImageInsertError('이미지 드롭에 실패했습니다.');
-        });
+        handleImageFiles(editorInstance, imageFiles).catch(onDropError);
 
         return true;
       },
