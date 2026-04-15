@@ -9,6 +9,7 @@ const YOUTUBE_IFRAME_ALLOW =
   'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
 const YOUTUBE_IFRAME_REFERRER_POLICY = 'strict-origin-when-cross-origin';
 const YOUTUBE_VIDEO_ID_REGEX = /^[A-Za-z0-9_-]{11}$/;
+const YOUTUBE_FULL_HOSTS = new Set(['youtube.com', 'youtube-nocookie.com']);
 const MARKDOWN_STANDALONE_YOUTUBE_URL_REGEX =
   /(^|\n)([^\S\n]*)((?:https?:\/\/|www\.)[^\s<]+)(?=\n|$)/g;
 const MARKDOWN_STANDALONE_YOUTUBE_LINK_REGEX =
@@ -24,10 +25,6 @@ export interface YouTubeEmbedInfo {
   embedUrl: string;
   startAt?: number;
 }
-
-const removeYouTubeSubdomainPrefix = (host: string) => {
-  return host.replace(/^(?:www\.|m\.)/i, '').toLowerCase();
-};
 
 const normalizeUrlCandidate = (value: string) => {
   const trimmed = decodeHtmlEntities(value).trim();
@@ -62,9 +59,7 @@ const extractVideoIdFromPath = (pathname: string, prefix: string) => {
 };
 
 const parseYouTubeStartAt = (raw: string | undefined) => {
-  if (!raw) {
-    return undefined;
-  }
+  if (!raw) return undefined;
 
   const decoded = decodeHtmlEntities(raw).trim();
   if (!decoded) {
@@ -94,9 +89,7 @@ const parseYouTubeStartAt = (raw: string | undefined) => {
 const getHashSearchParams = (hash: string) => {
   const trimmedHash = hash.replace(/^#/, '');
 
-  if (!trimmedHash) {
-    return undefined;
-  }
+  if (!trimmedHash) return undefined;
 
   return new URLSearchParams(trimmedHash);
 };
@@ -130,13 +123,13 @@ export const extractYouTubeEmbedInfo = (
     return undefined;
   }
 
-  const host = removeYouTubeSubdomainPrefix(parsedUrl.hostname);
+  const host = parsedUrl.hostname.replace(/^(?:www\.|m\.)/i, '').toLowerCase();
   const pathname = parsedUrl.pathname.replace(/\/+$/, '');
   let videoId: string | undefined;
 
   if (host === 'youtu.be') {
     videoId = pathname.replace(/^\/+/, '').split('/')[0] || undefined;
-  } else if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+  } else if (YOUTUBE_FULL_HOSTS.has(host)) {
     if (pathname === '/watch') {
       videoId = parsedUrl.searchParams.get('v') ?? undefined;
     } else {
@@ -167,15 +160,10 @@ export const extractYouTubeEmbedInfo = (
   };
 };
 
-export const normalizeYouTubeEmbedSource = (value: string) => {
-  return extractYouTubeEmbedInfo(value)?.embedUrl;
-};
-
 export const buildYouTubeEmbedAttrs = (
-  value: string | YouTubeEmbedInfo,
+  value: string,
 ): Record<string, string> | undefined => {
-  const info =
-    typeof value === 'string' ? extractYouTubeEmbedInfo(value) : value;
+  const info = extractYouTubeEmbedInfo(value);
 
   if (!info) {
     return undefined;
@@ -195,15 +183,13 @@ export const buildYouTubeEmbedAttrs = (
   };
 };
 
-export const createYouTubeEmbedHtml = (value: string | YouTubeEmbedInfo) => {
+export const createYouTubeEmbedHtml = (value: string) => {
   const attrs = buildYouTubeEmbedAttrs(value);
 
   if (!attrs) {
     return undefined;
   }
 
-  // Attribute values originate from buildYouTubeEmbedAttrs (validated YouTube URL
-  // constants only). Do not pass untrusted strings here — values are not HTML-escaped.
   const serializedAttrs = Object.entries(attrs)
     .map(([key, attrValue]) => `${key}="${attrValue}"`)
     .join(' ');
@@ -211,11 +197,6 @@ export const createYouTubeEmbedHtml = (value: string | YouTubeEmbedInfo) => {
   return `<iframe ${serializedAttrs}></iframe>`;
 };
 
-/**
- * Validates and re-applies standard YouTube embed attributes to all iframes
- * in the given Document. Removes any iframe whose src is not a valid YouTube URL.
- * Called as a post-sanitize step in both editor and viewer rendering pipelines.
- */
 export const applyYouTubeIframeAttributes = (doc: Document): void => {
   doc.querySelectorAll('iframe').forEach((iframeElement) => {
     const attrs = buildYouTubeEmbedAttrs(

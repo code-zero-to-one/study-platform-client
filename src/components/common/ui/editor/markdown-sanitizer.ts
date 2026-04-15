@@ -45,19 +45,19 @@ export const SANITIZE_OPTIONS: DOMPurifyConfig = {
   ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#|blob:)/i,
 };
 
+/**
+ * 문자열 형태의 픽셀 값을 숫자로 파싱합니다.
+ * 정상 범위를 벗어나면 undefined을 반환합니다.
+ * @param value 파싱할 픽셀 값 문자열
+ * @returns 파싱된 픽셀 값 또는 undefined (범위 초과 시)
+ * @example
+ * parseSanitizedImageWidth('250') // 250
+ * parseSanitizedImageWidth('50') // 80 (최소값으로 조정)
+ * parseSanitizedImageWidth('abc') // undefined
+ */
 const parseSanitizedImageWidth = (
   value: string | undefined,
 ): number | undefined => {
-  /**
-   * 문자열 형태의 픽셀 값을 숫자로 파싱합니다.
-   * 정상 범위를 벗어나면 undefined을 반환합니다.
-   * @param value 파싱할 픽셀 값 문자열
-   * @returns 파싱된 픽셀 값 또는 undefined (범위 초과 시)
-   * @example
-   * parseSanitizedImageWidth('250') // 250
-   * parseSanitizedImageWidth('50') // 80 (최소값으로 조정)
-   * parseSanitizedImageWidth('abc') // undefined
-   */
   if (!value) {
     return undefined;
   }

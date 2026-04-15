@@ -4,12 +4,11 @@ import {
   createYouTubeEmbedHtml,
   extractYouTubeEmbedInfo,
   isSingleYouTubeUrlText,
-  normalizeYouTubeEmbedSource,
   replaceStandaloneYouTubeLinksWithEmbeds,
 } from './youtube-utils';
 
 describe('extractYouTubeEmbedInfo', () => {
-  it('normalizes watch urls into youtube-nocookie embed urls', () => {
+  it('watch URL을 youtube-nocookie 임베드 URL로 정규화한다', () => {
     const result = extractYouTubeEmbedInfo(
       'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     );
@@ -22,7 +21,7 @@ describe('extractYouTubeEmbedInfo', () => {
     });
   });
 
-  it('supports youtu.be and shorts urls with start times', () => {
+  it('youtu.be 및 shorts URL과 재생 시작 시간을 지원한다', () => {
     const shortUrl = extractYouTubeEmbedInfo(
       'https://youtu.be/dQw4w9WgXcQ?t=90',
     );
@@ -39,7 +38,7 @@ describe('extractYouTubeEmbedInfo', () => {
     );
   });
 
-  it('ignores non-video youtube urls and invalid ids', () => {
+  it('비디오가 아닌 유튜브 URL과 유효하지 않은 id를 무시한다', () => {
     expect(
       extractYouTubeEmbedInfo('https://www.youtube.com/playlist?list=PL123'),
     ).toBeUndefined();
@@ -53,7 +52,7 @@ describe('extractYouTubeEmbedInfo', () => {
 });
 
 describe('replaceStandaloneYouTubeLinksWithEmbeds', () => {
-  it('replaces standalone markdown youtube urls with iframe html', () => {
+  it('단독 마크다운 유튜브 URL을 iframe HTML로 교체한다', () => {
     const content = [
       '소개 문단입니다.',
       '',
@@ -73,7 +72,7 @@ describe('replaceStandaloneYouTubeLinksWithEmbeds', () => {
     expect(result).toContain('마무리 문단입니다.');
   });
 
-  it('replaces standalone html anchor paragraphs with iframe html', () => {
+  it('단독 HTML anchor 단락을 iframe HTML로 교체한다', () => {
     const content =
       '<p>앞 문장</p><p><a href="https://youtu.be/dQw4w9WgXcQ">링크</a></p><p>뒷 문장</p>';
 
@@ -86,7 +85,7 @@ describe('replaceStandaloneYouTubeLinksWithEmbeds', () => {
     expect(result).toContain('<p>뒷 문장</p>');
   });
 
-  it('keeps inline youtube links untouched', () => {
+  it('인라인 유튜브 링크는 변경하지 않는다', () => {
     const content =
       '추천 영상은 https://www.youtube.com/watch?v=dQw4w9WgXcQ 입니다.';
 
@@ -94,8 +93,8 @@ describe('replaceStandaloneYouTubeLinksWithEmbeds', () => {
   });
 });
 
-describe('youtube embed helpers', () => {
-  it('returns iframe attrs only for valid youtube urls', () => {
+describe('유튜브 임베드 헬퍼', () => {
+  it('유효한 유튜브 URL에만 iframe 속성을 반환한다', () => {
     expect(
       buildYouTubeEmbedAttrs('https://www.youtube.com/embed/dQw4w9WgXcQ'),
     ).toMatchObject({
@@ -107,11 +106,11 @@ describe('youtube embed helpers', () => {
     ).toBeUndefined();
   });
 
-  it('normalizes embed sources and single pasted youtube urls', () => {
+  it('임베드 소스 및 단독 붙여넣기 유튜브 URL을 정규화한다', () => {
     expect(
-      normalizeYouTubeEmbedSource(
+      extractYouTubeEmbedInfo(
         'https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=43',
-      ),
+      )?.embedUrl,
     ).toBe('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?start=43');
     expect(
       isSingleYouTubeUrlText('https://youtu.be/dQw4w9WgXcQ')?.videoId,
@@ -121,7 +120,7 @@ describe('youtube embed helpers', () => {
     ).toBeUndefined();
   });
 
-  it('creates iframe html for valid youtube urls only', () => {
+  it('유효한 유튜브 URL에만 iframe HTML을 생성한다', () => {
     expect(createYouTubeEmbedHtml('https://youtu.be/dQw4w9WgXcQ')).toContain(
       '<iframe',
     );

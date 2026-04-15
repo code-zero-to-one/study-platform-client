@@ -14,6 +14,27 @@ import {
 } from './markdown-sanitizer';
 import { replaceStandaloneYouTubeLinksWithEmbeds } from './youtube-utils';
 
+const MARKDOWN_CONTENT_BASE_STYLES = [
+  'wrap-break-word',
+  '[&_p]:font-designer-14r [&_p]:text-text-default [&_p]:mb-100',
+  '[&_h1]:font-designer-24b [&_h1]:text-text-strong [&_h1]:mt-250 [&_h1]:mb-100',
+  '[&_h2]:font-designer-20b [&_h2]:text-text-strong [&_h2]:mt-250 [&_h2]:mb-125',
+  '[&_h3]:font-designer-18b [&_h3]:text-text-default [&_h3]:mt-200 [&_h3]:mb-100',
+  '[&_ul]:mb-100 [&_ul]:list-disc [&_ul]:space-y-50 [&_ul]:pl-250',
+  '[&_ol]:mb-100 [&_ol]:list-decimal [&_ol]:space-y-50 [&_ol]:pl-250',
+  '[&_li]:font-designer-14r [&_li]:text-text-default',
+  '[&_blockquote]:rounded-100 [&_blockquote]:bg-background-alternative [&_blockquote]:border-border-subtle [&_blockquote]:mb-100 [&_blockquote]:border-l-4 [&_blockquote]:px-150 [&_blockquote]:py-125',
+  '[&_blockquote_p]:font-designer-14r [&_blockquote_p]:text-text-subtle',
+  '[&_a]:text-text-brand [&_a]:underline',
+  '[&_s]:line-through [&_del]:line-through',
+  '[&_iframe.youtube-embed]:mb-100 [&_iframe.youtube-embed]:block [&_iframe.youtube-embed]:aspect-video [&_iframe.youtube-embed]:w-full [&_iframe.youtube-embed]:max-w-full [&_iframe.youtube-embed]:rounded-100 [&_iframe.youtube-embed]:border [&_iframe.youtube-embed]:border-border-subtle',
+  '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-100 [&_img]:block [&_img]:h-auto [&_img]:max-h-markdown-img [&_img]:max-w-markdown-img [&_img]:border [&_img]:object-contain',
+  '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-25',
+  '[&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-100 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100',
+  '[&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_pre_code]:py-0',
+  '[&_hr]:border-border-subtle [&_hr]:my-200',
+] as const;
+
 interface MarkdownContentProps {
   content: unknown;
   className?: string;
@@ -76,27 +97,7 @@ function MarkdownContent({
   return (
     <div
       ref={containerRef}
-      className={cn(
-        'wrap-break-word',
-        '[&_p]:font-designer-14r [&_p]:text-text-default [&_p]:mb-100',
-        '[&_h1]:font-designer-24b [&_h1]:text-text-strong [&_h1]:mt-250 [&_h1]:mb-100',
-        '[&_h2]:font-designer-20b [&_h2]:text-text-strong [&_h2]:mt-250 [&_h2]:mb-125',
-        '[&_h3]:font-designer-18b [&_h3]:text-text-default [&_h3]:mt-200 [&_h3]:mb-100',
-        '[&_ul]:mb-100 [&_ul]:list-disc [&_ul]:space-y-50 [&_ul]:pl-250',
-        '[&_ol]:mb-100 [&_ol]:list-decimal [&_ol]:space-y-50 [&_ol]:pl-250',
-        '[&_li]:font-designer-14r [&_li]:text-text-default',
-        '[&_blockquote]:rounded-100 [&_blockquote]:bg-background-alternative [&_blockquote]:border-border-subtle [&_blockquote]:mb-100 [&_blockquote]:border-l-4 [&_blockquote]:px-150 [&_blockquote]:py-125',
-        '[&_blockquote_p]:font-designer-14r [&_blockquote_p]:text-text-subtle',
-        '[&_a]:text-text-brand [&_a]:underline',
-        '[&_s]:line-through [&_del]:line-through',
-        '[&_iframe.youtube-embed]:mb-100 [&_iframe.youtube-embed]:block [&_iframe.youtube-embed]:aspect-video [&_iframe.youtube-embed]:w-full [&_iframe.youtube-embed]:max-w-full [&_iframe.youtube-embed]:rounded-100 [&_iframe.youtube-embed]:border [&_iframe.youtube-embed]:border-border-subtle',
-        '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-100 [&_img]:block [&_img]:h-auto [&_img]:max-h-markdown-img [&_img]:max-w-markdown-img [&_img]:border [&_img]:object-contain',
-        '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-25',
-        '[&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-100 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100',
-        '[&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_pre_code]:py-0',
-        '[&_hr]:border-border-subtle [&_hr]:my-200',
-        className,
-      )}
+      className={cn(...MARKDOWN_CONTENT_BASE_STYLES, className)}
     />
   );
 }

@@ -20,7 +20,7 @@ import { common, createLowlight } from 'lowlight';
 import { parseImageWidth, MARKDOWN_IMAGE_DEFAULT_WIDTH } from './image-utils';
 import {
   buildYouTubeEmbedAttrs,
-  normalizeYouTubeEmbedSource,
+  extractYouTubeEmbedInfo,
   YOUTUBE_IFRAME_TITLE,
 } from './youtube-utils';
 
@@ -109,7 +109,8 @@ export const YouTubeEmbedExtension = Node.create({
       src: {
         default: null,
         parseHTML: (element: HTMLElement) => {
-          return normalizeYouTubeEmbedSource(element.getAttribute('src') ?? '');
+          return extractYouTubeEmbedInfo(element.getAttribute('src') ?? '')
+            ?.embedUrl;
         },
       },
       title: {
@@ -124,9 +125,9 @@ export const YouTubeEmbedExtension = Node.create({
         tag: 'iframe[src]',
         getAttrs: (node) => {
           const element = node instanceof HTMLElement ? node : null;
-          const src = normalizeYouTubeEmbedSource(
+          const src = extractYouTubeEmbedInfo(
             element?.getAttribute('src') ?? '',
-          );
+          )?.embedUrl;
 
           if (!src) {
             return false;
@@ -143,7 +144,7 @@ export const YouTubeEmbedExtension = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const attrs = buildYouTubeEmbedAttrs(HTMLAttributes.src as string);
+    const attrs = buildYouTubeEmbedAttrs(HTMLAttributes.src ?? '');
 
     if (!attrs) {
       return ['p', 0];
