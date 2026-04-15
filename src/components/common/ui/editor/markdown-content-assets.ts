@@ -54,6 +54,16 @@ const unwrapMarkdownAssetMacro = (value: string) => {
  * resolveMarkdownAssetUrl('blob:http://localhost/12345')
  * // 'blob:http://localhost/12345' (blob URL 그대로 반환)
  */
+const PASS_THROUGH_PREFIXES = [
+  'http://',
+  'https://',
+  'blob:',
+  'data:',
+  'mailto:',
+  'tel:',
+  '#',
+] as const;
+
 export const resolveMarkdownAssetUrl = (
   value: string,
   assetBaseUrl = getRawMarkdownAssetBaseUrl().replace(/\/api\/v1\/?$/, ''),
@@ -64,24 +74,12 @@ export const resolveMarkdownAssetUrl = (
     return undefined;
   }
 
-  if (
-    assetUrl.startsWith('http://') ||
-    assetUrl.startsWith('https://') ||
-    assetUrl.startsWith('blob:') ||
-    assetUrl.startsWith('data:') ||
-    assetUrl.startsWith('mailto:') ||
-    assetUrl.startsWith('tel:') ||
-    assetUrl.startsWith('#')
-  ) {
+  if (PASS_THROUGH_PREFIXES.some((prefix) => assetUrl.startsWith(prefix))) {
     return assetUrl;
   }
 
-  if (assetUrl.startsWith('/images/') && assetBaseUrl) {
-    return `${assetBaseUrl}${assetUrl}`;
-  }
-
-  if (assetUrl.startsWith('images/') && assetBaseUrl) {
-    return `${assetBaseUrl}/${assetUrl}`;
+  if (assetUrl.match(/^\/?images\//) && assetBaseUrl) {
+    return `${assetBaseUrl}/${assetUrl.replace(/^\//, '')}`;
   }
 
   if (assetUrl.startsWith('/')) {

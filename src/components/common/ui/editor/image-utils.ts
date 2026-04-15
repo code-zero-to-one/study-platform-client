@@ -37,7 +37,7 @@ export const MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS = [
   'heif',
 ] as const;
 
-const IMAGE_EXTENSION_BY_MIME = {
+const IMAGE_MIME_TO_EXT = {
   'image/gif': 'gif',
   'image/heic': 'heic',
   'image/heif': 'heif',
@@ -46,7 +46,7 @@ const IMAGE_EXTENSION_BY_MIME = {
   'image/webp': 'webp',
 } as const;
 
-const IMAGE_EXTENSIONS_BY_MIME = {
+const IMAGE_MIME_TO_EXTS = {
   'image/gif': ['gif'],
   'image/heic': ['heic'],
   'image/heif': ['heif'],
@@ -55,7 +55,7 @@ const IMAGE_EXTENSIONS_BY_MIME = {
   'image/webp': ['webp'],
 } as const;
 
-type SupportedImageMimeType = keyof typeof IMAGE_EXTENSIONS_BY_MIME;
+type SupportedImageMimeType = keyof typeof IMAGE_MIME_TO_EXTS;
 
 /**
  * 이미지 너비를 80~400px 범위로 제한합니다.
@@ -99,6 +99,18 @@ export const toFileFromBlob = (blob: Blob, fileName: string): File => {
   return new File([blob], fileName, { type: blob.type });
 };
 
+const normalizeImageMimeType = (
+  mimeType: string | undefined,
+): SupportedImageMimeType | undefined => {
+  const normalizedMimeType = mimeType?.trim().toLowerCase();
+
+  if (normalizedMimeType && normalizedMimeType in IMAGE_MIME_TO_EXTS) {
+    return normalizedMimeType as SupportedImageMimeType;
+  }
+
+  return undefined;
+};
+
 /**
  * MIME 타입에서 파일 확장자를 추출합니다.
  * @example
@@ -109,23 +121,12 @@ export const toFileFromBlob = (blob: Blob, fileName: string): File => {
  * getExtensionFromMime('unknown/type') // 'type'
  */
 export const getExtensionFromMime = (mimeType: string): string => {
+  const normalizedMimeType = normalizeImageMimeType(mimeType);
   return (
-    IMAGE_EXTENSION_BY_MIME[mimeType as SupportedImageMimeType] ??
+    (normalizedMimeType ? IMAGE_MIME_TO_EXT[normalizedMimeType] : undefined) ??
     mimeType.split('/')[1]?.toLowerCase() ??
     ''
   );
-};
-
-const normalizeImageMimeType = (
-  mimeType: string | undefined,
-): SupportedImageMimeType | undefined => {
-  const normalizedMimeType = mimeType?.trim().toLowerCase();
-
-  if (normalizedMimeType && normalizedMimeType in IMAGE_EXTENSIONS_BY_MIME) {
-    return normalizedMimeType as SupportedImageMimeType;
-  }
-
-  return undefined;
 };
 
 const hasPrefix = (bytes: Uint8Array, prefix: readonly number[]) => {
@@ -207,7 +208,7 @@ const hasMatchingImageExtension = (
 ) => {
   const extension = getFileExtension(fileName);
 
-  return (IMAGE_EXTENSIONS_BY_MIME[mimeType] as readonly string[]).includes(
+  return (IMAGE_MIME_TO_EXTS[mimeType] as readonly string[]).includes(
     extension,
   );
 };
@@ -297,7 +298,7 @@ export const getImageFileNormalizationErrorMessage = (
  * toImageInputAccept(['jpg', 'png', 'webp']) // '.jpg,.png,.webp'
  */
 export const toImageInputAccept = (extensions: readonly string[]) => {
-  const mimeTypes = Object.entries(IMAGE_EXTENSION_BY_MIME)
+  const mimeTypes = Object.entries(IMAGE_MIME_TO_EXT)
     .filter(([, ext]) => extensions.includes(ext))
     .map(([mime]) => mime);
 

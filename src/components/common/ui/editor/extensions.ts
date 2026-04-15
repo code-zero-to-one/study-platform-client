@@ -1,4 +1,9 @@
-import { Extension, textblockTypeInputRule } from '@tiptap/core';
+import {
+  Extension,
+  Node,
+  mergeAttributes,
+  textblockTypeInputRule,
+} from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import ImageExtension from '@tiptap/extension-image';
 import c from 'highlight.js/lib/languages/c';
@@ -13,6 +18,11 @@ import sql from 'highlight.js/lib/languages/sql';
 import swift from 'highlight.js/lib/languages/swift';
 import { common, createLowlight } from 'lowlight';
 import { parseImageWidth, MARKDOWN_IMAGE_DEFAULT_WIDTH } from './image-utils';
+import {
+  buildYouTubeEmbedAttrs,
+  extractYouTubeEmbedInfo,
+  YOUTUBE_IFRAME_TITLE,
+} from './youtube-utils';
 
 export const lowlight = createLowlight(common);
 const LOWLIGHT_LANGUAGES = [
@@ -81,5 +91,66 @@ export const MarkdownHistoryShortcutsExtension = Extension.create({
     return {
       'Mod-y': () => this.editor.commands.redo(),
     };
+  },
+});
+
+/**
+ * 유튜브 임베드 iframe을 안전한 블록 노드로 관리합니다.
+ */
+export const YouTubeEmbedExtension = Node.create({
+  name: 'youtubeEmbed',
+  group: 'block',
+  atom: true,
+  selectable: true,
+  draggable: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+        parseHTML: (element: HTMLElement) => {
+          return extractYouTubeEmbedInfo(element.getAttribute('src') ?? '')
+            ?.embedUrl;
+        },
+      },
+      title: {
+        default: YOUTUBE_IFRAME_TITLE,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'iframe[src]',
+        getAttrs: (node) => {
+          const element = node instanceof HTMLElement ? node : null;
+          const src = extractYouTubeEmbedInfo(
+            element?.getAttribute('src') ?? '',
+          )?.embedUrl;
+
+          if (!src) {
+            return false;
+          }
+
+          return {
+            src,
+            title:
+              element?.getAttribute('title')?.trim() || YOUTUBE_IFRAME_TITLE,
+          };
+        },
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    const attrs = buildYouTubeEmbedAttrs(HTMLAttributes.src ?? '');
+    // 에디터에서 노드가 생성됐지만 src가 비어있거나 손상된 경우
+    // 외부에서 복사된 HTML에 <iframe> 태그가 있지만 YouTube URL이 아닌 경우
+    if (!attrs) {
+      return ['p'];
+    }
+
+    return ['iframe', mergeAttributes(attrs)];
   },
 });

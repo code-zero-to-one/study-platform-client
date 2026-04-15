@@ -40,6 +40,7 @@ import {
   lowlight,
   MarkdownHistoryShortcutsExtension,
   ResizableImageExtension,
+  YouTubeEmbedExtension,
 } from './extensions';
 import {
   type MarkdownEditorImageConfig,
@@ -55,7 +56,9 @@ import {
   toImageInputAccept,
 } from './image-utils';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
+import { useActiveCodeBlockControl } from './use-active-code-block-control';
 import { useImageUpload } from './use-image-upload';
+import { isSingleYouTubeUrlText, YOUTUBE_IFRAME_TITLE } from './youtube-utils';
 
 export type { MarkdownEditorImageConfig } from './image-utils';
 
@@ -119,6 +122,28 @@ function MarkdownEditor({
     return editorRef.current;
   };
 
+  const insertYouTubeEmbed = (editorInstance: Editor, pastedText: string) => {
+    const youtubeEmbed = isSingleYouTubeUrlText(pastedText);
+    if (!youtubeEmbed || editorInstance.isActive('codeBlock')) {
+      return false;
+    }
+
+    return editorInstance
+      .chain()
+      .focus()
+      .insertContent([
+        {
+          type: 'youtubeEmbed',
+          attrs: {
+            src: youtubeEmbed.embedUrl,
+            title: YOUTUBE_IFRAME_TITLE,
+          },
+        },
+        { type: 'paragraph' },
+      ])
+      .run();
+  };
+
   const resolvedImageConfig = useMemo(() => {
     if (imageConfig) {
       return imageConfig;
@@ -156,6 +181,7 @@ function MarkdownEditor({
         defaultLanguage: 'plaintext',
       }),
       MarkdownHistoryShortcutsExtension,
+      YouTubeEmbedExtension,
       UnderlineExtension,
       LinkExtension.configure({
         openOnClick: false,
@@ -174,7 +200,7 @@ function MarkdownEditor({
       isInternalUpdate.current = true;
       onChange?.(normalizeContent(updatedEditor.getHTML()));
     },
-    onTransaction() {
+    onTransaction: () => {
       forceEditorRerender((prev) => prev + 1);
     },
     onSelectionUpdate: ({ editor: nextEditor }) => {
@@ -206,30 +232,30 @@ function MarkdownEditor({
         },
       },
       handlePaste: (_, event) => {
-        if (!resolvedImageConfig) {
-          return false;
-        }
-
         const clipboardData = event.clipboardData;
         if (!clipboardData) {
           return false;
         }
 
-        if (!hasClipboardImageHint(clipboardData)) {
+        const editorInstance = getValidEditorInstance();
+        if (!editorInstance) {
+          return false;
+        }
+
+        if (resolvedImageConfig && hasClipboardImageHint(clipboardData)) {
+          event.preventDefault();
+          handleClipboardPaste(editorInstance, clipboardData).catch(() => {
+            setImageInsertError('이미지 붙여넣기에 실패했습니다.');
+          });
+          return true;
+        }
+
+        const pastedText = clipboardData.getData('text/plain');
+        if (!insertYouTubeEmbed(editorInstance, pastedText)) {
           return false;
         }
 
         event.preventDefault();
-        const editorInstance = getValidEditorInstance();
-
-        if (!editorInstance) {
-          setImageInsertError('이미지 붙여넣기에 실패했습니다.');
-          return true;
-        }
-
-        handleClipboardPaste(editorInstance, clipboardData).catch(() => {
-          setImageInsertError('이미지 붙여넣기에 실패했습니다.');
-        });
         return true;
       },
       handleDrop: (_, event) => {
@@ -252,15 +278,15 @@ function MarkdownEditor({
 
         event.preventDefault();
         const editorInstance = getValidEditorInstance();
+        const onDropError = () =>
+          setImageInsertError('이미지 드롭에 실패했습니다.');
 
         if (!editorInstance) {
-          setImageInsertError('이미지 드롭에 실패했습니다.');
+          onDropError();
           return true;
         }
 
-        handleImageFiles(editorInstance, imageFiles).catch(() => {
-          setImageInsertError('이미지 드롭에 실패했습니다.');
-        });
+        handleImageFiles(editorInstance, imageFiles).catch(onDropError);
 
         return true;
       },
@@ -288,24 +314,6 @@ function MarkdownEditor({
     }
   }, [editor, normalizeContent, normalizedValue]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      forceEditorRerender((prev) => prev + 1);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  /**
-   * 마크다운 내용을 단순내 넣늤른 답베비는른 단진를 뎭니다.
-   * @param e - 목록 붔토 단진
-   * @example
-   * handleToggleLink()
-   */
   const handleToggleLink = () => {
     if (!editor) {
       return;
@@ -334,11 +342,6 @@ function MarkdownEditor({
     setLinkInputValue('');
   };
 
-  /**
-   * 링크 입력 쪼랜기를 취소합니다.
-   * @example
-   * handleLinkCancel()
-   */
   const handleLinkCancel = () => {
     setIsLinkInputOpen(false);
     setLinkInputValue('');
@@ -355,7 +358,7 @@ function MarkdownEditor({
 
     const { selection, doc } = editor.state;
     const { from, to, empty } = selection;
-    const isCodeBlockActive = editor?.isActive('codeBlock');
+    const isCodeBlockActive = editor.isActive('codeBlock');
 
     // 이미 코드블록이거나 선택이 없으면 간단히 토글
     if (isCodeBlockActive || empty) {
@@ -433,44 +436,10 @@ function MarkdownEditor({
       ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
       : MARKDOWN_IMAGE_DEFAULT_WIDTH;
 
-  const activeCodeBlockControl = useMemo(() => {
-    if (!editor?.isActive('codeBlock')) {
-      return null;
-    }
-
-    const editorContentWrapper = editorContentWrapperRef.current;
-    if (!editorContentWrapper) {
-      return null;
-    }
-
-    const { $from } = editor.state.selection;
-    const parentIsCodeBlock = $from.parent.type.name === 'codeBlock';
-    if (!parentIsCodeBlock) {
-      return null;
-    }
-
-    const codeBlockPos = $from.before();
-    const codeBlockElement = editor.view.nodeDOM(codeBlockPos);
-    const isValidCodeBlockElement = codeBlockElement instanceof HTMLElement;
-    if (!isValidCodeBlockElement) {
-      return null;
-    }
-
-    const wrapperRect = editorContentWrapper.getBoundingClientRect();
-    const codeBlockRect = codeBlockElement.getBoundingClientRect();
-    const relativeTop = codeBlockRect.top - wrapperRect.top + 6;
-    const relativeLeft = codeBlockRect.left - wrapperRect.left + 10;
-    const language =
-      (editor.getAttributes('codeBlock').language as string | undefined) ??
-      'plaintext';
-
-    return {
-      language,
-      top: Math.max(6, relativeTop),
-      left: Math.max(10, relativeLeft),
-    };
-    // editor.state는 매 트랜잭션마다 새 객체 — 선택·텍스트 변경 시 재계산
-  }, [editor]);
+  const activeCodeBlockControl = useActiveCodeBlockControl(
+    editor,
+    editorContentWrapperRef,
+  );
 
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">

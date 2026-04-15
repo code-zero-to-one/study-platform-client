@@ -73,8 +73,8 @@ const nextConfig: NextConfig = {
       `img-src 'self' data: blob: ${cspImgSrcHosts.join(' ')}`,
       // 운영에서 실제 호출되는 GA4, Ads, Clarity 수집 엔드포인트를 허용한다.
       `connect-src 'self' ${cspConnectSrcHosts.join(' ')}${isDev ? ' ws://localhost:*' : ''}`,
-      // 토스 결제창 iframe 허용
-      'frame-src https://pay.toss.im https://cert.tosspayments.com',
+      // 토스 결제창 iframe + 유튜브 nocookie embed iframe 허용
+      'frame-src https://pay.toss.im https://cert.tosspayments.com https://www.youtube-nocookie.com',
       "font-src 'self' data:",
       "worker-src 'self' blob:",
     ].join('; ');
