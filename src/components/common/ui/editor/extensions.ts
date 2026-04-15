@@ -145,6 +145,7 @@ export const YouTubeEmbedExtension = Node.create({
 
   renderHTML({ HTMLAttributes }) {
     const attrs = buildYouTubeEmbedAttrs(HTMLAttributes.src ?? '');
+
     // 에디터에서 노드가 생성됐지만 src가 비어있거나 손상된 경우
     // 외부에서 복사된 HTML에 <iframe> 태그가 있지만 YouTube URL이 아닌 경우
     if (!attrs) {

@@ -62,7 +62,7 @@ export default function MissionDetailContent({
         <p className="text-text-subtlest font-designer-14r">
           제출 기간 : {mission.missionStartDate} - {mission.missionEndDate}
         </p>
-        <div className="bg-background-alternative rounded-100 mt-100 p-300">
+        <div className="bg-background-alternative rounded-100 mt-100 p-300 flex justify-center">
           <MarkdownContent content={mission.missionGuide} emptyMessage="" />
         </div>
       </div>
