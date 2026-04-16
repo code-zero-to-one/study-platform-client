@@ -126,6 +126,10 @@ export default function GroupStudyForm({
         return typeof value !== 'string' || value.trim() === '';
       }
       if (field === 'thumbnailExtension') {
+        if (mode === 'edit') {
+          const existingUrl = methods.getValues('thumbnailUrl');
+          return (!value || value === 'DEFAULT') && !existingUrl;
+        }
         return !value || value === 'DEFAULT';
       }
       if (field === 'interviewPost') {
@@ -139,7 +143,14 @@ export default function GroupStudyForm({
 
       return false;
     });
-  }, [currentStepFields, currentStepValues, formState.errors, classification]);
+  }, [
+    currentStepFields,
+    currentStepValues,
+    formState.errors,
+    classification,
+    methods,
+    mode,
+  ]);
 
   return (
     <ModeContext.Provider value={mode}>
