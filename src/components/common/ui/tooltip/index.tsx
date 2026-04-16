@@ -14,6 +14,7 @@ interface TooltipProps {
   onOpenChange?: (open: boolean) => void;
   contentClassName?: string;
   arrowClassName?: string;
+  avoidCollisions?: boolean;
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
@@ -28,6 +29,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   onOpenChange,
   contentClassName = 'font-designer-16m rounded-100',
   arrowClassName,
+  avoidCollisions = true,
 }) => {
   return (
     <RadixTooltip.Provider delayDuration={delayDuration}>
@@ -43,6 +45,7 @@ const Tooltip: React.FC<TooltipProps> = ({
             side={side}
             align={align}
             sideOffset={sideOffset}
+            avoidCollisions={avoidCollisions}
             className={cn(
               'text-text-inverse bg-background-neutral-strong data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade px-150 py-100 leading-none select-none',
               contentClassName,

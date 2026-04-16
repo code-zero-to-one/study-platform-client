@@ -2,8 +2,9 @@
 
 import { Crown, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import UserAvatar from '@/components/common/ui/avatar';
+import Tooltip from '@/components/common/ui/tooltip';
 import { cn } from './(shadcn)/lib/utils';
 
 const UserProfileModal = dynamic(
@@ -30,12 +31,6 @@ export default function AvatarStack({
   guideText = '프로필을 클릭하여 스터디원들의 정보를 확인해보세요.',
 }: AvatarStackProps) {
   const [showOverflow, setShowOverflow] = useState(false);
-
-  const popoverRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) {
-      node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, []);
 
   // 리더를 맨 앞으로, 나머지는 가입순(원본 순서) 유지
   const sorted = [...members].sort((a, b) => {
@@ -70,10 +65,7 @@ export default function AvatarStack({
             </button>
 
             {showOverflow && (
-              <div
-                ref={popoverRef}
-                className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-100 border border-border-subtle p-200 shadow-2"
-              >
+              <div className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-100 border border-border-subtle p-200 shadow-2">
                 <div className="mb-100 flex items-center justify-between">
                   <span className="font-designer-14b text-text-default">
                     참가자 목록
@@ -130,8 +122,6 @@ function AvatarItem({
   member: AvatarStackMember;
   index: number;
 }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <UserProfileModal
       memberId={member.memberId}
@@ -139,8 +129,6 @@ function AvatarItem({
         <div
           className="relative cursor-pointer"
           style={{ marginLeft: index === 0 ? 0 : -12, zIndex: 10 - index }}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
         >
           {/* 왕관 아이콘 (리더) */}
           {member.isLeader && (
@@ -152,25 +140,24 @@ function AvatarItem({
             </span>
           )}
 
-          <div
-            className={cn(
-              'flex h-600 w-600 items-center rounded-full border-2 transition-colors',
-              member.isLeader
-                ? 'border-pink-400'
-                : hovered
-                  ? 'border-pink-300'
-                  : 'border-white',
-            )}
-          >
-            <UserAvatar size={48} image={member.profileImageUrl} />
-          </div>
-
-          {/* 닉네임 툴팁 */}
-          {hovered && (
-            <div className="bg-text-inverse text-background-neutral-strong absolute top-full left-1/2 z-30 mt-50 -translate-x-1/2 rounded-md px-100 py-50 text-base whitespace-nowrap">
-              {member.nickname || '익명'}
-            </div>
-          )}
+          <Tooltip
+            trigger={
+              <div
+                className={cn(
+                  'flex h-600 w-600 items-center rounded-full border-2 transition-colors',
+                  member.isLeader
+                    ? 'border-pink-400'
+                    : 'border-white hover:border-pink-300',
+                )}
+              >
+                <UserAvatar size={48} image={member.profileImageUrl} />
+              </div>
+            }
+            value={member.nickname || '익명'}
+            side="bottom"
+            delayDuration={200}
+            avoidCollisions={false}
+          />
         </div>
       }
     />
