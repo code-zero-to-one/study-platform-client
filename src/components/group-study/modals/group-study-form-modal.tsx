@@ -95,9 +95,12 @@ function resolveStudyType(
 function resolveThumbnailExtension(
   imageUrl: string | undefined,
 ): GroupStudyFormValues['thumbnailExtension'] {
-  const ext = imageUrl?.split('.').pop()?.toUpperCase();
+  if (!imageUrl) return 'DEFAULT';
+  const cleanUrl = imageUrl.split('?')[0];
+  const ext = cleanUrl.split('.').pop()?.toUpperCase();
+  const isValid = ext && isOneOf(THUMBNAIL_EXTENSION, ext) && ext !== 'DEFAULT';
 
-  return ext && isOneOf(THUMBNAIL_EXTENSION, ext) ? ext : 'DEFAULT';
+  return isValid ? ext : 'JPG';
 }
 
 function prepareDescription(
@@ -159,6 +162,7 @@ export default function GroupStudyFormModal({
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const originalStartDateRef = useRef<string | undefined>(undefined);
+  const isFormInitializedRef = useRef(false);
 
   const createMethods = useForm<GroupStudyFormValues>({
     resolver: zodResolver(GroupStudyFormSchema),
@@ -224,27 +228,29 @@ export default function GroupStudyFormModal({
 
       return {
         classification: resolvedClassification,
-        type: resolveStudyType(value.basicInfo?.type, resolvedClassification),
+        type:
+          resolveStudyType(value.basicInfo?.type, resolvedClassification) ??
+          'PROJECT',
         thumbnailExtension: resolveThumbnailExtension(thumbnailUrl),
-        thumbnailUrl,
+        thumbnailUrl: thumbnailUrl ?? null,
         studyLeaderParticipation:
           value.basicInfo?.studyLeaderParticipation ?? false,
-        targetRoles: value.basicInfo?.targetRoles,
+        targetRoles: value.basicInfo?.targetRoles ?? [],
         maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
-        experienceLevels: value.basicInfo?.experienceLevels,
-        method: value.basicInfo?.method,
-        location: value.basicInfo?.location,
-        regularMeeting: value.basicInfo?.regularMeeting,
-        startDate: value.basicInfo?.startDate,
-        endDate: value.basicInfo?.endDate,
+        experienceLevels: value.basicInfo?.experienceLevels ?? [],
+        method: value.basicInfo?.method ?? 'ONLINE',
+        location: value.basicInfo?.location ?? '',
+        regularMeeting: value.basicInfo?.regularMeeting ?? 'NONE',
+        startDate: value.basicInfo?.startDate ?? '',
+        endDate: value.basicInfo?.endDate ?? '',
         price: value.basicInfo?.price?.toString() ?? '',
-        title: value.detailInfo?.title,
-        description: value.detailInfo?.description,
-        summary: value.detailInfo?.summary,
+        title: value.detailInfo?.title ?? '',
+        description: value.detailInfo?.description ?? '',
+        summary: value.detailInfo?.summary ?? '',
         descriptionPendingImages: [],
         interviewPost: value.interviewPost?.interviewPost
           ?.map((q) => q.question)
-          .filter((q): q is string => Boolean(q)),
+          .filter((q): q is string => Boolean(q)) ?? [''],
       } satisfies GroupStudyFormValues;
     },
     [classification],
@@ -413,9 +419,14 @@ export default function GroupStudyFormModal({
   }, [open, mode]);
 
   useEffect(() => {
-    if (mode === 'edit' && controlledOpen && groupStudyInfo) {
+    if (!controlledOpen) {
+      isFormInitializedRef.current = false;
+      return;
+    }
+    if (mode === 'edit' && groupStudyInfo && !isFormInitializedRef.current) {
       originalStartDateRef.current = groupStudyInfo.basicInfo?.startDate;
       editMethods.reset(refineStudyDetail(groupStudyInfo));
+      isFormInitializedRef.current = true;
     }
   }, [controlledOpen, groupStudyInfo, editMethods, mode, refineStudyDetail]);
 
