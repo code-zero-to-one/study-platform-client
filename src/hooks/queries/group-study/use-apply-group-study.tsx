@@ -12,7 +12,7 @@ export const useApplyGroupStudyMutation = (
     mutationFn: applyGroupStudy,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['groupStudyMyStatus', groupStudyId],
+        queryKey: ['groupStudyMemberStatus', groupStudyId],
       });
     },
   });

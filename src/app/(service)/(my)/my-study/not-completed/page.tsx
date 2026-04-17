@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import Button from '@/components/common/ui/button';
+import { Skeleton } from '@/components/common/ui/loading-skeleton';
 import Pagination from '@/components/common/ui/pagination';
 import NotCompletedGroupStudyList from '@/components/home/lists/not-completed-group-study-list';
 import { useAuthReady } from '@/features/auth/model/use-auth';
@@ -36,7 +37,27 @@ export default function NotCompletedPage() {
   ) as MemberGroupStudyList[];
 
   if (isLoading) {
-    return null;
+    return (
+      <div className="flex flex-col gap-300">
+        <div className="flex flex-row items-center justify-between">
+          <Skeleton className="h-300 w-[120px]" />
+          <Skeleton className="h-300 w-[130px]" />
+        </div>
+        <div>
+          <Skeleton className="mb-200 h-200 w-[120px]" />
+          <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <li key={i} className="flex flex-col gap-100">
+                <Skeleton className="h-study-card rounded-100" />
+                <Skeleton className="h-150 w-[60px]" />
+                <Skeleton className="h-150 w-full" />
+                <Skeleton className="h-100 w-4/5" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
   }
 
   return (
