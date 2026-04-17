@@ -381,7 +381,7 @@ export default function StudyDetailPage({
       />
       <div
         className={cn(
-          'transition-opacity duration-150',
+          'w-full transition-opacity duration-150',
           isPending && 'opacity-60',
         )}
       >
