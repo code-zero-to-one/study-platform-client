@@ -40,7 +40,7 @@ export function CalendarDay({
         <div className="absolute inset-0 flex items-center justify-center">
           <div
             className={cn(
-              'flex size-[32px] items-center justify-center rounded-full',
+              'flex size-400 items-center justify-center rounded-full',
               customClass,
             )}
           >

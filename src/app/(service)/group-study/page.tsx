@@ -11,7 +11,7 @@ export default function GroupStudyPage() {
 
 function GroupStudyListPageSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-400 py-600">
+    <div className="mx-auto w-full max-w-7xl px-400 py-600">
       <div className="mb-600">
         <div className="bg-background-alternative animate-pulse rounded-200 h-[240px]" />
       </div>
