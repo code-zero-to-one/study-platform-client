@@ -7,7 +7,30 @@ import { useStudyDashboardQuery } from '@/hooks/queries/use-update-user-profile-
 export default function MyActivity() {
   const { data: dashboard, isLoading, isError } = useStudyDashboardQuery();
 
-  if (isLoading) return <div>로딩 중...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-400">
+        {[3, 2].map((count, section) => (
+          <div key={section} className="flex flex-col gap-200">
+            <Skeleton className="h-300 w-[160px]" />
+            <div className="flex gap-200">
+              {Array.from({ length: count }).map((_, i) => (
+                <Skeleton key={i} className="h-[90px] flex-1 rounded-150" />
+              ))}
+            </div>
+          </div>
+        ))}
+        <div className="flex flex-col gap-200">
+          <Skeleton className="h-300 w-[160px]" />
+          <div className="flex gap-200">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-[90px] flex-1 rounded-150" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (isError || !dashboard) return <div>에러가 발생했습니다.</div>;
 
   return (

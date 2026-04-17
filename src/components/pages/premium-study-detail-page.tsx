@@ -3,8 +3,10 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
+import { Skeleton } from '@/components/common/ui/loading-skeleton';
 import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
@@ -89,6 +91,7 @@ export default function PremiumStudyDetailPage({
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
   const showToast = useToastStore((state) => state.showToast);
+  const [isPending, startTransition] = useTransition();
   const tabParam = searchParams.get('tab') ?? undefined;
   const requestedTab = isStudyTabValue(tabParam) ? tabParam : 'intro';
 
@@ -289,7 +292,15 @@ export default function PremiumStudyDetailPage({
   ]);
 
   if (isLoading || !studyDetail) {
-    return <div>로딩중...</div>;
+    return (
+      <div className="flex w-full flex-col items-center">
+        <div className="mt-500 w-full max-w-study-content px-400">
+          <Skeleton className="mb-300 h-600 rounded-150" />
+          <Skeleton className="mb-150 h-300 w-3/4" />
+          <Skeleton className="h-200 w-1/2" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -385,50 +396,59 @@ export default function PremiumStudyDetailPage({
         tabs={availableTabs}
         activeTab={activeTab}
         onChange={(value: StudyTabValue) => {
-          const params = new URLSearchParams(searchParams.toString());
-          params.set('tab', value);
-          router.push(`${pathname}?${params.toString()}`, { scroll: false });
-          sendGTMEvent({
-            event: 'premium_study_tab_change',
-            group_study_id: String(groupStudyId),
-            tab: value,
+          startTransition(() => {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('tab', value);
+            router.push(`${pathname}?${params.toString()}`, { scroll: false });
+            sendGTMEvent({
+              event: 'premium_study_tab_change',
+              group_study_id: String(groupStudyId),
+              tab: value,
+            });
           });
         }}
       />
-      {activeTab === 'intro' && (
-        <PremiumStudyInfoSection
-          study={studyDetail as GroupStudyFullResponse}
-        />
-      )}
-      {activeTab === 'members' && (
-        <GroupStudyMemberList
-          groupStudyId={groupStudyId}
-          leaderId={studyDetail.basicInfo.leader.memberId}
-          myApplicationStatus={myApplicationStatus}
-        />
-      )}
-      {activeTab === 'mission' && (
-        <MissionSection
-          groupStudyId={groupStudyId}
-          isMember={isMember}
-          isLeader={isLeader}
-        />
-      )}
-      {activeTab === 'lounge' && (
-        <ChannelSection
-          groupStudyId={groupStudyId}
-          memberId={memberId}
-          myApplicationStatus={myApplicationStatus}
-        />
-      )}
-      {activeTab === 'inquiry' && (
-        <InquirySection
-          groupStudyId={groupStudyId}
-          isPremium
-          isLeader={isLeader}
-          isAdmin={isAdmin}
-        />
-      )}
+      <div
+        className={cn(
+          'transition-opacity duration-150',
+          isPending && 'opacity-60',
+        )}
+      >
+        {activeTab === 'intro' && (
+          <PremiumStudyInfoSection
+            study={studyDetail as GroupStudyFullResponse}
+          />
+        )}
+        {activeTab === 'members' && (
+          <GroupStudyMemberList
+            groupStudyId={groupStudyId}
+            leaderId={studyDetail.basicInfo.leader.memberId}
+            myApplicationStatus={myApplicationStatus}
+          />
+        )}
+        {activeTab === 'mission' && (
+          <MissionSection
+            groupStudyId={groupStudyId}
+            isMember={isMember}
+            isLeader={isLeader}
+          />
+        )}
+        {activeTab === 'lounge' && (
+          <ChannelSection
+            groupStudyId={groupStudyId}
+            memberId={memberId}
+            myApplicationStatus={myApplicationStatus}
+          />
+        )}
+        {activeTab === 'inquiry' && (
+          <InquirySection
+            groupStudyId={groupStudyId}
+            isPremium
+            isLeader={isLeader}
+            isAdmin={isAdmin}
+          />
+        )}
+      </div>
     </div>
   );
 }

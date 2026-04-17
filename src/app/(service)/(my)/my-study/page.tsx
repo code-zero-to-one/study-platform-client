@@ -5,8 +5,9 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import Button from '@/components/common/ui/button';
-import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
-import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
+import { Skeleton } from '@/components/common/ui/loading-skeleton';
+import CompletedGroupStudyList from '@/components/home/lists/completed-group-study-list';
+import NotCompletedGroupStudyList from '@/components/home/lists/not-completed-group-study-list';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useMemberStudyListV2Query } from '@/hooks/queries/use-member-study-list-query';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
@@ -70,7 +71,31 @@ export default function MyStudy() {
   }, [notCompletedData, completedData]);
 
   if (isLoading) {
-    return null;
+    return (
+      <div className="flex flex-col gap-300">
+        <div className="flex flex-row items-center justify-between">
+          <Skeleton className="h-300 w-[120px]" />
+          <Skeleton className="h-300 w-[130px]" />
+        </div>
+        <div className="flex flex-col gap-600">
+          {[0, 1].map((section) => (
+            <div key={section}>
+              <Skeleton className="mb-200 h-200 w-[100px]" />
+              <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <li key={i} className="flex flex-col gap-100">
+                    <Skeleton className="h-study-card rounded-100" />
+                    <Skeleton className="h-150 w-[60px]" />
+                    <Skeleton className="h-150 w-full" />
+                    <Skeleton className="h-100 w-4/5" />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
