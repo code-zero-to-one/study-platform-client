@@ -2,11 +2,8 @@
 
 import { ko } from 'date-fns/locale';
 import React, { useState } from 'react';
-import { HTMLAttributes } from 'react';
-import {
-  type CalendarDay as DayPickerDay,
-  type Modifiers,
-} from 'react-day-picker';
+import type { HTMLAttributes } from 'react';
+import type { CalendarDay as DayPickerDay, Modifiers } from 'react-day-picker';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { Calendar as ShadcnCalendar } from '@/components/common/ui/(shadcn)/ui/calendar';
 import { Skeleton } from '@/components/common/ui/loading-skeleton';
@@ -43,7 +40,7 @@ export function CalendarDay({
         <div className="absolute inset-0 flex items-center justify-center">
           <div
             className={cn(
-              'flex size-[32px] items-center justify-center rounded-full',
+              'flex size-400 items-center justify-center rounded-full',
               customClass,
             )}
           >
