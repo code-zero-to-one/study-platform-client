@@ -3,10 +3,8 @@
 import dynamic from 'next/dynamic';
 import PageContainer from '@/components/common/layout/page-container';
 import { Skeleton } from '@/components/common/ui/loading-skeleton';
-import StudyListToolbar from '@/components/group-study/pages/study-list-toolbar';
-import MyParticipatingStudiesSection from '@/components/group-study/section/my-participating-studies-section';
-import GroupStudyList from '@/components/home/lists/group-study-list';
-import GroupStudyPagination from '@/components/home/lists/group-study-pagination';
+import GroupStudyPagination from '@/components/lists/group-study-pagination';
+import StudyListToolbar from '@/components/pages/study-list-toolbar';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGroupStudyReviewReminder } from '@/hooks/common/use-group-study-review-reminder';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';

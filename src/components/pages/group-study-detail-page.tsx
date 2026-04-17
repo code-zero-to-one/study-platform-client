@@ -7,7 +7,6 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import { Skeleton } from '@/components/common/ui/loading-skeleton';
-import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
 import {

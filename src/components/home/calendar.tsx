@@ -2,15 +2,12 @@
 
 import { ko } from 'date-fns/locale';
 import React, { useState } from 'react';
-import { HTMLAttributes } from 'react';
-import {
-  type CalendarDay as DayPickerDay,
-  type Modifiers,
-} from 'react-day-picker';
+import type { HTMLAttributes } from 'react';
+import type { CalendarDay as DayPickerDay, Modifiers } from 'react-day-picker';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { Calendar as ShadcnCalendar } from '@/components/common/ui/(shadcn)/ui/calendar';
 import { Skeleton } from '@/components/common/ui/loading-skeleton';
-import { useMonthlyStudyCalendarQuery } from '@/hooks/queries/one-to-one/use-schedule-query';
+import { useMonthlyStudyCalendarQuery } from '@/hooks/queries/use-schedule-query';
 
 interface CalendarDayProps extends HTMLAttributes<HTMLTableCellElement> {
   day: DayPickerDay;
