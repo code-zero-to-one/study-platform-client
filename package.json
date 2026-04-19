@@ -26,7 +26,11 @@
     "api:off": "docker-compose -f ../study-platform-mvp/docker-compose.yml down",
     "generate:api": "node scripts/api-generator.mjs",
     "analyze": "ANALYZE=true next build",
-    "prepare": "husky"
+    "prepare": "husky",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:headed": "playwright test --headed",
+    "e2e:save-auth": "playwright codegen https://test.zeroone.it.kr --save-storage=e2e/fixtures/auth.json"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

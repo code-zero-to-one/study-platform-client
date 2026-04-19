@@ -55,3 +55,8 @@ package-lock.json
 
 # Claude Code 개인 설정
 CLAUDE.local.md
+
+# Playwright
+e2e/fixtures/auth.json
+playwright-report/
+test-results/

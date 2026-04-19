@@ -1,6 +1,6 @@
 # Project Index: study-platform-client (ZERO-ONE)
 
-Generated: 2026-04-07
+Generated: 2026-04-18
 
 ---
 
@@ -32,7 +32,10 @@ src/
 │   │   ├── mentoring/      # 1:1 Mentoring (separate domain)
 │   │   ├── payment/        # Payment flow
 │   │   ├── inquiry/        # Inquiry (Q&A) detail
+│   │   ├── community/      # Community feed + Q&A posts
 │   │   ├── insights/       # Blog/insights
+│   │   ├── developer-registration/ # Developer profile registration
+│   │   ├── one-on-one/     # 1:1 study session page
 │   │   └── home/           # Home dashboard
 │   ├── (admin)/            # Admin pages (ROLE_ADMIN JWT claim)
 │   │   └── admin/          # admin/detail, admin/matching, admin/mentoring, admin/sales-management
@@ -56,7 +59,11 @@ src/
 │   └── [domain]/           # Domain composites (admin, archive, balance-game, calendars, etc.)
 │
 ├── features/               # FSD-style feature modules (coexists with components/)
-│   ├── auth/               # OAuth redirect, client-auth-sync
+│   ├── auth/               # OAuth redirect, middleware route decisions, client-auth-sync
+│   │   ├── model/          # Auth session, cookie, hydration, route guards
+│   │   └── server/middleware/ # route-actions, route-decisions, route-handlers, route-session
+│   ├── community/          # Community feed + Q&A (model + ui + api types)
+│   ├── developer/          # Developer registration (api + model + ui)
 │   ├── home/               # Home page search params
 │   ├── mentoring/          # Mentor directory, registration, apply, note-consultation
 │   └── admin/
@@ -120,6 +127,12 @@ Organized by domain: `group-study/`, `auth/`, `archive/`, `balance-game/`, `chan
 | `bank-search-api.ts` | Bank search |
 | `archive-index.ts` | Archive queries |
 | `balance-game-index.ts` | Balance game |
+| `one-to-one/use-archive-query.ts` | 1:1 archive |
+| `one-to-one/use-balance-game-query.ts` | 1:1 balance game |
+| `one-to-one/use-study-query.ts` | 1:1 study session |
+| `one-to-one/use-interview-query.ts` | 1:1 interview |
+| `one-to-one/use-schedule-query.ts` | 1:1 schedule |
+| `one-to-one/use-hall-of-fame-query.ts` | Hall of fame |
 
 ---
 
@@ -216,22 +229,6 @@ yarn test:unit        # Vitest unit tests
 yarn lint:fix && yarn prettier:fix && yarn typecheck
 ```
 
----
-
-## Documentation
-
-| File | Topic |
-|------|-------|
-| `docs/REFACTORING_PLAN.md` | Refactoring roadmap |
-| `docs/SEO_GUIDE.md` | SEO implementation guide |
-| `docs/SENTRY_GUIDE.md` | Sentry integration guide |
-| `docs/openapi-usage.md` | OpenAPI codegen usage |
-| `docs/2026-03-15-login-fail-fix/` | Auth refactoring (OAuth, middleware) |
-| `docs/2026-03-26-markdown-editor/` | Common markdown editor |
-| `docs/2026-04-01-refactoring/` | Auth proposition audit series |
-| `docs/refactor-group-study-form-modal-srp.md` | SRP refactor plan |
-
----
 
 ## Environments
 
@@ -241,4 +238,3 @@ yarn lint:fix && yarn prettier:fix && yarn typecheck
 | Production | `https://www.zeroone.it.kr` |
 | Backend Swagger | `https://test-api.zeroone.it.kr/swagger-ui/index.html` |
 
-Current branch: `feat/delete-inquiry` | Main branch: `develop`
