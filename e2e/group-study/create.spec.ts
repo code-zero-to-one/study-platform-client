@@ -6,9 +6,25 @@ import {
   fillStep2,
   fillStep3,
   assertCreationSuccess,
+  API_BASE,
 } from '../support/study-helpers';
 
+// ── 그룹스터디 개설 ──────────────────────────────────────────────
 test.describe('그룹스터디 개설', () => {
+  let createdStudyId: number | null = null;
+
+  test.afterEach(async ({ request }) => {
+    const idToDelete = createdStudyId; // ① 로컬에 캡처
+    createdStudyId = null; // ② 동기적으로 즉시 초기화 (require-atomic-updates 해결)
+    if (idToDelete !== null) {
+      try {
+        await request.delete(`${API_BASE}/api/v1/group-studies/${idToDelete}`);
+      } catch {
+        // best-effort: 이미 삭제됐거나 권한 없는 경우 무시
+      }
+    }
+  });
+
   test('3단계 위저드 전체 플로우 — 제출 성공', async ({ page }) => {
     await openCreateModal(page);
     await fillStep1(page, 'PROJECT');
@@ -19,7 +35,24 @@ test.describe('그룹스터디 개설', () => {
     await page.getByRole('button', { name: '다음' }).click();
 
     await fillStep3(page);
-    await page.getByRole('button', { name: '제출' }).click();
+
+    // 제출 클릭과 동시에 생성 API 응답을 캡처해 groupStudyId 확보
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes('group-studies') &&
+          res.request().method() === 'POST',
+        { timeout: 15000 },
+      ),
+      page.getByRole('button', { name: '제출' }).click(),
+    ]);
+
+    try {
+      const body = await response.json();
+      createdStudyId = body?.content?.groupStudyId ?? body?.content?.id ?? null;
+    } catch {
+      throw new Error('Failed to parse JSON response');
+    }
 
     await assertCreationSuccess(
       page,
@@ -35,7 +68,20 @@ test.describe('그룹스터디 개설', () => {
   });
 });
 
+// ── 멘토스터디 개설 ──────────────────────────────────────────────
 test.describe('멘토스터디 개설', () => {
+  let createdStudyId: number | null = null;
+
+  test.afterEach(async ({ request }) => {
+    const idToDelete = createdStudyId;
+    createdStudyId = null;
+    try {
+      await request.delete(`${API_BASE}/api/v1/group-studies/${idToDelete}`);
+    } catch {
+      // best-effort: 이미 삭제됐거나 권한 없는 경우 무시
+    }
+  });
+
   test('PREMIUM_STUDY 가격 필드 포함 전체 제출', async ({ page }) => {
     await openPremiumStudyModal(page);
     await fillStep1(page);
@@ -54,7 +100,23 @@ test.describe('멘토스터디 개설', () => {
     await page.getByRole('button', { name: '다음' }).click();
 
     await fillStep3(page);
-    await page.getByRole('button', { name: '제출' }).click();
+
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes('group-studies') &&
+          res.request().method() === 'POST',
+        { timeout: 15000 },
+      ),
+      page.getByRole('button', { name: '제출' }).click(),
+    ]);
+
+    try {
+      const body = await response.json();
+      createdStudyId = body?.content?.groupStudyId ?? body?.content?.id ?? null;
+    } catch {
+      throw new Error('Failed to parse JSON response');
+    }
 
     await assertCreationSuccess(
       page,
@@ -64,6 +126,7 @@ test.describe('멘토스터디 개설', () => {
   });
 });
 
+// ── 비로그인 UI ────────────────────────────────────────────────
 test.describe('비로그인 UI', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -72,8 +135,9 @@ test.describe('비로그인 UI', () => {
     await page.waitForSelector('nav');
     await page.waitForTimeout(1500);
 
-    const btn = page.getByRole('button', { name: '스터디 개설하기' });
-    await expect(btn).toBeHidden({ timeout: 15000 });
+    await expect(
+      page.getByRole('button', { name: '스터디 개설하기' }),
+    ).toBeHidden({ timeout: 15000 });
 
     await expect(
       page.getByRole('button', { name: '로그인 / 회원가입' }).first(),

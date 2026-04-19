@@ -107,3 +107,7 @@ export async function assertCreationSuccess(
     page.getByRole('heading', { name: studyTitle, level: 3 }),
   ).toBeVisible({ timeout: 12000 });
 }
+
+// e2e/support/study-helpers.ts 상단에 추가
+export const API_BASE =
+  process.env.E2E_API_BASE_URL ?? 'https://test.zeroone.it.kr';
