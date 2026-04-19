@@ -82,7 +82,7 @@ export default function PremiumStudyInfoSection({
   }, [applicantsList]);
 
   return (
-    <div className="mt-500 flex w-full max-w-study-content flex-col gap-600 px-400 lg:flex-row">
+    <div className="m-auto mt-500 flex w-full max-w-study-content flex-col gap-600 px-400 lg:flex-row">
       <div className="flex flex-1 flex-col gap-500">
         <div className="relative h-[220px] w-full lg:h-[430px]">
           <Image
