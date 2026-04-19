@@ -75,10 +75,12 @@ test.describe('멘토스터디 개설', () => {
   test.afterEach(async ({ request }) => {
     const idToDelete = createdStudyId;
     createdStudyId = null;
-    try {
-      await request.delete(`${API_BASE}/api/v1/group-studies/${idToDelete}`);
-    } catch {
-      // best-effort: 이미 삭제됐거나 권한 없는 경우 무시
+    if (idToDelete !== null) {
+      try {
+        await request.delete(`${API_BASE}/api/v1/group-studies/${idToDelete}`);
+      } catch {
+        // best-effort: 이미 삭제됐거나 권한 없는 경우 무시
+      }
     }
   });
 
@@ -86,12 +88,8 @@ test.describe('멘토스터디 개설', () => {
     await openPremiumStudyModal(page);
     await fillStep1(page);
 
-    const priceInput = page.locator(
-      'input[name="price"], input[placeholder*="10,000"]',
-    );
-    if (await priceInput.isVisible().catch(() => false)) {
-      await priceInput.fill('50000');
-    }
+    const priceInput = page.getByLabel('참가비');
+    await priceInput.fill('50000');
 
     await page.getByRole('button', { name: '다음' }).click();
 
