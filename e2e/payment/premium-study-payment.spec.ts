@@ -30,13 +30,17 @@ test.describe('멘토스터디 신청 + 결제', () => {
     await mockTossPaymentAndConfirm(page, studyId);
 
     // 1. Navigate to premium study detail page
-    await page.goto(`/premium-study/${studyId}`, { waitUntil: 'load' });
-    await page.waitForResponse(
-      (res) =>
-        res.url().includes(`/group-studies/${studyId}/members/status`) &&
-        res.status() === 200,
-      { timeout: 10000 },
-    );
+    // waitForResponse must be registered before goto — the /members/status fetch
+    // fires during client-side hydration, which completes before waitUntil:'load'.
+    await Promise.all([
+      page.waitForResponse(
+        (res) =>
+          res.url().includes(`/group-studies/${studyId}/members/status`) &&
+          res.status() === 200,
+        { timeout: 10000 },
+      ),
+      page.goto(`/premium-study/${studyId}`, { waitUntil: 'load' }),
+    ]);
 
     // 2. Click the apply trigger button
     const applyTrigger = page.getByRole('button', { name: '신청하기' }).first();
