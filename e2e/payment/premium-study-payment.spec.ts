@@ -31,8 +31,12 @@ test.describe('멘토스터디 신청 + 결제', () => {
 
     // 1. Navigate to premium study detail page
     await page.goto(`/premium-study/${studyId}`, { waitUntil: 'load' });
-    await page.waitForSelector('nav', { timeout: 10000 });
-    await page.waitForTimeout(1500); // TanStack Query hydration
+    await page.waitForResponse(
+      (res) =>
+        res.url().includes(`/group-studies/${studyId}/members/status`) &&
+        res.status() === 200,
+      { timeout: 10000 },
+    );
 
     // 2. Click the apply trigger button
     const applyTrigger = page.getByRole('button', { name: '신청하기' }).first();
@@ -76,10 +80,9 @@ test.describe('멘토스터디 신청 + 결제', () => {
     // 9. Toss SDK v2 renders an in-page overlay widget (not a pay.toss.im redirect).
     //    Simulate Toss completion by navigating directly to the success URL with
     //    fake params — confirm API mock handles the server-side verification.
-    await page.evaluate(() => {
-      window.location.href =
-        '/payment/success?paymentId=1&paymentKey=tpaytest_e2e&orderId=order_e2e&amount=10000&method=CARD';
-    });
+    await page.evaluate((id) => {
+      window.location.href = `/payment/success?paymentId=1&paymentKey=tpaytest_e2e&orderId=order_e2e_${id}&amount=10000&method=CARD`;
+    }, studyId);
 
     // 10. Confirm API mocked → success page renders "결제가 완료되었습니다."
     await page.waitForURL(/\/payment\/success/, { timeout: 15000 });

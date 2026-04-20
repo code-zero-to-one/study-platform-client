@@ -6,13 +6,17 @@ import {
 } from '@playwright/test';
 import { addDays } from './study-helpers';
 
-// Frontend URL (baseURL) — no API proxy
-export const FRONTEND_BASE =
-  process.env.E2E_BASE_URL ?? 'https://test.zeroone.it.kr';
-
 // Backend API URL — direct REST calls bypass the frontend
 const API_BACKEND =
   process.env.E2E_API_BACKEND_URL ?? 'https://test-api.zeroone.it.kr';
+
+function mockJsonResponse(data: unknown, statusCode = 200) {
+  return {
+    status: statusCode,
+    contentType: 'application/json',
+    body: JSON.stringify(data),
+  };
+}
 
 // Refresh the access token using the .zeroone.it.kr refresh_token cookie.
 // auth.json has a wildcard .zeroone.it.kr cookie, so Playwright sends it to
@@ -104,7 +108,6 @@ export async function setupMocksForNonLeaderFlow(
 ): Promise<void> {
   let hasApplied = false;
 
-  // 1. Patch RSC HTML: leader.memberId 2 → 9999
   await page.route(
     new RegExp(`/premium-study/${studyId}([?#]|$)`),
     async (route: Route) => {
@@ -118,9 +121,18 @@ export async function setupMocksForNonLeaderFlow(
         /\\"leader\\":\{\\"memberId\\":2/g,
         '\\"leader\\":{\\"memberId\\":9999',
       );
+      if (patched === text) {
+        throw new Error(
+          'RSC leader patch did not match — check dehydrated payload encoding',
+        );
+      }
+      const headers = { ...response.headers() };
+      delete headers['content-encoding'];
+      delete headers['content-length'];
+      delete headers['transfer-encoding'];
       await route.fulfill({
         status: response.status(),
-        headers: response.headers(),
+        headers,
         body: patched,
       });
     },
@@ -130,13 +142,11 @@ export async function setupMocksForNonLeaderFlow(
   await page.route(
     `**/api/v1/group-studies/${studyId}/members/status`,
     async (route: Route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
+      await route.fulfill(
+        mockJsonResponse({
           content: { status: hasApplied ? 'PENDING' : 'NONE', reason: '' },
         }),
-      });
+      );
     },
   );
 
@@ -144,11 +154,7 @@ export async function setupMocksForNonLeaderFlow(
   await page.route(
     `**/api/v1/mypage/transactions/group-studies/${studyId}`,
     async (route: Route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ content: [] }),
-      });
+      await route.fulfill(mockJsonResponse({ content: [] }));
     },
   );
 
@@ -158,16 +164,14 @@ export async function setupMocksForNonLeaderFlow(
     async (route: Route) => {
       if (route.request().method() === 'POST') {
         hasApplied = true;
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
+        await route.fulfill(
+          mockJsonResponse({
             content: { applicationId: 1 },
             statusCode: 200,
             message: null,
             timestamp: new Date().toISOString(),
           }),
-        });
+        );
       } else {
         await route.continue();
       }
@@ -179,10 +183,8 @@ export async function setupMocksForNonLeaderFlow(
   await page.route(
     `**/api/v1/group-studies/${studyId}/payments/prepare`,
     async (route: Route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
+      await route.fulfill(
+        mockJsonResponse({
           content: {
             paymentId: 1,
             paymentCode: `pay_e2e_${studyId}`,
@@ -201,7 +203,7 @@ export async function setupMocksForNonLeaderFlow(
             tossOrderId: `order_e2e_${studyId}`,
           },
         }),
-      });
+      );
     },
   );
 }
@@ -222,18 +224,16 @@ export async function fillAndSubmitApplyModal(page: Page): Promise<void> {
   await page.locator('button[form="apply-group-study"]').click();
 }
 
-// Mock Toss payment flow end-to-end:
-// 1. Intercept navigation to pay.toss.im → extract successUrl → redirect with fake params
-// 2. Mock POST /api/v1/payments/toss/confirm → return stub success so page renders
+// Mock POST /api/v1/payments/toss/confirm so the success page renders.
+// Toss SDK v2 uses an in-page overlay (not pay.toss.im redirect), so the test
+// navigates directly to the success URL via page.evaluate() after clicking pay.
 export async function mockTossPaymentAndConfirm(
   page: Page,
   studyId: number,
 ): Promise<void> {
   await page.route('**/api/v1/payments/toss/confirm', async (route: Route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
+    await route.fulfill(
+      mockJsonResponse({
         content: {
           paymentId: 1,
           groupStudyId: studyId,
@@ -243,27 +243,6 @@ export async function mockTossPaymentAndConfirm(
           status: 'DONE',
         },
       }),
-    });
-  });
-
-  // Intercept navigation to pay.toss.im, inject fake paymentKey/orderId/amount,
-  // then meta-refresh to successUrl (more reliable than 302 for main-frame intercept)
-  await page.route('https://pay.toss.im/**', async (route: Route) => {
-    const url = new URL(route.request().url());
-    const successUrl = url.searchParams.get('successUrl');
-    const orderId =
-      url.searchParams.get('orderId') ?? `order_e2e_${Date.now()}`;
-    const amount = url.searchParams.get('amount') ?? '10000';
-
-    const targetUrl = new URL(successUrl ?? `${FRONTEND_BASE}/payment/success`);
-    targetUrl.searchParams.set('paymentKey', `tpaytest_${Date.now()}`);
-    targetUrl.searchParams.set('orderId', orderId);
-    targetUrl.searchParams.set('amount', amount);
-
-    await route.fulfill({
-      status: 200,
-      contentType: 'text/html',
-      body: `<html><head><meta http-equiv="refresh" content="0;url=${targetUrl}"></head></html>`,
-    });
+    );
   });
 }
