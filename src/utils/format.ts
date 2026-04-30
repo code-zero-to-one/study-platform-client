@@ -1,4 +1,20 @@
 /**
+ * 숫자를 천 단위 쉼표 형식으로 변환합니다.
+ * 예: 1000000 -> "1,000,000"
+ */
+export function formatNumber(value: number): string {
+  return value.toLocaleString('ko-KR');
+}
+
+/**
+ * 숫자를 원화 형식으로 변환합니다.
+ * 예: 1000000 -> "1,000,000원"
+ */
+export function formatKoreanWon(value: number): string {
+  return `${formatNumber(value)}원`;
+}
+
+/**
  * 전화번호 포맷팅 함수
  * 숫자만 있는 전화번호를 하이픈이 포함된 형식으로 변환합니다.
  * 예: "01012345678" -> "010-1234-5678"
