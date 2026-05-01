@@ -10,7 +10,7 @@ import {
 } from '../support/study-helpers';
 
 // ── 그룹스터디 개설 ──────────────────────────────────────────────
-test.describe('그룹스터디 개설', () => {
+test.describe('그룹스터디 개설 @auth', () => {
   let createdStudyId: number | null = null;
 
   test.afterEach(async ({ request }) => {
@@ -69,7 +69,7 @@ test.describe('그룹스터디 개설', () => {
 });
 
 // ── 멘토스터디 개설 ──────────────────────────────────────────────
-test.describe('멘토스터디 개설', () => {
+test.describe('멘토스터디 개설 @auth', () => {
   let createdStudyId: number | null = null;
 
   test.afterEach(async ({ request }) => {
