@@ -13,7 +13,6 @@ const config: StorybookConfig = {
     name: '@storybook/experimental-nextjs-vite',
     options: {},
   },
-  staticDirs: ['../public'],
   async viteFinal(config) {
     return mergeConfig(config, {
       resolve: {
