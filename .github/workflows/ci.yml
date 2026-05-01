@@ -108,7 +108,9 @@ jobs:
         run: yarn build-storybook
 
   # Playwright E2E: 스테이징 환경 대상 실행
-  # E2E_AUTH_JSON secret 설정 시 인증 필요 테스트도 실행
+  # E2E_AUTH_JSON secret 설정 시 @auth 태그 포함 전체 스위트 실행
+  # secret 누락/만료 시 비인증 테스트만 실행 (fallback)
+  # 갱신 절차: yarn e2e:save-auth → GitHub Secret E2E_AUTH_JSON 업데이트
   e2e:
     runs-on: ubuntu-latest
     env:
@@ -133,9 +135,37 @@ jobs:
         if: env.E2E_AUTH_JSON != ''
         run: |
           mkdir -p e2e/fixtures
-          echo "$E2E_AUTH_JSON" > e2e/fixtures/auth.json
+          printf '%s' "$E2E_AUTH_JSON" > e2e/fixtures/auth.json
+          node -e "JSON.parse(require('fs').readFileSync('e2e/fixtures/auth.json','utf8'))" \
+            || { echo "::error::E2E_AUTH_JSON is not valid JSON"; exit 1; }
 
-      - name: Run E2E tests
+      - name: Check auth session expiry
+        if: env.E2E_AUTH_JSON != ''
+        run: |
+          node -e "
+            const fs = require('fs');
+            const a = JSON.parse(fs.readFileSync('e2e/fixtures/auth.json','utf8'));
+            const cookies = (a.cookies || []).filter(c => c.expires && c.expires > 0);
+            if (cookies.length === 0) process.exit(0);
+            const minExp = Math.min(...cookies.map(c => c.expires));
+            const sevenDays = 7 * 86400 * 1000;
+            if (minExp * 1000 < Date.now() + sevenDays) {
+              console.log('::warning::auth.json cookies expire within 7 days. Re-run yarn e2e:save-auth and update E2E_AUTH_JSON secret.');
+            }
+          "
+
+      - name: Warn when auth secret missing
+        if: env.E2E_AUTH_JSON == ''
+        run: echo "::warning::E2E_AUTH_JSON not set — skipping @auth tests"
+
+      - name: Run E2E tests (full suite, with auth)
+        if: env.E2E_AUTH_JSON != ''
+        run: yarn e2e
+        env:
+          E2E_BASE_URL: https://test.zeroone.it.kr
+
+      - name: Run E2E tests (non-auth only)
+        if: env.E2E_AUTH_JSON == ''
         run: yarn e2e --grep-invert @auth
         env:
           E2E_BASE_URL: https://test.zeroone.it.kr
