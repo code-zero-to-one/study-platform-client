@@ -37,7 +37,7 @@ yarn typecheck      # No type errors
 
 ZERO-ONE Study Platform — A 1:1 morning study platform to start every day together. Built on Next.js 15 (App Router), React 19, TypeScript 5, Tailwind CSS 4. Package manager: **Yarn 1.22+**, Node.js >=20 required.
 
-## Commands
+## Commands # hook 으로 빼기 (토큰아끼기)
 
 ```bash
 yarn dev              # Run Turbopack dev server
@@ -88,15 +88,4 @@ yarn generate:api <swagger-api-title-name>
 # Creates src/hooks/queries/<name>.ts (with createApiInstance boilerplate)
 ```
 
-Use the generated API instance in the file to write TanStack Query hooks.
-
-#### TanStack Query Hook Patterns
-
-@.claude/rules/api-patterns.md
-@.claude/rules/backend-data-safety.md
-@.claude/rules/error-handling.md
-@.claude/rules/architecture.md
-@.claude/rules/styling.md
-@.claude/rules/documentation-rules.md
-@.claude/rules/commands.md
-@.claude/rules/schema-validation.md
+### Error handling
