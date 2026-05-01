@@ -107,6 +107,39 @@ jobs:
       - name: Build Storybook
         run: yarn build-storybook
 
+  # Playwright E2E: 스테이징 환경 대상 실행
+  # E2E_AUTH_JSON secret 설정 시 인증 필요 테스트도 실행
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Write auth session
+        if: ${{ env.E2E_AUTH_JSON != '' }}
+        env:
+          E2E_AUTH_JSON: ${{ secrets.E2E_AUTH_JSON }}
+        run: |
+          mkdir -p e2e/fixtures
+          echo "$E2E_AUTH_JSON" > e2e/fixtures/auth.json
+
+      - name: Run E2E tests
+        run: yarn e2e
+        env:
+          E2E_BASE_URL: https://test.zeroone.it.kr
+
   # 보안 감사: 고위험 이상의 취약점 리포트(현재는 비차단)
   # 실패로 처리하려면 '|| true'를 제거하세요.
   security:
