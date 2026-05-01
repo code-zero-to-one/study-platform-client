@@ -16,14 +16,12 @@ async function clickStudyCreateButton(page: Page) {
 export async function openCreateModal(page: Page) {
   await page.goto('/group-study', { waitUntil: 'load' });
   await page.waitForSelector('nav', { timeout: 10000 });
-  await page.waitForTimeout(1500);
   await clickStudyCreateButton(page);
 }
 
 export async function openPremiumStudyModal(page: Page) {
   await page.goto('/premium-study', { waitUntil: 'load' });
   await page.waitForSelector('nav', { timeout: 10000 });
-  await page.waitForTimeout(1500);
   await clickStudyCreateButton(page);
 }
 
