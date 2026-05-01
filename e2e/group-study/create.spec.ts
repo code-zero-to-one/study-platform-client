@@ -131,7 +131,6 @@ test.describe('비로그인 UI', () => {
   test('개설 버튼 미표시 확인', async ({ page }) => {
     await page.goto('/group-study', { waitUntil: 'load' });
     await page.waitForSelector('nav');
-    await page.waitForTimeout(1500);
 
     await expect(
       page.getByRole('button', { name: '스터디 개설하기' }),
