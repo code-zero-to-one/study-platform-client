@@ -18,10 +18,7 @@ const LoginModal = dynamic(
 );
 
 const NAV_ITEMS = [
-  { href: '/home', label: '1:1 스터디' },
-  { href: '/mentoring', label: '1:1 멘토링' },
-  { href: '/group-study', label: '그룹스터디' },
-  { href: '/premium-study', label: '멘토스터디' },
+  { href: '/class', label: '클래스' },
   { href: '/community', label: '커뮤니티' },
   { href: '/insights', label: '인사이트' },
 ];

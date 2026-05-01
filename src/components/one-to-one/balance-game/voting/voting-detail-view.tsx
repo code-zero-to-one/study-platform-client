@@ -413,7 +413,7 @@ export default function VotingDetailView({
               onClick={handleShare}
               type="button"
               className="rounded-100 text-text-subtle hover:bg-fill-neutral-subtle-default active:bg-fill-neutral-subtle-hover focus-visible:ring-fill-brand-default-default focus-visible:ring-offset-background-default p-100 transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:scale-95"
-              aria-label="공유"
+              aria-label="공유하기"
             >
               <Share2 className="h-5 w-5" />
             </button>

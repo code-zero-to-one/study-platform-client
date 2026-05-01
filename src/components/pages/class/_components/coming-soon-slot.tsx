@@ -20,23 +20,7 @@ export function ComingSoonSlot({ course }: ComingSoonSlotProps) {
           'bg-background-default rounded-200 overflow-hidden border border-dashed border-border-default',
         )}
       >
-        <div
-          className={cn(
-            'bg-background-alternative relative flex h-200 items-center justify-center',
-            'border-b border-dashed border-border-default',
-          )}
-        >
-          <div
-            className={cn(
-              'flex items-center justify-center rounded-full',
-              'bg-background-default border border-dashed border-border-default text-icon-subtlest',
-            )}
-            style={{ width: 72, height: 72 }}
-          >
-            <MaterialIcon name={course.emoji} size={36} />
-          </div>
-        </div>
-        <div className="px-300 pt-250 pb-300">
+        <div className="px-300 pt-300 pb-300">
           <span
             className={cn(
               'font-designer-12b inline-flex items-center rounded-full px-150 py-25',

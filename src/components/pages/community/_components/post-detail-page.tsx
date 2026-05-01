@@ -1,42 +1,38 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { DUMMY_PROFILE_IMAGE_SRC } from '@/components/pages/community/_data/community-dummy-assets';
-import { useToastStore } from '@/stores/use-toast-store';
-import { MaterialIcon } from './material-icon';
-import { MiniThumb } from './mini-site-thumbs';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { GradeBadge } from '@/components/pages/class/_components/builder-detail-modal';
+import { MaterialIcon } from '@/components/pages/class/_components/material-icon';
 import {
-  type FeedItem,
   type FeedReply,
   type FeedThread,
   FEED_CURRENT_USER,
-  GRADE_BADGE_STYLES,
   type Grade,
-} from '../_data/feed-data';
+} from '@/components/pages/class/_data/feed-data';
+import { DUMMY_PROFILE_IMAGE_SRC } from '@/components/pages/community/_data/community-dummy-assets';
+import CommunityPostReportMenu from '@/features/community/ui/community-post-report-menu';
+import { useToastStore } from '@/stores/use-toast-store';
+import { type CommunityPost, type PostBoardKind } from '../_data/post-data';
 
-interface BuilderDetailModalProps {
-  item: FeedItem | undefined;
-  onClose: () => void;
-  liked: Record<number, boolean>;
-  onToggleLike: (id: number) => void;
-}
+type Reaction = 'like' | 'dislike' | undefined;
 
 const DEFAULT_THREADS: FeedThread[] = [
   {
     id: 1,
-    name: '운영자 호준',
-    grade: '운영자',
-    text: '진심이 담긴 결과물이에요. 다음 챕터에서 또 만나요!',
-    when: '2시간 전',
-    likes: 5,
+    name: '민서위크',
+    grade: '빌더',
+    text: '저도 같은 고민이었는데, 깔끔하게 정리해주셔서 도움 많이 됐어요!',
+    when: '1시간 전',
+    likes: 4,
     dislikes: 0,
     replies: [
       {
         id: 101,
-        name: '김지윤',
-        grade: '2학년',
-        text: '감사합니다! 다음 코스도 기대하고 있어요.',
-        when: '1시간 전',
+        name: '제로호준',
+        grade: '운영자',
+        text: '좋은 인사이트 공유 감사합니다 :)',
+        when: '40분 전',
         likes: 2,
         dislikes: 0,
       },
@@ -44,39 +40,34 @@ const DEFAULT_THREADS: FeedThread[] = [
   },
   {
     id: 2,
-    name: '손지영',
-    grade: '4학년',
-    text: '저도 이런 거 만들어보고 싶어요. 어떤 색 조합 쓰셨어요?',
-    when: '5시간 전',
-    likes: 3,
+    name: '수빈코덕',
+    grade: '2학년',
+    text: '관련해서 추천하는 도구나 자료 있으신가요?',
+    when: '3시간 전',
+    likes: 1,
     dislikes: 0,
     replies: [],
   },
 ];
 
-type Reaction = 'like' | 'dislike' | undefined;
+interface PostDetailPageProps {
+  post: CommunityPost | undefined;
+  board: PostBoardKind;
+  boardLabel: string;
+}
 
-export function BuilderDetailModal({
-  item,
-  onClose,
-  liked,
-  onToggleLike,
-}: BuilderDetailModalProps) {
-  useEffect(() => {
-    if (!item) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [item, onClose]);
+export function PostDetailPage({
+  post,
+  board,
+  boardLabel,
+}: PostDetailPageProps) {
+  const router = useRouter();
+  const showToast = useToastStore((s) => s.showToast);
+  const [current, setCurrent] = useState<CommunityPost | undefined>(post);
+  const [liked, setLiked] = useState(false);
+  const viewTracked = useRef(false);
 
-  const baseThreads = useMemo(
-    () => item?.threadsList ?? DEFAULT_THREADS,
-    [item],
-  );
-
-  const showToast = useToastStore((state) => state.showToast);
+  const baseThreads = useMemo(() => DEFAULT_THREADS, []);
   const [threads, setThreads] = useState<FeedThread[]>(baseThreads);
   const [threadInput, setThreadInput] = useState('');
   const [replyOpen, setReplyOpen] = useState<Record<number, boolean>>({});
@@ -89,17 +80,63 @@ export function BuilderDetailModal({
   >({});
 
   useEffect(() => {
-    if (!item) return;
-    setThreads(baseThreads);
-    setThreadInput('');
-    setReplyOpen({});
-    setReplyDrafts({});
-    setThreadReactions({});
-    setReplyReactions({});
-  }, [item, baseThreads]);
+    if (!viewTracked.current && current) {
+      setCurrent((prev) => (prev ? { ...prev, views: prev.views + 1 } : prev));
+      viewTracked.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  if (!item) return undefined;
-  const isLiked = !!liked[item.id];
+  if (!current) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 'calc(100vh - 128px)',
+          gap: 12,
+          color: '#A4A7AE',
+        }}
+      >
+        <MaterialIcon name="forum" size={40} style={{ color: '#D5D7DA' }} />
+        <p style={{ fontSize: 15, margin: 0 }}>존재하지 않는 글입니다.</p>
+        <button
+          type="button"
+          onClick={() => router.push(`/community/${board}`)}
+          style={{
+            marginTop: 8,
+            padding: '8px 18px',
+            background: '#181D27',
+            color: '#fff',
+            border: 0,
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          목록으로
+        </button>
+      </div>
+    );
+  }
+
+  const toggleLike = () => {
+    setLiked((prev) => !prev);
+    setCurrent((p) => (p ? { ...p, likes: p.likes + (liked ? -1 : 1) } : p));
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      showToast('링크가 복사되었어요', 'success');
+    } catch {
+      showToast('복사에 실패했어요', 'error');
+    }
+  };
 
   const totalComments = threads.reduce(
     (acc, t) => acc + 1 + (t.replies?.length ?? 0),
@@ -168,137 +205,88 @@ export function BuilderDetailModal({
 
   return (
     <div
-      onClick={onClose}
       style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 100,
-        background: 'rgba(10,13,18,0.55)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        animation: 'overlayIn 0.2s ease-out',
+        background: '#FAFAFA',
+        minHeight: 'calc(100vh - 64px)',
+        padding: '40px 24px 80px',
       }}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: '#fff',
-          borderRadius: 20,
-          width: 720,
-          maxWidth: '92vw',
-          maxHeight: '86vh',
-          overflow: 'auto',
-          boxShadow:
-            '0 20px 24px -4px rgba(16,24,40,0.08), 0 8px 8px -4px rgba(16,24,40,0.03)',
-          animation: 'modalIn 0.25s cubic-bezier(.2,.8,.3,1.1)',
-        }}
-      >
-        <div
+      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+        {/* 뒤로가기 */}
+        <button
+          type="button"
+          onClick={() => router.push(`/community/${board}`)}
           style={{
-            aspectRatio: '16/9',
-            background: 'linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%)',
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            padding: 32,
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            position: 'relative',
+            gap: 4,
+            marginBottom: 24,
+            padding: '6px 0',
+            background: 'transparent',
+            border: 0,
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#717680',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
           }}
         >
+          <MaterialIcon name="arrow_back" size={16} />
+          {boardLabel}
+        </button>
+
+        <article
+          style={{
+            background: '#fff',
+            border: '1px solid #E9EAEB',
+            borderRadius: 16,
+            padding: '32px 32px 24px',
+            marginBottom: 16,
+          }}
+        >
+          {/* 제목 */}
           <div
             style={{
-              width: '70%',
-              aspectRatio: '4/3',
-              borderRadius: 8,
-              overflow: 'hidden',
-              border: '1px solid #E9EAEB',
-              boxShadow:
-                '0 24px 48px -12px rgba(16,24,40,0.16), 0 8px 16px -8px rgba(16,24,40,0.08)',
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              gap: 12,
+              marginBottom: 14,
             }}
           >
-            <MiniThumb kind={item.thumbKind} />
+            <h1
+              style={{
+                flex: 1,
+                minWidth: 0,
+                fontSize: 24,
+                fontWeight: 800,
+                color: '#181D27',
+                letterSpacing: '-0.015em',
+                lineHeight: 1.4,
+                margin: 0,
+                wordBreak: 'break-word',
+              }}
+            >
+              {current.title}
+            </h1>
+            <CommunityPostReportMenu contentTitle={current.title} />
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="닫기"
-            style={{
-              position: 'absolute',
-              top: 14,
-              right: 14,
-              width: 38,
-              height: 38,
-              borderRadius: 999,
-              border: 0,
-              background: 'rgba(255,255,255,0.95)',
-              color: '#181D27',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 2,
-            }}
-          >
-            <MaterialIcon name="close" size={20} />
-          </button>
-        </div>
 
-        <div style={{ padding: '28px 32px 24px' }}>
+          {/* 작성자 + 메타 */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              marginBottom: 12,
-              flexWrap: 'wrap',
+              paddingBottom: 20,
+              borderBottom: '1px solid #F2F4F7',
+              marginBottom: 24,
             }}
           >
             <span
               style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: '#535862',
-                background: '#fff',
-                border: '1px solid #D5D7DA',
-                padding: '3px 8px',
-                borderRadius: 4,
-                letterSpacing: '0.04em',
-              }}
-            >
-              Lesson {item.day}
-            </span>
-            <span style={{ fontSize: 12, color: '#A4A7AE' }}>
-              {item.when || '2일 전'}
-            </span>
-          </div>
-          <h2
-            style={{
-              fontSize: 24,
-              fontWeight: 800,
-              color: '#181D27',
-              margin: '0 0 16px',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            {item.title}
-          </h2>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              marginBottom: 24,
-              paddingBottom: 20,
-              borderBottom: '1px solid #F5F5F5',
-            }}
-          >
-            <div
-              style={{
-                width: 36,
-                height: 36,
+                width: 32,
+                height: 32,
                 borderRadius: '50%',
                 overflow: 'hidden',
                 flexShrink: 0,
@@ -309,8 +297,8 @@ export function BuilderDetailModal({
               <img
                 src={DUMMY_PROFILE_IMAGE_SRC}
                 alt=""
-                width={36}
-                height={36}
+                width={32}
+                height={32}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -318,167 +306,131 @@ export function BuilderDetailModal({
                   display: 'block',
                 }}
               />
-            </div>
-            <div>
+            </span>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div
                 style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#181D27',
                   display: 'flex',
-                  gap: 6,
                   alignItems: 'center',
+                  gap: 6,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: '#252B37',
                 }}
               >
-                {item.name}
-                <GradeBadge grade={item.grade} />
+                {current.author}
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                    background: '#F5F5F5',
+                    color: '#535862',
+                  }}
+                >
+                  {current.grade}
+                </span>
               </div>
-              <div style={{ fontSize: 11, color: '#A4A7AE', marginTop: 2 }}>
-                {item.role}
-              </div>
+              <span style={{ fontSize: 11, color: '#A4A7AE', marginTop: 2 }}>
+                {current.when}
+              </span>
             </div>
+            <span style={{ flex: 1 }} />
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                fontSize: 12,
+                color: '#A4A7AE',
+              }}
+            >
+              <MaterialIcon
+                name="visibility"
+                size={14}
+                style={{ color: '#D5D7DA' }}
+              />
+              {current.views}
+            </span>
           </div>
 
-          <section style={{ marginBottom: 24 }}>
-            <h3
-              style={{
-                fontSize: 13,
-                fontWeight: 800,
-                color: '#717680',
-                letterSpacing: '0.06em',
-                margin: '0 0 8px',
-                textTransform: 'uppercase',
-              }}
-            >
-              왜 만들었나요?
-            </h3>
-            <p
-              style={{
-                fontSize: 14,
-                color: '#252B37',
-                lineHeight: 1.75,
-                margin: 0,
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {item.motiv}
-            </p>
-          </section>
+          {/* 본문 */}
+          <div
+            style={{
+              fontSize: 15,
+              color: '#374151',
+              lineHeight: 1.8,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              marginBottom: 28,
+            }}
+          >
+            {current.body}
+          </div>
 
-          <section>
-            <h3
-              style={{
-                fontSize: 13,
-                fontWeight: 800,
-                color: '#717680',
-                letterSpacing: '0.06em',
-                margin: '0 0 8px',
-                textTransform: 'uppercase',
-              }}
-            >
-              후기
-            </h3>
-            <p
-              style={{
-                fontSize: 14,
-                color: '#252B37',
-                lineHeight: 1.75,
-                margin: 0,
-                whiteSpace: 'pre-wrap',
-              }}
-            >
-              {item.review}
-            </p>
-          </section>
-
+          {/* 액션 버튼 */}
           <div
             style={{
               display: 'flex',
+              alignItems: 'center',
               gap: 8,
-              flexWrap: 'wrap',
-              marginTop: 28,
-              paddingTop: 20,
-              borderTop: '1px solid #F5F5F5',
+              padding: '12px 0 0',
+              borderTop: '1px solid #F2F4F7',
             }}
           >
             <button
               type="button"
-              onClick={() => onToggleLike(item.id)}
+              onClick={toggleLike}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '9px 16px',
-                background: isLiked ? '#FFE4E8' : '#fff',
-                color: isLiked ? '#E31B54' : '#535862',
-                border: `1px solid ${isLiked ? '#FEA3B4' : '#D5D7DA'}`,
+                padding: '8px 14px',
+                background: liked ? '#FFE4E8' : '#fff',
+                color: liked ? '#C01048' : '#535862',
+                border: `1px solid ${liked ? '#FEA3B4' : '#D5D7DA'}`,
                 borderRadius: 999,
                 fontSize: 13,
                 fontWeight: 700,
-                fontFamily: 'inherit',
                 cursor: 'pointer',
+                fontFamily: 'inherit',
               }}
             >
-              <MaterialIcon name="favorite" size={15} filled={isLiked} />
-              좋아요 {item.likes + (isLiked ? 1 : 0)}
+              <MaterialIcon name="thumb_up" size={14} filled={liked} />
+              추천 {current.likes}
             </button>
             <button
               type="button"
-              onClick={() =>
-                showToast('배포 URL은 코스 진행 후 안내됩니다.', 'success')
-              }
+              onClick={handleShare}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                padding: '9px 16px',
+                padding: '8px 14px',
                 background: '#fff',
                 color: '#535862',
                 border: '1px solid #D5D7DA',
                 borderRadius: 999,
                 fontSize: 13,
                 fontWeight: 700,
-                fontFamily: 'inherit',
                 cursor: 'pointer',
+                fontFamily: 'inherit',
               }}
             >
-              <MaterialIcon name="open_in_new" size={15} />
-              사이트 열기
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                navigator.clipboard
-                  .writeText(window.location.href)
-                  .then(() => showToast('링크가 복사되었어요!', 'success'))
-                  .catch(() => showToast('링크 복사에 실패했습니다.', 'error'));
-              }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '9px 16px',
-                background: '#fff',
-                color: '#535862',
-                border: '1px solid #D5D7DA',
-                borderRadius: 999,
-                fontSize: 13,
-                fontWeight: 700,
-                fontFamily: 'inherit',
-                cursor: 'pointer',
-              }}
-            >
-              <MaterialIcon name="ios_share" size={15} />
+              <MaterialIcon name="share" size={14} />
               공유하기
             </button>
           </div>
-        </div>
+        </article>
 
-        <div
+        {/* 댓글 섹션 (피드 댓글 스타일) */}
+        <section
           style={{
-            padding: '20px 32px 32px',
-            borderTop: '1px solid #E9EAEB',
-            background: '#FAFAFA',
+            background: '#fff',
+            border: '1px solid #E9EAEB',
+            borderRadius: 16,
+            padding: '24px 28px',
           }}
         >
           <div
@@ -540,7 +492,7 @@ export function BuilderDetailModal({
                         marginTop: 12,
                         marginLeft: 44,
                         paddingLeft: 14,
-                        borderLeft: '2px solid #E9EAEB',
+                        borderLeft: '2px solid #F5F5F5',
                       }}
                     >
                       {thread.replies.map((reply) => {
@@ -597,22 +549,15 @@ export function BuilderDetailModal({
               );
             })}
           </div>
-        </div>
+        </section>
       </div>
-      <style>{`
-        @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes modalIn {
-          from { opacity: 0; transform: translateY(12px) scale(.97); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-      `}</style>
     </div>
   );
 }
 
 interface CommentComposerProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (v: string) => void;
   onSubmit: () => void;
   placeholder: string;
   compact?: boolean;
@@ -633,7 +578,6 @@ function CommentComposer({
         borderRadius: 10,
         background: '#fff',
         padding: compact ? 10 : 12,
-        transition: 'border-color 150ms ease',
       }}
     >
       <textarea
@@ -654,11 +598,7 @@ function CommentComposer({
         }}
       />
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          marginTop: 6,
-        }}
+        style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}
       >
         <button
           type="button"
@@ -672,9 +612,8 @@ function CommentComposer({
             color: disabled ? '#A4A7AE' : '#fff',
             border: 0,
             borderRadius: 6,
-            cursor: disabled ? 'not-allowed' : 'pointer',
             fontFamily: 'inherit',
-            transition: 'background 150ms ease',
+            cursor: disabled ? 'not-allowed' : 'pointer',
           }}
         >
           등록
@@ -752,13 +691,7 @@ function CommentBody({
             flexWrap: 'wrap',
           }}
         >
-          <span
-            style={{
-              fontSize,
-              fontWeight: 700,
-              color: '#181D27',
-            }}
-          >
+          <span style={{ fontSize, fontWeight: 700, color: '#181D27' }}>
             {name}
           </span>
           <GradeBadge grade={grade} />
@@ -813,7 +746,6 @@ function CommentBody({
                 borderRadius: 6,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
-                transition: 'color 150ms ease',
               }}
             >
               <MaterialIcon name="reply" size={14} />
@@ -826,14 +758,17 @@ function CommentBody({
   );
 }
 
-interface ReactionButtonProps {
+function ReactionButton({
+  icon,
+  count,
+  active,
+  onClick,
+}: {
   icon: 'thumb_up' | 'thumb_down';
   count: number;
   active: boolean;
   onClick: () => void;
-}
-
-function ReactionButton({ icon, count, active, onClick }: ReactionButtonProps) {
+}) {
   return (
     <button
       type="button"
@@ -851,32 +786,10 @@ function ReactionButton({ icon, count, active, onClick }: ReactionButtonProps) {
         borderRadius: 6,
         cursor: 'pointer',
         fontFamily: 'inherit',
-        transition: 'color 150ms ease',
       }}
     >
       <MaterialIcon name={icon} size={14} filled={active} />
       {count}
     </button>
-  );
-}
-
-export function GradeBadge({ grade }: { grade: Grade }) {
-  const { bg, color } = GRADE_BADGE_STYLES[grade];
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        fontSize: 11,
-        fontWeight: 700,
-        padding: '2px 8px',
-        borderRadius: 4,
-        background: bg,
-        color,
-      }}
-    >
-      {grade}
-    </span>
   );
 }

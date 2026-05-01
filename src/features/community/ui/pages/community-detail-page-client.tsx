@@ -19,6 +19,7 @@ import {
   CommunityMemberRoleBadge,
 } from '../community-meta-badge';
 import CommunityPostOwnerActions from '../community-post-owner-actions';
+import CommunityPostReportMenu from '../community-post-report-menu';
 import CommunityReactionButton from '../community-reaction-button';
 import CommunitySectionShell from '../community-section-shell';
 
@@ -135,10 +136,13 @@ export default function CommunityDetailPageClient({
           <h1 className="min-w-0 flex-1 font-designer-32b text-text-strong">
             {state.post.title}
           </h1>
-          <CommunityPostOwnerActions
-            currentPage={returnPage}
-            post={state.post}
-          />
+          <div className="flex shrink-0 items-start gap-75">
+            <CommunityPostOwnerActions
+              currentPage={returnPage}
+              post={state.post}
+            />
+            <CommunityPostReportMenu contentTitle={state.post.title} />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-100 font-designer-14r text-text-subtle">
@@ -190,7 +194,7 @@ export default function CommunityDetailPageClient({
           className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
         >
           <Share className="h-200 w-200" />
-          공유
+          공유하기
         </button>
       </div>
 

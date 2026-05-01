@@ -58,6 +58,8 @@ export default async function Header() {
   const userImg = userProfile
     ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl
     : undefined;
+  const initialNickname = userInfo?.nickname;
+  const initialSincerityLevelName = userProfile?.sincerityTemp?.levelName;
   const showDeveloperRegistrationEntry =
     isLoggedIn && developerRegistration?.registered === false;
 
@@ -83,6 +85,8 @@ export default async function Header() {
           initialSessionState={sessionState}
           initialAuthenticatedMemberId={memberId}
           initialUserImg={userImg}
+          initialNickname={initialNickname}
+          initialSincerityLevelName={initialSincerityLevelName}
           initialShowDeveloperRegistrationEntry={showDeveloperRegistrationEntry}
         />
       </div>

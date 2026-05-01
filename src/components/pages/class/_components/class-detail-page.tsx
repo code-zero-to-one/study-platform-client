@@ -1,13 +1,20 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToastStore } from '@/stores/use-toast-store';
 import { BuilderDetailModal } from './builder-detail-modal';
 import { CurriculumAccordion } from './curriculum-accordion';
 import { MaterialIcon } from './material-icon';
 import { MiniThumb } from './mini-site-thumbs';
+import { OnboardingModal } from './onboarding-modal';
 import { VIBE_COURSE } from '../_data/courses';
 import { type FeedItem, FEED_ITEMS } from '../_data/feed-data';
+
+const PRICE_WITH_CLAUDE = 39900;
+const PRICE_WITHOUT_CLAUDE = 29900;
+const BENEFITS_SUM_FULL = 117000;
+const BENEFITS_SUM_LITE = 89000;
 
 const FAQS = [
   {
@@ -16,7 +23,7 @@ const FAQS = [
   },
   {
     q: 'Claude Pro가 왜 필요한가요?',
-    a: '바이브코딩의 핵심은 AI와 페어 프로그래밍하는 감각이에요. Pro 플랜이어야 충분한 컨텍스트를 다루고 답답함 없이 만들 수 있어요. 코스에는 Claude Pro 1개월 이용권이 포함됩니다.',
+    a: '바이브코딩의 핵심은 AI와 페어 프로그래밍하는 감각이에요. 이미 Claude를 쓰고 있거나 회사에서 지원받는 분은 「구독 미포함」 플랜으로 학습만 시작할 수 있어요. Pro가 필요하면 「포함」 플랜에서 1개월 이용권을 함께 받으실 수 있습니다.',
   },
   {
     q: '5일 안에 정말 배포까지 되나요?',
@@ -49,22 +56,218 @@ const BENEFITS = [
   },
 ];
 
+const BENEFITS_WITHOUT_CLAUDE = BENEFITS.filter(
+  (b) => b.icon !== 'auto_awesome',
+);
+
+type BenefitRow = (typeof BENEFITS)[number];
+
+function ClassPricingPlanCard({
+  eyebrow,
+  title,
+  subtitle,
+  benefits,
+  sumWas,
+  sumNow,
+  onPay,
+  buttonLabel,
+  highlighted,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  benefits: BenefitRow[];
+  sumWas: number;
+  sumNow: number;
+  onPay: () => void;
+  buttonLabel: string;
+  highlighted?: boolean;
+}) {
+  const discountPercent = Math.round((1 - sumNow / sumWas) * 100);
+
+  return (
+    <div
+      style={{
+        background: highlighted
+          ? 'rgba(255,255,255,0.08)'
+          : 'rgba(255,255,255,0.04)',
+        border: highlighted
+          ? '1px solid rgba(246,61,104,0.45)'
+          : '1px solid rgba(255,255,255,0.1)',
+        borderRadius: 16,
+        padding: 28,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 420,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 700,
+          letterSpacing: '0.06em',
+          color: '#FEA3B4',
+          textTransform: 'uppercase',
+        }}
+      >
+        {eyebrow}
+      </div>
+      <div style={{ fontSize: 22, fontWeight: 800, marginTop: 8 }}>{title}</div>
+      <div
+        style={{
+          fontSize: 13,
+          color: '#A4A7AE',
+          marginTop: 8,
+          lineHeight: 1.5,
+        }}
+      >
+        {subtitle}
+      </div>
+      <div
+        style={{
+          flex: 1,
+          marginTop: 22,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 14,
+        }}
+      >
+        {benefits.map((b) => (
+          <div
+            key={b.title}
+            style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}
+          >
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 10,
+                background: '#F63D68',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <MaterialIcon name={b.icon} size={20} />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 700 }}>{b.title}</div>
+              <div
+                style={{
+                  fontSize: 13,
+                  color: '#A4A7AE',
+                  marginTop: 4,
+                  lineHeight: 1.45,
+                }}
+              >
+                {b.desc}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: '#FEA3B4',
+                  marginTop: 8,
+                  fontWeight: 600,
+                }}
+              >
+                {b.price}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div
+        style={{
+          marginTop: 24,
+          paddingTop: 20,
+          borderTop: '1px solid rgba(255,255,255,0.12)',
+        }}
+      >
+        <div style={{ fontSize: 13, color: '#A4A7AE' }}>
+          합계 ₩{sumWas.toLocaleString()} →
+        </div>
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 800,
+            color: '#FECDD6',
+            letterSpacing: '-0.01em',
+            marginTop: 8,
+          }}
+        >
+          정가 대비 약 {discountPercent}% 할인
+        </div>
+        <div
+          style={{
+            fontSize: 28,
+            fontWeight: 800,
+            color: '#F63D68',
+            letterSpacing: '-0.02em',
+            marginTop: 6,
+          }}
+        >
+          ₩{sumNow.toLocaleString()}
+          <span
+            style={{
+              fontSize: 13,
+              color: '#A4A7AE',
+              fontWeight: 600,
+              marginLeft: 10,
+            }}
+          >
+            얼리버드 한정
+          </span>
+        </div>
+      </div>
+      <PrimaryButton
+        size="xl"
+        onClick={onPay}
+        style={{
+          marginTop: 18,
+          width: '100%',
+          justifyContent: 'center',
+        }}
+      >
+        {buttonLabel}
+        <MaterialIcon name="arrow_forward" size={18} />
+      </PrimaryButton>
+    </div>
+  );
+}
+
 export function ClassDetailPage() {
+  const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
   const [openFaq, setOpenFaq] = useState<number>(0);
   const [openSample, setOpenSample] = useState<FeedItem | undefined>(undefined);
   const [sampleLiked, setSampleLiked] = useState<Record<number, boolean>>({});
+  const [onboardingOpen, setOnboardingOpen] = useState<boolean>(false);
 
   const onPurchase = () => {
-    showToast(
-      '결제 → 온보딩 모달은 다음 라운드에서 연결됩니다 (현재는 placeholder)',
-      'info',
-    );
+    setOnboardingOpen(true);
+  };
+
+  const onOnboardingComplete = () => {
+    setOnboardingOpen(false);
+    showToast('환영해요, 도현 빌더님! 🎉', 'success');
+    router.push('/class/vibe-intro/roadmap');
+  };
+
+  const onOnboardingClose = () => {
+    setOnboardingOpen(false);
   };
 
   const scrollToCurriculum = () => {
     document
       .getElementById('curriculum')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const scrollToBenefitsPurchase = () => {
+    document
+      .getElementById('class-benefits-purchase')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -120,7 +323,7 @@ export function ClassDetailPage() {
                 }}
               >
                 코딩이 아니라 <b style={{ color: '#181D27' }}>완성</b>을
-                가르칩니다. Cursor와 Claude로, 디자이너의 손에 만든 웹을
+                가르칩니다. Cursor와 Claude로, 개발 초심자의 손에 만든 웹을
                 쥐어드려요.
               </p>
               <div
@@ -129,6 +332,7 @@ export function ClassDetailPage() {
                   alignItems: 'baseline',
                   gap: 14,
                   marginTop: 28,
+                  flexWrap: 'wrap',
                 }}
               >
                 <span
@@ -140,16 +344,38 @@ export function ClassDetailPage() {
                 >
                   ₩{VIBE_COURSE.originalPrice.toLocaleString()}
                 </span>
-                <span
+                <div
                   style={{
-                    fontSize: 36,
-                    fontWeight: 800,
-                    color: '#F63D68',
-                    letterSpacing: '-0.02em',
+                    display: 'inline-flex',
+                    alignItems: 'flex-end',
+                    gap: 8,
                   }}
                 >
-                  ₩{VIBE_COURSE.price.toLocaleString()}
-                </span>
+                  <span
+                    style={{
+                      fontSize: 36,
+                      fontWeight: 800,
+                      color: '#F63D68',
+                      letterSpacing: '-0.02em',
+                      lineHeight: 1,
+                    }}
+                  >
+                    ₩{PRICE_WITHOUT_CLAUDE.toLocaleString()}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: '#717680',
+                      letterSpacing: '0.02em',
+                      lineHeight: 1,
+                      paddingBottom: 4,
+                      flexShrink: 0,
+                    }}
+                  >
+                    최저가
+                  </span>
+                </div>
                 <PillBadge tone="brand" small>
                   얼리버드
                 </PillBadge>
@@ -157,7 +383,7 @@ export function ClassDetailPage() {
               <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
                 <PrimaryButton
                   size="xl"
-                  onClick={onPurchase}
+                  onClick={scrollToBenefitsPurchase}
                   style={{
                     boxShadow: '0 8px 24px -4px rgba(246,61,104,0.25)',
                   }}
@@ -208,7 +434,7 @@ export function ClassDetailPage() {
                 color: '#181D27',
               }}
             >
-              디자이너들이 5일 만에 만든 것들
+              개발 초심자들이 5일 만에 만든 것들
             </h2>
             <p style={{ fontSize: 15, color: '#535862', margin: 0 }}>
               모두 코딩 경험이 0이었습니다. 그리고 모두 자기 URL을 가졌어요.
@@ -265,13 +491,14 @@ export function ClassDetailPage() {
 
       {/* Benefits stack */}
       <section
+        id="class-benefits-purchase"
         style={{
           padding: '80px 0',
           background: '#181D27',
           color: '#fff',
         }}
       >
-        <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 48px' }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 48px' }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
             <span
               style={{
@@ -292,110 +519,49 @@ export function ClassDetailPage() {
                 color: '#fff',
               }}
             >
-              ₩{VIBE_COURSE.price.toLocaleString()}에 다 들어 있어요
+              플랜을 고르고 바로 시작해요
             </h2>
+            <p
+              style={{
+                fontSize: 14,
+                color: '#A4A7AE',
+                margin: '12px 0 0',
+                lineHeight: 1.55,
+              }}
+            >
+              최저 ₩{PRICE_WITHOUT_CLAUDE.toLocaleString()}부터 · Claude Pro
+              1개월은 필요할 때만 포함하세요
+            </p>
           </div>
 
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: 20,
-              marginBottom: 32,
             }}
           >
-            {BENEFITS.map((b) => (
-              <div
-                key={b.title}
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 12,
-                  padding: 24,
-                }}
-              >
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 10,
-                    background: '#F63D68',
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 14,
-                  }}
-                >
-                  <MaterialIcon name={b.icon} size={22} />
-                </div>
-                <div style={{ fontSize: 16, fontWeight: 700 }}>{b.title}</div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: '#A4A7AE',
-                    marginTop: 6,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {b.desc}
-                </div>
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: '#FEA3B4',
-                    marginTop: 14,
-                    fontWeight: 600,
-                  }}
-                >
-                  {b.price}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '24px 28px',
-              background: '#fff',
-              borderRadius: 14,
-              color: '#181D27',
-            }}
-          >
-            <div>
-              <div style={{ fontSize: 13, color: '#535862' }}>
-                합계 ₩117,000 →
-              </div>
-              <div
-                style={{
-                  fontSize: 30,
-                  fontWeight: 800,
-                  color: '#F63D68',
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1.1,
-                  marginTop: 2,
-                }}
-              >
-                ₩{VIBE_COURSE.price.toLocaleString()}
-                <span
-                  style={{
-                    fontSize: 14,
-                    color: '#535862',
-                    fontWeight: 500,
-                    marginLeft: 8,
-                  }}
-                >
-                  얼리버드 한정
-                </span>
-              </div>
-            </div>
-            <PrimaryButton size="xl" onClick={onPurchase}>
-              결제하고 시작하기
-              <MaterialIcon name="arrow_forward" size={18} />
-            </PrimaryButton>
+            <ClassPricingPlanCard
+              eyebrow="클로드 Pro 포함"
+              title="올인원 플랜"
+              subtitle="학습 + Claude Pro 1개월 + 무제한 질문"
+              benefits={BENEFITS}
+              sumWas={BENEFITS_SUM_FULL}
+              sumNow={PRICE_WITH_CLAUDE}
+              onPay={onPurchase}
+              buttonLabel={`₩${PRICE_WITH_CLAUDE.toLocaleString()} · 결제하고 시작하기`}
+              highlighted
+            />
+            <ClassPricingPlanCard
+              eyebrow="클로드 구독 미포함"
+              title="학습만 시작"
+              subtitle="이미 Claude를 쓰거나 회사 지원이 있는 분께 추천"
+              benefits={BENEFITS_WITHOUT_CLAUDE}
+              sumWas={BENEFITS_SUM_LITE}
+              sumNow={PRICE_WITHOUT_CLAUDE}
+              onPay={onPurchase}
+              buttonLabel={`₩${PRICE_WITHOUT_CLAUDE.toLocaleString()} · 결제하고 시작하기`}
+            />
           </div>
         </div>
       </section>
@@ -487,12 +653,13 @@ export function ClassDetailPage() {
             친구에게 보내고 있을 거예요.
           </h2>
           <p style={{ fontSize: 16, color: '#535862', marginTop: 18 }}>
-            얼리버드 가격은 D-3 마감. 늦으면 ₩
-            {VIBE_COURSE.originalPrice.toLocaleString()}으로 돌아갑니다.
+            Claude 포함 ₩{PRICE_WITH_CLAUDE.toLocaleString()} · 미포함 ₩
+            {PRICE_WITHOUT_CLAUDE.toLocaleString()}. 얼리버드는 D-3 마감이에요.
+            늦으면 ₩{VIBE_COURSE.originalPrice.toLocaleString()}으로 돌아갑니다.
           </p>
           <PrimaryButton
             size="xl"
-            onClick={onPurchase}
+            onClick={scrollToBenefitsPurchase}
             style={{
               marginTop: 28,
               boxShadow: '0 8px 24px -4px rgba(246,61,104,0.25)',
@@ -500,7 +667,7 @@ export function ClassDetailPage() {
               fontSize: 17,
             }}
           >
-            얼리버드 ₩{VIBE_COURSE.price.toLocaleString()}으로 시작하기
+            플랜 선택하고 시작하기
             <MaterialIcon name="arrow_forward" size={20} />
           </PrimaryButton>
         </div>
@@ -513,6 +680,12 @@ export function ClassDetailPage() {
         onToggleLike={(id) =>
           setSampleLiked({ ...sampleLiked, [id]: !sampleLiked[id] })
         }
+      />
+
+      <OnboardingModal
+        open={onboardingOpen}
+        onClose={onOnboardingClose}
+        onComplete={onOnboardingComplete}
       />
     </div>
   );
@@ -611,7 +784,7 @@ function BrowserMockup() {
               marginTop: 6,
             }}
           >
-            저는 김지윤
+            저는 지윤메이커
             <br />
             입니다.
           </div>

@@ -1,32 +1,12 @@
-import { Metadata } from 'next';
-import { resolveCommunityPage } from '@/features/community/model/community-route';
-import CommunityPageClient from '@/features/community/ui/pages/community-page-client';
-import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
+import type { Metadata } from 'next';
+import { CommunityHomePage } from '@/components/pages/community/_components/community-home-page';
 
-interface CommunityPageProps {
-  searchParams: Promise<{ page?: string | string[] }>;
-}
-
-export const metadata: Metadata = generateSEOMetadata({
-  title: 'ZERO-ONE 커뮤니티',
+export const metadata: Metadata = {
+  title: '커뮤니티 | ZERO-ONE',
   description:
-    '질문답변, 자유 글, 자랑거리, IT 지식 글을 중심으로 구성한 ZERO-ONE 커뮤니티 페이지입니다.',
-  path: '/community',
-  keywords: [
-    '개발자 커뮤니티',
-    '질문답변',
-    '자유 글',
-    '자랑거리',
-    'IT 지식',
-    '디스코드 커뮤니티',
-  ],
-  canonicalUrl: 'https://www.zeroone.it.kr/community',
-});
+    '제로원 커뮤니티 — 빌더 피드, 질문답변, 테크 한입, 자유게시판을 한눈에.',
+};
 
-export default async function CommunityPage({
-  searchParams,
-}: CommunityPageProps) {
-  const { page } = await searchParams;
-
-  return <CommunityPageClient initialPage={resolveCommunityPage(page)} />;
+export default function Page() {
+  return <CommunityHomePage />;
 }

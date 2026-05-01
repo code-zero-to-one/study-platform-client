@@ -1,3 +1,7 @@
+import { COMMUNITY_ME_DISPLAY_NAME } from '@/components/pages/community/_data/community-dummy-assets';
+
+export const FEED_CURRENT_USER = COMMUNITY_ME_DISPLAY_NAME;
+
 export type ThumbKind =
   | 'portfolio'
   | 'bookclub'
@@ -15,10 +19,25 @@ export type Grade =
   | '펠로우'
   | '운영자';
 
-export interface FeedComment {
+export interface FeedReply {
+  id: number;
   name: string;
   grade: Grade;
   text: string;
+  when: string;
+  likes: number;
+  dislikes: number;
+}
+
+export interface FeedThread {
+  id: number;
+  name: string;
+  grade: Grade;
+  text: string;
+  when: string;
+  likes: number;
+  dislikes: number;
+  replies?: FeedReply[];
 }
 
 export interface FeedItem {
@@ -34,13 +53,13 @@ export interface FeedItem {
   day: number;
   when: string;
   role: string;
-  commentsList?: FeedComment[];
+  threadsList?: FeedThread[];
 }
 
 export const FEED_ITEMS: FeedItem[] = [
   {
     id: 1,
-    name: '김지윤',
+    name: '지윤메이커',
     grade: '2학년',
     title: '내 포트폴리오 사이트',
     motiv: '5년차 디자이너인데 내 사이트 하나 없는 게 부끄러웠어요.',
@@ -51,11 +70,11 @@ export const FEED_ITEMS: FeedItem[] = [
     thumbKind: 'portfolio',
     day: 5,
     when: '2일 전',
-    role: '디자이너 김지윤',
+    role: '빌더 지윤메이커',
   },
   {
     id: 2,
-    name: '박서연',
+    name: '서연코덕',
     grade: '빌더',
     title: '독서 모임 신청 페이지',
     motiv: '매번 구글폼만 돌리던 게 답답했어요.',
@@ -66,11 +85,11 @@ export const FEED_ITEMS: FeedItem[] = [
     thumbKind: 'bookclub',
     day: 4,
     when: '4일 전',
-    role: '기획자 박서연',
+    role: '기획자 서연코덕',
   },
   {
     id: 3,
-    name: '이도현',
+    name: '도현모닝',
     grade: '3학년',
     title: '사이드 프로젝트 랜딩',
     motiv: '아이디어만 100개 쌓아두고 못 만들고 있던 한 명입니다.',
@@ -81,11 +100,11 @@ export const FEED_ITEMS: FeedItem[] = [
     thumbKind: 'landing',
     day: 5,
     when: '1주 전',
-    role: '마케터 이도현',
+    role: '마케터 도현모닝',
   },
   {
     id: 4,
-    name: '정민서',
+    name: '민서위크',
     grade: '1학년',
     title: '강아지 산책 일지',
     motiv: '우리 강아지 산책 기록을 직접 만들고 싶었어요.',
@@ -95,11 +114,11 @@ export const FEED_ITEMS: FeedItem[] = [
     thumbKind: 'petdiary',
     day: 5,
     when: '3일 전',
-    role: '디자이너 정민서',
+    role: '디자이너 민서위크',
   },
   {
     id: 5,
-    name: '한지호',
+    name: '지호클로버',
     grade: '2학년',
     title: '팀 회고 모음 사이트',
     motiv: '팀 회고가 노션에 흩어져서 누구도 안 보고 있었어요.',
@@ -110,11 +129,11 @@ export const FEED_ITEMS: FeedItem[] = [
     thumbKind: 'retros',
     day: 4,
     when: '5일 전',
-    role: 'PM 한지호',
+    role: 'PM 지호클로버',
   },
   {
     id: 6,
-    name: '최유진',
+    name: '유진모각코',
     grade: '빌더',
     title: '엄마 카페 메뉴판',
     motiv: '엄마 카페에 메뉴판이 종이라서 자주 바뀔 때 힘드셨어요.',
@@ -125,7 +144,22 @@ export const FEED_ITEMS: FeedItem[] = [
     thumbKind: 'cafemenu',
     day: 5,
     when: '1주 전',
-    role: '디자이너 최유진',
+    role: '디자이너 유진모각코',
+  },
+  {
+    id: 7,
+    name: FEED_CURRENT_USER,
+    grade: '빌더',
+    title: '내가 만든 첫 사이트',
+    motiv: '바이브코딩 코스를 들으면서 처음으로 결과물을 완성했어요.',
+    review:
+      '진짜 URL이 생긴다는 게 신기했어요. 친구들에게 자랑하기 좋은 결과물이에요.',
+    likes: 32,
+    comments: 5,
+    thumbKind: 'portfolio',
+    day: 5,
+    when: '1일 전',
+    role: `빌더 ${FEED_CURRENT_USER}`,
   },
 ];
 

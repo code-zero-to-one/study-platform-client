@@ -48,7 +48,8 @@ function ClassHero() {
           className="text-text-subtle font-designer-16r mt-150 max-w-240"
           style={{ fontSize: 17, lineHeight: 1.6, maxWidth: 620 }}
         >
-          아이디어가 있는데 만들 줄 몰라서 멈춰 있던 모든 디자이너·기획자에게.
+          아이디어가 있는데 만들 줄 몰라서 멈춰 있던 모든 예비 빌더들에게.
+          <br />
           ZERO-ONE은 코딩이 아니라 <b className="text-text-strong">완성 경험</b>
           을 먼저 가르칩니다.
         </p>

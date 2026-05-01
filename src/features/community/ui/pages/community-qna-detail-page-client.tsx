@@ -16,6 +16,7 @@ import {
   CommunityBoardBadge,
   CommunityMemberRoleBadge,
 } from '../community-meta-badge';
+import CommunityPostReportMenu from '../community-post-report-menu';
 import CommunityQnaAnswerAcceptanceActions from '../community-qna-answer-acceptance-actions';
 import CommunityQnaAnswerCommentsSection from '../community-qna-answer-comments-section';
 import CommunityQnaAnswerComposeSection from '../community-qna-answer-compose-section';
@@ -108,13 +109,19 @@ export default function CommunityQnaDetailPageClient({
           <h1 className="min-w-0 flex-1 font-designer-32b text-text-strong">
             {state.question.title}
           </h1>
-          <CommunityQnaQuestionOwnerActions
-            canDelete={state.viewer.canDeleteQuestion}
-            canEdit={state.viewer.canEditQuestion}
-            currentPage={returnPage}
-            questionId={state.question.id}
-            revision={state.question.revision}
-          />
+          <div className="flex shrink-0 items-start gap-75">
+            <CommunityQnaQuestionOwnerActions
+              canDelete={state.viewer.canDeleteQuestion}
+              canEdit={state.viewer.canEditQuestion}
+              currentPage={returnPage}
+              questionId={state.question.id}
+              revision={state.question.revision}
+            />
+            <CommunityPostReportMenu
+              contentTitle={state.question.title}
+              dialogTitle="질문 신고"
+            />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-100 font-designer-14r text-text-subtle">
@@ -172,7 +179,7 @@ export default function CommunityQnaDetailPageClient({
             className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
           >
             <Share className="h-200 w-200" />
-            공유
+            공유하기
           </button>
         </div>
 

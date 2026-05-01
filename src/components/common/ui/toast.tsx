@@ -55,7 +55,10 @@ export default function Toast({
   const isError = variant === 'error';
 
   const toast = (
-    <div className="fixed top-400 left-1/2 z-50 -translate-x-1/2">
+    <div
+      className="fixed top-400 left-1/2 -translate-x-1/2"
+      style={{ zIndex: 9999 }}
+    >
       <div
         className={cn(
           'rounded-200 px-500 py-400',

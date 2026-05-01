@@ -8,21 +8,21 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { MaterialIcon } from './material-icon';
 
 interface NavItem {
-  id: 'class' | 'qna' | 'community';
+  id: 'class' | 'community' | 'insights';
   label: string;
   href: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'class', label: '클래스', href: '/class' },
-  { id: 'qna', label: '질문답변', href: '/qna' },
-  { id: 'community', label: '커뮤니티', href: '/community/feed' },
+  { id: 'community', label: '커뮤니티', href: '/community' },
+  { id: 'insights', label: '인사이트', href: '/insights' },
 ];
 
 const resolveActive = (pathname: string): NavItem['id'] | undefined => {
   if (pathname.startsWith('/class')) return 'class';
-  if (pathname.startsWith('/qna')) return 'qna';
   if (pathname.startsWith('/community')) return 'community';
+  if (pathname.startsWith('/insights')) return 'insights';
   return undefined;
 };
 
@@ -46,16 +46,18 @@ export function ClassGNB({
         <Link
           href="/class"
           aria-label="ZERO-ONE 클래스 메인"
-          className="inline-flex items-center"
+          className="flex items-center gap-100 px-100 py-125"
         >
+          <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
           <Image
-            src="/images/class/zero-one-logo.png"
-            alt="ZERO ONE IT"
-            width={113}
-            height={28}
-            priority
-            className="h-350 block w-auto"
+            src="/icons/logo_title.svg"
+            alt="ZERO-ONE"
+            width={106}
+            height={11}
           />
+          <span className="border-border-default rounded-full border-[0.5px] px-75 py-25 text-center text-[7.5px] leading-normal font-medium">
+            BETA
+          </span>
         </Link>
 
         <nav className="ml-300 flex gap-50" aria-label="주요 메뉴">

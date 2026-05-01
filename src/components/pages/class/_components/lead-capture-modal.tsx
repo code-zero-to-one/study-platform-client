@@ -79,7 +79,7 @@ export function LeadCaptureModal({
           description={`${courseTitle} 오픈 알림 신청`}
         >
           <Modal.Header variant="form">
-            <Modal.Title>OPEN 알림 신청</Modal.Title>
+            <Modal.Title>오픈 알림 신청</Modal.Title>
             <Modal.CloseButton />
           </Modal.Header>
 
@@ -151,14 +151,13 @@ export function LeadCaptureModal({
               form="lead-capture-form"
               disabled={!isValid || isSubmitting}
               className={cn(
-                'h-500 rounded-100 px-300 inline-flex items-center gap-75',
+                'h-500 rounded-100 px-300 inline-flex items-center justify-center gap-75',
                 'font-designer-14b text-text-inverse',
                 'bg-fill-brand-default-default hover:bg-fill-brand-default-hover',
                 'disabled:bg-background-disabled disabled:text-text-disabled disabled:cursor-not-allowed',
                 'transition-colors',
               )}
             >
-              <MaterialIcon name="notifications_active" size={16} />
               알림 신청하기
             </button>
           </Modal.Footer>
@@ -180,24 +179,14 @@ function PromoCallout({
       className={cn(
         'rounded-150 px-300 py-250',
         'bg-fill-brand-subtle-default border-l-4 border-fill-brand-default-default',
+        'flex flex-col gap-100 text-left w-full',
       )}
     >
-      <div className="flex items-center gap-75">
-        <MaterialIcon
-          name="local_fire_department"
-          size={18}
-          className="text-icon-brand"
-          filled
-        />
-        <span className="font-designer-12b text-text-brand uppercase tracking-wider">
-          Earlybird Special
-        </span>
-      </div>
-      <p className="font-designer-15b text-text-strong mt-100">
+      <p className="font-designer-15b text-text-strong m-0">
         지금 신청하면 <span className="text-text-brand">최대 50% 할인</span>{' '}
         혜택과 사전 학습 자료를 가장 먼저 받아보실 수 있어요.
       </p>
-      <p className="font-designer-13r text-text-subtle mt-50">
+      <p className="font-designer-13r text-text-subtle m-0">
         <strong className="text-text-default">{courseTitle}</strong> ·{' '}
         {releaseLabel}
       </p>
@@ -275,7 +264,6 @@ function ConsentCheckbox({
             id={id}
             type="checkbox"
             ref={ref}
-            value="true"
             className="peer sr-only"
             {...inputProps}
           />
