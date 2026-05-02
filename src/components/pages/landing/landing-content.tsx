@@ -352,7 +352,7 @@ function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.5 }}
         >
-          <p>바이브코더는 GPT로 해결되지 않는 문제를 가져오고,</p>
+          <p>바이브코더는 AI로 해결되지 않는 문제를 가져오고,</p>
           <p>개발자는 그 문제를 해결하며 전문성과 기회를 함께 키웁니다.</p>
           <p className="mt-[8px] text-gray-300">
             ZERO-ONE은 이 상생을 스터디와 멘토링으로 구조화합니다.
