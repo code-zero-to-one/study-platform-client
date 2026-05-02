@@ -22,7 +22,6 @@ interface LeadCaptureModalProps {
 }
 
 const DEFAULT_VALUES: LeadCaptureInput = {
-  name: '',
   phone: '',
   email: '',
   consent: false,
@@ -62,9 +61,9 @@ export function LeadCaptureModal({
     });
   };
 
-  const onValid = (values: LeadCaptureValues) => {
+  const onValid = () => {
     showToast(
-      `${values.name}님, 신청 완료되었어요. 오픈 소식을 가장 먼저 보내드릴게요!`,
+      '신청이 완료되었어요. 오픈 소식을 가장 먼저 보내드릴게요!',
       'success',
     );
     onOpenChange(false);
@@ -95,13 +94,6 @@ export function LeadCaptureModal({
               className="flex flex-col gap-300"
               noValidate
             >
-              <Field
-                id="lead-name"
-                label="이름"
-                placeholder="실명을 입력해주세요"
-                error={errors.name?.message}
-                {...register('name')}
-              />
               <Field
                 id="lead-phone"
                 label="전화번호"
@@ -294,7 +286,7 @@ function ConsentCheckbox({
             오픈 알림 발송을 위한 개인정보 수집·이용에 동의합니다.
           </p>
           <p className="font-designer-12r text-text-subtle mt-25">
-            수집 항목: 이름·전화번호·이메일 / 보유 기간: 오픈 안내 발송 후 30일
+            수집 항목: 전화번호·이메일 / 보유 기간: 오픈 안내 발송 후 30일
           </p>
         </div>
       </label>

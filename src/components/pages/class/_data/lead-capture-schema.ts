@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-const NAME_REGEX = /^[가-힣a-zA-Z\s]{2,20}$/;
 const PHONE_REGEX = /^01[016789]-?\d{3,4}-?\d{4}$/;
 
 const formatPhoneCanonical = (raw: string): string => {
@@ -15,11 +14,6 @@ const formatPhoneCanonical = (raw: string): string => {
 };
 
 export const LeadCaptureSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, '이름을 입력해주세요.')
-    .regex(NAME_REGEX, '2~20자의 한글 또는 영문으로 입력해주세요.'),
   phone: z
     .string()
     .trim()

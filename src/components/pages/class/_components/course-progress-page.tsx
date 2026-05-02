@@ -128,16 +128,6 @@ export function CourseProgressPage() {
               {doneCount}
               <span style={{ color: '#D5D7DA', fontWeight: 400 }}>/</span>
               {VIBE_LESSONS.length}
-              <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: '#717680',
-                  marginLeft: 2,
-                }}
-              >
-                레슨
-              </span>
             </span>
           </div>
 
@@ -157,11 +147,8 @@ export function CourseProgressPage() {
               letterSpacing: '-0.01em',
             }}
           >
-            <MaterialIcon
-              name={allDone ? 'emoji_events' : 'play_circle'}
-              size={15}
-            />
-            {allDone ? '완주!' : `${currentLessonNum}번째 레슨 진행중`}
+            {allDone ? <MaterialIcon name="emoji_events" size={15} /> : null}
+            {allDone ? '완주!' : `Lesson ${currentLessonNum} 진행 중`}
           </div>
         </div>
 

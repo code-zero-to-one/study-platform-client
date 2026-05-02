@@ -2,9 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { type ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useToastStore } from '@/stores/use-toast-store';
 import { MaterialIcon } from './material-icon';
 
 interface NavItem {
@@ -115,6 +116,11 @@ function LoggedInControls({
   userName: string;
   userGrade: NonNullable<ClassGNBProps['userGrade']>;
 }) {
+  const router = useRouter();
+  const showToast = useToastStore((state) => state.showToast);
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
   const gradeColorClass = (() => {
     switch (userGrade) {
       case '1학년':
@@ -133,6 +139,36 @@ function LoggedInControls({
     }
   })();
 
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const goMyPage = () => {
+    setOpen(false);
+    router.push('/my-page');
+  };
+  const onLogout = () => {
+    setOpen(false);
+    showToast('로그아웃 되었어요', 'info');
+  };
+
   return (
     <>
       <button
@@ -146,24 +182,118 @@ function LoggedInControls({
           className="text-icon-default"
         />
       </button>
-      <div className="flex items-center gap-150 px-100">
-        <span className="font-designer-13b text-text-strong">{userName}</span>
-        <span
+      <div ref={wrapperRef} className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={open}
           className={cn(
-            'font-designer-11b inline-flex items-center rounded-50 px-100 py-25',
-            gradeColorClass,
+            'flex items-center gap-150 px-100 py-50 rounded-75 transition-colors cursor-pointer',
+            open
+              ? 'bg-fill-neutral-subtle-hover'
+              : 'hover:bg-fill-neutral-subtle-hover',
           )}
         >
-          {userGrade}
-        </span>
+          <span className="font-designer-13b text-text-strong">{userName}</span>
+          <span
+            className={cn(
+              'font-designer-11b inline-flex items-center rounded-50 px-100 py-25',
+              gradeColorClass,
+            )}
+          >
+            {userGrade}
+          </span>
+          <MaterialIcon
+            name={open ? 'expand_less' : 'expand_more'}
+            size={16}
+            className="text-icon-subtle"
+          />
+        </button>
+
+        {open ? (
+          <div
+            role="menu"
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 6px)',
+              right: 0,
+              minWidth: 180,
+              background: '#fff',
+              border: '1px solid #E9EAEB',
+              borderRadius: 12,
+              boxShadow:
+                '0 12px 16px -4px rgba(16,24,40,0.08), 0 4px 6px -2px rgba(16,24,40,0.03)',
+              padding: 6,
+              zIndex: 50,
+            }}
+          >
+            <DropdownItem icon="person" onClick={goMyPage}>
+              마이페이지
+            </DropdownItem>
+            <DropdownItem
+              icon="school"
+              onClick={() => {
+                setOpen(false);
+                router.push('/my-class');
+              }}
+            >
+              나의 클래스
+            </DropdownItem>
+            <div
+              style={{ height: 1, background: '#F5F5F5', margin: '4px 6px' }}
+            />
+            <DropdownItem icon="logout" onClick={onLogout}>
+              로그아웃
+            </DropdownItem>
+          </div>
+        ) : null}
       </div>
-      <button
-        type="button"
-        className="hover:bg-fill-neutral-subtle-hover font-designer-13b text-text-default rounded-75 px-150 py-100 transition-colors"
-      >
-        로그아웃
-      </button>
     </>
+  );
+}
+
+function DropdownItem({
+  icon,
+  onClick,
+  children,
+}: {
+  icon: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '8px 12px',
+        background: 'transparent',
+        border: 0,
+        borderRadius: 6,
+        fontFamily: 'inherit',
+        fontSize: 13,
+        fontWeight: 600,
+        color: '#181D27',
+        textAlign: 'left',
+        cursor: 'pointer',
+        transition: 'background 120ms ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = '#FAFAFA';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'transparent';
+      }}
+    >
+      <MaterialIcon name={icon} size={16} style={{ color: '#535862' }} />
+      {children}
+    </button>
   );
 }
 
