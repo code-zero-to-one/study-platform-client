@@ -22,7 +22,7 @@ export default function StudyHistoryHeader({
 }: StudyHistoryHeaderProps) {
   return (
     <SectionHeader
-      title="나의 1:1 스터디 기록"
+      title="나의 스터디 그룹 기록"
       icon={<History className="text-text-brand h-8 w-8" />}
       description={
         <>
@@ -48,7 +48,7 @@ export default function StudyHistoryHeader({
               <span className="text-text-strong font-bold">
                 {totalElements}
               </span>
-              개의 1:1 스터디 기록이 있습니다. 역할 수행 여부 판단 기준은
+              개의 스터디 그룹 기록이 있습니다. 역할 수행 여부 판단 기준은
               지원자: 학습자료 제출, 면접자: 면접 후기 작성이며, 둘 다 진행되면
               진행 상태가 완료됩니다.
             </>

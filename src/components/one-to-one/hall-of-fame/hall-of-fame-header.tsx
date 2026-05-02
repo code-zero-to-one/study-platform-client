@@ -15,7 +15,7 @@ export default function HallOfFameHeader() {
         <div className="flex flex-col gap-50">
           <p>제로원을 빛낸 열정적인 멤버들과 최고의 유저들을 소개합니다.</p>
           <p>
-            꾸준한 1:1 스터디를 통해 제로원 명예의 전당에 이름을 올려보세요!
+            꾸준한 스터디 그룹을 통해 제로원 명예의 전당에 이름을 올려보세요!
           </p>
         </div>
       }

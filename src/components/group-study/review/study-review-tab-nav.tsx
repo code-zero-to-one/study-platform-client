@@ -24,7 +24,7 @@ export default function StudyReviewTabNav() {
           isActive('/my-study-review/one-to-one') && pathClassName,
         )}
       >
-        1:1 스터디
+        스터디 그룹
       </button>
       <button
         type="button"

@@ -311,7 +311,7 @@ export default function PhoneVerificationModal({
                     margin: 0,
                   }}
                 >
-                  1:1 스터디를 진행하려면 본인인증이 필요해요.
+                  스터디 그룹을 진행하려면 본인인증이 필요해요.
                 </p>
               </div>
               <button

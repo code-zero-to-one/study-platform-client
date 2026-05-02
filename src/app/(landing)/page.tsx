@@ -12,7 +12,7 @@ export const metadata: Metadata = generateSEOMetadata({
     '바이브코더',
     '개발자 커뮤니티',
     '멘토링',
-    '1:1 스터디',
+    '스터디 그룹',
     '그룹 스터디',
     '유료 스터디',
     '인사이트',

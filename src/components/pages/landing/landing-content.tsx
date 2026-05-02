@@ -142,7 +142,7 @@ const STATS = [
 
 const FEATURES = [
   {
-    title: '1:1 스터디 · 멘토링',
+    title: '스터디 그룹 · 멘토링',
     description: '막힌 지점을 실전 맥락으로 빠르게 해결하는 고밀도 세션',
     color: '#f63d68',
   },

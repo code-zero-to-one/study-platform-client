@@ -78,7 +78,7 @@ export default function StudyHistoryTabClient({
       <div className="text-text-subtlest flex flex-col items-center gap-200 py-800 text-center">
         <Loader2 className="h-8 w-8 animate-spin" />
         <div className="font-designer-16m">
-          1:1 스터디 기록을 불러오는 중입니다...
+          스터디 그룹 기록을 불러오는 중입니다...
         </div>
       </div>
     );

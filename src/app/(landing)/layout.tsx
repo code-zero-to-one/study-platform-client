@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: 'ZERO-ONE - 1:1 기상 스터디 플랫폼',
   description:
     '매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼. 현직 멘토와 함께 성장하세요.',
-  keywords: ['스터디', '기상', '멘토링', '1:1 스터디', '개발자', '면접 준비'],
+  keywords: ['스터디', '기상', '멘토링', '스터디 그룹', '개발자', '면접 준비'],
   icons: {
     icon: '/favicon.ico',
   },
