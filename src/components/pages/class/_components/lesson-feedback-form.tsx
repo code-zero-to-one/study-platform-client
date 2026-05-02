@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToastStore } from '@/stores/use-toast-store';
 import { MaterialIcon } from './material-icon';
+import { useClassPrototypeStore } from '../_data/use-class-prototype-store';
 
 interface LessonFeedbackFormProps {
   lessonNum: number;
@@ -77,6 +78,7 @@ export function LessonFeedbackForm({
 }: LessonFeedbackFormProps) {
   const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
+  const completeLesson = useClassPrototypeStore((s) => s.completeLesson);
   const [lessonRating, setLessonRating] = useState(0);
   const [discovery, setDiscovery] = useState('');
   const [motiv, setMotiv] = useState('');
@@ -103,6 +105,7 @@ export function LessonFeedbackForm({
   const submit = () => {
     if (!allValid || submitted) return;
     setSubmitted(true);
+    completeLesson(lessonNum);
     if (isFinalLesson) {
       setTimeout(() => router.push('/class/vibe-intro/celebrate'), 700);
     } else {

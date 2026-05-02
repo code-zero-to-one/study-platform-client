@@ -1,20 +1,19 @@
 import { Metadata } from 'next';
 import MyPageMobileNav from '@/components/common/layout/sidebar/my-page-mobile-nav';
 import Sidebar from '@/components/common/layout/sidebar/my-page-sidebar';
-import { requireAuthenticatedMemberRoute } from '@/features/auth/model/server-route-guard';
 
 export const metadata: Metadata = {
   title: '마이페이지',
   description: 'ZERO-ONE 마이페이지',
 };
 
+// prototype 한정: 비로그인 상태에서도 마이페이지 데모를 볼 수 있도록 인증 가드 우회.
+// 정식 머지 전에는 requireAuthenticatedMemberRoute() 복구 필요.
 export default async function MyLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await requireAuthenticatedMemberRoute();
-
   return (
     <div className="flex h-full flex-col lg:flex-row">
       {/* 모바일 상단 탭 네비게이션 */}

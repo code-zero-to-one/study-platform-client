@@ -100,6 +100,17 @@ const ROUTE_POLICIES: readonly RoutePolicy[] = [
     path: '/class',
     match: ROUTE_MATCH_TYPES.PREFIX,
   },
+  // prototype 한정: 마이페이지 + 나의 클래스 비로그인 데모 접근
+  {
+    kind: ROUTE_POLICY_KINDS.PUBLIC_SESSION,
+    path: '/my-page',
+    match: ROUTE_MATCH_TYPES.PREFIX,
+  },
+  {
+    kind: ROUTE_POLICY_KINDS.PUBLIC_SESSION,
+    path: '/my-class',
+    match: ROUTE_MATCH_TYPES.PREFIX,
+  },
   {
     kind: ROUTE_POLICY_KINDS.PUBLIC_SESSION,
     path: '/insights',

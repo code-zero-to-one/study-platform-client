@@ -4,6 +4,7 @@ import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import React from 'react';
+import { DemoControls } from '@/components/pages/class/_components/demo-controls';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -37,6 +38,7 @@ export default function RootLayout({
       </head>
       <body className={clsx(pretendard.className, 'min-h-screen w-screen')}>
         {children}
+        <DemoControls />
       </body>
     </html>
   );

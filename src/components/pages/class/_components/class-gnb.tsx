@@ -231,15 +231,6 @@ function LoggedInControls({
             <DropdownItem icon="person" onClick={goMyPage}>
               마이페이지
             </DropdownItem>
-            <DropdownItem
-              icon="school"
-              onClick={() => {
-                setOpen(false);
-                router.push('/my-class');
-              }}
-            >
-              나의 클래스
-            </DropdownItem>
             <div
               style={{ height: 1, background: '#F5F5F5', margin: '4px 6px' }}
             />

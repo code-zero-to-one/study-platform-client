@@ -6,8 +6,9 @@ import { useMemo } from 'react';
 import { FeedTab } from './feed-tab';
 import { MaterialIcon } from './material-icon';
 import { QnaTab } from './qna-tab';
-import { type LessonStatus, RoadmapTab } from './roadmap-tab';
+import { RoadmapTab } from './roadmap-tab';
 import { VIBE_COURSE, VIBE_LESSONS } from '../_data/courses';
+import { useClassPrototypeStore } from '../_data/use-class-prototype-store';
 
 type TabKey = 'roadmap' | 'feed' | 'qna';
 
@@ -15,19 +16,6 @@ const TABS: { id: TabKey; label: string; icon: string }[] = [
   { id: 'roadmap', label: '학습 여정 맵', icon: 'map' },
   { id: 'feed', label: '빌더 피드', icon: 'photo_library' },
   { id: 'qna', label: '질문답변', icon: 'forum' },
-];
-
-const PROTOTYPE_LESSON_STATUS: LessonStatus[] = [
-  'done',
-  'done',
-  'current',
-  'locked',
-  'locked',
-  'locked',
-  'locked',
-  'locked',
-  'locked',
-  'locked',
 ];
 
 function resolveTab(raw: string | undefined): TabKey {
@@ -39,7 +27,7 @@ export function CourseProgressPage() {
   const searchParams = useSearchParams();
   const tab = resolveTab(searchParams.get('tab') ?? undefined);
 
-  const lessonStatus = PROTOTYPE_LESSON_STATUS;
+  const lessonStatus = useClassPrototypeStore((s) => s.lessonStatus);
   const doneCount = useMemo(
     () => lessonStatus.filter((s) => s === 'done').length,
     [lessonStatus],

@@ -7,25 +7,12 @@ import { LessonCurriculumDrawer } from './lesson-curriculum-drawer';
 import { LessonFeedbackForm } from './lesson-feedback-form';
 import { LessonRightSidebar } from './lesson-right-sidebar';
 import { MaterialIcon } from './material-icon';
-import { type LessonStatus } from './roadmap-tab';
 import { VIBE_COURSE, VIBE_LESSONS } from '../_data/courses';
+import { useClassPrototypeStore } from '../_data/use-class-prototype-store';
 
 interface LessonDetailPageProps {
   lessonNum: number;
 }
-
-const PROTOTYPE_LESSON_STATUS: LessonStatus[] = [
-  'done',
-  'done',
-  'current',
-  'locked',
-  'locked',
-  'locked',
-  'locked',
-  'locked',
-  'locked',
-  'locked',
-];
 
 type ActiveTab = 'tutorial' | 'reflection';
 
@@ -99,7 +86,7 @@ export function LessonDetailPage({ lessonNum }: LessonDetailPageProps) {
     [lessonNum],
   );
   const isFinalLesson = lesson.num === VIBE_LESSONS.length;
-  const lessonStatus = PROTOTYPE_LESSON_STATUS;
+  const lessonStatus = useClassPrototypeStore((s) => s.lessonStatus);
 
   const doneCount = useMemo(
     () => lessonStatus.filter((s) => s === 'done').length,
