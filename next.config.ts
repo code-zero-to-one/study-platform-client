@@ -244,4 +244,9 @@ const sentryConfig = withSentryConfig(nextConfig, {
   widenClientFileUpload: true,
 });
 
-export default withBundleAnalyzer(sentryConfig);
+// [prototype 한정] Vercel preview 빌드의 Sentry 소스맵 업로드는 무료 플랜 45분 한도를 자주 초과한다.
+// preview 환경(VERCEL_ENV=preview)에서만 Sentry 래핑을 건너뛰고, production 배포에는 영향 없음.
+const isVercelPreview = process.env.VERCEL_ENV === 'preview';
+const baseConfig = isVercelPreview ? nextConfig : sentryConfig;
+
+export default withBundleAnalyzer(baseConfig);
