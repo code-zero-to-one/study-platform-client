@@ -1,136 +1,170 @@
-# /design-to-dev — Figma to Component Pipeline
+# /design-to-dev-en — Turn a Figma Design Into Component Code
 
-Converts a Figma URL into committed component code + Storybook stories + visual comparison report.
+Takes a Figma URL and produces component code + Storybook stories + a visual comparison report, then commits everything.
 
-## Input
+## Usage
 
 ```
-/design-to-dev <figma-url> [component-name]
+/design-to-dev-en <figma-url> [component-name]
 ```
 
 Example:
 ```
-/design-to-dev https://figma.com/design/xxx?node-id=123 StudyCard
+/design-to-dev-en https://figma.com/design/xxx?node-id=123 StudyCard
 ```
 
-## Execution Order
+---
 
-### Step 1 — Parallel preparation
+### Step 0 — Figure out what kind of frame this is (before writing any code)
 
-Run all three simultaneously:
+Look at the Figma frame and decide which type it is. The type determines which stories you need to build.
 
-**A. Figma analysis** (Figma MCP)
+| Type | What it looks like | Stories needed |
+|------|--------------------|----------------|
+| **A — Single component** | One component, different states (hover, disabled, etc.) | Default + each state + Mobile |
+| **B — Variant grid** | A table of size × state × type combinations | VisualMatrix + Interactive |
+| **C — Composite screen** | Multiple different components placed together | Composite story |
 
-**A.0 — Frame enumeration FIRST (REQUIRED for variant frames)**
+If you can't tell, call `get_screenshot(frame-node-id)` to look at the frame visually before deciding.
+
+---
+
+### Step 1 — Preparation (run A, B, C at the same time)
+
+#### A. Read the Figma design
+
+**A.0 — List all child nodes first (required)**
+
+If you only look at the root node, you'll miss hidden states like Disabled or Pressed.
+
 ```
 get_metadata(node-id)
-  → enumerate ALL child symbols/nodes inside the frame
-  → never assume the root node alone defines the component
-  → for design-system files: a single Button frame can contain 96+ variants
-    (sizes × colors × states × icon arrangements)
-  → record every child node-id; later Steps must cover every cell of the matrix
+  → list every child node inside the frame
+  → a single Button frame can have 96+ variants inside
+  → write down every child node-id and name
 ```
 
-If `get_design_context` is called without first enumerating children, hidden
-variants (e.g. Disabled, Pressed, edge-case sizes) will be silently skipped.
-This has caused real mismatches (e.g. Primary-Disabled text color drifting from
-Secondary-Disabled because only one was sampled).
+**A.0.0 — Check Code Connect mapping first (required)**
 
-**A.0.1 — Coordinates ≠ Visual structure (REQUIRED interpretation step)**
+Before writing any code, check whether the Figma node is already mapped to a codebase component.
 
-`get_metadata` returns absolute (x, y) for every symbol, but the X/Y *grouping
-intent* is NOT directly inferable from coordinate clusters. A 96-variant frame
-could be either:
-
-  (a) outer = Size (4 columns), inner = Interaction (4 sub-cols), then Type rows
-  (b) outer = Type (2 big blocks vertically), inner = Size × State combined row
-
-Both produce similar coordinate clusters but **render in completely different
-shapes**. Coordinate-based assumption alone failed in real session: Button
-frame `164:1175` was structured as (b), not (a).
-
-Mitigation:
-  1. After A.0 enumeration, ALSO call `get_screenshot(frame-node-id)` BEFORE
-     building any layout. Visually inspect: are there 2 horizontal mega-bands
-     or 4 vertical mega-columns?
-  2. Do NOT start writing render code until you have looked at the screenshot.
-  3. If structure is ambiguous, build a 1-row prototype, screenshot it, and
-     ask the user to confirm orientation BEFORE expanding to all 96 cells.
-
-**A.0.2 — Symbol name ≠ Visual asset (REQUIRED for icon symbols)**
-
-Symbol names like `Icon_left=true, Icon_right=false` only declare position
-flags — they do NOT identify which icon graphic is rendered inside. Real case:
-metadata showed `Icon_left=true` and the implementer assumed a `<Plus />` icon,
-but Figma actually rendered the same `<ArrowRight />` in both positions
-(generic placeholder pattern).
-
-Mitigation:
-  - For any icon-bearing variant, call `get_design_context(child-node-id)` on
-    at least one Primary+icon and one Secondary+icon cell to inspect the actual
-    SVG / instance reference.
-  - When the icon is a placeholder (same icon in left & right slots), use the
-    same component for both positions in code.
-  - Never infer icon identity from the variant prop name.
-
-**A.1 — Per-node design context**
 ```
-get_design_context(node-id)            # the parent frame (overview + screenshot)
-get_design_context(child-node-id) × N  # MUST sample every (size × color × state) cell
-                                       # at minimum: one of each Interaction state
-                                       # AND one of each Type per state (Primary vs Secondary
-                                       # may use DIFFERENT tokens in the same state)
+get_code_connect_map(node-id)
+  → mapping exists → import the mapped component, skip code generation
+  → no mapping → continue with the normal workflow (A.0.1 onward)
+```
+
+After Step 5 commit, optionally register the new component to Code Connect:
+```
+get_code_connect_suggestions(node-id) → send_code_connect_mappings(...)
+```
+(Optional — prevents duplicate generation on the next run against the same design.)
+
+**A.0.1 — Don't guess the layout from coordinates alone (required)**
+
+Figma gives you absolute (x, y) positions, but those numbers don't tell you whether the grid reads left-to-right or top-to-bottom. The same coordinate spread could mean:
+- (a) Size changes across columns, state changes within sub-columns
+- (b) Type makes the big blocks, size × state fills each block
+
+These look similar in raw numbers but are completely different visually.
+
+What to do:
+1. After A.0, call `get_screenshot(frame-node-id)` before writing anything
+2. Look at the screenshot — how many big columns? How many big rows?
+3. **Do not write render code until you've seen the screenshot**
+4. If still unclear, build a one-row prototype → take screenshot → ask the user to confirm → then expand
+
+**A.0.2 — A symbol's name doesn't tell you which icon it is (required)**
+
+`Icon_left=true` just means "icon on the left" — it doesn't say which icon. You can't guess the icon from the prop name.
+
+- For any icon-bearing variant, call `get_design_context(child-node-id)` to see the actual SVG
+- If both left and right slots use the same icon (placeholder pattern), use the same component for both in code
+
+**A.0.3 — Draw an ASCII grid of the frame layout (required)**
+
+After looking at the screenshot, write out the frame structure as a grid. This becomes the reference for Step 3.1 coordinates.
+
+```
+Example:
+         │ Default │ Hover │ Pressed │ Disabled │
+─────────┼─────────┼───────┼─────────┼──────────┤
+L/none   │   ██    │  ██   │   ██    │    ██    │  ← Primary block
+L/right  │   ██    │  ██   │   ██    │    ██    │
+L/left   │   ██    │  ██   │   ██    │    ██    │
+─────────┼─────────┼───────┼─────────┼──────────┤
+L/none   │   ░░    │  ░░   │   ░░    │    ░░    │  ← Secondary block
+...
+```
+
+Label each direction clearly:
+- **Row axis**: what changes going down (icon position, variant type, etc.)
+- **Col axis**: what changes going right (state, size, etc.)
+- **Block axis**: what creates the major sections (type, color, etc.)
+
+**A.1 — Read the design details for each node**
+
+```
+get_design_context(node-id)            # overview of the parent frame + screenshot
+get_design_context(child-node-id) × N  # sample every (size × color × state) cell
+                                       # Primary and Secondary can use different tokens
+                                       # even in the same state
   → layout: auto-layout vs absolute, padding, gap, alignment
-  → transforms: rotation (exact degree e.g. -9.38°), scale, mirror
+  → transforms: rotation (exact degrees), scale, mirror
   → typography: family, weight, size, line-height, letter-spacing
-  → effects: drop-shadow, backdrop-blur, blend-mode, opacity
+  → effects: drop shadow, blur, blend mode, opacity
   → hierarchy: parent→child, z-order, masks
 
-get_variable_defs(node-id) × N         # call PER variant — token sets differ
-                                       # (e.g. Primary-Disabled may bind a unique
-                                       # `color/text/disabled` not used elsewhere)
+get_variable_defs(node-id) × N         # call per variant — token sets differ
   → extract design tokens
   → map each to global.css @theme inline variables
-
-get_screenshot()
-  → save as reference image for Step 4 comparison
 ```
 
-**A.2 — Large response handling**
+**A.2 — When the response is too large**
+
+If `get_design_context` returns more than 50 KB, MCP gives you a file path instead.
+Use `grep + sort + uniq -c` on that file to find which tokens appear most often — no need to read the whole thing.
+
+**A.3 — Identify the layout type**
+
+This decides how to structure the story container:
+- **Auto-layout frame** → use `flex`/`gap` in the story wrapper
+- **Absolute frame** → use `position: relative` container + `position: absolute` per child
+- **Variant grid (Type B)** → always absolute (column widths and row heights vary per cell, flex won't work)
+- **Form field** (TextField, TextArea, etc.) → flag for Step 4.3 audit
+
+#### B. Token audit
+
 ```
-If get_design_context output > 50KB, MCP returns persisted-output path.
-Use grep + sort + uniq -c on the persisted file to extract token usage
-frequency (e.g. how many variants use gap-50 vs gap-75) — this reveals
-matrix coverage without re-reading the whole blob.
+Build a mapping table: Figma token → project token
+
+✅ Found    → use the project token (p-200, rounded-150, etc.)
+⚠️ Close    → use the nearest token, note the difference in the report
+❌ No match → STOP: never use arbitrary values (p-[3px]). Report to user before continuing.
 ```
 
-**B. Token audit**
-```
-Build mapping table: Figma token → project custom token
+#### C. Backend sync (only for components that show API data)
 
-✅ Mapped  → use project token (p-200, rounded-150, etc.)
-⚠️ Close   → use nearest token, note deviation in report
-❌ No match → BLOCK: report to user before proceeding
-             Never use arbitrary values (p-[3px], w-[320px])
-```
+Skip this for pure design system components like Button, TextField, and Icon.
 
-**C. Backend sync**
-```
+```bash
 cd ../study-platform-mvp && git pull origin dev
 
-If component renders backend data:
-  → identify related DTO in src/types/api/ or src/api/openapi/
-  → extract optional fields list → mark as ? in component props
+# If the component renders backend data:
+#   → find the related DTO in src/types/api/ or src/api/openapi/
+#   → note which fields are optional → mark those with ? in component props
 ```
 
-### Step 2 — Component generation
+---
+
+### Step 2 — Write the component code
 
 ```typescript
-// Rules enforced:
+// Rules:
 // - Custom tokens only (p-200, gap-150, rounded-200)
-// - cn() for all className composition
-// - TypeScript props interface required
-// - Optional backend fields marked with ?
+// - Use cn() for every className
+// - TypeScript props interface is required
+// - Optional backend fields use ?
 // - No hardcoded colors or hex values
 
 export function ComponentName({ prop1, prop2 }: ComponentNameProps) {
@@ -142,222 +176,269 @@ export function ComponentName({ prop1, prop2 }: ComponentNameProps) {
 }
 ```
 
-After writing component:
+After writing, all three of these must pass before moving on:
+
 ```bash
 yarn lint:fix && yarn prettier:fix && yarn typecheck
 ```
-All three must pass before continuing.
 
-### Step 3 — Storybook story generation
+---
 
-Generate alongside component (same PR):
+### Step 3 — Write Storybook stories
 
+Story files live **next to the component** (co-located):
+```
+src/components/.../ComponentName.stories.tsx
+```
+
+**Type A (single component):**
 ```typescript
-// ComponentName.stories.tsx
-export default {
-  title: 'Components/ComponentName',
-  component: ComponentName,
-} satisfies Meta<typeof ComponentName>;
-
-// Required stories:
 export const Default: Story = { args: { ... } };
-export const [StateVariant]: Story = { ... }; // hover, disabled, loading, error
+export const Disabled: Story = { args: { disabled: true } };
+export const Error: Story = { args: { error: true } };
 export const Mobile: Story = {
   parameters: { viewport: { defaultViewport: 'mobile1' } },
 };
 ```
 
-#### Step 3.5 — Spec-matrix story (REQUIRED for design-system frames)
+**Type B (variant grid):** VisualMatrix (Step 3.1) + Interactive (Step 3.2) — both are required.
 
-When the source frame contains a variant matrix (e.g. Button = Size × Type ×
-State × Icon = 96 cells), add a `FigmaFullSpec` story that reproduces the
-Figma layout **pixel-faithfully** for visual regression and design review.
+**Type C (composite):** One `Composite` story that places all components together with the same layout and spacing as the Figma frame — not in isolation.
 
-Rules:
+#### Step 3.1 — VisualMatrix story (required for Type B)
 
-1. **Use absolute positioning, NOT flex/gap.** Variant matrices have variable
-   column widths (e.g. Large 145px, XSmall 112px) and variable row heights
-   (28~48px) that flex containers cannot reproduce without per-cell hacks.
+This story reproduces the Figma variant grid pixel-for-pixel, for visual regression and design review.
 
-2. **Normalize Figma absolute coords to (0,0) origin and store as a
-   single source-of-truth table:**
+**Rules:**
+
+1. **Use absolute positioning, not flex/gap.** Each cell has its own width and height, so flex containers can't reproduce the layout without per-cell hacks.
+
+2. **Normalize Figma coordinates to (0, 0).** Subtract the frame's top-left x/y from every child's position. Store this as a single reference table, derived from the ASCII grid (A.0.3).
+
+3. **Generic coordinate table pattern** — name the axes based on your A.0.3 grid, then rename them to match your component:
 
 ```typescript
-// Pattern from real Button (node 164:1175) implementation
-const SIZE_BASE_X: Record<ButtonSize, number> = {
-  large: 0, medium: 604, small: 1176, xsmall: 1664,  // from Figma x - 147
+// Axis keys come from the A.0.3 grid — rename for each component
+const COL_BASE_X: Record<SizeKey, number> = {
+  // normalized x per size column (Figma x - frame.x)
 };
-const STATE_DX: Record<ButtonSize, Record<ButtonState, number>> = {
-  large:  { default: 0, hover: 145, pressed: 290, disabled: 435 },
-  medium: { default: 0, hover: 137, pressed: 274, disabled: 411 },
-  small:  { default: 0, hover: 116, pressed: 232, disabled: 348 },
-  xsmall: { default: 0, hover: 112, pressed: 224, disabled: 336 },
+const STATE_DX: Record<SizeKey, Record<StateKey, number>> = {
+  // x offset per interaction state within each size column
 };
-const ICON_DY: Record<IconArrangement, number> = { none: 0, right: 78, left: 156 };
-const TYPE_BASE_Y: Record<ButtonType, number> = { primary: 0, secondary: 354 };
+const ROW_DY: Record<RowKey, number> = {
+  // y offset per row type (icon arrangement, variant, etc.)
+};
+const BLOCK_BASE_Y: Record<BlockKey, number> = {
+  // y starting point per major block (type, color, etc.)
+};
 
-const cells = SIZE_ORDER.flatMap((size) =>
-  STATE_ORDER.flatMap((state) =>
-    TYPE_ORDER.flatMap((type) =>
-      ICON_ORDER.map((icon) => ({
-        ...keys,
-        x: SIZE_BASE_X[size] + STATE_DX[size][state],
-        y: TYPE_BASE_Y[type] + ICON_DY[icon],
+const cells = BLOCK_KEYS.flatMap((block) =>
+  ROW_KEYS.flatMap((row) =>
+    COL_KEYS.flatMap((col) =>
+      STATE_KEYS.map((state) => ({
+        block, row, col, state,
+        x: COL_BASE_X[col] + STATE_DX[col][state],
+        y: BLOCK_BASE_Y[block] + ROW_DY[row],
       })),
     ),
   ),
 );
 ```
 
-3. **Wrap in `overflow: auto` container** when normalized width exceeds
-   viewport (Button matrix = 2072px). Faithful matching > viewport fit.
-
-4. **Statically simulate hover/pressed states** — CSS `:hover` cannot show all
-   4 interaction states simultaneously. Use `!important` overrides on cva-
-   generated bg classes:
+4. **Match the story container size to the Figma frame:**
 
 ```typescript
-const STATE_OVERRIDE: Record<ButtonType, Record<ButtonState, string>> = {
-  primary: {
-    default: '',
-    hover:    '!bg-fill-brand-default-hover',
-    pressed:  '!bg-fill-brand-default-pressed',
-    disabled: '',  // use disabled prop instead
-  },
-  // ...
+parameters: {
+  layout: 'fullscreen',
+},
+render: () => (
+  // width/height from Figma frame metadata; overflow: auto when wider than viewport
+  <div style={{ width: FRAME_WIDTH, height: FRAME_HEIGHT, position: 'relative', overflow: 'auto' }}>
+    {cells.map((cell) => (
+      <div key={`${cell.block}-${cell.row}-${cell.col}-${cell.state}`}
+           style={{ position: 'absolute', left: cell.x, top: cell.y }}>
+        <Component {...deriveProps(cell)} className={STATE_OVERRIDE[cell.block][cell.state]} />
+      </div>
+    ))}
+  </div>
+),
+```
+
+5. **Simulate interaction states statically** — CSS `:hover` can only show one element's hover state at a time. Use `!important` overrides on cva-generated classes to show all states at once:
+
+```typescript
+// Static overrides so all states appear simultaneously.
+// Real interaction behavior is verified in the Interactive story (Step 3.2).
+const STATE_OVERRIDE: Record<BlockKey, Record<StateKey, string>> = {
+  primary:   { default: '', hover: '!bg-fill-brand-default-hover', pressed: '!bg-fill-brand-default-pressed', disabled: '' },
+  secondary: { default: '', hover: '!bg-...', pressed: '!bg-...', disabled: '' },
 };
 ```
 
-5. **Disable matrix-axis controls** in story `argTypes` so users don't get
-   confused why color/size dropdowns appear inert (they're locked by render
-   loop):
+6. **Disable the grid axis controls** so reviewers don't see confusing dropdowns that don't do anything:
 
 ```typescript
 argTypes: {
-  color:        { table: { disable: true } },
-  size:         { table: { disable: true } },
-  iconPosition: { table: { disable: true } },
-  icon:         { table: { disable: true } },
-  disabled:     { table: { disable: true } },
-}
+  size:     { table: { disable: true } },
+  state:    { table: { disable: true } },
+  disabled: { table: { disable: true } },
+  // ... other grid axes
+},
 ```
 
-### Step 4 — Figma ↔ Storybook visual comparison
+#### Step 3.2 — Interactive story (required alongside VisualMatrix)
 
-```
-1. Start Storybook (yarn storybook → port 6006)
-2. Capture each story via Chrome DevTools MCP (take_screenshot fullPage)
-3. Re-fetch Figma reference via mcp__claude_ai_Figma__get_screenshot
-   (do not reuse a stale screenshot from Step 1 — short-lived URLs may expire)
-4. Read BOTH images in the SAME response (parallel Read calls) so the model
-   sees them side-by-side, not from memory.
+The `!important` overrides in VisualMatrix bypass the real CSS interaction chain (`hover:`, `focus-within:`, `active:`). Interactive verifies the real chain works correctly — no overrides, just actual interactive instances.
 
-Compare in two modes:
-  Visual (multimodal): block structure, column count, row count, color,
-                       spacing, typography, radius, shadows, icon identity
-  Numeric (text):      transforms — rotation °, scale, mirror
-                       coordinate sampling — getBoundingClientRect on key cells
-                       to confirm absolute positions match Figma metadata
-
-Output report:
-  ✅ Match    — list matched properties
-  ⚠️ Deviation — acceptable (sub-pixel rounding, +1px from border, etc.)
-                 with explanation
-  ❌ Mismatch  — fix → re-capture → re-compare
-
-Only proceed after all ❌ items resolved.
+```typescript
+export const Interactive: Story = {
+  render: () => (
+    <div className="flex gap-200 p-200">
+      <Component />           {/* default — hover/press manually in Storybook */}
+      <Component disabled />  {/* disabled */}
+    </div>
+  ),
+};
 ```
 
-#### Step 4.0 — NEVER self-approve a matrix on first pass (REQUIRED)
+---
 
-DOM assertions like "96 buttons rendered, all bg colors correct" prove the
-**cells exist** but NOT that the **layout matches Figma**. Real session: a
-build with all 96 buttons + correct colors + correct sizes was reported as
-"Figma 1:1 match" — but the outer block grouping was completely wrong (4
-size-columns vs Figma's 2 type-rows). The user had to point this out.
+### Step 4 — Compare Figma to Storybook visually
 
-Required protocol for ANY matrix/spec story:
+**Before starting: make sure Storybook is running at `http://localhost:6006`. If not, start it with `yarn storybook`.**
 
-1. **Always do an explicit screenshot diff** — even when DOM checks pass.
-2. **Read both images in one response** so the LLM sees them side-by-side,
-   not from prior-message memory.
-3. **State the layout structure aloud** before claiming match:
-   - "Figma: 2 horizontal mega-blocks (Primary top, Secondary bottom),
-     each block has 3 icon-rows × 16-cell rows."
-   - "My render: 2 horizontal mega-blocks (...), each block has ..."
-   - If the two descriptions differ → it is NOT a match. Fix first.
-4. **Defer to user confirmation** when the structure is non-trivial. Phrase
-   completion as "structure appears to match — please confirm against the
-   Figma file" rather than "1:1 match achieved".
+#### Step 4.1 — Comparison protocol
 
-#### Step 4.5 — Token cross-check matrix (REQUIRED)
+```
+A. Build the story URL
+   Story ID: kebab-case(meta.title) + '--' + kebab-case(export-name)
+   Example: title='Common/UI/TextField', export='VisualMatrix'
+     → id = 'common-ui-textfield--visual-matrix'
+   URL: http://localhost:6006/iframe.html?id=<story-id>&viewMode=story
 
-Pixel-level visual diff misses token-level drift (e.g. `#d1d2d4` vs `#d5d7da` —
-3 RGB units, invisible in screenshots but wrong token binding).
+B. If the URL doesn't work, find the story ID
+   Go to: http://localhost:6006/index.json
+   Run: Object.keys(json.entries).filter(k => k.includes('<keyword>'))
 
-Build an explicit table where rows = (size × color × state × icon) cells from
-Step A.0 enumeration, and columns = each design property:
+C. Take a Storybook screenshot
+   navigate_page(url) → take_screenshot(fullPage: true)
 
-| Variant | Figma value | Project token | Resolved px/hex | Match |
-|---|---|---|---|---|
-| L Primary Default bg | #f63d68 | `bg-fill-brand-default-default` | rose-500 → #f63d68 | ✓ |
-| L Secondary Disabled text | #d5d7da | `text-text-disabled` | gray-300 → #d5d7da | ✓ |
-| L Primary Disabled text | #d1d2d4 | `text-text-disabled` | gray-300 → #d5d7da | ❌ |
+D. Re-fetch the Figma reference (never reuse the Step 1 screenshot — it expires after ~7 days)
+   get_screenshot(nodeId, fileKey, enableBase64Response: true)
+
+E. Read both images in ONE response — never compare from memory.
+
+F. Say the layout out loud before claiming a match:
+   "Figma: <N> blocks, <R> rows × <C> cols per block"
+   "Storybook: <same format>"
+   If the descriptions don't match → it's not a match. Fix first.
+
+G. Compare:
+   - Visual: block/row/col structure, colors, spacing, typography, border-radius
+   - Numeric: use getBoundingClientRect on key cells to check pixel values
+
+H. Report:
+   ✅ Match — list what matched
+   ⚠️ Deviation — explain it (sub-pixel rounding, +1px border, etc.)
+   ❌ Mismatch — BLOCKER: fix → re-capture both → re-compare
+```
+
+**Re-comparison loop:** After fixing any ❌, re-capture both screenshots in one response and re-run the report. Only move to Step 5 when there are zero ❌ items. Never report a fix as done without screenshot evidence.
+
+**Never self-approve on the first pass.** DOM checks prove that cells exist — not that the layout matches Figma. Always do an explicit screenshot comparison.
+
+#### Step 4.2 — Token cross-check (required)
+
+Screenshots miss token-level drift. For example, `#d1d2d4` vs `#d5d7da` is only 3 RGB units apart — invisible in a screenshot but the wrong token binding.
+
+| Variant | Figma value | Project token | Resolved hex | Match |
+|---------|-------------|---------------|--------------|-------|
+| L Primary Default bg | #f63d68 | `bg-fill-brand-default-default` | #f63d68 | ✓ |
+| L Secondary Disabled text | #d5d7da | `text-text-disabled` | #d5d7da | ✓ |
 | M/L gap | 6px | `gap-75` | spacing-75 → 6px | ✓ |
-| XS/S gap | 4px | `gap-50` | spacing-50 → 4px | ✓ |
 
-Verification commands (project side):
 ```bash
-# Resolve project token to CSS value
+# Verify a project token resolves to the expected value
 grep -E "^\s*--color-text-disabled|^\s*--spacing-75" src/app/global.css
-
-# Extract Figma-side raw hex from variable defs (per node)
-get_variable_defs(node-id)
 ```
 
-Failure modes this catches but visual diff misses:
-- Two states map to the same project token but Figma uses two distinct tokens
-  (e.g. Primary-Disabled vs Secondary-Disabled text)
-- Project token name matches Figma name but resolves to different value
-- Spacing scale offsets (4 vs 6 px) inside <10px range
-- Hover/Pressed bound to wrong color step (rose-600 vs rose-700)
+Each ❌ row is a blocker — fix the token or get explicit user approval before Step 5.
 
-Each ❌ row is a blocker — either fix the token binding or document the
-deviation with explicit user approval before Step 5.
+What this catches that screenshots miss:
+- Two states use the same project token but Figma uses two different ones
+- Spacing values that are off by a few pixels (4 vs 6px)
+- Hover/Pressed wired to the wrong color step (rose-600 vs rose-700)
 
-### Step 5 — Commit to feature branch
+#### Step 4.3 — Form field traps (required for input/textarea/select)
+
+When A.3 flagged a form field, check each of these explicitly:
+
+**1. Don't confuse container height with input box height.**
+
+A Figma symbol height (e.g. TextArea L = 125px) almost always includes the helper-text row and gap. The actual input box is shorter:
 
 ```
+input_box_height = symbol_height − helper_height − container_gap
+```
+
+For single-line inputs, the heights are reliable (48/40px in DS 2.0) — verify they're in the spacing scale before using arbitrary `[Npx]`. For textareas, skip `min-h` entirely and use the `rows` attribute instead.
+
+**2. Trailing icon padding is asymmetric.**
+
+When there's an icon on the right, Figma usually reduces right padding by ~4px (12→8). Compare at least one cell without an icon and one with. If `pl` ≠ `pr`, encode it as a cva variant:
+
+```typescript
+hasTrailingIcon: { true: 'pr-100', false: 'pr-150' }
+```
+
+**3. Helper text token inconsistency.**
+
+Sample the helper text color in all states (default, focused, disabled, error, success). If 4 out of 5 use Subtlest but 1 uses Default, treat it as a Figma bug — implement Subtlest and note the outlier in the report.
+
+**4. Static grid overrides aren't real interactions.**
+
+The `!bg-...` overrides in VisualMatrix bypass the real `hover:`/`focus-within:`/`active:` chain. The Interactive story (Step 3.2) is required to verify that real interactions work.
+
+**5. Don't copy Figma typos into code.**
+
+Variable definitions sometimes contain typos (`Disableed`, `Hoverr`). Map them to correctly spelled project tokens — always.
+
+---
+
+### Step 5 — Commit to the feature branch
+
+```bash
 git add src/components/... src/stories/...
-commit message: "feat : <ComponentName> 컴포넌트 구현"
+# commit message: "feat : <ComponentName> 컴포넌트 구현"
 ```
 
-Include in commit:
+Include in the commit:
 - Component file
-- Storybook story file
-- Token mapping deviations (if any) noted in commit body
+- Storybook story file (VisualMatrix + Interactive for Type B)
+- Any token mapping deviations noted in the commit body
+
+---
 
 ## Output
 
 ```
 ✓ Token audit — 12 tokens mapped, 0 blocked
-✓ Component — src/components/common/ui/StudyCard.tsx
-✓ Story — src/stories/StudyCard.stories.tsx
+✓ Component — src/components/common/ui/Button/Button.tsx
+✓ Story — src/components/common/ui/Button/Button.stories.tsx
 ✓ Visual comparison — 8 ✅ match, 1 ⚠️ deviation (rounded 8.03° → 8°)
-✓ Committed: feat : StudyCard 컴포넌트 구현
+✓ Committed: feat : Button 컴포넌트 구현
 ```
 
-## Blockers (stop and report to user)
+## Stop and report to user when
 
-- Token audit: Figma token has no matching project token
-- Typecheck fails after generation
-- Visual comparison: ❌ mismatch that cannot be resolved with available tokens
-- Backend DTO not found for a component that renders API data
+- Token audit finds a Figma token with no matching project token
+- Typecheck fails after writing the component
+- Visual comparison has a ❌ mismatch that can't be fixed with available tokens
+- Component renders API data but no backend DTO exists
 
-## Notes
+## Things to keep in mind
 
-- Transform values (rotation, scale) must be compared numerically, not visually.
-  `-9.38°` and `-9°` are different — use exact Figma value.
-- `get_screenshot` is for reference only. Never implement from screenshot alone.
-- Component and story always committed together — never separately.
-- This command does NOT create a PR. Run `/pr` after feature dev is complete (Phase 2).
+- Rotation and scale values must match numerically. `-9.38°` and `-9°` are different — use the exact Figma value.
+- `get_screenshot` is for reference only. Never implement from a screenshot alone.
+- Component and story are always committed together — never separately.
+- This command does not create a PR. Run `/pr` after feature development is complete.
