@@ -11,16 +11,16 @@ const ICON_SIZE_MAP = {
 } as const;
 
 const buttonVariants = cva(
-  'flex items-center justify-center cursor-pointer py-0 disabled:bg-background-disabled',
+  'flex items-center justify-center cursor-pointer py-0 disabled:bg-background-disabled disabled:cursor-not-allowed',
   {
     variants: {
       color: {
         primary:
-          'bg-fill-brand-default-default text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed disabled:text-text-disabled-strong disabled:cursor-not-allowed',
+          'bg-fill-brand-default-default text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed disabled:text-text-disabled-strong',
         secondary:
-          'bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed disabled:text-text-disabled disabled:cursor-not-allowed',
+          'bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed disabled:text-text-disabled',
         outlined:
-          'bg-fill-background-surface-default text-text-default border border-border-default border-[1px] hover:bg-fill-neutral-subtle-hover active:bg-fill-neutral-subtle-pressed disabled:text-text-disabled disabled:border-border-disabled disabled:cursor-not-allowed',
+          'bg-fill-background-surface-default text-text-default border border-border-default border-[1px] hover:bg-fill-neutral-subtle-hover active:bg-fill-neutral-subtle-pressed disabled:text-text-disabled disabled:border-border-disabled',
       },
       size: {
         xsmall: 'px-100 font-designer-13b rounded-75 h-350',
@@ -95,7 +95,6 @@ function Button({
   );
 
   return asChild ? (
-    // asChild 모드 → Slot은 children 하나만 받아야 함
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ color, size }), className)}
@@ -106,7 +105,6 @@ function Button({
       {children}
     </Comp>
   ) : (
-    // 기본 모드 → 내부 UI 구성 가능
     <button
       data-slot="button"
       className={cn(buttonVariants({ color, size }), className)}
