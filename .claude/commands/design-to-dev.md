@@ -1,16 +1,16 @@
-# /design-to-dev-en — Turn a Figma Design Into Component Code
+# /design-to-dev — Turn a Figma Design Into Component Code
 
 Takes a Figma URL and produces component code + Storybook stories + a visual comparison report, then commits everything.
 
 ## Usage
 
 ```
-/design-to-dev-en <figma-url> [component-name]
+/design-to-dev <figma-url> [component-name]
 ```
 
 Example:
 ```
-/design-to-dev-en https://figma.com/design/xxx?node-id=123 StudyCard
+/design-to-dev https://figma.com/design/xxx?node-id=123 StudyCard
 ```
 
 ---
@@ -80,27 +80,6 @@ What to do:
 
 - For any icon-bearing variant, call `get_design_context(child-node-id)` to see the actual SVG
 - If both left and right slots use the same icon (placeholder pattern), use the same component for both in code
-
-**A.0.3 — Draw an ASCII grid of the frame layout (required)**
-
-After looking at the screenshot, write out the frame structure as a grid. This becomes the reference for Step 3.1 coordinates.
-
-```
-Example:
-         │ Default │ Hover │ Pressed │ Disabled │
-─────────┼─────────┼───────┼─────────┼──────────┤
-L/none   │   ██    │  ██   │   ██    │    ██    │  ← Primary block
-L/right  │   ██    │  ██   │   ██    │    ██    │
-L/left   │   ██    │  ██   │   ██    │    ██    │
-─────────┼─────────┼───────┼─────────┼──────────┤
-L/none   │   ░░    │  ░░   │   ░░    │    ░░    │  ← Secondary block
-...
-```
-
-Label each direction clearly:
-- **Row axis**: what changes going down (icon position, variant type, etc.)
-- **Col axis**: what changes going right (state, size, etc.)
-- **Block axis**: what creates the major sections (type, color, etc.)
 
 **A.1 — Read the design details for each node**
 
@@ -213,12 +192,12 @@ This story reproduces the Figma variant grid pixel-for-pixel, for visual regress
 
 1. **Use absolute positioning, not flex/gap.** Each cell has its own width and height, so flex containers can't reproduce the layout without per-cell hacks.
 
-2. **Normalize Figma coordinates to (0, 0).** Subtract the frame's top-left x/y from every child's position. Store this as a single reference table, derived from the ASCII grid (A.0.3).
+2. **Normalize Figma coordinates to (0, 0).** Subtract the frame's top-left x/y from every child's position. Store this as a single reference table.
 
-3. **Generic coordinate table pattern** — name the axes based on your A.0.3 grid, then rename them to match your component:
+3. **Generic coordinate table pattern** — name the axes by what changes along each direction in the frame (row/col/block), then rename them to match your component:
 
 ```typescript
-// Axis keys come from the A.0.3 grid — rename for each component
+// Axis keys: rename for each component based on what varies per direction
 const COL_BASE_X: Record<SizeKey, number> = {
   // normalized x per size column (Figma x - frame.x)
 };
