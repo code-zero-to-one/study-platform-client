@@ -209,6 +209,39 @@ Decide the target file path under `src/app/`:
 
 Honor existing route conventions (dynamic segments `[id]`, route groups `(group)`). Confirm the chosen path with user **only if ambiguous**.
 
+#### 6c. Middleware Route Registration
+
+**Always run this step.** The Next.js route group (landing/service/admin) does NOT automatically set middleware policy. All unregistered paths fall through to `handleProtected` and redirect to `/`.
+
+Read `src/features/auth/server/middleware/route-policy.ts` and check if the new route path is already covered:
+
+```bash
+grep -n "'/path'" src/features/auth/server/middleware/route-policy.ts
+```
+
+Then apply the rule:
+
+| Route group | Required policy | Reason |
+|-------------|-----------------|--------|
+| `(landing)` | `PUBLIC_SESSION` | Public page; needs session context for header auth state |
+| `(service)` | Already protected (default) | Auth required; no entry needed |
+| `(admin)` | Already protected (default) | Admin JWT claim checked separately |
+
+If the path is **not registered** and the route is `(landing)`:
+
+```typescript
+// Add to ROUTE_POLICIES in route-policy.ts before the `] as const;` closing
+{
+  kind: ROUTE_POLICY_KINDS.PUBLIC_SESSION,
+  path: '/{route-path}',
+  match: ROUTE_MATCH_TYPES.PREFIX,
+},
+```
+
+Use `PREFIX` match for all page routes (covers `/class`, `/class/[id]`, etc.).
+
+**Do not skip this step** — missing registration causes silent redirect-to-`/` that only surfaces at browser verification time.
+
 #### 6b. API Mapping
 
 For every data-bearing region from Step 2:
@@ -389,6 +422,7 @@ Run `/pr` to open PR against `develop`.
 - [ ] Component reuse map built — existing components identified and imported (Step 4)
 - [ ] `docs/Figma/{slug}.md` written with all tables (Step 5)
 - [ ] Route under correct group (landing/service/admin)
+- [ ] `(landing)` route registered as `PUBLIC_SESSION` in `src/features/auth/server/middleware/route-policy.ts` (Step 6c)
 - [ ] Every data region either mapped to real hook or marked TODO
 - [ ] Backend repo refreshed via `git pull origin dev`
 - [ ] DTO cross-check passed (or aborted on mismatch)
