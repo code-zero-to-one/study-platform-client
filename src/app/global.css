@@ -947,6 +947,19 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   }
 }
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
 @utility hover-lift-brand {
   transform: translateY(0) scale(1);
   box-shadow: 0 0 0 0 rgba(246, 61, 104, 0);
