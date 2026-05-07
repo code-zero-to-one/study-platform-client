@@ -3,15 +3,18 @@
 import { useCallback, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
-  getClassCourseDetail,
-  getClassCourses,
-  getClassCurriculum,
-  toClassApiError,
+  type ClassAdminCreateResult,
   type ClassApiError,
   type ClassCourseDetail,
   type ClassCourseSummary,
   type ClassCurriculum,
   type ClassPageResponse,
+  createClassAdminSample,
+  getClassCourseDetail,
+  getClassCourses,
+  getClassCurriculum,
+  loginClassAdminTestMember,
+  toClassApiError,
 } from '@/features/class-domain-test/api/class-domain-test-api';
 
 type SmokeState = 'idle' | 'loading' | 'success' | 'error';
@@ -29,6 +32,9 @@ export default function ClassDomainTestPage() {
   const [courses, setCourses] =
     useState<ClassPageResponse<ClassCourseSummary>>();
   const [selectedSlug, setSelectedSlug] = useState('');
+  const [adminToken, setAdminToken] = useState('');
+  const [adminCreateResult, setAdminCreateResult] =
+    useState<ClassAdminCreateResult>();
   const [detail, setDetail] = useState<ClassCourseDetail>();
   const [curriculum, setCurriculum] = useState<ClassCurriculum>();
   const [coursesResult, setCoursesResult] =
@@ -36,6 +42,8 @@ export default function ClassDomainTestPage() {
   const [detailResult, setDetailResult] =
     useState<SmokeResult>(initialSmokeResult);
   const [curriculumResult, setCurriculumResult] =
+    useState<SmokeResult>(initialSmokeResult);
+  const [adminResult, setAdminResult] =
     useState<SmokeResult>(initialSmokeResult);
 
   const loadCourses = useCallback(async () => {
@@ -141,6 +149,40 @@ export default function ClassDomainTestPage() {
     }
   }, []);
 
+  const loginAdmin = useCallback(async () => {
+    setAdminResult({ state: 'loading', error: undefined });
+
+    try {
+      const accessToken = await loginClassAdminTestMember();
+      setAdminToken(accessToken);
+      setAdminResult({ state: 'success', error: undefined });
+    } catch (error) {
+      setAdminResult({ state: 'error', error: toClassApiError(error) });
+    }
+  }, []);
+
+  const createAdminSample = useCallback(async () => {
+    if (!adminToken) {
+      setAdminResult({
+        state: 'error',
+        error: { message: '먼저 운영자 테스트 로그인을 실행하세요.' },
+      });
+      return;
+    }
+
+    setAdminResult({ state: 'loading', error: undefined });
+
+    try {
+      const result = await createClassAdminSample(adminToken);
+      setAdminCreateResult(result);
+      setSelectedSlug(result.slug);
+      setAdminResult({ state: 'success', error: undefined });
+      await loadCourses();
+    } catch (error) {
+      setAdminResult({ state: 'error', error: toClassApiError(error) });
+    }
+  }, [adminToken, loadCourses]);
+
   return (
     <main className="bg-background-alternative min-h-screen w-full px-300 py-400">
       <section className="mx-auto flex w-full max-w-screen-xl flex-col gap-250">
@@ -180,6 +222,41 @@ export default function ClassDomainTestPage() {
             </SmokeButton>
           </div>
         </header>
+
+        <SmokeCard title="L-admin 운영자 생성 smoke" result={adminResult}>
+          <div className="flex flex-wrap gap-100">
+            <SmokeButton
+              onClick={loginAdmin}
+              isLoading={adminResult.state === 'loading'}
+            >
+              운영자 테스트 로그인
+            </SmokeButton>
+            <SmokeButton
+              onClick={createAdminSample}
+              isLoading={adminResult.state === 'loading'}
+            >
+              코스+레슨 생성
+            </SmokeButton>
+          </div>
+          <p className="font-designer-13r text-text-subtlest">
+            accessToken은 화면에 노출하지 않고 브라우저 state에만 보관합니다.
+          </p>
+          {adminCreateResult && (
+            <div className="grid gap-100 md:grid-cols-3">
+              <Metric label="courseId" value={adminCreateResult.courseId} />
+              <Metric
+                label="lessons"
+                value={adminCreateResult.lessonIds.length}
+              />
+              <div className="rounded-150 bg-background-alternative p-150">
+                <p className="font-designer-12r text-text-subtlest">slug</p>
+                <p className="font-designer-13b break-all text-text-default">
+                  {adminCreateResult.slug}
+                </p>
+              </div>
+            </div>
+          )}
+        </SmokeCard>
 
         <section className="grid gap-200 lg:grid-cols-3">
           <SmokeCard title="A-01 GET /courses" result={coursesResult}>

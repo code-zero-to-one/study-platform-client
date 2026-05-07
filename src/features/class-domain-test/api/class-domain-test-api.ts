@@ -103,6 +103,12 @@ export interface ClassApiError {
   message: string;
 }
 
+export interface ClassAdminCreateResult {
+  slug: string;
+  courseId: number;
+  lessonIds: number[];
+}
+
 export const getClassCourses = async () => {
   const { data } = await axiosInstance.get<
     BaseResponse<ClassPageResponse<ClassCourseSummary>>
@@ -131,6 +137,88 @@ export const getClassCurriculum = async (slug: string) => {
   );
 
   return data.content;
+};
+
+export const loginClassAdminTestMember = async () => {
+  const { data } = await axiosInstance.post<
+    BaseResponse<{ accessToken: string }>
+  >('/growth/test/login', {
+    memberId: 1,
+  });
+
+  return data.content.accessToken;
+};
+
+export const createClassAdminSample = async (
+  accessToken: string,
+): Promise<ClassAdminCreateResult> => {
+  const slug = `class-test-${Date.now()}`;
+  const authorization = {
+    Authorization: `Bearer ${accessToken}`,
+  };
+  const { data: courseData } = await axiosInstance.post<
+    BaseResponse<{ courseId: number }>
+  >(
+    '/admin/courses',
+    {
+      slug,
+      title: `브라우저 테스트 클래스 ${new Date().toLocaleTimeString()}`,
+      description: 'class-test 페이지에서 운영자 API로 생성한 임시 클래스',
+      thumbnailUrl: 'https://cdn.example.com/class-test.png',
+      status: 'OPEN',
+      durationDays: 5,
+      earlyBirdEndsAt: '2026-06-30T23:59:00+09:00',
+    },
+    { headers: authorization },
+  );
+  const courseId = courseData.content.courseId;
+  const { data: freeLessonData } = await axiosInstance.post<
+    BaseResponse<{ lessonId: number }>
+  >(
+    `/admin/courses/${courseId}/lessons`,
+    {
+      chapterNumber: 1,
+      lessonNumber: 1,
+      title: '무료 첫 레슨',
+      content: '운영자가 브라우저에서 입력한 무료 레슨 본문',
+      estimatedMinutes: 25,
+      isFree: true,
+      isPublished: true,
+    },
+    { headers: authorization },
+  );
+  const { data: paidLessonData } = await axiosInstance.post<
+    BaseResponse<{ lessonId: number }>
+  >(
+    `/admin/courses/${courseId}/lessons`,
+    {
+      chapterNumber: 1,
+      lessonNumber: 2,
+      title: '유료 둘째 레슨',
+      content: '운영자가 브라우저에서 입력한 유료 레슨 본문',
+      estimatedMinutes: 35,
+      isFree: false,
+      isPublished: true,
+    },
+    { headers: authorization },
+  );
+
+  await axiosInstance.put(
+    `/admin/courses/${courseId}/completion-message`,
+    {
+      message: '완주를 축하합니다. 다음 도전을 시작하세요.',
+    },
+    { headers: authorization },
+  );
+
+  return {
+    slug,
+    courseId,
+    lessonIds: [
+      freeLessonData.content.lessonId,
+      paidLessonData.content.lessonId,
+    ],
+  };
 };
 
 export const toClassApiError = (error: unknown): ClassApiError => {
