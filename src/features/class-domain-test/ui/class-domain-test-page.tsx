@@ -24,9 +24,38 @@ interface SmokeResult {
   error?: ClassApiError;
 }
 
+interface ScenarioStep {
+  title: string;
+  description: string;
+  state: SmokeState;
+}
+
 const initialSmokeResult: SmokeResult = {
   state: 'idle',
 };
+
+const initialScenarioSteps: ScenarioStep[] = [
+  {
+    title: '운영자 권한 준비',
+    description: '로컬 test login으로 관리자 토큰을 받습니다.',
+    state: 'idle',
+  },
+  {
+    title: '테스트 클래스 생성',
+    description: '운영자 API로 공개 클래스와 레슨 2개를 만듭니다.',
+    state: 'idle',
+  },
+  {
+    title: '사용자 공개 목록 확인',
+    description: '방금 만든 클래스가 공개 목록에 나오는지 확인합니다.',
+    state: 'idle',
+  },
+  {
+    title: '상세/커리큘럼 확인',
+    description: '상세 정보와 무료/유료 레슨 잠금 상태를 확인합니다.',
+    state: 'idle',
+  },
+];
 
 const viewerStatusLabel: Record<ClassCourseDetail['viewerStatus'], string> = {
   ANONYMOUS: '비로그인 사용자로 상세를 조회했습니다.',
@@ -56,6 +85,10 @@ export default function ClassDomainTestPage() {
     useState<ClassAdminCreateResult>();
   const [detail, setDetail] = useState<ClassCourseDetail>();
   const [curriculum, setCurriculum] = useState<ClassCurriculum>();
+  const [scenarioResult, setScenarioResult] =
+    useState<SmokeResult>(initialSmokeResult);
+  const [scenarioSteps, setScenarioSteps] =
+    useState<ScenarioStep[]>(initialScenarioSteps);
   const [coursesResult, setCoursesResult] =
     useState<SmokeResult>(initialSmokeResult);
   const [detailResult, setDetailResult] =
@@ -65,10 +98,27 @@ export default function ClassDomainTestPage() {
   const [adminResult, setAdminResult] =
     useState<SmokeResult>(initialSmokeResult);
 
-  const loadCourses = useCallback(async () => {
-    setCoursesResult({ state: 'loading', error: undefined });
+  const updateScenarioStep = useCallback(
+    (stepIndex: number, state: SmokeState) => {
+      setScenarioSteps((currentSteps) =>
+        currentSteps.map((step, index) =>
+          index === stepIndex ? { ...step, state } : step,
+        ),
+      );
+    },
+    [],
+  );
+
+  const resetReadResults = useCallback(() => {
     setDetail(undefined);
     setCurriculum(undefined);
+    setDetailResult(initialSmokeResult);
+    setCurriculumResult(initialSmokeResult);
+  }, []);
+
+  const loadCourses = useCallback(async () => {
+    setCoursesResult({ state: 'loading', error: undefined });
+    resetReadResults();
 
     try {
       const nextCourses = await getClassCourses();
@@ -79,7 +129,7 @@ export default function ClassDomainTestPage() {
     } catch (error) {
       setCoursesResult({ state: 'error', error: toClassApiError(error) });
     }
-  }, []);
+  }, [resetReadResults]);
 
   const loadDetail = useCallback(async () => {
     if (!selectedSlug) {
@@ -121,12 +171,9 @@ export default function ClassDomainTestPage() {
     }
   }, [selectedSlug]);
 
-  const runSmoke = useCallback(async () => {
+  const runPublicReadSmoke = useCallback(async () => {
     setCoursesResult({ state: 'loading', error: undefined });
-    setDetailResult(initialSmokeResult);
-    setCurriculumResult(initialSmokeResult);
-    setDetail(undefined);
-    setCurriculum(undefined);
+    resetReadResults();
 
     try {
       const nextCourses = await getClassCourses();
@@ -139,34 +186,37 @@ export default function ClassDomainTestPage() {
         setDetailResult({
           state: 'error',
           error: {
-            message: '조회된 OPEN 코스가 없어 상세 smoke를 건너뜁니다.',
+            message: '조회된 OPEN 코스가 없어 상세 조회를 건너뜁니다.',
           },
         });
         return;
       }
 
       setDetailResult({ state: 'loading', error: undefined });
-      try {
-        const nextDetail = await getClassCourseDetail(firstSlug);
-        setDetail(nextDetail);
-        setDetailResult({ state: 'success', error: undefined });
-      } catch (error) {
-        setDetailResult({ state: 'error', error: toClassApiError(error) });
-        return;
-      }
-
       setCurriculumResult({ state: 'loading', error: undefined });
-      try {
-        const nextCurriculum = await getClassCurriculum(firstSlug);
-        setCurriculum(nextCurriculum);
-        setCurriculumResult({ state: 'success', error: undefined });
-      } catch (error) {
-        setCurriculumResult({ state: 'error', error: toClassApiError(error) });
-      }
+      const [nextDetail, nextCurriculum] = await Promise.all([
+        getClassCourseDetail(firstSlug),
+        getClassCurriculum(firstSlug),
+      ]);
+      setDetail(nextDetail);
+      setCurriculum(nextCurriculum);
+      setDetailResult({ state: 'success', error: undefined });
+      setCurriculumResult({ state: 'success', error: undefined });
     } catch (error) {
-      setCoursesResult({ state: 'error', error: toClassApiError(error) });
+      const apiError = toClassApiError(error);
+      setCoursesResult({ state: 'error', error: apiError });
+      setDetailResult((current) =>
+        current.state === 'loading'
+          ? { state: 'error', error: apiError }
+          : current,
+      );
+      setCurriculumResult((current) =>
+        current.state === 'loading'
+          ? { state: 'error', error: apiError }
+          : current,
+      );
     }
-  }, []);
+  }, [resetReadResults]);
 
   const loginAdmin = useCallback(async () => {
     setAdminResult({ state: 'loading', error: undefined });
@@ -202,267 +252,399 @@ export default function ClassDomainTestPage() {
     }
   }, [adminToken, loadCourses]);
 
+  const runLocalScenario = useCallback(async () => {
+    setScenarioResult({ state: 'loading', error: undefined });
+    setScenarioSteps(initialScenarioSteps);
+    setAdminResult(initialSmokeResult);
+    setCoursesResult(initialSmokeResult);
+    resetReadResults();
+
+    try {
+      updateScenarioStep(0, 'loading');
+      setAdminResult({ state: 'loading', error: undefined });
+      const accessToken = await loginClassAdminTestMember();
+      setAdminToken(accessToken);
+      updateScenarioStep(0, 'success');
+
+      updateScenarioStep(1, 'loading');
+      const created = await createClassAdminSample(accessToken);
+      setAdminCreateResult(created);
+      setSelectedSlug(created.slug);
+      setAdminResult({ state: 'success', error: undefined });
+      updateScenarioStep(1, 'success');
+
+      updateScenarioStep(2, 'loading');
+      setCoursesResult({ state: 'loading', error: undefined });
+      const nextCourses = await getClassCourses();
+      setCourses(nextCourses);
+      setCoursesResult({ state: 'success', error: undefined });
+      updateScenarioStep(2, 'success');
+
+      updateScenarioStep(3, 'loading');
+      setDetailResult({ state: 'loading', error: undefined });
+      setCurriculumResult({ state: 'loading', error: undefined });
+      const [nextDetail, nextCurriculum] = await Promise.all([
+        getClassCourseDetail(created.slug),
+        getClassCurriculum(created.slug),
+      ]);
+      setDetail(nextDetail);
+      setCurriculum(nextCurriculum);
+      setDetailResult({ state: 'success', error: undefined });
+      setCurriculumResult({ state: 'success', error: undefined });
+      updateScenarioStep(3, 'success');
+      setScenarioResult({ state: 'success', error: undefined });
+    } catch (error) {
+      const apiError = toClassApiError(error);
+      setScenarioResult({ state: 'error', error: apiError });
+      setAdminResult((current) =>
+        current.state === 'loading'
+          ? { state: 'error', error: apiError }
+          : current,
+      );
+      setCoursesResult((current) =>
+        current.state === 'loading'
+          ? { state: 'error', error: apiError }
+          : current,
+      );
+      setDetailResult((current) =>
+        current.state === 'loading'
+          ? { state: 'error', error: apiError }
+          : current,
+      );
+      setCurriculumResult((current) =>
+        current.state === 'loading'
+          ? { state: 'error', error: apiError }
+          : current,
+      );
+      setScenarioSteps((currentSteps) =>
+        currentSteps.map((step) =>
+          step.state === 'loading' ? { ...step, state: 'error' } : step,
+        ),
+      );
+    }
+  }, [resetReadResults, updateScenarioStep]);
+
   return (
     <main className="bg-background-alternative min-h-screen w-full px-300 py-400">
       <section className="mx-auto flex w-full max-w-screen-xl flex-col gap-250">
         <header className="rounded-250 border border-border-default bg-background-default p-300 shadow-2">
           <p className="font-designer-14b text-text-brand">LOCAL CLASS TEST</p>
           <h1 className="font-designer-28b text-text-default">
-            클래스 생성 → 공개 조회 확인
+            클래스 기능이 연결됐는지 확인하기
           </h1>
           <p className="font-designer-15r mt-100 text-text-subtle">
-            버튼을 순서대로 누르면서 운영자 API로 만든 클래스가 사용자 공개
-            API에서 바로 보이는지 확인하는 로컬 테스트 화면입니다.
+            이 화면은 실제 운영자 화면이 아닙니다. 로컬 테스트용으로 클래스와
+            레슨을 하나 만들고, 그 클래스가 사용자 공개 API에서 보이는지
+            확인합니다. 처음 보는 사람은 아래 큰 버튼 하나만 누르면 됩니다.
           </p>
-          <div className="mt-200 grid gap-100 md:grid-cols-3">
-            <GuideStep
-              step="1"
-              title="운영자 로그인"
-              description="로컬 test login으로 admin token을 준비합니다."
-            />
-            <GuideStep
-              step="2"
-              title="코스+레슨 생성"
-              description="admin API로 공개 코스와 레슨 2개를 만듭니다."
-            />
-            <GuideStep
-              step="3"
-              title="목록/상세/커리큘럼 확인"
-              description="public API가 방금 만든 데이터를 반환하면 통과입니다."
-            />
-          </div>
-          <div className="mt-250 flex flex-wrap gap-100">
-            <SmokeButton
-              onClick={runSmoke}
-              isLoading={coursesResult.state === 'loading'}
-            >
-              전체 smoke 실행
-            </SmokeButton>
-            <SmokeButton
-              onClick={loadCourses}
-              isLoading={coursesResult.state === 'loading'}
-            >
-              A-01 목록
-            </SmokeButton>
-            <SmokeButton
-              onClick={loadDetail}
-              isLoading={detailResult.state === 'loading'}
-            >
-              A-02 상세
-            </SmokeButton>
-            <SmokeButton
-              onClick={loadCurriculum}
-              isLoading={curriculumResult.state === 'loading'}
-            >
-              A-04 커리큘럼
-            </SmokeButton>
-          </div>
         </header>
 
-        <SmokeCard
-          title="1. 운영자 데이터 만들기"
-          endpoint="POST /growth/test/login → POST /admin/courses → POST /admin/courses/{courseId}/lessons"
-          result={adminResult}
-          verifies="관리자가 브라우저에서 테스트용 공개 클래스와 무료/유료 레슨을 만들 수 있는지 확인합니다."
-        >
-          <div className="flex flex-wrap gap-100">
+        <section className="rounded-250 border-2 border-border-brand bg-background-default p-300 shadow-2">
+          <div className="flex flex-col gap-150 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="font-designer-14b text-text-brand">
+                가장 쉬운 사용법
+              </p>
+              <h2 className="font-designer-24b mt-50 text-text-default">
+                1번 버튼만 누르세요
+              </h2>
+              <p className="font-designer-14r mt-75 text-text-subtle">
+                자동으로 관리자 로그인, 클래스 생성, 공개 목록 조회,
+                상세/커리큘럼 조회를 순서대로 실행합니다. 네 단계가 모두 초록색
+                성공이면 테스트 통과입니다.
+              </p>
+            </div>
             <SmokeButton
-              onClick={loginAdmin}
-              isLoading={adminResult.state === 'loading'}
+              variant="primary"
+              onClick={runLocalScenario}
+              isLoading={scenarioResult.state === 'loading'}
             >
-              1) 운영자 테스트 로그인
-            </SmokeButton>
-            <SmokeButton
-              onClick={createAdminSample}
-              isLoading={adminResult.state === 'loading'}
-            >
-              2) 코스+레슨 생성
+              1번: 자동 테스트 시작
             </SmokeButton>
           </div>
-          <p className="font-designer-13r text-text-subtle">
-            성공하면 새 slug가 자동 선택되고, 아래 목록/상세/커리큘럼에서 같은
-            클래스가 조회됩니다. accessToken은 화면에 노출하지 않습니다.
-          </p>
-          {adminCreateResult && (
-            <div className="grid gap-100 md:grid-cols-3">
-              <Metric
-                label="생성된 courseId"
-                value={adminCreateResult.courseId}
+          {scenarioResult.error && (
+            <ErrorMessage error={scenarioResult.error} className="mt-150" />
+          )}
+          <div className="mt-200 grid gap-100 md:grid-cols-4">
+            {scenarioSteps.map((step, index) => (
+              <ScenarioStepCard
+                key={step.title}
+                step={index + 1}
+                title={step.title}
+                description={step.description}
+                state={step.state}
               />
-              <Metric
-                label="생성된 레슨 수"
-                value={adminCreateResult.lessonIds.length}
-              />
-              <div className="rounded-150 bg-background-alternative p-150">
-                <p className="font-designer-12r text-text-subtlest">slug</p>
-                <p className="font-designer-13b break-all text-text-default">
-                  {adminCreateResult.slug}
-                </p>
-              </div>
+            ))}
+          </div>
+          {scenarioResult.state === 'success' && adminCreateResult && (
+            <div className="mt-200 rounded-150 bg-background-accent-green-subtle p-150">
+              <p className="font-designer-15b text-text-success">
+                테스트 완료: 방금 만든 클래스가 공개 API에서 조회됩니다.
+              </p>
+              <p className="font-designer-13r mt-50 break-all text-text-subtle">
+                생성된 slug: {adminCreateResult.slug}
+              </p>
             </div>
           )}
-        </SmokeCard>
+        </section>
 
-        <section className="grid gap-200 lg:grid-cols-3">
+        <section className="flex flex-col gap-150">
+          <div>
+            <p className="font-designer-14b text-text-brand">세부 결과</p>
+            <h2 className="font-designer-22b text-text-default">
+              자동 테스트가 실제로 확인한 내용
+            </h2>
+          </div>
           <SmokeCard
-            title="2. 공개 목록에서 보이는지 확인"
-            endpoint="GET /api/v1/courses?status=OPEN&page=0&size=20"
-            result={coursesResult}
-            verifies="방금 만든 OPEN 클래스가 사용자 공개 목록에 노출되는지 확인합니다."
+            title="운영자 데이터 만들기"
+            endpoint="POST /growth/test/login → POST /admin/courses → POST /admin/courses/{courseId}/lessons"
+            result={adminResult}
+            verifies="관리자 권한으로 테스트용 공개 클래스와 무료/유료 레슨을 만들 수 있는지 확인합니다."
           >
-            <label className="flex flex-col gap-75">
-              <span className="font-designer-13b text-text-subtle">
-                테스트할 클래스 slug
-              </span>
-              <input
-                value={selectedSlug}
-                onChange={(event) => setSelectedSlug(event.target.value)}
-                className="rounded-150 border border-border-default bg-background-default px-150 py-100 font-designer-14r text-text-default"
-                placeholder="먼저 A-01 목록 또는 코스+레슨 생성을 실행하세요"
-              />
-            </label>
-            <div className="flex flex-col gap-100">
-              {courses?.content.map((course) => (
-                <button
-                  key={course.courseId}
-                  type="button"
-                  onClick={() => setSelectedSlug(course.slug)}
-                  className={cn(
-                    'rounded-150 border px-150 py-125 text-left',
-                    selectedSlug === course.slug
-                      ? 'border-border-brand bg-background-accent-rose-subtle'
-                      : 'border-border-default bg-background-default',
-                  )}
+            <div className="flex flex-wrap gap-100">
+              <SmokeButton
+                onClick={loginAdmin}
+                isLoading={adminResult.state === 'loading'}
+              >
+                수동: 운영자 로그인
+              </SmokeButton>
+              <SmokeButton
+                onClick={createAdminSample}
+                isLoading={adminResult.state === 'loading'}
+              >
+                수동: 코스+레슨 생성
+              </SmokeButton>
+            </div>
+            <p className="font-designer-13r text-text-subtle">
+              자동 테스트가 실패했을 때만 개별 버튼으로 어느 단계가 문제인지
+              확인하세요. accessToken은 화면에 노출하지 않습니다.
+            </p>
+            {adminCreateResult && (
+              <div className="grid gap-100 md:grid-cols-3">
+                <Metric
+                  label="생성된 courseId"
+                  value={adminCreateResult.courseId}
+                />
+                <Metric
+                  label="생성된 레슨 수"
+                  value={adminCreateResult.lessonIds.length}
+                />
+                <div className="rounded-150 bg-background-alternative p-150">
+                  <p className="font-designer-12r text-text-subtlest">slug</p>
+                  <p className="font-designer-13b break-all text-text-default">
+                    {adminCreateResult.slug}
+                  </p>
+                </div>
+              </div>
+            )}
+          </SmokeCard>
+
+          <section className="grid gap-200 lg:grid-cols-3">
+            <SmokeCard
+              title="공개 목록 확인"
+              endpoint="GET /api/v1/courses?status=OPEN&page=0&size=20"
+              result={coursesResult}
+              verifies="방금 만든 OPEN 클래스가 사용자 공개 목록에 노출되는지 확인합니다."
+            >
+              <div className="flex flex-wrap gap-100">
+                <SmokeButton
+                  onClick={runPublicReadSmoke}
+                  isLoading={coursesResult.state === 'loading'}
                 >
-                  <span className="font-designer-15b text-text-default">
-                    {course.title}
-                  </span>
-                  <span className="font-designer-13r block text-text-subtle">
-                    {course.slug} · {course.status}
-                  </span>
-                </button>
-              ))}
-              {courses && courses.content.length === 0 && (
-                <p className="font-designer-14r text-text-subtle">
-                  OPEN 코스가 없습니다.
+                  수동: 공개 조회 전체 실행
+                </SmokeButton>
+                <SmokeButton
+                  onClick={loadCourses}
+                  isLoading={coursesResult.state === 'loading'}
+                >
+                  수동: 목록만 조회
+                </SmokeButton>
+              </div>
+              <label className="flex flex-col gap-75">
+                <span className="font-designer-13b text-text-subtle">
+                  테스트할 클래스 slug
+                </span>
+                <input
+                  value={selectedSlug}
+                  onChange={(event) => setSelectedSlug(event.target.value)}
+                  className="rounded-150 border border-border-default bg-background-default px-150 py-100 font-designer-14r text-text-default"
+                  placeholder="자동 테스트를 실행하면 자동으로 채워집니다"
+                />
+              </label>
+              <div className="flex flex-col gap-100">
+                {courses?.content.map((course) => (
+                  <button
+                    key={course.courseId}
+                    type="button"
+                    onClick={() => setSelectedSlug(course.slug)}
+                    className={cn(
+                      'rounded-150 border px-150 py-125 text-left',
+                      selectedSlug === course.slug
+                        ? 'border-border-brand bg-background-accent-rose-subtle'
+                        : 'border-border-default bg-background-default',
+                    )}
+                  >
+                    <span className="font-designer-15b text-text-default">
+                      {course.title}
+                    </span>
+                    <span className="font-designer-13r block text-text-subtle">
+                      {course.slug} · {course.status}
+                    </span>
+                  </button>
+                ))}
+                {courses && courses.content.length === 0 && (
+                  <p className="font-designer-14r text-text-subtle">
+                    OPEN 코스가 없습니다.
+                  </p>
+                )}
+              </div>
+              {courses && (
+                <p className="font-designer-13r text-text-subtlest">
+                  총 {courses.totalElements}개 OPEN 클래스 · 현재 page{' '}
+                  {courses.page} · 다음 페이지{' '}
+                  {courses.hasNext ? '있음' : '없음'}
                 </p>
               )}
-            </div>
-            {courses && (
-              <p className="font-designer-13r text-text-subtlest">
-                총 {courses.totalElements}개 OPEN 클래스 · 현재 page{' '}
-                {courses.page} · 다음 페이지 {courses.hasNext ? '있음' : '없음'}
-              </p>
-            )}
-          </SmokeCard>
+            </SmokeCard>
 
-          <SmokeCard
-            title="3. 상세 화면 계약 확인"
-            endpoint="GET /api/v1/courses/{slug}"
-            result={detailResult}
-            verifies="선택한 slug의 상세 정보와 구매/무료등록 가능 여부가 사용자 API로 내려오는지 확인합니다."
-          >
-            {detail ? (
-              <div className="flex flex-col gap-100">
-                <h2 className="font-designer-22b text-text-default">
-                  {detail.title}
-                </h2>
-                <p className="font-designer-14r text-text-subtle">
-                  {detail.description}
-                </p>
-                <ContractNote
-                  title="이 상세 조회가 성공하면"
-                  description="공개 slug로 접근했을 때 숨김 클래스가 아니고, 사용자에게 보여줄 가격/등록 상태 판단이 내려온다는 뜻입니다."
-                />
-                <KeyValue
-                  label="사용자 접근 상태"
-                  value={viewerStatusLabel[detail.viewerStatus]}
-                />
-                <KeyValue label="courseId" value={String(detail.courseId)} />
-                <KeyValue
-                  label="무료 등록"
-                  value={booleanLabel(detail.freeEnrollmentAvailable)}
-                />
-                <KeyValue
-                  label="구매"
-                  value={booleanLabel(detail.purchaseAvailable)}
-                />
-                <KeyValue
-                  label="가격 플랜 수"
-                  value={`${detail.plans?.length ?? 0}개`}
-                />
-              </div>
-            ) : (
-              <EmptyMessage text="아직 상세를 조회하지 않았습니다. 먼저 slug를 선택하고 A-02 상세 버튼을 누르세요." />
-            )}
-          </SmokeCard>
-
-          <SmokeCard
-            title="4. 커리큘럼 잠금 정책 확인"
-            endpoint="GET /api/v1/courses/{slug}/curriculum"
-            result={curriculumResult}
-            verifies="무료 레슨은 열려 있고 유료 레슨은 잠겨 있는지, 챕터/레슨 수가 맞는지 확인합니다."
-          >
-            {curriculum ? (
-              <div className="flex flex-col gap-150">
-                <div className="grid grid-cols-3 gap-100">
-                  <Metric label="챕터 수" value={curriculum.totalChapters} />
-                  <Metric label="레슨 수" value={curriculum.totalLessons} />
-                  <Metric label="진행 일수" value={curriculum.durationDays} />
-                </div>
+            <SmokeCard
+              title="상세 확인"
+              endpoint="GET /api/v1/courses/{slug}"
+              result={detailResult}
+              verifies="선택한 slug의 제목, 설명, 무료 등록 가능 여부, 구매 가능 여부가 내려오는지 확인합니다."
+            >
+              <SmokeButton
+                onClick={loadDetail}
+                isLoading={detailResult.state === 'loading'}
+              >
+                수동: 선택 slug 상세 조회
+              </SmokeButton>
+              {detail ? (
                 <div className="flex flex-col gap-100">
-                  {curriculum.chapters.map((chapter) => (
-                    <article
-                      key={chapter.chapterId}
-                      className="rounded-150 border border-border-default bg-background-default p-150"
-                    >
-                      <h3 className="font-designer-15b text-text-default">
-                        CH {chapter.chapterNumber}. {chapter.title}
-                      </h3>
-                      <p className="font-designer-13r text-text-subtlest">
-                        {chapter.lessons.length}개 레슨 · 예상{' '}
-                        {chapter.estimatedMinutes}분
-                      </p>
-                      <ul className="mt-100 flex flex-col gap-75">
-                        {chapter.lessons.map((lesson) => (
-                          <li
-                            key={lesson.lessonId}
-                            className="font-designer-13r flex items-center justify-between text-text-subtle"
-                          >
-                            <span>
-                              L{lesson.order}. {lesson.title}
-                            </span>
-                            <span>{lesson.locked ? '잠김' : '무료 공개'}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </article>
-                  ))}
+                  <h2 className="font-designer-22b text-text-default">
+                    {detail.title}
+                  </h2>
+                  <p className="font-designer-14r text-text-subtle">
+                    {detail.description}
+                  </p>
+                  <ContractNote
+                    title="상세 조회 성공 의미"
+                    description="공개 slug로 접근 가능하고, 사용자에게 보여줄 가격/등록 상태 판단이 내려왔다는 뜻입니다."
+                  />
+                  <KeyValue
+                    label="사용자 접근 상태"
+                    value={viewerStatusLabel[detail.viewerStatus]}
+                  />
+                  <KeyValue label="courseId" value={String(detail.courseId)} />
+                  <KeyValue
+                    label="무료 등록"
+                    value={booleanLabel(detail.freeEnrollmentAvailable)}
+                  />
+                  <KeyValue
+                    label="구매"
+                    value={booleanLabel(detail.purchaseAvailable)}
+                  />
+                  <KeyValue
+                    label="가격 플랜 수"
+                    value={`${detail.plans?.length ?? 0}개`}
+                  />
                 </div>
-              </div>
-            ) : (
-              <EmptyMessage text="아직 커리큘럼을 조회하지 않았습니다. A-04 커리큘럼 버튼을 누르세요." />
-            )}
-          </SmokeCard>
+              ) : (
+                <EmptyMessage text="자동 테스트를 실행하면 상세 결과가 여기에 표시됩니다." />
+              )}
+            </SmokeCard>
+
+            <SmokeCard
+              title="커리큘럼 확인"
+              endpoint="GET /api/v1/courses/{slug}/curriculum"
+              result={curriculumResult}
+              verifies="무료 레슨은 열려 있고 유료 레슨은 잠겨 있는지, 챕터/레슨 수가 맞는지 확인합니다."
+            >
+              <SmokeButton
+                onClick={loadCurriculum}
+                isLoading={curriculumResult.state === 'loading'}
+              >
+                수동: 선택 slug 커리큘럼 조회
+              </SmokeButton>
+              {curriculum ? (
+                <div className="flex flex-col gap-150">
+                  <div className="grid grid-cols-3 gap-100">
+                    <Metric label="챕터 수" value={curriculum.totalChapters} />
+                    <Metric label="레슨 수" value={curriculum.totalLessons} />
+                    <Metric label="진행 일수" value={curriculum.durationDays} />
+                  </div>
+                  <div className="flex flex-col gap-100">
+                    {curriculum.chapters.map((chapter) => (
+                      <article
+                        key={chapter.chapterId}
+                        className="rounded-150 border border-border-default bg-background-default p-150"
+                      >
+                        <h3 className="font-designer-15b text-text-default">
+                          CH {chapter.chapterNumber}. {chapter.title}
+                        </h3>
+                        <p className="font-designer-13r text-text-subtlest">
+                          {chapter.lessons.length}개 레슨 · 예상{' '}
+                          {chapter.estimatedMinutes}분
+                        </p>
+                        <ul className="mt-100 flex flex-col gap-75">
+                          {chapter.lessons.map((lesson) => (
+                            <li
+                              key={lesson.lessonId}
+                              className="font-designer-13r flex items-center justify-between text-text-subtle"
+                            >
+                              <span>
+                                L{lesson.order}. {lesson.title}
+                              </span>
+                              <span>
+                                {lesson.locked ? '잠김' : '무료 공개'}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <EmptyMessage text="자동 테스트를 실행하면 커리큘럼 결과가 여기에 표시됩니다." />
+              )}
+            </SmokeCard>
+          </section>
         </section>
       </section>
     </main>
   );
 }
 
-function GuideStep({
+function ScenarioStepCard({
   description,
+  state,
   step,
   title,
 }: {
   description: string;
-  step: string;
+  state: SmokeState;
+  step: number;
   title: string;
 }) {
   return (
-    <div className="rounded-150 bg-background-alternative p-150">
-      <p className="font-designer-12b text-text-brand">STEP {step}</p>
-      <h2 className="font-designer-15b mt-50 text-text-default">{title}</h2>
+    <div
+      className={cn(
+        'rounded-150 border p-150',
+        state === 'success' &&
+          'border-border-success bg-background-accent-green-subtle',
+        state === 'error' &&
+          'border-border-error bg-background-accent-red-subtle',
+        state === 'loading' &&
+          'border-border-warning bg-background-accent-yellow-subtle',
+        state === 'idle' && 'border-border-default bg-background-alternative',
+      )}
+    >
+      <div className="flex items-center justify-between gap-100">
+        <p className="font-designer-12b text-text-brand">STEP {step}</p>
+        <StatusBadge state={state} />
+      </div>
+      <h3 className="font-designer-15b mt-75 text-text-default">{title}</h3>
       <p className="font-designer-13r mt-50 text-text-subtle">{description}</p>
     </div>
   );
@@ -487,17 +669,23 @@ function SmokeButton({
   children,
   isLoading,
   onClick,
+  variant = 'secondary',
 }: {
   children: React.ReactNode;
   isLoading: boolean;
   onClick: () => void;
+  variant?: 'primary' | 'secondary';
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={isLoading}
-      className="rounded-150 bg-background-brand-default px-200 py-125 font-designer-14b text-text-inverse disabled:opacity-50"
+      className={cn(
+        'rounded-150 bg-background-brand-default font-designer-14b text-text-inverse disabled:opacity-50',
+        variant === 'primary' && 'px-300 py-175 shadow-2',
+        variant === 'secondary' && 'px-200 py-125',
+      )}
     >
       {isLoading ? '요청 중...' : children}
     </button>
@@ -535,16 +723,31 @@ function SmokeCard({
           확인 내용: {verifies}
         </p>
       )}
-      {result.error && (
-        <div className="mb-150 rounded-150 border border-border-error bg-background-accent-red-subtle p-150">
-          <p className="font-designer-13b text-text-error">
-            {result.error.status ? `${result.error.status} · ` : ''}
-            {result.error.message}
-          </p>
-        </div>
-      )}
+      {result.error && <ErrorMessage error={result.error} className="mb-150" />}
       <div className="flex flex-col gap-150">{children}</div>
     </article>
+  );
+}
+
+function ErrorMessage({
+  className,
+  error,
+}: {
+  className?: string;
+  error: ClassApiError;
+}) {
+  return (
+    <div
+      className={cn(
+        'rounded-150 border border-border-error bg-background-accent-red-subtle p-150',
+        className,
+      )}
+    >
+      <p className="font-designer-13b text-text-error">
+        {error.status ? `${error.status} · ` : ''}
+        {error.message}
+      </p>
+    </div>
   );
 }
 
