@@ -110,6 +110,11 @@ const ROUTE_POLICIES: readonly RoutePolicy[] = [
     path: '/inquiry',
     match: ROUTE_MATCH_TYPES.PREFIX,
   },
+  {
+    kind: ROUTE_POLICY_KINDS.PUBLIC_SESSION,
+    path: '/class-test',
+    match: ROUTE_MATCH_TYPES.PREFIX,
+  },
 ] as const;
 
 const matchesRoutePolicy = (pathname: string, policy: RoutePolicy): boolean => {
