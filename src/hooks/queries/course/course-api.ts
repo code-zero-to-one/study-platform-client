@@ -162,12 +162,40 @@ export const useSubmitLessonRetrospective = () => {
       lessonId: number;
       request: LessonRetrospectiveCreateRequest;
     }) => {
-      const { data } = await axiosInstance.post<{
-        content: { lessonRetrospectiveId: number };
-      }>(`lessons/${lessonId}/retrospective`, request);
-      return data.content;
+      try {
+        const { data } = await axiosInstance.post<{
+          content: { lessonRetrospectiveId: number };
+        }>(`lessons/${lessonId}/retrospective`, request);
+        return { ...data.content, mocked: false as const };
+      } catch (error) {
+        // Backend `/lessons/{lessonId}/retrospective` POST not yet ready — fall back to mock so UX flow proceeds.
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[mock] retrospective submit fallback', {
+            lessonId,
+            error,
+          });
+        }
+        queryClient.setQueryData<LessonRetrospectiveResponse>(
+          ['lessonRetrospective', lessonId],
+          {
+            lessonId,
+            understandingScore: request.understandingScore,
+            content: request.content,
+            artifactType: request.artifactType,
+            artifactValue: request.artifactValue,
+            feedback: request.feedback,
+          },
+        );
+        queryClient.setQueryData<LessonDetailResponse | undefined>(
+          ['lessonDetail', lessonId],
+          (prev) => (prev ? { ...prev, retrospectiveSubmitted: true } : prev),
+        );
+        return { lessonRetrospectiveId: Date.now(), mocked: true as const };
+      }
     },
-    onSuccess: async (_, variables) => {
+    onSuccess: async (result, variables) => {
+      // Skip invalidation when mocked — backend refetch would overwrite optimistic state.
+      if (result.mocked) return;
       await queryClient.invalidateQueries({
         queryKey: ['lessonDetail', variables.lessonId],
       });

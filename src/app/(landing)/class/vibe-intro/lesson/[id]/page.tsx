@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
@@ -91,6 +92,7 @@ export default function LessonPage({
 }) {
   const { id } = use(params);
   const lessonId = parseInt(id, 10);
+  const router = useRouter();
   const [rating, setRating] = useState(3);
   const [hoverRating, setHoverRating] = useState(0);
   const [reflection, setReflection] = useState('');
@@ -107,6 +109,12 @@ export default function LessonPage({
   const { data: drawer } = useGetCourseDrawer(courseId);
   const { data: qnaData } = useGetLessonQnas(lessonId);
   const submitRetrospective = useSubmitLessonRetrospective();
+
+  const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
+  const isFormValid =
+    rating > 0 && reflection.trim().length > 0 && selectedChips.size >= 2;
+  const isSubmitDisabled =
+    !isFormValid || submitRetrospective.isPending || alreadySubmitted;
 
   function toggleChip(chip: string) {
     setSelectedChips((prev) => {
@@ -127,10 +135,7 @@ export default function LessonPage({
   }
 
   async function handleSubmit() {
-    if (selectedChips.size < 2) {
-      showToast('최소 2개 이상 선택해주세요.', 'error');
-      return;
-    }
+    if (isSubmitDisabled) return;
     const chips = [...selectedChips];
     const checklistFlags = [...POSITIVE_CHIPS, ...NEGATIVE_CHIPS].map((c) =>
       chips.includes(c),
@@ -147,7 +152,10 @@ export default function LessonPage({
         },
       },
       {
-        onSuccess: () => showToast('제출이 완료되었어요!'),
+        onSuccess: () => {
+          showToast('제출이 완료되었어요!');
+          router.push('/class/vibe-intro/complete');
+        },
         onError: () => showToast('제출에 실패했어요.', 'error'),
       },
     );
@@ -505,10 +513,16 @@ export default function LessonPage({
               {/* Submit CTA */}
               <button
                 type="button"
+                disabled={isSubmitDisabled}
                 onClick={() => {
                   handleSubmit().catch(() => {});
                 }}
-                className="flex h-[80px] w-full items-center justify-center gap-150 rounded-100 bg-gray-300 font-designer-24b text-white transition-colors hover:bg-background-brand-default"
+                className={cn(
+                  'flex h-[80px] w-full items-center justify-center gap-150 rounded-100 font-designer-24b text-white transition-colors',
+                  isSubmitDisabled
+                    ? 'cursor-not-allowed bg-gray-300'
+                    : 'bg-background-brand-default hover:opacity-90',
+                )}
               >
                 <Image
                   src="/class/vibe-intro/lesson-lock.svg"
@@ -517,7 +531,11 @@ export default function LessonPage({
                   width={24}
                   height={24}
                 />
-                제출하고 다음 Lesson 하러 가기
+                {alreadySubmitted
+                  ? '이미 제출했어요'
+                  : submitRetrospective.isPending
+                    ? '제출 중...'
+                    : '제출하고 다음 Lesson 하러 가기'}
               </button>
             </div>
           </div>
