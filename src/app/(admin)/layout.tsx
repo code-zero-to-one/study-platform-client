@@ -39,7 +39,7 @@ export default async function AdminLayout({
         <PageViewTracker />
         <div className="flex min-w-[1200px] overflow-x-hidden">
           <AdminSideBar />
-          <main className="flex-1 p-300">{children}</main>
+          <main className="min-w-0 flex-1 p-300">{children}</main>
         </div>
         <GlobalToast />
       </MainProvider>

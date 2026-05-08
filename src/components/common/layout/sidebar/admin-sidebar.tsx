@@ -19,7 +19,7 @@ export default function AdminSideBar() {
   const isCourseManagementPath = pathname.startsWith('/admin/courses');
 
   return (
-    <aside className="border-border-subtle h-screen w-fit border-r p-200">
+    <aside className="border-border-subtle bg-background-default relative z-10 h-screen shrink-0 border-r p-200">
       <div className="border-border-subtle flex items-center gap-150 border-b py-200">
         {profile && (
           <UserAvatar
