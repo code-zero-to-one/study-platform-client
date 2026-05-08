@@ -91,6 +91,7 @@ const COURSE_THUMBNAIL_INPUT_ACCEPT =
   ADMIN_COURSE_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS.map(
     (extension) => `.${extension}`,
   ).join(',');
+const COURSE_THUMBNAIL_DEFAULT_DISPLAY_WIDTH = 560;
 
 const emptyCourseForm: AdminCourseFormValues = {
   slug: '',
@@ -227,6 +228,8 @@ export default function AdminCourseManagementPageClient() {
   >(null);
   const [isUploadingCourseThumbnail, setIsUploadingCourseThumbnail] =
     useState(false);
+  const [courseThumbnailDisplayWidth, setCourseThumbnailDisplayWidth] =
+    useState(COURSE_THUMBNAIL_DEFAULT_DISPLAY_WIDTH);
   const [lessonFormMode, setLessonFormMode] = useState<'create' | 'edit'>(
     'create',
   );
@@ -560,6 +563,7 @@ export default function AdminCourseManagementPageClient() {
       setCourseFormTouchedFields({});
       setCourseThumbnailFile(null);
       setCourseThumbnailPreviewUrl(null);
+      setCourseThumbnailDisplayWidth(COURSE_THUMBNAIL_DEFAULT_DISPLAY_WIDTH);
       if (!preservePendingSelection) {
         clearPendingCourseSelection();
       }
@@ -935,7 +939,6 @@ export default function AdminCourseManagementPageClient() {
     isLessonFormLocked,
     isLessonListInteractionLocked,
     isLessonMutationPending,
-    isQuickCourseStatusChangeEnabled,
   } = getAdminCourseManagementLocks({
     bulkUpdateLessonsPending: bulkUpdateLessonsMutation.isPending,
     courseFormMode,
@@ -1003,28 +1006,6 @@ export default function AdminCourseManagementPageClient() {
               ...prev,
               isPublished: response.isPublished,
             }));
-          }
-        },
-      },
-    );
-  };
-
-  const handleQuickCourseStatusChange = (status: AdminCourseStatus) => {
-    if (!selectedCourse || updateCourseMutation.isPending) return;
-    updateCourseMutation.mutate(
-      {
-        courseId: selectedCourse.courseId,
-        request: { status },
-      },
-      {
-        onSuccess: () => {
-          revealCourseInAllStatusFilter(selectedCourse.courseId, status);
-
-          if (
-            courseFormMode === 'edit' &&
-            editingCourseId === selectedCourse.courseId
-          ) {
-            setCourseForm((prev) => ({ ...prev, status }));
           }
         },
       },
@@ -1379,23 +1360,21 @@ export default function AdminCourseManagementPageClient() {
                 ? '현재 저장된 썸네일 이미지가 있습니다.'
                 : '선택된 파일이 없습니다.')
             }
+            courseThumbnailDisplayWidth={courseThumbnailDisplayWidth}
             handleChangeCourseThumbnail={handleChangeCourseThumbnail}
             handleClearCourseThumbnailSelection={
               handleClearCourseThumbnailSelection
             }
-            handleQuickCourseStatusChange={handleQuickCourseStatusChange}
             handleSubmitCourse={handleSubmitCourse}
             isCourseFormLocked={isCourseFormLocked}
-            isQuickCourseStatusChangeEnabled={isQuickCourseStatusChangeEnabled}
             isUploadingCourseThumbnail={isUploadingCourseThumbnail}
+            onChangeCourseThumbnailDisplayWidth={setCourseThumbnailDisplayWidth}
             resetCourseForm={() => resetCourseForm()}
-            selectedCourseStatus={selectedCourse?.status}
             statusOptions={COURSE_STATUS_OPTIONS}
             thumbnailAccept={COURSE_THUMBNAIL_INPUT_ACCEPT}
             toDateTimeLocal={toDateTimeLocal}
             toKstOffsetDateTime={toKstOffsetDateTime}
             updateCourseFormField={updateCourseFormField}
-            updateCoursePending={updateCourseMutation.isPending}
           />
         </Section>
 

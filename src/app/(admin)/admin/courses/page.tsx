@@ -1,5 +1,5 @@
-import AdminCourseManagementPageClient from '@/components/admin/courses/admin-course-management-page-client';
+import AdminCourseListPageClient from '@/components/admin/courses/admin-course-list-page-client';
 
 export default function AdminCoursesPage() {
-  return <AdminCourseManagementPageClient />;
+  return <AdminCourseListPageClient />;
 }

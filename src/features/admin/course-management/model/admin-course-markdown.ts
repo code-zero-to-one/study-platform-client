@@ -43,6 +43,12 @@ const ATTRIBUTE_ALLOWLIST_BY_TAG: Record<string, Set<string>> = {
   s: new Set(),
   span: new Set(),
   strong: new Set(),
+  table: new Set(),
+  tbody: new Set(),
+  td: new Set(),
+  th: new Set(),
+  thead: new Set(),
+  tr: new Set(),
   u: new Set(),
   ul: new Set(),
 };

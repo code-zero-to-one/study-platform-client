@@ -58,11 +58,11 @@ const IMAGE_MIME_TO_EXTS = {
 type SupportedImageMimeType = keyof typeof IMAGE_MIME_TO_EXTS;
 
 /**
- * 이미지 너비를 80~400px 범위로 제한합니다.
+ * 이미지 너비를 200~800px 범위로 제한합니다.
  * @example
- * clampImageWidth(50) // 80
- * clampImageWidth(200) // 200
- * clampImageWidth(500) // 400
+ * clampImageWidth(50) // 200
+ * clampImageWidth(480) // 480
+ * clampImageWidth(900) // 800
  */
 export const clampImageWidth = (value: number) => {
   return Math.min(
@@ -74,10 +74,10 @@ export const clampImageWidth = (value: number) => {
 /**
  * 너비 값을 숫자로 파싱하고 유효 범위로 조정합니다.
  * @example
- * parseImageWidth('250') // 250
- * parseImageWidth('50') // 80 (최소값)
- * parseImageWidth('abc') // 200 (기본값)
- * parseImageWidth(undefined) // 200 (기본값)
+ * parseImageWidth('480') // 480
+ * parseImageWidth('50') // 200 (최소값)
+ * parseImageWidth('abc') // 480 (기본값)
+ * parseImageWidth(undefined) // 480 (기본값)
  */
 export const parseImageWidth = (value: unknown): number => {
   const parsed = Number(value);
