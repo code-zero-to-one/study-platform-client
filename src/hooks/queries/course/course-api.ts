@@ -13,6 +13,7 @@ import type {
   CourseProgressResponse,
   LessonDetailResponse,
   LessonQnaCreateRequest,
+  LessonQnaDetailResponse,
   LessonQnaListResponse,
   LessonRetrospectiveCreateRequest,
   LessonRetrospectiveResponse,
@@ -242,6 +243,19 @@ export const useCreateLessonQna = () => {
         queryKey: ['lessonQnas', variables.lessonId],
       });
     },
+  });
+};
+
+export const useGetLessonQnaDetail = (qnaId: number | null) => {
+  return useQuery({
+    queryKey: ['lessonQnaDetail', qnaId],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<{
+        content: LessonQnaDetailResponse;
+      }>(`qnas/${qnaId}`);
+      return data.content;
+    },
+    enabled: !!qnaId,
   });
 };
 

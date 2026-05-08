@@ -183,6 +183,46 @@ export interface LessonQnaCreateRequest {
   imageUrls?: string[];
 }
 
+// ─── Q&A Detail ───────────────────────────────────────────────────────────────
+
+export interface LessonQnaDetailAuthor {
+  memberId: number;
+  nickname: string;
+  role: string;
+}
+
+export interface LessonQnaDetailAnswer {
+  answerId: number;
+  content: string;
+  imageUrls: string[];
+  author: LessonQnaDetailAuthor;
+  createdAt: string;
+  helpfulCount: number;
+  notHelpfulCount: number;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
+export interface LessonQnaDetailResponse {
+  qnaId: number;
+  courseId: number;
+  courseTitle: string;
+  lessonId: number;
+  lessonTitle: string;
+  title: string;
+  content: string;
+  imageUrls: string[];
+  author: LessonQnaDetailAuthor;
+  createdAt: string;
+  viewCount: number;
+  usefulCount: number;
+  curiousCount: number;
+  canEdit: boolean;
+  canDelete: boolean;
+  canReport: boolean;
+  answers: LessonQnaDetailAnswer[];
+}
+
 // ─── Builder Feed ─────────────────────────────────────────────────────────────
 
 export interface FeedAuthor {
