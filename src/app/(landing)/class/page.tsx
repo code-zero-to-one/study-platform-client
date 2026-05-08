@@ -1,7 +1,8 @@
 'use client';
 
-import { ChevronDown, Users } from 'lucide-react';
+import { ChevronDown, Users, X } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
@@ -249,7 +250,136 @@ function CourseThumbnail({ variant }: { variant: Course['thumbnailVariant'] }) {
   );
 }
 
-function CourseCard({ course }: { course: Course }) {
+function NotifyModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [email, setEmail] = useState('');
+  const [agreed, setAgreed] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+
+  if (!open) return null;
+
+  function handleSubmit() {
+    if (!email.trim()) {
+      setEmailError(true);
+      return;
+    }
+    // TODO: API not found - open notification signup endpoint
+    setEmail('');
+    setAgreed(false);
+    setEmailError(false);
+    onClose();
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onClick={onClose}
+      style={{ background: 'rgba(0,0,0,0.4)' }}
+    >
+      <div
+        className="relative w-[560px] overflow-hidden rounded-200 bg-background-default"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-300 top-300 text-gray-800"
+          aria-label="닫기"
+        >
+          <X className="h-300 w-300" />
+        </button>
+
+        <div className="px-500 pb-500 pt-500">
+          <h2 className="mb-300 text-center font-designer-24b text-gray-800">
+            오픈 알림 신청
+          </h2>
+
+          <p className="mb-500 text-center font-designer-18b text-gray-800">
+            지금 신청하면{' '}
+            <span className="text-text-brand">최대 50% 할인 혜택</span>과 사전
+            학습 자료를
+            <br />
+            가장 먼저 받아보실 수 있어요.
+          </p>
+
+          <div className="mb-300">
+            <div className="mb-150 flex items-end gap-25">
+              <label
+                htmlFor="notify-email"
+                className="font-designer-20m text-gray-800"
+              >
+                이메일 주소
+              </label>
+              <span className="font-designer-12b text-text-brand">*</span>
+            </div>
+            <input
+              id="notify-email"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(false);
+              }}
+              placeholder="이메일 주소를 입력해주세요"
+              className={cn(
+                'h-700 w-full rounded-100 border px-250 font-designer-14r text-gray-800 outline-none placeholder:text-gray-500',
+                emailError
+                  ? 'border-border-error'
+                  : 'border-border-default focus:border-border-brand',
+              )}
+            />
+            {emailError && (
+              <p className="mt-75 font-designer-12r text-text-error">
+                이메일 주소를 입력해주세요.
+              </p>
+            )}
+          </div>
+
+          <div className="mb-300 space-y-75">
+            <label className="flex cursor-pointer items-start gap-125">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-25 h-300 w-300 shrink-0 rounded-50 accent-rose-500"
+              />
+              <span className="font-designer-14b">
+                <span className="text-text-brand">필수</span>{' '}
+                <span className="text-gray-800">
+                  오픈 알림 발송을 위한 개인정보 수집·이용에 동의합니다.
+                </span>
+              </span>
+            </label>
+            <p className="pl-[34px] font-designer-12r text-gray-800">
+              수집 항목: 전화번호·이메일 / 보유 기간: 오픈 안내 발송 후 30일
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="h-700 w-full rounded-100 bg-background-brand-default font-designer-18b text-text-inverse"
+          >
+            입력 완료
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CourseCard({
+  course,
+  onNotify,
+}: {
+  course: Course;
+  onNotify: () => void;
+}) {
   return (
     <div className="flex flex-col overflow-hidden rounded-200 border border-border-default">
       <div className="h-[292px] shrink-0">
@@ -299,17 +429,22 @@ function CourseCard({ course }: { course: Course }) {
           </div>
         )}
 
-        <button
-          type="button"
-          className={cn(
-            'mt-300 w-full rounded-100 py-200 font-designer-20m',
-            course.status === 'active'
-              ? 'bg-background-brand-default text-text-inverse'
-              : 'border border-border-brand bg-background-default text-text-brand',
-          )}
-        >
-          {course.ctaText}
-        </button>
+        {course.status === 'active' ? (
+          <Link
+            href={`/class/${course.id}`}
+            className="mt-300 block w-full rounded-100 bg-background-brand-default py-200 text-center font-designer-20m text-text-inverse"
+          >
+            {course.ctaText}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={onNotify}
+            className="mt-300 w-full rounded-100 border border-border-brand bg-background-default py-200 font-designer-20m text-text-brand"
+          >
+            {course.ctaText}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -318,9 +453,14 @@ function CourseCard({ course }: { course: Course }) {
 export default function ClassPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>('최신순');
+  const [notifyModalOpen, setNotifyModalOpen] = useState(false);
 
   return (
     <div className="w-full">
+      <NotifyModal
+        open={notifyModalOpen}
+        onClose={() => setNotifyModalOpen(false)}
+      />
       {/* Banner */}
       <section
         className="relative w-full overflow-hidden"
@@ -629,7 +769,11 @@ export default function ClassPage() {
         {/* Cards grid */}
         <div className="grid grid-cols-1 gap-300 md:grid-cols-2 lg:grid-cols-3">
           {COURSES.map((course) => (
-            <CourseCard key={course.id} course={course} />
+            <CourseCard
+              key={course.id}
+              course={course}
+              onNotify={() => setNotifyModalOpen(true)}
+            />
           ))}
         </div>
       </section>
