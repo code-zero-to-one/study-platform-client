@@ -397,7 +397,7 @@ export function AdminCourseCompletionMessageContent({
         onChange={(event) => onChangeCompletionMessage(event.target.value)}
       />
       <p className="font-designer-13r text-text-subtle mt-75">
-        필수 · trim 저장 · 공백만 입력 불가 · 최대 200자 · 현재{' '}
+        선택 입력 · 저장 시 trim 적용 · 공백만 입력 불가 · 최대 200자 · 현재{' '}
         {completionMessage.length}/200자
       </p>
       <div className="mt-150 flex items-center justify-between gap-100">

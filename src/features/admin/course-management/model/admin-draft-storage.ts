@@ -13,7 +13,11 @@ const canUseStorage = () => typeof window !== 'undefined';
 
 export const removeAdminDraft = (draftKey: string) => {
   if (!canUseStorage()) return;
-  window.localStorage.removeItem(`${ADMIN_DRAFT_PREFIX}:${draftKey}`);
+  try {
+    window.localStorage.removeItem(`${ADMIN_DRAFT_PREFIX}:${draftKey}`);
+  } catch {
+    // no-op
+  }
 };
 
 export const readAdminDraft = <T>(draftKey: string): T | undefined => {
@@ -55,8 +59,12 @@ export function useAdminLocalDraft<T>({
         value,
         updatedAt: new Date().toISOString(),
       };
-      window.localStorage.setItem(storageKey, JSON.stringify(payload));
-      setStatus('saved');
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(payload));
+        setStatus('saved');
+      } catch {
+        setStatus('idle');
+      }
     }, 500);
 
     return () => window.clearTimeout(timeoutId);

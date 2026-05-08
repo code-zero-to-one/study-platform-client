@@ -27,6 +27,15 @@ const COURSE_STATUS_OPTIONS: Array<{
   { value: 'COMING_SOON', label: '오픈 예정', color: 'orange' },
   { value: 'HIDDEN', label: '비공개', color: 'gray' },
 ];
+const COURSE_ACCESS_FILTER_OPTIONS = ['ALL', 'FREE', 'PAID'] as const;
+
+const isAdminCourseStatus = (value: string): value is AdminCourseStatus =>
+  COURSE_STATUS_OPTIONS.some((option) => option.value === value);
+
+const isCourseAccessFilter = (
+  value: string,
+): value is (typeof COURSE_ACCESS_FILTER_OPTIONS)[number] =>
+  COURSE_ACCESS_FILTER_OPTIONS.some((option) => option === value);
 
 const formatDateTime = (value?: string | null) => {
   if (!value) return '-';
@@ -141,13 +150,17 @@ const AdminCourseSummaryPanel = ({
         <Button
           color="secondary"
           size="small"
-          onClick={() => {
-            navigator.clipboard
-              .writeText(selectedCourse.slug)
-              .catch((): undefined => undefined);
-            useToastStore
-              .getState()
-              .showToast('slug를 복사했습니다.', 'success');
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(selectedCourse.slug);
+              useToastStore
+                .getState()
+                .showToast('slug를 복사했습니다.', 'success');
+            } catch {
+              useToastStore
+                .getState()
+                .showToast('slug 복사에 실패했습니다.', 'error');
+            }
           }}
         >
           slug 복사
@@ -163,7 +176,7 @@ const AdminCourseSummaryPanel = ({
           </Link>
         </Button>
         <Button asChild color="outlined" size="small">
-          <Link href="/class/vibe-intro" target="_blank">
+          <Link href={`/class/${selectedCourse.slug}`} target="_blank">
             공개 코스 페이지 열기
           </Link>
         </Button>
@@ -251,8 +264,13 @@ export default function AdminCourseListPageClient() {
                   value={statusFilter}
                   onChange={(event) => {
                     setPage(1);
+                    const nextValue = event.target.value;
                     setStatusFilter(
-                      event.target.value as AdminCourseStatus | '',
+                      nextValue === ''
+                        ? ''
+                        : isAdminCourseStatus(nextValue)
+                          ? nextValue
+                          : '',
                     );
                   }}
                 >
@@ -270,11 +288,12 @@ export default function AdminCourseListPageClient() {
                 </span>
                 <NativeSelect
                   value={accessFilter}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
                     setAccessFilter(
-                      event.target.value as 'ALL' | 'FREE' | 'PAID',
-                    )
-                  }
+                      isCourseAccessFilter(nextValue) ? nextValue : 'ALL',
+                    );
+                  }}
                 >
                   <option value="ALL">전체</option>
                   <option value="FREE">무료</option>

@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 let mermaidRenderIndex = 0;
 let mermaidInitialized = false;
 
@@ -52,7 +54,9 @@ export const renderMermaidBlocks = async (container: HTMLElement) => {
         const { svg } = await mermaid.render(id, source);
         const wrapper = document.createElement('div');
         wrapper.className = 'mermaid-rendered-diagram';
-        wrapper.innerHTML = svg;
+        wrapper.innerHTML = DOMPurify.sanitize(svg, {
+          USE_PROFILES: { svg: true, svgFilters: true },
+        });
         preElement.replaceWith(wrapper);
       } catch {
         preElement.replaceWith(createMermaidErrorElement(document, source));

@@ -367,10 +367,17 @@ export default function AdminLessonManagementPageClient({
     deleteLessonMutation.mutate(
       { courseId, lessonId: lesson.lessonId },
       {
-        onSuccess: () => {
-          if (editingLessonId === lesson.lessonId) {
-            startCreateLesson();
+        onSuccess: (response) => {
+          if (editingLessonId !== lesson.lessonId) {
+            return;
           }
+
+          if (response.deleted) {
+            startCreateLesson();
+            return;
+          }
+
+          setLessonForm((prev) => ({ ...prev, isPublished: false }));
         },
       },
     );
@@ -857,13 +864,17 @@ export default function AdminLessonManagementPageClient({
               <Button
                 color="secondary"
                 size="xsmall"
-                onClick={() => {
-                  navigator.clipboard
-                    .writeText(lessonForm.content)
-                    .catch((): undefined => undefined);
-                  useToastStore
-                    .getState()
-                    .showToast('본문을 복사했습니다.', 'success');
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(lessonForm.content);
+                    useToastStore
+                      .getState()
+                      .showToast('본문을 복사했습니다.', 'success');
+                  } catch {
+                    useToastStore
+                      .getState()
+                      .showToast('본문 복사에 실패했습니다.', 'error');
+                  }
                 }}
               >
                 복사

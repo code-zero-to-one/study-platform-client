@@ -1198,8 +1198,10 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   left: 0;
   bottom: calc(var(--spacing-250) * -1);
   color: var(--color-text-subtle);
-  font-size: var(--font-size-12);
-  line-height: var(--line-height-16);
+  font-size: 12px;
+  font-weight: var(--font-weight-regular);
+  line-height: 19px;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 

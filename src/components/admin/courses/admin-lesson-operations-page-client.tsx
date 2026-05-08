@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
@@ -27,6 +27,8 @@ const formatDateTime = (value?: string | null) => {
     timeStyle: 'short',
   }).format(date);
 };
+
+const isSafeExternalHttpUrl = (value: string) => /^https?:\/\//.test(value);
 
 const PageShell = ({
   title,
@@ -107,16 +109,21 @@ export function AdminLessonReflectionsPageClient({
                   {formatDateTime(retro.createdAt)}
                 </span>
               </div>
-              {retro.artifactValue && (
-                <a
-                  className="font-designer-13r text-text-brand mb-75 block break-all underline"
-                  href={retro.artifactValue}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {retro.artifactValue}
-                </a>
-              )}
+              {retro.artifactValue &&
+                (isSafeExternalHttpUrl(retro.artifactValue) ? (
+                  <a
+                    className="font-designer-13r text-text-brand mb-75 block break-all underline"
+                    href={retro.artifactValue}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {retro.artifactValue}
+                  </a>
+                ) : (
+                  <p className="font-designer-13r text-text-subtle mb-75 break-all">
+                    {retro.artifactValue}
+                  </p>
+                ))}
               <p className="font-designer-14r text-text-default whitespace-pre-wrap">
                 {retro.content}
               </p>
@@ -138,6 +145,43 @@ export function AdminLessonBuilderFeedPageClient({
   const feedsQuery = useAdminLessonBuilderFeedsQuery(lessonId);
   const updateCurationMutation = useUpdateAdminBuilderFeedCurationMutation();
   const feeds = feedsQuery.data?.feeds ?? [];
+  const [pendingCurationTarget, setPendingCurationTarget] = useState<
+    | {
+        feedId: number;
+        type: 'operatorPick' | 'featured';
+      }
+    | undefined
+  >();
+
+  const handleUpdateCuration = ({
+    feedId,
+    type,
+    request,
+  }: {
+    feedId: number;
+    type: 'operatorPick' | 'featured';
+    request: {
+      operatorPick: boolean;
+      featured: boolean;
+      featuredOrder: number | null;
+    };
+  }) => {
+    setPendingCurationTarget({ feedId, type });
+    updateCurationMutation.mutate(
+      {
+        feedId,
+        lessonId,
+        request,
+      },
+      {
+        onSettled: () => {
+          setPendingCurationTarget((prev) =>
+            prev?.feedId === feedId ? undefined : prev,
+          );
+        },
+      },
+    );
+  };
 
   return (
     <PageShell
@@ -202,11 +246,15 @@ export function AdminLessonBuilderFeedPageClient({
                 <Button
                   color={feed.operatorPick ? 'secondary' : 'outlined'}
                   size="xsmall"
-                  loading={updateCurationMutation.isPending}
+                  loading={
+                    updateCurationMutation.isPending &&
+                    pendingCurationTarget?.feedId === feed.feedId &&
+                    pendingCurationTarget.type === 'operatorPick'
+                  }
                   onClick={() =>
-                    updateCurationMutation.mutate({
+                    handleUpdateCuration({
                       feedId: feed.feedId,
-                      lessonId,
+                      type: 'operatorPick',
                       request: {
                         operatorPick: !feed.operatorPick,
                         featured: feed.featured,
@@ -222,11 +270,15 @@ export function AdminLessonBuilderFeedPageClient({
                 <Button
                   color={feed.featured ? 'secondary' : 'outlined'}
                   size="xsmall"
-                  loading={updateCurationMutation.isPending}
+                  loading={
+                    updateCurationMutation.isPending &&
+                    pendingCurationTarget?.feedId === feed.feedId &&
+                    pendingCurationTarget.type === 'featured'
+                  }
                   onClick={() =>
-                    updateCurationMutation.mutate({
+                    handleUpdateCuration({
                       feedId: feed.feedId,
-                      lessonId,
+                      type: 'featured',
                       request: {
                         operatorPick: feed.operatorPick,
                         featured: !feed.featured,
@@ -259,6 +311,10 @@ export function AdminLessonQnaPageClient({
   const qnaDetailQuery = useAdminLessonQnaDetailQuery(selectedQnaId);
   const createAnswerMutation = useCreateAdminLessonQnaAnswerMutation();
   const qnas = qnasQuery.data?.qnas ?? [];
+
+  useEffect(() => {
+    setAnswerContent('');
+  }, [selectedQnaId]);
 
   const handleSubmitAnswer = () => {
     if (!selectedQnaId) return;

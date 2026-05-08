@@ -80,6 +80,11 @@ interface CourseDetailDraft {
   thumbnailFileType?: string;
 }
 
+interface CourseDetailResetState {
+  courseForm: AdminCourseFormValues;
+  completionMessage: string;
+}
+
 const formatDateTime = (value?: string | null) => {
   if (!value) return '-';
   const date = new Date(value);
@@ -286,6 +291,10 @@ export default function AdminCourseDetailPageClient({
   const [courseThumbnailDisplayWidth, setCourseThumbnailDisplayWidth] =
     useState(COURSE_THUMBNAIL_DEFAULT_DISPLAY_WIDTH);
   const [completionMessage, setCompletionMessage] = useState('');
+  const [resetState, setResetState] = useState<CourseDetailResetState>({
+    courseForm: emptyCourseForm,
+    completionMessage: '',
+  });
   const draftValue = useMemo<CourseDetailDraft>(
     () => ({
       courseForm,
@@ -318,6 +327,10 @@ export default function AdminCourseDetailPageClient({
     if (draft) {
       setCourseForm(draft.courseForm);
       setCompletionMessage(draft.completionMessage);
+      setResetState({
+        courseForm: draft.courseForm,
+        completionMessage: draft.completionMessage,
+      });
       setCourseThumbnailDraftDataUrl(draft.thumbnailDataUrl);
       if (draft.thumbnailFileName || draft.thumbnailFileType) {
         setCourseThumbnailDraftFileMeta({
@@ -331,13 +344,22 @@ export default function AdminCourseDetailPageClient({
     }
 
     if (isCreateMode) {
+      setResetState({
+        courseForm: emptyCourseForm,
+        completionMessage: '',
+      });
       setHasInitializedDraft(true);
       return;
     }
 
     if (!courseDetailQuery.data) return;
 
-    setCourseForm(toAdminCourseFormValues(courseDetailQuery.data));
+    const initialCourseForm = toAdminCourseFormValues(courseDetailQuery.data);
+    setCourseForm(initialCourseForm);
+    setResetState((prev) => ({
+      ...prev,
+      courseForm: initialCourseForm,
+    }));
     setCourseFormTouchedFields({});
     setCourseThumbnailDraftDataUrl(undefined);
     setCourseThumbnailDraftFileMeta(undefined);
@@ -353,7 +375,12 @@ export default function AdminCourseDetailPageClient({
   useEffect(() => {
     if (!hasInitializedDraft) return;
     if (readAdminDraft<CourseDetailDraft>(draftKey)) return;
-    setCompletionMessage(completionMessageQuery.data?.message ?? '');
+    const nextCompletionMessage = completionMessageQuery.data?.message ?? '';
+    setCompletionMessage(nextCompletionMessage);
+    setResetState((prev) => ({
+      ...prev,
+      completionMessage: nextCompletionMessage,
+    }));
   }, [completionMessageQuery.data?.message, draftKey, hasInitializedDraft]);
 
   useEffect(() => {
@@ -399,6 +426,7 @@ export default function AdminCourseDetailPageClient({
     }
 
     setCourseThumbnailFile(file);
+    setCourseFormTouchedFields((prev) => ({ ...prev, thumbnailUrl: true }));
     const fileReader = new FileReader();
     fileReader.addEventListener('load', () => {
       if (typeof fileReader.result !== 'string') return;
@@ -432,7 +460,28 @@ export default function AdminCourseDetailPageClient({
       useToastStore.getState().showToast(courseValidationError, 'info');
       return;
     }
-    if (completionMessage.trim()) {
+    const trimmedCompletionMessage = completionMessage.trim();
+    const hasPendingThumbnailUpload = Boolean(
+      courseThumbnailFile || courseThumbnailDraftDataUrl,
+    );
+    const hasCompletionMessageChanged =
+      completionMessage !== resetState.completionMessage;
+    const hasAttemptedToClearCompletionMessage =
+      !trimmedCompletionMessage &&
+      hasCompletionMessageChanged &&
+      resetState.completionMessage.trim().length > 0;
+
+    if (hasAttemptedToClearCompletionMessage) {
+      useToastStore
+        .getState()
+        .showToast(
+          '완주 메시지는 비워서 저장할 수 없습니다. 새 문구를 입력하거나 기존 값을 유지해주세요.',
+          'info',
+        );
+      return;
+    }
+
+    if (hasCompletionMessageChanged && trimmedCompletionMessage) {
       const completionMessageValidationError =
         getAdminCompletionMessageValidationError(completionMessage);
       if (completionMessageValidationError) {
@@ -444,7 +493,7 @@ export default function AdminCourseDetailPageClient({
     }
 
     let uploadedThumbnailUrl = basePayload.thumbnailUrl;
-    if (courseThumbnailFile || courseThumbnailDraftDataUrl) {
+    if (hasPendingThumbnailUpload) {
       setIsUploadingCourseThumbnail(true);
       try {
         const thumbnailFile =
@@ -466,10 +515,10 @@ export default function AdminCourseDetailPageClient({
     const payload = { ...basePayload, thumbnailUrl: uploadedThumbnailUrl };
     if (isCreateMode) {
       const response = await createCourseMutation.mutateAsync(payload);
-      if (completionMessage.trim()) {
+      if (hasCompletionMessageChanged && trimmedCompletionMessage) {
         await upsertCompletionMessageMutation.mutateAsync({
           courseId: response.courseId,
-          request: { message: completionMessage },
+          request: { message: trimmedCompletionMessage },
         });
       }
       clearCourseDraft();
@@ -487,21 +536,31 @@ export default function AdminCourseDetailPageClient({
       touchedFields: {
         ...courseFormTouchedFields,
         thumbnailUrl:
-          courseFormTouchedFields.thumbnailUrl || Boolean(courseThumbnailFile),
+          courseFormTouchedFields.thumbnailUrl || hasPendingThumbnailUpload,
       },
     });
     await updateCourseMutation.mutateAsync({ courseId, request });
-    if (completionMessage.trim()) {
+    if (hasCompletionMessageChanged && trimmedCompletionMessage) {
       await upsertCompletionMessageMutation.mutateAsync({
         courseId,
-        request: { message: completionMessage },
+        request: { message: trimmedCompletionMessage },
       });
     }
+    const nextCourseForm = {
+      ...courseForm,
+      thumbnailUrl: uploadedThumbnailUrl,
+    };
     clearCourseDraft();
     setCourseThumbnailFile(null);
     setCourseThumbnailDraftDataUrl(undefined);
     setCourseThumbnailDraftFileMeta(undefined);
+    setCourseForm(nextCourseForm);
+    setCompletionMessage(trimmedCompletionMessage);
     setCourseFormTouchedFields({});
+    setResetState({
+      courseForm: nextCourseForm,
+      completionMessage: trimmedCompletionMessage,
+    });
   };
 
   const handleSaveCompletionMessage = () => {
@@ -553,9 +612,8 @@ export default function AdminCourseDetailPageClient({
       {!isCreateMode && !selectedCourse && !coursesQuery.isLoading && (
         <div className="border-border-default rounded-150 border p-200">
           <p className="font-designer-14r text-text-subtle">
-            코스 목록 조회 결과에서 해당 코스를 찾지 못했습니다. 현재 백엔드에
-            코스 상세 조회 API가 없어 목록 페이지 기준으로 편집 데이터를
-            구성합니다.
+            코스 목록 메타 정보를 아직 불러오지 못했습니다. 상세 편집은 코스
+            상세 조회 응답 기준으로 계속 진행할 수 있습니다.
           </p>
         </div>
       )}
@@ -619,6 +677,10 @@ export default function AdminCourseDetailPageClient({
                 setCourseThumbnailFile(null);
                 setCourseThumbnailDraftDataUrl(undefined);
                 setCourseThumbnailDraftFileMeta(undefined);
+                setCourseFormTouchedFields((prev) => ({
+                  ...prev,
+                  thumbnailUrl: true,
+                }));
               }}
               handleSubmitCourse={handleSubmitCourse}
               isCourseFormLocked={isCourseFormLocked}
@@ -627,7 +689,12 @@ export default function AdminCourseDetailPageClient({
                 setCourseThumbnailDisplayWidth
               }
               resetCourseForm={() => {
-                setCourseForm(emptyCourseForm);
+                setCourseForm(
+                  isCreateMode ? emptyCourseForm : resetState.courseForm,
+                );
+                setCompletionMessage(
+                  isCreateMode ? '' : resetState.completionMessage,
+                );
                 setCourseFormTouchedFields({});
                 setCourseThumbnailFile(null);
                 setCourseThumbnailDraftDataUrl(undefined);

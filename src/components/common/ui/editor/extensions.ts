@@ -1,4 +1,5 @@
 import {
+  type Editor,
   Extension,
   Node,
   mergeAttributes,
@@ -7,7 +8,7 @@ import {
 } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import ImageExtension from '@tiptap/extension-image';
-import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
+import type { Mark, Node as ProseMirrorNode } from '@tiptap/pm/model';
 import c from 'highlight.js/lib/languages/c';
 import cpp from 'highlight.js/lib/languages/cpp';
 import dart from 'highlight.js/lib/languages/dart';
@@ -82,12 +83,40 @@ const updateImageNodeWidth = (
     return;
   }
 
+  const currentNode = props.view.state.doc.nodeAt(pos);
+  if (!currentNode) {
+    return;
+  }
+
   props.view.dispatch(
     props.view.state.tr.setNodeMarkup(pos, undefined, {
-      ...props.node.attrs,
+      ...currentNode.attrs,
       width: clampImageWidth(nextWidth),
     }),
   );
+};
+
+const isCursorAtEndOfLink = (editor: Editor) => {
+  const { selection, doc, schema } = editor.state;
+  const linkMarkType = schema.marks.link;
+  if (!selection.empty || !linkMarkType) {
+    return false;
+  }
+
+  const cursorMarks = selection.$from.marks();
+  const isInsideLink = cursorMarks.some(
+    (mark: Mark) => mark.type === linkMarkType,
+  );
+  if (!isInsideLink) {
+    return false;
+  }
+
+  const nextNode = doc.nodeAt(selection.from);
+  if (!nextNode) {
+    return true;
+  }
+
+  return !nextNode.marks.some((mark: Mark) => mark.type === linkMarkType);
 };
 
 const createResizableImageNodeView = (props: NodeViewRendererProps) => {
@@ -238,8 +267,7 @@ export const LinkExitOnSpaceExtension = Extension.create({
   addKeyboardShortcuts() {
     return {
       Space: () => {
-        const { selection } = this.editor.state;
-        if (!selection.empty || !this.editor.isActive('link')) {
+        if (!isCursorAtEndOfLink(this.editor)) {
           return false;
         }
 
