@@ -409,7 +409,7 @@ function CourseCard({
           {course.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-gray-200 px-200 py-50 font-designer-16r text-gray-500"
+              className="rounded-full bg-gray-50 px-200 py-50 font-designer-16r text-gray-400"
             >
               {tag}
             </span>
@@ -419,7 +419,7 @@ function CourseCard({
         {course.status === 'active' && course.price !== undefined && (
           <div className="mt-300 flex flex-col">
             {course.originalPrice !== undefined && (
-              <p className="font-designer-16r text-gray-400 line-through">
+              <p className="font-designer-16r text-gray-300 line-through">
                 정가 {course.originalPrice.toLocaleString()}원
               </p>
             )}
@@ -440,7 +440,7 @@ function CourseCard({
           <button
             type="button"
             onClick={onNotify}
-            className="mt-300 w-full rounded-100 border border-border-brand bg-background-default py-200 font-designer-20m text-text-brand"
+            className="w-full rounded-100 border border-border-brand bg-background-default py-200 font-designer-20m text-text-brand"
           >
             {course.ctaText}
           </button>
