@@ -14,8 +14,9 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useGetCourseCurriculum } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 type Tab = 'roadmap' | 'builder-feed' | 'curriculum' | 'benefits' | 'faq';
@@ -95,15 +96,39 @@ const CHAPTERS = [
 ];
 
 export default function ClassDetailPage({
-  params: _params,
+  params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { id: slug } = use(params);
   const [activeTab, setActiveTab] = useState<Tab>('roadmap');
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set([0]),
   );
   const showToast = useToastStore((state) => state.showToast);
+
+  // 커리큘럼은 DB에서 가져오되, 코스가 없으면 하드코딩된 CHAPTERS로 fallback.
+  const { data: curriculum } = useGetCourseCurriculum(slug);
+  const chaptersForRoadmap = useMemo(() => {
+    if (curriculum?.chapters && curriculum.chapters.length > 0) {
+      return curriculum.chapters.map((chapter) => ({
+        num: String(chapter.chapterNumber).padStart(2, '0'),
+        title: chapter.title,
+        desc: '',
+        lessons: chapter.lessons.map((lesson) => ({
+          order: lesson.order,
+          title: lesson.title,
+        })),
+      }));
+    }
+    return CHAPTERS.map((chapter) => ({
+      ...chapter,
+      lessons: chapter.lessons.map((title, index) => ({
+        order: index + 1,
+        title,
+      })),
+    }));
+  }, [curriculum]);
 
   function handleTabClick(tab: Tab) {
     setActiveTab(tab);
@@ -361,9 +386,9 @@ export default function ClassDetailPage({
                 로드맵 따라만 가세요!
               </h2>
               <div className="mt-400 space-y-250">
-                {CHAPTERS.map((chapter, i) => (
+                {chaptersForRoadmap.map((chapter, i) => (
                   <div
-                    key={i}
+                    key={`${chapter.num}-${chapter.title}`}
                     className="overflow-hidden rounded-200 border border-border-default bg-gray-100"
                   >
                     <div className="flex items-start gap-300 p-250">
@@ -379,9 +404,11 @@ export default function ClassDetailPage({
                         <p className="font-designer-20b text-gray-800">
                           {chapter.title}
                         </p>
-                        <p className="mt-75 font-designer-16m text-gray-800">
-                          {chapter.desc}
-                        </p>
+                        {chapter.desc && (
+                          <p className="mt-75 font-designer-16m text-gray-800">
+                            {chapter.desc}
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"
@@ -398,19 +425,19 @@ export default function ClassDetailPage({
                     </div>
                     {expandedChapters.has(i) && chapter.lessons.length > 0 && (
                       <div>
-                        {chapter.lessons.map((lesson, j) => (
+                        {chapter.lessons.map((lesson) => (
                           <div
-                            key={j}
+                            key={`${chapter.num}-${lesson.order}`}
                             className="flex items-center gap-200 border-t border-border-default bg-background-default px-350 py-300"
                           >
                             <span className="shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
                               온보딩
                             </span>
                             <p className="font-designer-16r text-gray-800">
-                              Lesson {String(j + 1).padStart(2, '0')}
+                              Lesson {String(lesson.order).padStart(2, '0')}
                             </p>
                             <p className="font-designer-18b text-gray-800">
-                              {lesson}
+                              {lesson.title}
                             </p>
                           </div>
                         ))}
