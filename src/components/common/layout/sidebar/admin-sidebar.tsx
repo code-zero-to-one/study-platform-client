@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import UserAvatar from '@/components/common/ui/avatar';
 import TabMenu from '@/components/common/ui/tab-menu';
 import { useAuthReady } from '@/features/auth/model/use-auth';
@@ -11,15 +11,15 @@ import OutIcon from 'public/icons/out.svg';
 export default function AdminSideBar() {
   const { memberId } = useAuthReady();
   const { data: profile } = useUserProfileQuery(memberId ?? 0);
-
   const pathname = usePathname();
+  const router = useRouter();
   const isSalesManagementPath = pathname.startsWith('/admin/sales-management');
   const isMentoringManagementPath = pathname.startsWith('/admin/mentoring');
   const isMatchingManagementPath = pathname.startsWith('/admin/matching');
   const isCourseManagementPath = pathname.startsWith('/admin/courses');
 
   return (
-    <aside className="border-border-subtle bg-background-default relative z-10 h-screen shrink-0 border-r p-200">
+    <aside className="border-border-subtle h-screen w-fit border-r p-200">
       <div className="border-border-subtle flex items-center gap-150 border-b py-200">
         {profile && (
           <UserAvatar
@@ -43,25 +43,45 @@ export default function AdminSideBar() {
       </div>
 
       <nav className="mt-200 flex min-w-0 flex-col gap-100">
-        <Link href="/admin">
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin')}
+        >
           <TabMenu active={pathname === '/admin'}>사용자 관리</TabMenu>
-        </Link>
+        </button>
 
-        <Link href="/admin/courses">
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/courses')}
+        >
           <TabMenu active={isCourseManagementPath}>클래스 관리</TabMenu>
-        </Link>
+        </button>
 
-        <Link href="/admin/sales-management/payment-refund">
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/sales-management/payment-refund')}
+        >
           <TabMenu active={isSalesManagementPath}>매출 관리</TabMenu>
-        </Link>
+        </button>
 
-        <Link href="/admin/mentoring/dashboard">
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/mentoring/dashboard')}
+        >
           <TabMenu active={isMentoringManagementPath}>멘토링 관리</TabMenu>
-        </Link>
+        </button>
 
-        <Link href="/admin/matching">
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/matching')}
+        >
           <TabMenu active={isMatchingManagementPath}>1:1 매칭 관리</TabMenu>
-        </Link>
+        </button>
       </nav>
     </aside>
   );
