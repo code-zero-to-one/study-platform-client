@@ -16,6 +16,7 @@ export default function AdminSideBar() {
   const isSalesManagementPath = pathname.startsWith('/admin/sales-management');
   const isMentoringManagementPath = pathname.startsWith('/admin/mentoring');
   const isMatchingManagementPath = pathname.startsWith('/admin/matching');
+  const isCourseManagementPath = pathname.startsWith('/admin/courses');
 
   return (
     <aside className="border-border-subtle h-screen w-fit border-r p-200">
@@ -30,7 +31,7 @@ export default function AdminSideBar() {
           />
         )}
 
-        <div className="w-[136px]">
+        <div className="min-w-0 flex-1">
           <p className="font-designer-14m text-text-default">
             {profile?.memberProfile.memberName}
           </p>
@@ -41,9 +42,13 @@ export default function AdminSideBar() {
         </Link>
       </div>
 
-      <nav className="mt-200 flex w-[188px] flex-col gap-100">
+      <nav className="mt-200 flex min-w-0 flex-col gap-100">
         <Link href="/admin">
           <TabMenu active={pathname === '/admin'}>사용자 관리</TabMenu>
+        </Link>
+
+        <Link href="/admin/courses">
+          <TabMenu active={isCourseManagementPath}>클래스 관리</TabMenu>
         </Link>
 
         <Link href="/admin/sales-management/payment-refund">
