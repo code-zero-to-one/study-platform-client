@@ -20,6 +20,19 @@ const emptyLessonForm: AdminLessonUpsertRequest = {
 
 type StateSetter<T> = Dispatch<SetStateAction<T>>;
 
+const areStringRecordsEqual = (
+  left: Record<number, string>,
+  right: Record<number, string>,
+) => {
+  const leftKeys = Object.keys(left);
+  const rightKeys = Object.keys(right);
+
+  return (
+    leftKeys.length === rightKeys.length &&
+    leftKeys.every((key) => left[Number(key)] === right[Number(key)])
+  );
+};
+
 export const useAdminPendingCourseSelectionSync = ({
   coursesFetching,
   pendingSelectedCourseId,
@@ -372,7 +385,9 @@ export const useAdminQnaSelectionSync = ({
     }
 
     if (qnas.length === 0) {
-      setSelectedQnaId(undefined);
+      if (selectedQnaId) {
+        setSelectedQnaId(undefined);
+      }
       return;
     }
 
@@ -384,7 +399,7 @@ export const useAdminQnaSelectionSync = ({
   }, [qnas, qnasFetching, selectedQnaId, setSelectedQnaId]);
 
   useEffect(() => {
-    setQnaAnswerContent('');
+    setQnaAnswerContent((prev) => (prev ? '' : prev));
   }, [selectedQnaId, setQnaAnswerContent]);
 };
 
@@ -412,9 +427,15 @@ export const useAdminBuilderFeedDraftSync = ({
 }) => {
   useEffect(() => {
     if (!editingLessonId || feeds.length === 0) {
-      setBuilderFeedOrderDrafts({});
-      builderFeedOrderSourceValuesRef.current = {};
-      setIsAwaitingBuilderFeedRefresh(false);
+      setBuilderFeedOrderDrafts((prevDrafts) =>
+        Object.keys(prevDrafts).length > 0 ? {} : prevDrafts,
+      );
+
+      if (Object.keys(builderFeedOrderSourceValuesRef.current).length > 0) {
+        builderFeedOrderSourceValuesRef.current = {};
+      }
+
+      setIsAwaitingBuilderFeedRefresh((prev) => (prev ? false : prev));
       return;
     }
 
@@ -441,9 +462,19 @@ export const useAdminBuilderFeedDraftSync = ({
             : serverValue;
       });
 
-      return nextDrafts;
+      return areStringRecordsEqual(prevDrafts, nextDrafts)
+        ? prevDrafts
+        : nextDrafts;
     });
-    builderFeedOrderSourceValuesRef.current = nextSourceValues;
+
+    if (
+      !areStringRecordsEqual(
+        builderFeedOrderSourceValuesRef.current,
+        nextSourceValues,
+      )
+    ) {
+      builderFeedOrderSourceValuesRef.current = nextSourceValues;
+    }
   }, [
     builderFeedOrderSourceValuesRef,
     editingLessonId,

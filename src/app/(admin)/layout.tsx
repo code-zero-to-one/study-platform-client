@@ -37,9 +37,13 @@ export default async function AdminLayout({
       {GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
       <MainProvider initialSession={initialSession}>
         <PageViewTracker />
-        <div className="flex min-w-[1200px] overflow-x-hidden">
-          <AdminSideBar />
-          <main className="flex-1 p-300">{children}</main>
+        <div className="isolate flex min-w-[1200px] items-start overflow-x-hidden">
+          <div className="sticky top-0 z-20 shrink-0 self-start">
+            <AdminSideBar />
+          </div>
+          <main className="w-0 min-w-0 flex-1 overflow-x-hidden p-300">
+            {children}
+          </main>
         </div>
         <GlobalToast />
       </MainProvider>
