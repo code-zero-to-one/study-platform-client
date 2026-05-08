@@ -1,9 +1,11 @@
 'use client';
 
 import { BookOpen } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useGetCourseCurriculum,
   useGetCourseDetail,
@@ -15,6 +17,10 @@ import type {
   CourseJourneyMapLessonResponse,
   LessonProgressStatus,
 } from '@/types/api/course.types';
+
+const LoginModal = dynamic(
+  () => import('@/components/auth/modals/login-modal'),
+);
 
 const COURSE_SLUG = 'vibe-intro';
 
@@ -187,7 +193,13 @@ function mergeLessons(
   });
 }
 
-function LessonStamp({ lesson }: { lesson: LessonDisplayInfo }) {
+function LessonStamp({
+  lesson,
+  isAuthenticated,
+}: {
+  lesson: LessonDisplayInfo;
+  isAuthenticated: boolean;
+}) {
   const isCompleted = lesson.status === 'COMPLETED';
   const isInProgress = lesson.status === 'IN_PROGRESS';
 
@@ -242,6 +254,11 @@ function LessonStamp({ lesson }: { lesson: LessonDisplayInfo }) {
   );
 
   if (lesson.accessible) {
+    if (!isAuthenticated) {
+      return (
+        <LoginModal openTrigger={<button type="button">{content}</button>} />
+      );
+    }
     return (
       <Link href={`/class/vibe-intro/lesson/${lesson.lessonId}`}>
         {content}
@@ -272,6 +289,7 @@ function ChapterHeader({ chapterNumber }: { chapterNumber: number }) {
 }
 
 export default function JourneyMapPage() {
+  const { isAuthenticated } = useAuth();
   const { data: course } = useGetCourseDetail(COURSE_SLUG);
   const courseId = course?.courseId ?? 0;
 
@@ -359,16 +377,29 @@ export default function JourneyMapPage() {
 
         {/* Journey map */}
         <div className="mt-500 flex flex-col items-center">
-          <Link
-            href={
-              chapters[0]?.lessons[0]
-                ? `/class/vibe-intro/lesson/${chapters[0].lessons[0].lessonId}`
-                : '#'
-            }
-            className="flex h-[44px] w-[100px] items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-white"
-          >
-            Start
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href={
+                chapters[0]?.lessons[0]
+                  ? `/class/vibe-intro/lesson/${chapters[0].lessons[0].lessonId}`
+                  : '#'
+              }
+              className="flex h-[44px] w-[100px] items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-white"
+            >
+              Start
+            </Link>
+          ) : (
+            <LoginModal
+              openTrigger={
+                <button
+                  type="button"
+                  className="flex h-[44px] w-[100px] items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-white"
+                >
+                  Start
+                </button>
+              }
+            />
+          )}
 
           {chapters.map((chapter, ci) => {
             const lessons = mergeLessons(chapter, lessonStatusMap);
@@ -427,7 +458,11 @@ export default function JourneyMapPage() {
                       )}
                     >
                       {row.map((lesson) => (
-                        <LessonStamp key={lesson.lessonId} lesson={lesson} />
+                        <LessonStamp
+                          key={lesson.lessonId}
+                          lesson={lesson}
+                          isAuthenticated={isAuthenticated}
+                        />
                       ))}
                     </div>
                   </div>

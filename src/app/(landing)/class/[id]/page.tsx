@@ -12,12 +12,18 @@ import {
   MessageSquare,
   Share2,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useAuth } from '@/features/auth/model/use-auth';
 import { useGetCourseCurriculum } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
+
+const LoginModal = dynamic(
+  () => import('@/components/auth/modals/login-modal'),
+);
 
 type Tab = 'roadmap' | 'builder-feed' | 'curriculum' | 'benefits' | 'faq';
 
@@ -106,6 +112,7 @@ export default function ClassDetailPage({
     new Set([0]),
   );
   const showToast = useToastStore((state) => state.showToast);
+  const { isAuthenticated } = useAuth();
 
   // 커리큘럼은 DB에서 가져오되, 코스가 없으면 하드코딩된 CHAPTERS로 fallback.
   const { data: curriculum } = useGetCourseCurriculum(slug);
@@ -532,12 +539,25 @@ export default function ClassDetailPage({
                   >
                     공유하기
                   </button>
-                  <Link
-                    href="/class/vibe-intro/home"
-                    className="flex h-700 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
-                  >
-                    무료 코스 시작하기
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link
+                      href="/class/vibe-intro/home"
+                      className="flex h-700 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                    >
+                      무료 코스 시작하기
+                    </Link>
+                  ) : (
+                    <LoginModal
+                      openTrigger={
+                        <button
+                          type="button"
+                          className="flex h-700 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                        >
+                          무료 코스 시작하기
+                        </button>
+                      }
+                    />
+                  )}
                 </div>
 
                 {/* Study With Me */}
