@@ -60,6 +60,7 @@ const cspConnectSrcHosts = [
 ] as const;
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['@tiptap/core', '@tiptap/pm', 'prosemirror-model'],
   // [보안] 보안 HTTP 헤더 설정.
   // CSP는 스테이징 검증 중이므로 Content-Security-Policy-Report-Only 모드로 먼저 배포.
   // 결제·로그인 E2E 검증 후 위반 없으면 Content-Security-Policy로 전환할 것.
