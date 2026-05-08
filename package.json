@@ -136,7 +136,7 @@
     "vitest": "^3.1.1"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,css,json,yml,yaml}": "biome format --write"
+    "*.{js,jsx,ts,tsx,css,json}": "biome format --write"
   },
   "resolutions": {
     "strip-ansi": "6.0.1"

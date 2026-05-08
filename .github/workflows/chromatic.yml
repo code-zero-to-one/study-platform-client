@@ -5,6 +5,8 @@ name: 'Storybook Chromatic Deployment'
 on:
   push:
     branches: ['develop']
+  pull_request:
+    branches: ['develop']
 
 # List of jobs
 jobs:

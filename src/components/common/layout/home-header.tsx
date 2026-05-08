@@ -58,11 +58,13 @@ export default async function Header() {
   const userImg = userProfile
     ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl
     : undefined;
+  const initialNickname = userInfo?.nickname ?? undefined;
+  const initialLevelName = userProfile?.sincerityTemp?.levelName ?? undefined;
   const showDeveloperRegistrationEntry =
     isLoggedIn && developerRegistration?.registered === false;
 
   return (
-    <header className="bg-background-default py-125 mix-blend-multiply">
+    <header className="relative z-10 w-full bg-background-default py-125 mix-blend-multiply">
       <div className="mx-auto flex w-full max-w-1496 items-center justify-between px-600">
         <div className="flex items-center gap-100 px-100 py-125">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
@@ -83,6 +85,8 @@ export default async function Header() {
           initialSessionState={sessionState}
           initialAuthenticatedMemberId={memberId}
           initialUserImg={userImg}
+          initialNickname={initialNickname}
+          initialLevelName={initialLevelName}
           initialShowDeveloperRegistrationEntry={showDeveloperRegistrationEntry}
         />
       </div>

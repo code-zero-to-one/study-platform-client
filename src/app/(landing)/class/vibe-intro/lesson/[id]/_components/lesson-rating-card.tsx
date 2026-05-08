@@ -1,0 +1,59 @@
+'use client';
+
+import Image from 'next/image';
+import { useState } from 'react';
+
+interface Props {
+  rating: number;
+  onChange: (next: number) => void;
+}
+
+const HINTS = [
+  '별점을 눌러주세요.',
+  '어려웠어요',
+  '조금 어려웠어요',
+  '보통이에요',
+  '재밌었어요',
+  '너무 재밌었어요',
+];
+
+export function LessonRatingCard({ rating, onChange }: Props) {
+  const [hover, setHover] = useState(0);
+  const display = hover || rating;
+
+  return (
+    <div className="flex flex-col gap-200 rounded-150 border border-gray-300 bg-background-default p-300">
+      <p className="text-center font-designer-16b text-gray-1000">
+        오늘의 코딩 바이브는 몇 점인가요?
+      </p>
+      <div className="flex items-center justify-center gap-75">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => onChange(star)}
+            onMouseEnter={() => setHover(star)}
+            onMouseLeave={() => setHover(0)}
+            aria-label={`${star}점`}
+            className="h-[42px] w-[42px] shrink-0"
+          >
+            <Image
+              src={
+                star <= display
+                  ? '/class/vibe-intro/star-enabled.svg'
+                  : '/class/vibe-intro/star-disabled.svg'
+              }
+              alt=""
+              aria-hidden="true"
+              width={42}
+              height={42}
+            />
+          </button>
+        ))}
+      </div>
+      <p className="text-center font-designer-13m text-gray-400">
+        {HINTS[display]}
+      </p>
+    </div>
+  );
+}
