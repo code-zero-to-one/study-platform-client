@@ -7,7 +7,7 @@ description: 'Convert a Figma page or route node into a Next.js App Router page 
 
 ## Purpose
 
-Take one Figma page/route node, save its design context to `docs/Figma/`, decide route + API mappings, refresh `../study-platform-mvp/` backend repo + cross-check DTOs, generate a Next.js page wired to real hooks, pause for user verification (Chrome / staging-verify), then commit on the current branch. PR creation is **not** part of this skill — user invokes `/pr` afterwards.
+Take one Figma page/route node, save its design context to `docs/Figma/`, decide route + API mappings, refresh `../study-platform-mvp/` backend repo + cross-check DTOs, generate a Next.js page wired to real hooks, run iterative Chrome ↔ Figma verification until zero mismatches, then commit on the current branch. PR creation is **not** part of this skill — user invokes `/pr` afterwards.
 
 ## Use_When
 
@@ -27,179 +27,91 @@ Take one Figma page/route node, save its design context to `docs/Figma/`, decide
 - Figma URL (with `node-id` query param) for a page/frame node
 - Optional: target route path (e.g., `/premium-study/[id]`). If omitted, derive from Figma frame name + project routing convention.
 
+---
+
 ## Steps
 
-### 1. Figma Fetch
+### 1–2. Figma Fetch + Asset Lifecycle + Sub-section Drill
 
-Run in parallel:
+→ **Full protocol:** `.claude/skills/dev-start/rules/figma-fetch.md`
 
-- `mcp__claude_ai_Figma__get_design_context(nodeId, fileKey)` — layout, transforms, typography, effects, hierarchy
-- `mcp__claude_ai_Figma__get_variable_defs(nodeId, fileKey)` — design tokens
-- `mcp__claude_ai_Figma__get_screenshot(nodeId, fileKey)` — reference image (save URL for Step 9)
-- `mcp__claude_ai_Figma__get_metadata(nodeId, fileKey)` — full child tree for Step 2 drill
-- `mcp__claude_ai_Figma__get_code_connect_suggestions(nodeId, fileKey)` — Code Connect JSX snippets if configured
-
-Follow `.claude/rules/figma-design.md` exhaustively. After receiving results:
-
-- If `get_design_context` output appears truncated (ends mid-property or contains `...`) → flag for re-call in Step 2.
-- If `get_code_connect_suggestions` returns JSX for any child node → mark those instances as **CC-mapped** (used in Step 4).
-
-### 2. Sub-section Drill + Variant Sampling
-
-**Do not skip.** Page-level frames are too large for a single `get_design_context` call — sections must be drilled individually.
-
-#### 2a. Enumerate Level-1 sections
-
-From `get_metadata` result, extract all direct children of the page frame. For each child node:
-
-| Node type | Action |
-|-----------|--------|
-| Data-bearing (list, grid, card group, form) | `get_design_context` individually |
-| Complex layout (3+ nested levels) | `get_design_context` individually |
-| Variant component instance | enumerate all variant cells → `get_design_context` each cell |
-| Static / decorative (hero text, divider) | re-use parent call result |
-
-Run all individual `get_design_context` calls in parallel.
-
-#### 2b. Variant matrix sampling
-
-For any section that is a Component with Variants:
-
-1. Identify all variant dimensions (e.g., `state × size × type`)
-2. Call `get_design_context` on **every cell** of the matrix — not just the default
-3. Record exact per-cell diffs (color changes, size changes, show/hide layers)
-
-Missing a variant cell = that state will not be implemented in the page.
-
-#### 2c. Transform capture
-
-For every node (including children):
-
-- Record **exact rotation** in degrees (e.g., `-9.38°`, `+18.03°`) — never round
-- Record negative scale (mirror transform)
-- Group nodes sharing the same transform — they form a designer-intentional system
-
-#### 2d. Truncation recovery
-
-If any `get_design_context` sub-call still appears truncated → call `get_metadata` on that sub-node to expose its own children, then drill one level deeper.
+Summary:
+- Run 5 Figma MCP calls in parallel (`get_design_context`, `get_variable_defs`, `get_screenshot`, `get_metadata`, `get_code_connect_suggestions`)
+- Immediately download all image assets to `/public/{route-slug}/` — never hardcode Figma MCP URLs
+- Never substitute assets with hand-crafted SVG, HTML text chars, or CSS — download the actual file
+- Drill every Level-1 section individually; sample all variant matrix cells; record exact rotation degrees
 
 ### 3. Token Mapping
 
 For every Figma variable from Step 1's `get_variable_defs`:
 
-1. Read `src/app/global.css` → find all `@theme inline` token names (pattern: `--color-*`, `--spacing-*`, `--radius-*`, `--shadow-*`)
-2. Map each Figma variable:
+1. Read `src/app/global.css` → find all `@theme inline` token names (`--color-*`, `--spacing-*`, `--radius-*`, `--shadow-*`)
+2. Map each variable:
 
 | Result | Action |
 |--------|--------|
-| ✅ Exact name match | Use project token (e.g., `bg-gray-900`, `text-primary-500`) |
-| ⚠️ Closest name match | Use nearest project token. Record deviation: `Figma color/accent/300 → bg-accent-200` |
-| ❌ No match | Use nearest available token. **Never** use Tailwind arbitrary values (`p-[4px]`) or base Tailwind scale (`p-4`). Record deviation. |
+| ✅ Exact match | Use project token (`bg-gray-900`, `text-primary-500`) |
+| ⚠️ Nearest match | Use closest token. Record deviation. |
+| ❌ No match | Use nearest available. **Never** use arbitrary values (`p-[4px]`) or base Tailwind scale (`p-4`). Record deviation. |
 
 3. Build mapping table — saved to spec doc in Step 5.
 
-**Token naming reference for this project:**
-
-- Colors: `bg-gray-{0|50|100|...|1000}`, `text-gray-*`, `border-gray-*`
-- Semantic: `bg-primary-*`, `text-primary-*` (check global.css for exact names)
-- Spacing: `p-{token}`, `gap-{token}`, `m-{token}` (project custom scale, not Tailwind default)
-- Radius: `rounded-{token}` (project custom, not Tailwind default)
+Token reference: `bg-gray-{0…1000}`, `p-{token}` / `gap-{token}` (custom scale), `rounded-{token}` (custom).
 
 ### 4. Component Reuse Check
 
 Before writing any code, identify which Figma sections already exist as components.
 
-#### 4a. Extract component instances
-
-From `get_metadata`, collect all nodes where `type === "INSTANCE"` — these are Figma component instances.
-
-#### 4b. Check codebase
-
-For each instance:
+From `get_metadata`, collect all `type === "INSTANCE"` nodes. For each:
 
 ```bash
-# Search by component name (kebab-case and PascalCase)
 grep -r "{ComponentName}" src/components/ --include="*.tsx" -l
 ```
 
 | Result | Action |
 |--------|--------|
-| **Found in `src/components/`** | Record import path. Use in Step 8. Do not re-implement. |
-| **CC-mapped** (Step 1 flag) | Use the Code Connect JSX snippet directly. Do not re-implement. |
-| **Not found** | Mark as TODO. Add to summary. Note that `design-to-dev` skill should be run separately for this component. |
+| Found in `src/components/` | Record import path. Use in Step 8. Do not re-implement. |
+| CC-mapped (Step 1 flag) | Use Code Connect JSX snippet directly. |
+| Not found | Mark TODO. Run `design-to-dev` skill separately. |
 
-#### 4c. Output: Component reuse map
-
-```
-| Figma instance      | Codebase path                          | Status     |
-|---------------------|----------------------------------------|------------|
-| Button/Primary      | src/components/common/ui/Button.tsx    | ✅ reuse   |
-| Card/Study          | src/components/pages/StudyCard.tsx     | ✅ reuse   |
-| Badge/Status        | —                                      | ❌ TODO    |
-```
+Output: Component reuse map table (Figma instance → codebase path → status).
 
 ### 5. Save to `docs/Figma/`
 
-Create `docs/Figma/{page-slug}.md` (slug = kebab-case of route, e.g., `premium-study-detail`):
+Create `docs/Figma/{page-slug}.md`:
 
 ```markdown
 # {RouteName}
 
 ## Source
-- File: {fileKey}
-- Node: {nodeId}
-- URL: {original Figma URL}
-- Captured: {YYYY-MM-DD}
-- Screenshot: {get_screenshot URL or "see Figma URL"}
+- File: {fileKey} | Node: {nodeId} | URL: {Figma URL} | Captured: {YYYY-MM-DD}
 
 ## Route
 - Target path: src/app/(service)/.../page.tsx
-- Layout group: (landing|service|admin)
-- Auth required: yes/no
+- Layout group: (landing|service|admin) | Auth required: yes/no
 
 ## Sections
 | Section | Type | Data Source | Notes |
-|---------|------|-------------|-------|
-| Header | static | — | logo + nav |
-| StudyList | data | useGetGroupStudyList | paginated |
-| ... | ... | ... | ... |
 
 ## Component Reuse
 | Figma instance | Codebase path | Status |
-|----------------|---------------|--------|
-| Button/Primary | src/components/common/ui/Button.tsx | ✅ reuse |
-| Card/Study | src/components/pages/StudyCard.tsx | ✅ reuse |
-| Badge/Status | — | ❌ TODO (run design-to-dev) |
 
 ## Token Mapping
 | Figma Variable | Project Token | Status |
-|----------------|---------------|--------|
-| color/primary/500 | bg-primary-500 | ✅ exact |
-| color/accent/300 | bg-accent-200 | ⚠️ nearest (+50 lightness) |
 
 ## Token Deviations
-{list any ⚠️ or ❌ mappings with reasoning}
-
 ## Transforms
 | Node | Rotation | Scale | Notes |
-|------|----------|-------|-------|
-| HeroDecoration | -9.38° | 1x | intentional tilt |
 
 ## API Mapping
 | Region | Hook | DTO Type | File |
-|--------|------|----------|------|
-| StudyList | useGetGroupStudyList | GroupStudyListResponse | src/hooks/queries/group-study.ts |
-| Profile | (none — TODO) | — | — |
 
 ## Notes
-{deviations, missing APIs, variant anomalies, designer annotations}
 ```
 
 ### 6. Code Mapping (Route + API)
 
 #### 6a. Route Mapping
-
-Decide the target file path under `src/app/`:
 
 | Figma frame name pattern | Project route group |
 |--------------------------|---------------------|
@@ -207,30 +119,31 @@ Decide the target file path under `src/app/`:
 | Authenticated user pages | `src/app/(service)/.../page.tsx` |
 | Admin pages | `src/app/(admin)/.../page.tsx` |
 
-Honor existing route conventions (dynamic segments `[id]`, route groups `(group)`). Confirm the chosen path with user **only if ambiguous**.
+#### 6b. API Mapping
+
+For every data-bearing region from Step 2:
+1. Search `src/hooks/queries/`, `src/api/`, `src/api/openapi/` for matching hook
+2. Found → record in mapping table; Not found → `// TODO: API not found - <region>` placeholder
+
+**Never invent endpoints.**
 
 #### 6c. Middleware Route Registration
 
-**Always run this step.** The Next.js route group (landing/service/admin) does NOT automatically set middleware policy. All unregistered paths fall through to `handleProtected` and redirect to `/`.
-
-Read `src/features/auth/server/middleware/route-policy.ts` and check if the new route path is already covered:
+**Always run this step.** Unregistered paths redirect to `/`.
 
 ```bash
 grep -n "'/path'" src/features/auth/server/middleware/route-policy.ts
 ```
 
-Then apply the rule:
+| Route group | Required policy |
+|-------------|-----------------|
+| `(landing)` | `PUBLIC_SESSION` |
+| `(service)` | Already protected (default) |
+| `(admin)` | Already protected (default) |
 
-| Route group | Required policy | Reason |
-|-------------|-----------------|--------|
-| `(landing)` | `PUBLIC_SESSION` | Public page; needs session context for header auth state |
-| `(service)` | Already protected (default) | Auth required; no entry needed |
-| `(admin)` | Already protected (default) | Admin JWT claim checked separately |
-
-If the path is **not registered** and the route is `(landing)`:
+If `(landing)` path not registered, add to `ROUTE_POLICIES` in `route-policy.ts`:
 
 ```typescript
-// Add to ROUTE_POLICIES in route-policy.ts before the `] as const;` closing
 {
   kind: ROUTE_POLICY_KINDS.PUBLIC_SESSION,
   path: '/{route-path}',
@@ -238,47 +151,20 @@ If the path is **not registered** and the route is `(landing)`:
 },
 ```
 
-Use `PREFIX` match for all page routes (covers `/class`, `/class/[id]`, etc.).
-
-**Do not skip this step** — missing registration causes silent redirect-to-`/` that only surfaces at browser verification time.
-
-#### 6b. API Mapping
-
-For every data-bearing region from Step 2:
-
-1. Search `src/hooks/queries/`, `src/api/`, `src/api/openapi/` for matching hook
-2. **Found** → record in mapping table (Step 5's `## API Mapping`)
-3. **Not found** → leave `// TODO: API not found - <region description>` placeholder in generated code (degrade rule S1, per CLAUDE.md mandate "Never fabricate API endpoints")
-
-**Never invent endpoints.**
-
 ### 7. Backend Repo Refresh + DTO Cross-Check
-
-#### 7a. Repo presence check
 
 ```bash
 test -d ../study-platform-mvp || { echo "Backend repo missing"; exit 1; }
-```
-
-If missing → **abort** (blocker S3).
-
-#### 7b. Refresh
-
-```bash
 cd ../study-platform-mvp && git pull origin dev
 ```
 
-#### 7c. DTO cross-check
+For every hook used in Step 6b, cross-check against backend DTO:
+- Endpoint path + HTTP method
+- Query/path param names + types
+- Response field names, types, optionality
+- Enum values
 
-For every hook used in Step 6b:
-
-1. Find the DTO it consumes (from `src/types/api/` or `src/api/openapi/`)
-2. Find the matching backend class in `../study-platform-mvp/src/main/...`
-3. Compare: endpoint path + HTTP method, query/path param names + types, response field names/types/optionality, enum values
-
-**Mismatch found** → **abort** (blocker S2). Report exact field-level diff.
-
-#### 7d. Print QA URL
+**Mismatch → abort (S2).** Report field-level diff.
 
 ```
 QA Swagger UI: https://test-api.zeroone.it.kr/swagger-ui/index.html
@@ -289,35 +175,12 @@ QA API base:   https://test-api.zeroone.it.kr
 
 Write `page.tsx` at the path from Step 6a. Apply:
 
-- Component reuse map from Step 4 — import and use existing components. Do not re-implement.
-- Code Connect JSX snippets (CC-mapped instances) as-is, adapted to project conventions.
-- Token mapping from Step 3 — project tokens only, no arbitrary values, no base Tailwind scale.
-- `cn()` for all `className` composition. No template literal classNames.
-- TanStack Query hooks from Step 6b.
-- Optional backend fields: `??` for nullables, `in` guards for enums.
-- TODO placeholders where API hooks or components are missing.
-
-```typescript
-'use client'; // or omit for Server Component
-
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/common/ui/Button'; // reused from Step 4
-import { StudyCard } from '@/components/pages/StudyCard'; // reused from Step 4
-import { useGetGroupStudyList } from '@/hooks/queries/group-study';
-
-export default function {PageName}Page() {
-  const { data, isLoading } = useGetGroupStudyList();
-
-  if (isLoading) return <Loading />;
-  if (!data) return null;
-
-  return (
-    <main className={cn('flex flex-col gap-200 p-200')}>
-      {/* sections from Figma — using reused components where available */}
-    </main>
-  );
-}
-```
+- Component reuse map from Step 4 — import existing components, do not re-implement
+- Token mapping from Step 3 — project tokens only, no arbitrary values
+- `cn()` for all `className` composition
+- TanStack Query hooks from Step 6b
+- Optional backend fields: `??` for nullables, `in` guards for enums
+- TODO placeholders where API hooks or components are missing
 
 After write, run **in order**:
 
@@ -327,7 +190,17 @@ yarn prettier:fix
 yarn typecheck
 ```
 
-If `yarn typecheck` fails → **abort** (blocker S4). Report errors.
+If `yarn typecheck` fails → **abort (S4)**. Report errors.
+
+### 8b–8c. Iterative Chrome ↔ Figma Verification + Problem Documentation
+
+→ **Full protocol:** `.claude/skills/dev-start/rules/visual-verify.md`
+
+Summary:
+- Take Chrome screenshot → compare ALL checks against Figma reference → fix every ❌ → repeat
+- Exit only when zero ❌ checks remain simultaneously — never hand a mismatch to the user
+- For every fix applied, write a problem entry in `docs/Figma/problems/{slug}-problems.md`
+- Max 5 iterations; if not converging → blocker S7
 
 ### 9. Verify Gate
 
@@ -337,13 +210,9 @@ If `yarn typecheck` fails → **abort** (blocker S4). Report errors.
 ✓ Page:       src/app/.../page.tsx
 ✓ Spec:       docs/Figma/{slug}.md
 ✓ DTO check:  passed
-✓ Reference:  {Figma screenshot URL from Step 1} — use this as visual baseline
+✓ Visual:     Chrome ↔ Figma — all checks passed (N iterations)
+✓ Reference:  {Figma screenshot URL from Step 1}
 {TODO list if any APIs or components missing}
-
-Next:
-  Option A: Use the `staging-verify` skill → localhost:3000
-  Option B: yarn dev → http://localhost:3000{route}, compare against Figma screenshot
-  Option C: mcp__chrome-devtools__navigate_page
 
 Reply OK to commit, or describe mismatch to fix.
 ```
@@ -352,41 +221,20 @@ Wait for user OK before continuing.
 
 ### 10. Commit
 
-On user OK:
-
 ```bash
 git add src/app/.../page.tsx \
         docs/Figma/{slug}.md \
-        {any helper components created}
+        {any helper components or problem docs created}
 git commit -m "feat : {RouteName} 페이지 구현"
 ```
 
-Korean commit message, `feat : <subject>` format, ≤50 chars.
-
-If TODO placeholders exist (S1 fired) or token deviations exist (Step 3), include in commit body:
-
-```
-feat : {RouteName} 페이지 구현
-
-API TODOs:
-- {region}: matching hook not found in src/hooks/queries/
-
-Token deviations:
-- Figma color/accent/300 → bg-accent-200 (nearest, +50 lightness)
-
-Component TODOs:
-- Badge/Status: run design-to-dev skill separately
-```
+Korean commit message, `feat : <subject>` format, ≤50 chars. Include TODOs and token deviations in commit body if any.
 
 ### 11. Stop
 
-Print:
+Print: `Run /pr to open PR against develop.` Do not auto-create PR.
 
-```
-Run `/pr` to open PR against `develop`.
-```
-
-**Do not auto-create PR.**
+---
 
 ## Blockers
 
@@ -396,7 +244,9 @@ Run `/pr` to open PR against `develop`.
 | S2 | Backend DTO mismatch | **Abort**, report field-level diff, await decision |
 | S3 | `../study-platform-mvp/` missing | **Abort**, instruct clone |
 | S4 | `yarn typecheck` fails | **Abort**, report errors |
-| S5 | Sub-section `get_design_context` still truncated after retry | Record as partial, continue with best-effort, flag in spec Notes |
+| S5 | Sub-section `get_design_context` truncated after retry | Record as partial, continue best-effort, flag in spec Notes |
+| S6 | Visual check fails (Step 8b) | Fix before Step 9 — do not hand mismatch to user |
+| S7 | Iterative Chrome ↔ Figma loop not converging after 5 iterations | **Halt**, document remaining mismatches in Step 8c problem doc, report to user |
 
 ## Tool_Usage
 
@@ -407,28 +257,39 @@ Run `/pr` to open PR against `develop`.
 - `mcp__claude_ai_Figma__get_code_connect_suggestions` — Code Connect JSX
 - `Bash` — grep for component reuse, global.css token read, git pull, yarn commands, git add/commit
 - `Read` — inspect existing hooks, DTOs, global.css, backend classes
-- `Grep` — locate hook candidates (`useGet.*Study`), component files
-- `Write` — page.tsx, helper components, spec doc
-- `mcp__chrome-devtools__*` — only if user opts into Option C verify
+- `Grep` — locate hook candidates, component files
+- `Write` — page.tsx, helper components, spec doc, problem doc
+- `mcp__chrome-devtools__navigate_page` — load/reload route for verification
+- `mcp__chrome-devtools__take_screenshot` — capture Chrome state at each iteration
+- `mcp__chrome-devtools__hover` / `mcp__chrome-devtools__click` — activate interactive states
+- `mcp__chrome-devtools__take_snapshot` — find element UIDs for hover/click targets
 
 ## Final_Checklist
 
+- [ ] All Figma image assets downloaded to `/public/{route-slug}/` — no Figma MCP URLs in source (Step 1b)
+- [ ] No asset substituted with HTML text chars, inline SVG, or CSS — img count matches `const imgX` count (Step 1b)
+- [ ] Cross-session plan: `get_design_context` re-called for fresh asset URLs (Step 1b)
 - [ ] All 5 Figma MCP calls made in parallel (Step 1)
-- [ ] Every Level-1 section drilled individually via `get_design_context` (Step 2)
-- [ ] All variant cells sampled — no state left unread (Step 2b)
+- [ ] Every Level-1 section drilled individually (Step 2)
+- [ ] All variant cells sampled (Step 2b)
 - [ ] All transform values recorded at exact degree precision (Step 2c)
+- [ ] Visual content sizes derived from container sub-node call, not page-level (Step 2e)
 - [ ] Token mapping table built against global.css `@theme inline` (Step 3)
 - [ ] No arbitrary values or base Tailwind scale used anywhere
 - [ ] Component reuse map built — existing components identified and imported (Step 4)
 - [ ] `docs/Figma/{slug}.md` written with all tables (Step 5)
 - [ ] Route under correct group (landing/service/admin)
-- [ ] `(landing)` route registered as `PUBLIC_SESSION` in `src/features/auth/server/middleware/route-policy.ts` (Step 6c)
+- [ ] `(landing)` route registered as `PUBLIC_SESSION` in `route-policy.ts` (Step 6c)
 - [ ] Every data region either mapped to real hook or marked TODO
 - [ ] Backend repo refreshed via `git pull origin dev`
 - [ ] DTO cross-check passed (or aborted on mismatch)
 - [ ] QA URL printed in summary
 - [ ] Page uses `cn()`, reused components, project tokens only
 - [ ] `yarn lint:fix && yarn prettier:fix && yarn typecheck` all pass
+- [ ] Iterative Chrome ↔ Figma loop — ALL checks passed simultaneously before exiting (Step 8b)
+- [ ] Interactive states verified via hover/click (Step 8b)
+- [ ] Cross-session: Figma screenshot re-fetched before visual comparison (Step 8b)
+- [ ] Problem doc written for every fix applied — `docs/Figma/problems/{slug}-problems.md` (Step 8c)
 - [ ] Figma screenshot URL shown to user for visual comparison (Step 9)
 - [ ] User confirmed visual match before commit
 - [ ] Single commit on current branch, body lists TODOs and deviations
