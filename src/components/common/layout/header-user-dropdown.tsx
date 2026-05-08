@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
@@ -19,7 +20,15 @@ interface DropdownOption {
   badgeCount?: number;
 }
 
-export default function HeaderUserDropdown({ userImg }: { userImg?: string }) {
+export default function HeaderUserDropdown({
+  userImg,
+  nickname,
+  levelName,
+}: {
+  userImg?: string;
+  nickname?: string;
+  levelName?: string;
+}) {
   const { mutateAsync: logout } = useLogoutMutation();
 
   const { data: authData, isAuthReady } = useAuthReady();
@@ -57,9 +66,25 @@ export default function HeaderUserDropdown({ userImg }: { userImg?: string }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="w-full focus:outline-none">
-        <div>
+      <DropdownMenuTrigger className="focus:outline-none">
+        <div className="flex items-center gap-100">
           <UserAvatar image={userImg} />
+          {nickname && (
+            <>
+              <span className="font-designer-14m text-text-default">
+                {nickname}
+              </span>
+              {levelName && (
+                <span
+                  className="flex items-center justify-center bg-purple-600 font-designer-10b text-gray-0"
+                  style={{ width: 15, height: 15, borderRadius: '7.5px' }}
+                >
+                  {levelName.charAt(0)}
+                </span>
+              )}
+              <ChevronDown className="h-300 w-300 text-text-subtle" />
+            </>
+          )}
         </div>
       </DropdownMenuTrigger>
 

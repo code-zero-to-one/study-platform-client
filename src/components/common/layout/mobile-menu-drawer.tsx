@@ -10,7 +10,6 @@ import { createPortal } from 'react-dom';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
-import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import { useLogoutMutation } from '@/hooks/queries/auth/use-auth-mutation';
 
 const LoginModal = dynamic(
@@ -18,12 +17,9 @@ const LoginModal = dynamic(
 );
 
 const NAV_ITEMS = [
-  { href: '/home', label: '1:1 스터디' },
-  { href: '/mentoring', label: '1:1 멘토링' },
-  { href: '/group-study', label: '그룹스터디' },
-  { href: '/premium-study', label: '멘토스터디' },
-  { href: '/community', label: '커뮤니티' },
-  { href: '/insights', label: '인사이트' },
+  { href: '/class', label: '클래스', comingSoon: false },
+  { href: '/community', label: '커뮤니티', comingSoon: true },
+  { href: '/insight', label: '인사이트', comingSoon: true },
 ];
 
 interface MobileMenuDrawerProps {
@@ -154,9 +150,23 @@ export default function MobileMenuDrawer({
                 {NAV_ITEMS.map((item) => {
                   const isActive = pathname.startsWith(item.href);
 
+                  if (item.comingSoon) {
+                    return (
+                      <span
+                        key={item.label}
+                        className={cn(
+                          'font-designer-14m cursor-default py-200 text-text-subtle',
+                          isActive && 'text-text-brand',
+                        )}
+                      >
+                        {item.label}
+                      </span>
+                    );
+                  }
+
                   return (
                     <Link
-                      key={item.href}
+                      key={item.label}
                       href={item.href}
                       onClick={close}
                       className={cn(
@@ -169,13 +179,6 @@ export default function MobileMenuDrawer({
                   );
                 })}
               </nav>
-
-              {/* 1:1 스터디 매칭 토글 */}
-              {isLoggedIn && (
-                <div className="border-t border-border-subtle px-400 py-200">
-                  <StudyMatchingToggle showLabel />
-                </div>
-              )}
 
               {/* 하단 인증 버튼 */}
               <div className="border-t border-border-subtle px-400 py-300">
