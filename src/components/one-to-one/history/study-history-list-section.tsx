@@ -32,7 +32,7 @@ export default function StudyHistoryListSection({
             <div className="text-text-subtlest flex flex-col items-center gap-200 py-800 text-center">
               <History className="h-10 w-10 opacity-20" />
               <p className="font-designer-16m">
-                아직 1:1 스터디 기록이 없습니다.
+                아직 스터디 그룹 기록이 없습니다.
               </p>
             </div>
           )}

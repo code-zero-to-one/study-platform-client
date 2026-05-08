@@ -138,7 +138,7 @@ export default function StudyMatchingToggle({
             !showLabel && 'hidden lg:inline',
           )}
         >
-          1:1 스터디 매칭
+          스터디 그룹 매칭
         </span>
         <ToggleSwitch.Root
           size="md"

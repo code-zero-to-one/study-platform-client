@@ -72,7 +72,7 @@ export default function OneToOneReviewPage() {
       <CompletedStudyReviewPage
         basePath="/my-study-review/one-to-one"
         studyType="ONE_ON_ONE_STUDY"
-        studyTypeName="1:1스터디"
+        studyTypeName="스터디 그룹"
         hideTabNav
         hideEmptyMessage
       />

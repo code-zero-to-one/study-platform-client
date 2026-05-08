@@ -41,7 +41,7 @@ const TABS = [
     id: 'history',
     label: '나의 스터디 기록',
     icon: History,
-    description: '1:1 스터디 히스토리',
+    description: '스터디 그룹 히스토리',
   },
   {
     id: 'community',

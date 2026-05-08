@@ -18,7 +18,7 @@ const LoginModal = dynamic(
 );
 
 const NAV_ITEMS = [
-  { href: '/home', label: '1:1 스터디' },
+  { href: '/home', label: '스터디 그룹' },
   { href: '/mentoring', label: '1:1 멘토링' },
   { href: '/group-study', label: '그룹스터디' },
   { href: '/premium-study', label: '멘토스터디' },
@@ -170,7 +170,7 @@ export default function MobileMenuDrawer({
                 })}
               </nav>
 
-              {/* 1:1 스터디 매칭 토글 */}
+              {/* 스터디 그룹 매칭 토글 */}
               {isLoggedIn && (
                 <div className="border-t border-border-subtle px-400 py-200">
                   <StudyMatchingToggle showLabel />

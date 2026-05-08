@@ -108,7 +108,7 @@ export default function AdminMatchingPageClient() {
               </div>
 
               <SectionHeader
-                title="1:1 스터디 매칭 관리"
+                title="스터디 그룹 매칭 관리"
                 description="운영자는 스케줄러 설정과 현재 주차 운영 상태를 함께 확인하고, 목록 탐색·자동 매칭 실행·수동 매칭 생성·선택 요청 수정까지 한 화면에서 처리할 수 있습니다."
                 className="gap-100"
                 titleClassName="font-designer-28b text-text-strong"
