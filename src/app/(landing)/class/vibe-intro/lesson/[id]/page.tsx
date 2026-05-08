@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useMemo, useState } from 'react';
+import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import {
   useGetBuilderFeeds,
   useGetCourseDrawer,
@@ -258,14 +259,26 @@ export default function LessonPage({
                   {lesson?.title ?? 'AI 처음 만나는 날'}
                 </h1>
               </div>
-              <p className="font-designer-16m text-gray-500">약 18분 소요</p>
+              <p className="font-designer-16m text-gray-500">
+                {lesson?.estimatedMinutes
+                  ? `약 ${lesson.estimatedMinutes}분 소요`
+                  : ''}
+              </p>
             </div>
 
             <div className="mt-[24px]">
               <LessonTabs value={tab} onChange={setTab} />
             </div>
 
-            <div className="mt-[24px] min-h-[964px] rounded-150 bg-background-default" />
+            <div className="mt-[24px] min-h-[964px] rounded-150 bg-background-default p-[40px]">
+              {lesson?.contentMarkdown ? (
+                <MarkdownContentCore content={lesson.contentMarkdown} />
+              ) : (
+                <p className="font-designer-16r text-gray-500">
+                  본문이 준비 중입니다.
+                </p>
+              )}
+            </div>
 
             <hr className="my-[40px] border-gray-300" />
 

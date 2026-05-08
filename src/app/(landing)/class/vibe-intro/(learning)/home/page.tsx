@@ -302,7 +302,7 @@ export default function JourneyMapPage() {
         {/* Course badge */}
         <div className="flex justify-center">
           <span className="rounded-full bg-rose-300 px-250 py-125 font-designer-20b text-white">
-            바이브 코딩 입문자 코스
+            {course?.title ?? ''}
           </span>
         </div>
 
@@ -345,14 +345,17 @@ export default function JourneyMapPage() {
         </div>
 
         {/* Free trial callout */}
-        <div className="mt-300 flex flex-col gap-75 rounded-200 border border-border-default bg-gray-100 px-350 py-300">
-          <p className="font-designer-20b text-gray-800">
-            Lesson 03까지 무료로 온보딩을 하실 수 있어요! 무료로 즐겨보세요!
-          </p>
-          <p className="font-designer-16m text-gray-800">
-            이후 결제는 무료 온보딩을 하시고 결정하셔도 늦지 않습니다.
-          </p>
-        </div>
+        {course?.freeLessonCount && course.freeLessonCount > 0 ? (
+          <div className="mt-300 flex flex-col gap-75 rounded-200 border border-border-default bg-gray-100 px-350 py-300">
+            <p className="font-designer-20b text-gray-800">
+              Lesson {String(course.freeLessonCount).padStart(2, '0')}까지
+              무료로 온보딩을 하실 수 있어요! 무료로 즐겨보세요!
+            </p>
+            <p className="font-designer-16m text-gray-800">
+              이후 결제는 무료 온보딩을 하시고 결정하셔도 늦지 않습니다.
+            </p>
+          </div>
+        ) : null}
 
         {/* Journey map */}
         <div className="mt-500 flex flex-col items-center">
