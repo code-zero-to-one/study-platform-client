@@ -470,11 +470,15 @@ export default function AdminCourseManagementPageClient() {
   });
 
   useEffect(() => {
-    setSelectedLessonIds((prev) =>
-      prev.filter((lessonId) =>
+    setSelectedLessonIds((prev) => {
+      const nextSelectedLessonIds = prev.filter((lessonId) =>
         filteredLessons.some((lesson) => lesson.lessonId === lessonId),
-      ),
-    );
+      );
+
+      return nextSelectedLessonIds.length === prev.length
+        ? prev
+        : nextSelectedLessonIds;
+    });
   }, [filteredLessons]);
 
   useEffect(() => {
