@@ -97,7 +97,7 @@ const CHAPTERS = [
 export default function ClassDetailPage({
   params: _params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const [activeTab, setActiveTab] = useState<Tab>('roadmap');
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(

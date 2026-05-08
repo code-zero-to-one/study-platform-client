@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   useGetCourseDrawer,
@@ -84,8 +84,13 @@ const CURRICULUM_CHAPTERS = [
   },
 ];
 
-export default function LessonPage({ params }: { params: { id: string } }) {
-  const lessonId = parseInt(params.id, 10);
+export default function LessonPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const lessonId = parseInt(id, 10);
   const [rating, setRating] = useState(3);
   const [hoverRating, setHoverRating] = useState(0);
   const [reflection, setReflection] = useState('');

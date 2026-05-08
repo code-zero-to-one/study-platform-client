@@ -10,7 +10,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   useCreateFeedComment,
@@ -20,8 +20,13 @@ import {
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
-export default function FeedDetailPage({ params }: { params: { id: string } }) {
-  const feedId = parseInt(params.id, 10);
+export default function FeedDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const feedId = parseInt(id, 10);
   const [comment, setComment] = useState('');
   const showToast = useToastStore((s) => s.showToast);
 
