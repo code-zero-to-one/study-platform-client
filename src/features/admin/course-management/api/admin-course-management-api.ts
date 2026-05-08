@@ -3,6 +3,7 @@ import type {
   AdminBuilderFeedCurationRequest,
   AdminCompletionMessageRequest,
   AdminCompletionMessageResponse,
+  AdminCourseDetailResponse,
   AdminCourseCreateResponse,
   AdminCourseDeleteResponse,
   AdminCourseListParams,
@@ -49,6 +50,16 @@ export const createAdminCourse = async (
   const response = await axiosInstance.post<
     ApiBaseResponse<AdminCourseCreateResponse>
   >('/admin/courses', request);
+
+  return unwrap(response);
+};
+
+export const getAdminCourseDetail = async (
+  courseId: number,
+): Promise<AdminCourseDetailResponse> => {
+  const response = await axiosInstance.get<
+    ApiBaseResponse<AdminCourseDetailResponse>
+  >(`/admin/courses/${courseId}`);
 
   return unwrap(response);
 };
