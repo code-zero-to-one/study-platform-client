@@ -158,7 +158,10 @@ export function AdminCourseFormContent({
             }
           />
         </AdminCourseField>
-        <AdminCourseField label="기간(일)" helper="durationDays로 저장됩니다.">
+        <AdminCourseField
+          label="기간(일)"
+          helper="코스 상세 상단의 평균 N일 소요 영역에 대응하는 값입니다. durationDays로 저장됩니다."
+        >
           <BaseInput
             size="m"
             type="number"
