@@ -501,7 +501,44 @@ export default function ClassDetailPage({
                     />
                   </div>
                 </div>
-                {/* TODO: remaining benefit cards — content to be confirmed */}
+                <div className="overflow-hidden rounded-200 bg-purple-100 p-350">
+                  <p className="font-designer-20b text-gray-800">
+                    디스코드에서 함께 공부해요
+                  </p>
+                  <p className="mt-200 whitespace-pre-line font-designer-18r text-gray-800">
+                    {
+                      '라이브 학습 채널에서 화면 공유하고 함께 레슨 들어요.\n혼자가 아닌 함께 완주할 수 있어요.\n운영진 24시간 상주, 막힌 곳 질문답변 가능.'
+                    }
+                  </p>
+                  <div className="mt-300">
+                    <Image
+                      src="/class/detail/benefit-2.png"
+                      alt="디스코드 함께 공부"
+                      width={96}
+                      height={96}
+                      className="rounded-150"
+                    />
+                  </div>
+                </div>
+                <div className="overflow-hidden rounded-200 bg-yellow-100 p-350">
+                  <p className="font-designer-20b text-gray-800">
+                    막히면 바로 질문하세요
+                  </p>
+                  <p className="mt-200 whitespace-pre-line font-designer-18r text-gray-800">
+                    {
+                      '레슨마다 질문답변을 남길 수 있어요.\n운영진이 직접 답변해드립니다.\n다른 빌더들은 어떤 곳에서 막혔는지, 어떻게 해결했는지도 참고해보세요.'
+                    }
+                  </p>
+                  <div className="mt-300">
+                    <Image
+                      src="/class/detail/benefit-3.png"
+                      alt="질문답변"
+                      width={96}
+                      height={96}
+                      className="rounded-150"
+                    />
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -542,12 +579,28 @@ export default function ClassDetailPage({
                   + 실습 가이드
                 </p>
 
+                {courseSummary?.discountPrice && (
+                  <div className="mt-300">
+                    <p className="font-designer-14b text-gray-800">
+                      무료 온보딩 이후 코스 금액가
+                    </p>
+                    <p className="mt-75 font-designer-30b text-gray-800">
+                      {courseSummary.discountPrice.toLocaleString()}원
+                    </p>
+                    {courseSummary.regularPrice && (
+                      <p className="font-designer-16r text-gray-500 line-through">
+                        {courseSummary.regularPrice.toLocaleString()}원
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <div className="mt-300 flex items-center gap-50">
                   <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
                   <p className="font-designer-14m text-gray-800">
                     지금{' '}
                     <span className="text-text-brand">
-                      {courseSummary?.participantCount ?? 0}
+                      {courseSummary?.participantCount}
                     </span>
                     명이 이 코스를 들었어요!
                   </p>
@@ -583,6 +636,22 @@ export default function ClassDetailPage({
                 </div>
 
                 {/* Study With Me — TODO: API/CMS 연동 필요 (이벤트 날짜·내용 백엔드 제공) */}
+                <div className="mt-300 rounded-100 bg-gray-800 p-300">
+                  <p className="font-designer-14m text-white">
+                    매주 월·화·수 오전 6시
+                  </p>
+                  <p className="mt-75 font-designer-18b text-white">
+                    Study with Me 진행!
+                  </p>
+                  <p className="mt-150 whitespace-pre-line font-designer-14r text-gray-400">
+                    {
+                      '함께 모여 공부하는 시간이에요.\n디스코드 라이브 채널에서 만나요.'
+                    }
+                  </p>
+                  <p className="mt-200 font-designer-12r text-gray-400">
+                    ※ 디스코드 방은 알림톡으로 안내드립니다.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
