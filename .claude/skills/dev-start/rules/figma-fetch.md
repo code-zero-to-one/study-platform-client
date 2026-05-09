@@ -12,12 +12,10 @@ Run **in parallel**:
 - `mcp__claude_ai_Figma__get_variable_defs(nodeId, fileKey)` — design tokens
 - `mcp__claude_ai_Figma__get_screenshot(nodeId, fileKey)` — reference image (save URL for Step 9)
 - `mcp__claude_ai_Figma__get_metadata(nodeId, fileKey)` — full child tree for Step 2 drill
-- `mcp__claude_ai_Figma__get_code_connect_suggestions(nodeId, fileKey)` — Code Connect JSX snippets if configured
 
 Follow `.claude/rules/figma-design.md` exhaustively. After receiving results:
 
 - If `get_design_context` output appears truncated (ends mid-property or contains `...`) → flag for re-call in Step 2.
-- If `get_code_connect_suggestions` returns JSX for any child node → mark those instances as **CC-mapped** (used in Step 4).
 
 ---
 

@@ -46,7 +46,7 @@ LOOP:
 
 **Exit condition:** Every check in the table passes simultaneously.
 **Never exit Step 8b with any ❌ remaining.** Do not hand a visual mismatch to the user.
-**Maximum iterations: 5.** If still failing after 5 → document as blocker S7 and halt.
+**Maximum iterations: 2.** If still failing after 2 → halt, list remaining ❌ in Step 9 summary for user to review.
 
 ### Root Cause Reference
 
@@ -61,55 +61,3 @@ LOOP:
 | Icon/illustration wrong color, weight, or shape | Asset substituted with hand-crafted SVG/text/CSS instead of downloaded Figma asset | Download actual asset via `curl`, replace approximation |
 | Text content mismatch (typo, capitalization) | Figma text was misread or a different node variant was sampled | Re-read Figma node text field exactly — copy verbatim |
 
----
-
-## Step 8c. Problem Documentation
-
-**Required whenever any fix was applied during Steps 8 or 8b.**
-
-For each problem encountered (visual mismatch, layout error, stacking context issue, wrong token, etc.):
-
-1. Create or append to `docs/Figma/problems/{page-slug}-problems.md`
-2. Document each problem using this template:
-
-```markdown
-## Problem: {short title}
-
-### Symptom
-{What visual/functional behavior was wrong}
-
-### Root Cause
-{Why it happened — specific CSS property, wrong token, missing rule, browser behavior, or architectural constraint}
-
-### Fix Applied
-{Exact code change — file path, before/after}
-
-### Prevention
-{Rule or check that would have caught this earlier}
-```
-
-**Example — stacking context tooltip clip:**
-
-```markdown
-## Problem: Tooltip clipped behind banner content
-
-### Symptom
-"Coming Soon" nav tooltip only showed the arrow tip; badge body hidden behind the page banner.
-
-### Root Cause
-`mix-blend-multiply` on `<header>` creates a CSS stacking context. No explicit z-index → DOM order
-determined paint order. `<main>` (later in DOM) painted on top of the header's stacking context,
-hiding the tooltip's `z-50` child.
-
-### Fix Applied
-Added `relative z-10` to `<header>` in `home-header.tsx`:
-  Before: `<header className="bg-background-default py-125 mix-blend-multiply">`
-  After:  `<header className="relative z-10 bg-background-default py-125 mix-blend-multiply">`
-
-### Prevention
-When `mix-blend-multiply`, `filter`, `transform`, `opacity < 1`, or `isolation: isolate` is on a
-parent, it creates a stacking context. Give the parent a positive z-index if its children must
-overlay DOM siblings.
-```
-
-If no fixes were required in Steps 8/8b, skip this step.

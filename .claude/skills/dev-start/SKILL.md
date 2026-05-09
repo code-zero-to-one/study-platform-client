@@ -36,7 +36,7 @@ Take one Figma page/route node, save its design context to `docs/Figma/`, decide
 → **Full protocol:** `.claude/skills/dev-start/rules/figma-fetch.md`
 
 Summary:
-- Run 5 Figma MCP calls in parallel (`get_design_context`, `get_variable_defs`, `get_screenshot`, `get_metadata`, `get_code_connect_suggestions`)
+- Run 4 Figma MCP calls in parallel (`get_design_context`, `get_variable_defs`, `get_screenshot`, `get_metadata`)
 - Immediately download all image assets to `/public/{route-slug}/` — never hardcode Figma MCP URLs
 - Never substitute assets with hand-crafted SVG, HTML text chars, or CSS — download the actual file
 - Drill every Level-1 section individually; sample all variant matrix cells; record exact rotation degrees
@@ -71,7 +71,6 @@ grep -r "{ComponentName}" src/components/ --include="*.tsx" -l
 | Result | Action |
 |--------|--------|
 | Found in `src/components/` | Record import path. Use in Step 8. Do not re-implement. |
-| CC-mapped (Step 1 flag) | Use Code Connect JSX snippet directly. |
 | Not found | Mark TODO. Run `design-to-dev` skill separately. |
 
 Output: Component reuse map table (Figma instance → codebase path → status).
@@ -192,15 +191,14 @@ yarn typecheck
 
 If `yarn typecheck` fails → **abort (S4)**. Report errors.
 
-### 8b–8c. Iterative Chrome ↔ Figma Verification + Problem Documentation
+### 8b. Chrome ↔ Figma Visual Verification
 
 → **Full protocol:** `.claude/skills/dev-start/rules/visual-verify.md`
 
 Summary:
 - Take Chrome screenshot → compare ALL checks against Figma reference → fix every ❌ → repeat
 - Exit only when zero ❌ checks remain simultaneously — never hand a mismatch to the user
-- For every fix applied, write a problem entry in `docs/Figma/problems/{slug}-problems.md`
-- Max 5 iterations; if not converging → blocker S7
+- Max 2 iterations; if still failing → list remaining ❌ in Step 9 summary for user
 
 ### 9. Verify Gate
 
@@ -245,8 +243,7 @@ Print: `Run /pr to open PR against develop.` Do not auto-create PR.
 | S3 | `../study-platform-mvp/` missing | **Abort**, instruct clone |
 | S4 | `yarn typecheck` fails | **Abort**, report errors |
 | S5 | Sub-section `get_design_context` truncated after retry | Record as partial, continue best-effort, flag in spec Notes |
-| S6 | Visual check fails (Step 8b) | Fix before Step 9 — do not hand mismatch to user |
-| S7 | Iterative Chrome ↔ Figma loop not converging after 5 iterations | **Halt**, document remaining mismatches in Step 8c problem doc, report to user |
+| S6 | Visual check not converging after 2 iterations | List remaining ❌ in Step 9 summary, hand off to user |
 
 ## Tool_Usage
 
@@ -254,7 +251,6 @@ Print: `Run /pr to open PR against develop.` Do not auto-create PR.
 - `mcp__claude_ai_Figma__get_variable_defs` — token extraction
 - `mcp__claude_ai_Figma__get_screenshot` — visual reference
 - `mcp__claude_ai_Figma__get_metadata` — child tree enumeration
-- `mcp__claude_ai_Figma__get_code_connect_suggestions` — Code Connect JSX
 - `Bash` — grep for component reuse, global.css token read, git pull, yarn commands, git add/commit
 - `Read` — inspect existing hooks, DTOs, global.css, backend classes
 - `Grep` — locate hook candidates, component files
@@ -269,7 +265,7 @@ Print: `Run /pr to open PR against develop.` Do not auto-create PR.
 - [ ] All Figma image assets downloaded to `/public/{route-slug}/` — no Figma MCP URLs in source (Step 1b)
 - [ ] No asset substituted with HTML text chars, inline SVG, or CSS — img count matches `const imgX` count (Step 1b)
 - [ ] Cross-session plan: `get_design_context` re-called for fresh asset URLs (Step 1b)
-- [ ] All 5 Figma MCP calls made in parallel (Step 1)
+- [ ] All 4 Figma MCP calls made in parallel (Step 1)
 - [ ] Every Level-1 section drilled individually (Step 2)
 - [ ] All variant cells sampled (Step 2b)
 - [ ] All transform values recorded at exact degree precision (Step 2c)
@@ -286,10 +282,9 @@ Print: `Run /pr to open PR against develop.` Do not auto-create PR.
 - [ ] QA URL printed in summary
 - [ ] Page uses `cn()`, reused components, project tokens only
 - [ ] `yarn lint:fix && yarn prettier:fix && yarn typecheck` all pass
-- [ ] Iterative Chrome ↔ Figma loop — ALL checks passed simultaneously before exiting (Step 8b)
+- [ ] Chrome ↔ Figma loop — ALL checks passed (max 2 iterations) before exiting (Step 8b)
 - [ ] Interactive states verified via hover/click (Step 8b)
 - [ ] Cross-session: Figma screenshot re-fetched before visual comparison (Step 8b)
-- [ ] Problem doc written for every fix applied — `docs/Figma/problems/{slug}-problems.md` (Step 8c)
 - [ ] Figma screenshot URL shown to user for visual comparison (Step 9)
 - [ ] User confirmed visual match before commit
 - [ ] Single commit on current branch, body lists TODOs and deviations
