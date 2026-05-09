@@ -17,6 +17,7 @@ import {
   Loader2,
   Quote,
   Redo2,
+  Table2,
   Strikethrough,
   Underline as UnderlineIcon,
   Undo2,
@@ -37,6 +38,7 @@ import { hasClipboardImageHint } from './clipboard-utils';
 import EditorVisibleTextCounter from './editor-visible-text-counter';
 import {
   InstantCodeBlockExtension,
+  LinkExitOnSpaceExtension,
   lowlight,
   MarkdownHistoryShortcutsExtension,
   ResizableImageExtension,
@@ -44,17 +46,15 @@ import {
 } from './extensions';
 import {
   type MarkdownEditorImageConfig,
-  clampImageWidth,
   MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS,
   MARKDOWN_IMAGE_DEFAULT_MAX_COUNT,
   MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE,
-  MARKDOWN_IMAGE_DEFAULT_WIDTH,
-  MARKDOWN_IMAGE_MAX_WIDTH,
-  MARKDOWN_IMAGE_MIN_WIDTH,
-  MARKDOWN_IMAGE_WIDTH_STEP,
-  parseImageWidth,
   toImageInputAccept,
 } from './image-utils';
+import {
+  convertHtmlTableToMarkdownTable,
+  convertTabularTextToMarkdownTable,
+} from './markdown-table-utils';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
 import { useActiveCodeBlockControl } from './use-active-code-block-control';
 import { useImageUpload } from './use-image-upload';
@@ -98,7 +98,6 @@ function MarkdownEditor({
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedBy,
 }: MarkdownEditorProps) {
-  const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
   const [, forceEditorRerender] = useState(0);
   const [isLinkInputOpen, setIsLinkInputOpen] = useState(false);
   const [linkInputValue, setLinkInputValue] = useState('');
@@ -144,6 +143,37 @@ function MarkdownEditor({
       .run();
   };
 
+  const insertMarkdownTable = (
+    editorInstance: Editor,
+    markdownTable: string,
+  ) => {
+    const tableRows = markdownTable.split('\n').map((line) => ({
+      type: 'paragraph',
+      content: [
+        {
+          type: 'text',
+          text: line,
+        },
+      ],
+    }));
+
+    return editorInstance.chain().focus().insertContent(tableRows).run();
+  };
+
+  const handleInsertTable = () => {
+    const editorInstance = getValidEditorInstance();
+    if (!editorInstance) {
+      return;
+    }
+
+    insertMarkdownTable(
+      editorInstance,
+      ['| 항목 | 설명 |', '| --- | --- |', '| 예시 | 내용을 입력하세요 |'].join(
+        '\n',
+      ),
+    );
+  };
+
   const resolvedImageConfig = useMemo(() => {
     if (imageConfig) {
       return imageConfig;
@@ -181,6 +211,7 @@ function MarkdownEditor({
         defaultLanguage: 'plaintext',
       }),
       MarkdownHistoryShortcutsExtension,
+      LinkExitOnSpaceExtension,
       YouTubeEmbedExtension,
       UnderlineExtension,
       LinkExtension.configure({
@@ -202,17 +233,6 @@ function MarkdownEditor({
     },
     onTransaction: () => {
       forceEditorRerender((prev) => prev + 1);
-    },
-    onSelectionUpdate: ({ editor: nextEditor }) => {
-      if (nextEditor.isActive('image')) {
-        setSelectedImagePos(nextEditor.state.selection.from);
-
-        return;
-      }
-
-      if (nextEditor.isFocused) {
-        setSelectedImagePos(null);
-      }
     },
     editorProps: {
       attributes: {
@@ -247,6 +267,19 @@ function MarkdownEditor({
           handleClipboardPaste(editorInstance, clipboardData).catch(() => {
             setImageInsertError('이미지 붙여넣기에 실패했습니다.');
           });
+          return true;
+        }
+
+        const pastedHtml = clipboardData.getData('text/html');
+        const markdownTable =
+          convertHtmlTableToMarkdownTable(pastedHtml) ??
+          convertTabularTextToMarkdownTable(
+            clipboardData.getData('text/plain'),
+          );
+
+        if (markdownTable) {
+          event.preventDefault();
+          insertMarkdownTable(editorInstance, markdownTable);
           return true;
         }
 
@@ -347,6 +380,51 @@ function MarkdownEditor({
     setLinkInputValue('');
   };
 
+  const handleToggleBlockquote = () => {
+    if (!editor) {
+      return;
+    }
+
+    const { selection, doc } = editor.state;
+    const { from, to, empty } = selection;
+    const isInsideList =
+      editor.isActive('bulletList') || editor.isActive('orderedList');
+
+    if (!isInsideList || empty || editor.isActive('blockquote')) {
+      editor.chain().focus().toggleBlockquote().run();
+      return;
+    }
+
+    const selectedText = doc.textBetween(from, to, '\n', '\n').trim();
+    if (!selectedText) {
+      editor.chain().focus().toggleBlockquote().run();
+      return;
+    }
+
+    const blockquoteNode = {
+      type: 'blockquote',
+      content: selectedText.split('\n').map((line) => ({
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: line,
+          },
+        ],
+      })),
+    };
+
+    const didInsert = editor
+      .chain()
+      .focus()
+      .insertContentAt({ from, to }, blockquoteNode)
+      .run();
+
+    if (!didInsert) {
+      editor.chain().focus().toggleBlockquote().run();
+    }
+  };
+
   /**
    * 코드블록 토글 기능입니다.
    * 선택된 여러줄 텍스트를 코드블록으로 감쌀 수 있습니다.
@@ -395,46 +473,6 @@ function MarkdownEditor({
 
     insertCommand.run();
   };
-
-  /**
-   * 선택된 이미지의 너비를 변경합니다.
-   */
-  const handleImageWidthChange = (nextWidth: number) => {
-    if (!editor || selectedImagePos === null) {
-      return;
-    }
-
-    const selectedNode = editor.state.doc.nodeAt(selectedImagePos);
-    if (!selectedNode || selectedNode.type.name !== 'image') {
-      setSelectedImagePos(null);
-
-      return;
-    }
-
-    const imageChain = editor
-      .chain()
-      .focus()
-      .setNodeSelection(selectedImagePos)
-      .updateAttributes('image', {
-        width: clampImageWidth(nextWidth),
-      });
-
-    const didUpdate = imageChain.run();
-
-    if (!didUpdate) {
-      return;
-    }
-
-    // 이미지 width 변경은 onUpdate가 누락될 수 있어 폼 값을 직접 동기화한다.
-    isInternalUpdate.current = true;
-    onChange?.(normalizeContent(editor.getHTML()));
-  };
-
-  const isImageActive = selectedImagePos !== null;
-  const selectedImageWidth =
-    editor && selectedImagePos !== null
-      ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
-      : MARKDOWN_IMAGE_DEFAULT_WIDTH;
 
   const activeCodeBlockControl = useActiveCodeBlockControl(
     editor,
@@ -513,7 +551,7 @@ function MarkdownEditor({
           icon={Quote}
           label="인용"
           isActive={editor?.isActive('blockquote')}
-          onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+          onClick={handleToggleBlockquote}
         />
         <ToolbarButton
           icon={Code2}
@@ -521,6 +559,7 @@ function MarkdownEditor({
           isActive={editor?.isActive('codeBlock')}
           onClick={handleToggleCodeBlock}
         />
+        <ToolbarButton icon={Table2} label="표" onClick={handleInsertTable} />
         {resolvedImageConfig && (
           <Button
             type="button"
@@ -571,36 +610,6 @@ function MarkdownEditor({
             취소
           </Button>
         </form>
-      )}
-
-      {isImageActive && (
-        <div className="border-border-subtle flex items-center gap-100 border-b px-150 py-100">
-          <span className="font-designer-12r text-text-subtle">
-            이미지 크기
-          </span>
-          <input
-            type="range"
-            min={MARKDOWN_IMAGE_MIN_WIDTH}
-            max={MARKDOWN_IMAGE_MAX_WIDTH}
-            step={MARKDOWN_IMAGE_WIDTH_STEP}
-            value={selectedImageWidth}
-            onChange={(event) => {
-              handleImageWidthChange(Number(event.target.value));
-            }}
-            className="accent-background-brand-default flex-1"
-          />
-          <span className="font-designer-12r text-text-default min-w-600">
-            {selectedImageWidth}px
-          </span>
-          <Button
-            type="button"
-            color="secondary"
-            size="small"
-            onClick={() => handleImageWidthChange(MARKDOWN_IMAGE_DEFAULT_WIDTH)}
-          >
-            기본 480px
-          </Button>
-        </div>
       )}
 
       {resolvedImageConfig && (

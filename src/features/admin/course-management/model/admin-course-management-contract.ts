@@ -31,6 +31,23 @@ export interface AdminCourseSummary {
   updatedAt: string | null;
 }
 
+export interface AdminCourseDetailResponse {
+  courseId: number;
+  slug: string;
+  status: AdminCourseStatus;
+  title: string;
+  cardHeadline: string;
+  cardSummary: string;
+  cardTags: string[];
+  regularPrice: number | null;
+  discountPrice: number | null;
+  description: string;
+  thumbnailUrl: string;
+  durationDays: number | null;
+  earlyBirdEndsAt: string | null;
+  updatedAt: string | null;
+}
+
 export interface AdminCourseUpsertRequest {
   slug: string;
   title: string;

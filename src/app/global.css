@@ -538,11 +538,11 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 }
 
 @utility max-h-rich-text-image {
-  max-height: 400px;
+  max-height: none;
 }
 
 @utility max-w-rich-text-image {
-  max-width: min(100%, 400px);
+  max-width: min(100%, 800px);
 }
 
 @utility font-display-headings2 {
@@ -903,11 +903,11 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 }
 
 @utility max-h-markdown-img {
-  max-height: 400px;
+  max-height: none;
 }
 
 @utility max-w-markdown-img {
-  max-width: min(100%, 400px);
+  max-width: min(100%, 800px);
 }
 
 @utility max-w-youtube-embed {
@@ -1135,8 +1135,8 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 
 .tiptap-editor .tiptap img {
   display: block;
-  max-width: min(100%, 400px);
-  max-height: 400px;
+  max-width: min(100%, 800px);
+  max-height: none;
   height: auto;
   object-fit: contain;
   border-radius: var(--radius-100);
@@ -1144,6 +1144,65 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   margin-left: 0;
   margin-right: 0;
   margin-bottom: var(--spacing-150);
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image {
+  position: relative;
+  display: inline-block;
+  max-width: min(100%, 800px);
+  margin-bottom: var(--spacing-300);
+  line-height: 0;
+  vertical-align: top;
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image > img {
+  display: block;
+  width: 100% !important;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 0;
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image-handle {
+  position: absolute;
+  right: calc(var(--spacing-100) * -1);
+  bottom: calc(var(--spacing-100) * -1);
+  width: var(--spacing-200);
+  height: var(--spacing-200);
+  border: var(--spacing-25) solid var(--color-border-brand);
+  border-radius: var(--radius-50);
+  background: var(--color-background-default);
+  cursor: nwse-resize;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.tiptap-editor
+  .tiptap
+  .tiptap-resizable-image:hover
+  .tiptap-resizable-image-handle,
+.tiptap-editor
+  .tiptap
+  .tiptap-resizable-image-selected
+  .tiptap-resizable-image-handle {
+  opacity: 1;
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image-selected > img {
+  outline: var(--spacing-25) solid var(--color-border-brand);
+  outline-offset: var(--spacing-25);
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image-size {
+  position: absolute;
+  left: 0;
+  bottom: calc(var(--spacing-250) * -1);
+  color: var(--color-text-subtle);
+  font-size: 12px;
+  font-weight: var(--font-weight-regular);
+  line-height: 19px;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .tiptap-editor .tiptap iframe.youtube-embed {

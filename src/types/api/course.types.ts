@@ -68,6 +68,7 @@ export interface LessonDetailResponse {
   courseTitle: string;
   title: string;
   isFree: boolean;
+  estimatedMinutes: number | null;
   videoUrl: string | null;
   lessonViewCount: number;
   retrospectivePurpose: string;

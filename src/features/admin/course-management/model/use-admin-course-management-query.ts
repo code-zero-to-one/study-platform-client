@@ -5,6 +5,7 @@ import {
   createAdminLesson,
   deleteAdminCourse,
   deleteAdminLesson,
+  getAdminCourseDetail,
   getAdminCompletionMessage,
   getAdminCourseLessons,
   getAdminCourses,
@@ -20,6 +21,7 @@ import {
   updateAdminLesson,
   upsertAdminCompletionMessage,
 } from '@/features/admin/course-management/api/admin-course-management-api';
+import { getAdminLessonInputPolicyValidationError } from '@/features/admin/course-management/model/admin-class-input-policy';
 import type {
   AdminBuilderFeedCurationRequest,
   AdminCourseFormValues,
@@ -28,6 +30,7 @@ import type {
   AdminCourseUpsertRequest,
   AdminLessonUpsertRequest,
 } from '@/features/admin/course-management/model/admin-course-management-contract';
+import { parseAdminCourseCardTags } from '@/features/admin/course-management/model/admin-course-tag-utils';
 import { useToastStore } from '@/stores/use-toast-store';
 import { analyzeError } from '@/utils/error-handler';
 
@@ -35,6 +38,8 @@ export const adminCourseManagementQueryKeys = {
   all: ['admin-course-management'] as const,
   courses: (params: AdminCourseListParams) =>
     [...adminCourseManagementQueryKeys.all, 'courses', params] as const,
+  courseDetail: (courseId?: number) =>
+    [...adminCourseManagementQueryKeys.all, 'course-detail', courseId] as const,
   lessons: (courseId?: number) =>
     [...adminCourseManagementQueryKeys.all, 'lessons', courseId] as const,
   lessonDetail: (lessonId?: number) =>
@@ -85,6 +90,14 @@ export const useAdminCourseLessonsQuery = (courseId?: number) =>
   useQuery({
     queryKey: adminCourseManagementQueryKeys.lessons(courseId),
     queryFn: () => getAdminCourseLessons(courseId ?? 0),
+    enabled: typeof courseId === 'number',
+    staleTime: 30_000,
+  });
+
+export const useAdminCourseDetailQuery = (courseId?: number) =>
+  useQuery({
+    queryKey: adminCourseManagementQueryKeys.courseDetail(courseId),
+    queryFn: () => getAdminCourseDetail(courseId ?? 0),
     enabled: typeof courseId === 'number',
     staleTime: 30_000,
   });
@@ -325,14 +338,7 @@ export const toAdminCoursePayload = (
     return Number.isFinite(parsedValue) ? parsedValue : undefined;
   };
 
-  const cardTags = Array.from(
-    new Set(
-      form.cardTags
-        .split(/[\n,]/)
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-    ),
-  );
+  const cardTags = parseAdminCourseCardTags(form.cardTags);
 
   return {
     slug: form.slug.trim(),
@@ -411,26 +417,7 @@ export const toAdminLessonPayload = (
 export const getAdminLessonPayloadValidationError = (
   payload: AdminLessonUpsertRequest,
 ) => {
-  if (!Number.isInteger(payload.chapterNumber) || payload.chapterNumber < 1) {
-    return '챕터 번호는 1 이상의 숫자여야 합니다.';
-  }
-
-  if (!Number.isInteger(payload.lessonNumber) || payload.lessonNumber < 1) {
-    return '레슨 번호는 1 이상의 숫자여야 합니다.';
-  }
-
-  if (
-    !Number.isInteger(payload.estimatedMinutes) ||
-    payload.estimatedMinutes < 1
-  ) {
-    return '예상 시간은 1분 이상이어야 합니다.';
-  }
-
-  if (!payload.title.trim()) {
-    return '레슨 제목을 입력해주세요.';
-  }
-
-  return null;
+  return getAdminLessonInputPolicyValidationError(payload) ?? null;
 };
 
 export const useCreateAdminLessonQnaAnswerMutation = () => {

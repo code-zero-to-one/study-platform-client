@@ -1,14 +1,20 @@
 'use client';
 
 import { Heart, MessageCircle, Share2, ChevronDown } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useGetBuilderFeeds,
   useGetCourseCurriculum,
   useGetCourseDetail,
 } from '@/hooks/queries/course/course-api';
+
+const LoginModal = dynamic(
+  () => import('@/components/auth/modals/login-modal'),
+);
 
 type SortOption = '최신순' | '인기순';
 type FeedFilter = '전체' | '운영자 PICK' | '내 피드';
@@ -76,6 +82,7 @@ function FeedCard({ feed }: { feed: FeedCardData }) {
 }
 
 export default function BuilderFeedPage() {
+  const { isAuthenticated } = useAuth();
   const [filter, setFilter] = useState<FeedFilter>('전체');
   const [sort, setSort] = useState<SortOption>('최신순');
   const [lessonId, setLessonId] = useState<number | null>(null);
@@ -230,12 +237,25 @@ export default function BuilderFeedPage() {
             </div>
 
             {/* Write CTA */}
-            <Link
-              href="/class/vibe-intro/feed/write"
-              className="rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
-            >
-              피드 올리기
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/class/vibe-intro/feed/write"
+                className="rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
+              >
+                피드 올리기
+              </Link>
+            ) : (
+              <LoginModal
+                openTrigger={
+                  <button
+                    type="button"
+                    className="rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
+                  >
+                    피드 올리기
+                  </button>
+                }
+              />
+            )}
           </div>
         </div>
 
