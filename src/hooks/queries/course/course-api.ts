@@ -11,12 +11,27 @@ import type {
   CourseDrawerResponse,
   CourseJourneyMapResponse,
   CourseProgressResponse,
+  CourseSummaryResponse,
   LessonDetailResponse,
   LessonQnaCreateRequest,
   LessonQnaListResponse,
   LessonRetrospectiveCreateRequest,
   LessonRetrospectiveResponse,
 } from '@/types/api/course.types';
+
+// ─── Course List ──────────────────────────────────────────────────────────────
+
+export const useGetCourseList = () => {
+  return useQuery({
+    queryKey: ['courses'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<{
+        content: { content: CourseSummaryResponse[] };
+      }>('courses');
+      return data.content.content;
+    },
+  });
+};
 
 // ─── Course Detail ────────────────────────────────────────────────────────────
 

@@ -18,7 +18,9 @@ import Link from 'next/link';
 import { use, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
+  useGetBuilderFeeds,
   useGetCourseDrawer,
+  useGetCourseProgress,
   useGetLessonDetail,
   useGetLessonQnas,
   useSubmitLessonRetrospective,
@@ -36,54 +38,6 @@ const NEGATIVE_CHIPS = [
   '뭘 하는 건지 모르겠어요',
 ];
 
-const CURRICULUM_CHAPTERS = [
-  {
-    num: '01',
-    title: 'AI와 처음 만나는 날',
-    lessons: [
-      { num: 1, title: 'Lesson01. Claude와 인사하기' },
-      { num: 2, title: 'Lesson02. Claude를 다뤄보기' },
-      { num: 3, title: 'Lesson03. Claude를 다뤄보기' },
-    ],
-  },
-  {
-    num: '02',
-    title: 'AI와 처음 만나는 날',
-    lessons: [
-      { num: 4, title: 'Lesson04. Claude를 다뤄보기' },
-      { num: 5, title: 'Lesson05. Claude를 다뤄보기' },
-      { num: 6, title: 'Lesson06. Claude를 다뤄보기' },
-    ],
-  },
-  {
-    num: '03',
-    title: 'AI와 처음 만나는 날',
-    lessons: [
-      { num: 7, title: 'Lesson07. Claude를 다뤄보기' },
-      { num: 8, title: 'Lesson08. Claude를 다뤄보기' },
-      { num: 9, title: 'Lesson09. Claude를 다뤄보기' },
-    ],
-  },
-  {
-    num: '04',
-    title: 'AI와 처음 만나는 날',
-    lessons: [
-      { num: 10, title: 'Lesson10. Claude를 다뤄보기' },
-      { num: 11, title: 'Lesson11. Claude를 다뤄보기' },
-      { num: 12, title: 'Lesson12. Claude를 다뤄보기' },
-    ],
-  },
-  {
-    num: '05',
-    title: 'AI와 처음 만나는 날',
-    lessons: [
-      { num: 13, title: 'Lesson13. Claude를 다뤄보기' },
-      { num: 14, title: 'Lesson14. Claude를 다뤄보기' },
-      { num: 15, title: 'Lesson15. Claude를 다뤄보기' },
-    ],
-  },
-];
-
 export default function LessonPage({
   params,
 }: {
@@ -96,6 +50,7 @@ export default function LessonPage({
   const [reflection, setReflection] = useState('');
   const [selectedChips, setSelectedChips] = useState<Set<string>>(new Set());
   const [feedbackText, setFeedbackText] = useState('');
+  const [feedIndex, setFeedIndex] = useState(0);
   const [curriculumOpen, setCurriculumOpen] = useState(false);
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set(),
@@ -106,6 +61,14 @@ export default function LessonPage({
   const courseId = lesson?.courseId ?? 0;
   const { data: drawer } = useGetCourseDrawer(courseId);
   const { data: qnaData } = useGetLessonQnas(lessonId);
+  const { data: progress } = useGetCourseProgress(courseId);
+  const { data: builderFeedData } = useGetBuilderFeeds({
+    courseId,
+    lessonId,
+    size: 5,
+  });
+  const feeds = builderFeedData?.feeds ?? [];
+  const currentFeed = feeds[feedIndex];
   const submitRetrospective = useSubmitLessonRetrospective();
 
   function toggleChip(chip: string) {
@@ -270,7 +233,9 @@ export default function LessonPage({
           <div className="relative h-[14px] overflow-hidden rounded-full bg-gray-200">
             <div
               className="absolute left-0 top-0 h-full rounded-full bg-background-brand-default transition-all"
-              style={{ width: `${(lessonId / 20) * 100}%` }}
+              style={{
+                width: `${(lessonId / (progress?.totalLessons ?? 20)) * 100}%`,
+              }}
             />
           </div>
         </div>
@@ -278,7 +243,9 @@ export default function LessonPage({
         {/* Discord count */}
         <div className="mr-400 flex items-center gap-75 rounded-100 bg-gray-800 px-250 py-100">
           <p className="font-designer-16b">
-            <span className="text-text-brand">59</span>
+            <span className="text-text-brand">
+              {lesson?.currentLearningMemberCount ?? '–'}
+            </span>
             <span className="text-white">명과 디스코드에서 함께 공부중!</span>
           </p>
         </div>
@@ -622,46 +589,71 @@ export default function LessonPage({
                   <p className="font-designer-16b text-gray-1000">
                     지금 HOT한 빌더 피드
                   </p>
-                  <div className="relative mt-250">
-                    <div
-                      className="overflow-hidden rounded-150 bg-gray-600"
-                      style={{ height: 186 }}
-                    />
-                    <div className="mt-200 px-150">
-                      <div className="flex items-center gap-125 pb-125">
-                        <div className="flex h-300 w-300 items-center justify-center rounded-full bg-gray-200" />
-                        <p className="font-designer-14b text-gray-800">뭉다</p>
-                      </div>
-                      <p className="font-designer-14r text-gray-1000 leading-relaxed">
-                        가나다라마바사아자차카파타하가나다라마바사아자차카파타하
-                      </p>
-                      <div className="mt-150 flex items-center gap-125">
-                        <div className="flex items-center gap-50">
-                          <Heart className="h-250 w-250 text-gray-1000" />
-                          <p className="font-designer-14r text-gray-1000">24</p>
+                  {currentFeed ? (
+                    <div className="relative mt-250">
+                      {currentFeed.thumbnailUrl ? (
+                        <Image
+                          src={currentFeed.thumbnailUrl}
+                          alt=""
+                          className="overflow-hidden rounded-150 object-cover"
+                          width={400}
+                          height={186}
+                          style={{ height: 186, width: '100%' }}
+                        />
+                      ) : (
+                        <div
+                          className="overflow-hidden rounded-150 bg-gray-600"
+                          style={{ height: 186 }}
+                        />
+                      )}
+                      <div className="mt-200 px-150">
+                        <div className="flex items-center gap-125 pb-125">
+                          <div className="flex h-300 w-300 items-center justify-center rounded-full bg-gray-200" />
+                          <p className="font-designer-14b text-gray-800">
+                            {currentFeed.author.nickname}
+                          </p>
                         </div>
-                        <div className="flex items-center gap-50">
-                          <MessageCircle className="h-250 w-250 text-gray-1000" />
-                          <p className="font-designer-14r text-gray-1000">10</p>
+                        <p className="font-designer-14r text-gray-1000 leading-relaxed">
+                          {currentFeed.content}
+                        </p>
+                        <div className="mt-150 flex items-center gap-125">
+                          <div className="flex items-center gap-50">
+                            <Heart className="h-250 w-250 text-gray-1000" />
+                            <p className="font-designer-14r text-gray-1000">
+                              {currentFeed.likeCount}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-50">
+                            <MessageCircle className="h-250 w-250 text-gray-1000" />
+                            <p className="font-designer-14r text-gray-1000">
+                              {currentFeed.commentCount}
+                            </p>
+                          </div>
+                          <Share2 className="h-250 w-250 text-gray-1000" />
                         </div>
-                        <Share2 className="h-250 w-250 text-gray-1000" />
                       </div>
+                      <button
+                        type="button"
+                        aria-label="이전"
+                        onClick={() => setFeedIndex((i) => Math.max(0, i - 1))}
+                        className="absolute left-0 top-[93px] -translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-100"
+                      >
+                        <ChevronLeft className="h-250 w-250" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="다음"
+                        onClick={() =>
+                          setFeedIndex((i) => Math.min(feeds.length - 1, i + 1))
+                        }
+                        className="absolute right-0 top-[93px] translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-100"
+                      >
+                        <ChevronRight className="h-250 w-250" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      aria-label="이전"
-                      className="absolute left-0 top-[93px] -translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-100"
-                    >
-                      <ChevronLeft className="h-250 w-250" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="다음"
-                      className="absolute right-0 top-[93px] translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-100"
-                    >
-                      <ChevronRight className="h-250 w-250" />
-                    </button>
-                  </div>
+                  ) : (
+                    <div className="mt-250 h-[186px] rounded-150 bg-gray-200" />
+                  )}
                 </div>
               </div>
             </div>

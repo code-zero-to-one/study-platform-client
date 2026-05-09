@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useGetCourseList } from '@/hooks/queries/course/course-api';
+import type { CourseSummaryResponse } from '@/types/api/course.types';
 
 type SortOption = '최신순' | '인기순' | '완주율순';
 
@@ -30,60 +32,11 @@ const MARQUEE_ITEMS = [
 
 const DOUBLED_MARQUEE = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
 
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  tags: string[];
-  learnerCount: number;
-  learnerSuffix: string;
-  originalPrice?: number;
-  price?: number;
-  status: 'active' | 'coming-soon';
-  ctaText: string;
-  thumbnailVariant: 'basic' | 'work' | 'soon';
-}
+const SLUG_VARIANT: Record<string, 'basic' | 'work' | 'soon'> = {
+  'vibe-intro': 'basic',
+};
 
-const COURSES: Course[] = [
-  {
-    id: 'basic',
-    title: '바이브 코딩 입문자 코스',
-    description:
-      '코딩 경험 제로\n5일 뒤, 내 이름의 웹사이트가 인터넷에 뜹니다.',
-    tags: ['입문', '5일 코스'],
-    learnerCount: 30,
-    learnerSuffix: '명이 이 코스를 들었어요!',
-    originalPrice: 59900,
-    price: 39900,
-    status: 'active',
-    ctaText: '자세히 보기',
-    thumbnailVariant: 'basic',
-  },
-  {
-    id: 'designer',
-    title: '디자이너 AI 역량 개발 코스',
-    description: '2026년 여름 오픈 예정',
-    tags: ['실무역량', 'Coming Soon'],
-    learnerCount: 30,
-    learnerSuffix: '명이 이 코스를 듣고 싶어해요!',
-    status: 'coming-soon',
-    ctaText: '오픈 알림 받기',
-    thumbnailVariant: 'work',
-  },
-  {
-    id: 'advanced',
-    title: '바이브 코딩 실무 딥다이브 코스',
-    description: '2026년 가을 오픈 예정',
-    tags: ['심화', 'Coming Soon'],
-    learnerCount: 30,
-    learnerSuffix: '명이 이 코스를 듣고 싶어해요!',
-    status: 'coming-soon',
-    ctaText: '오픈 알림 받기',
-    thumbnailVariant: 'soon',
-  },
-];
-
-function CourseThumbnail({ variant }: { variant: Course['thumbnailVariant'] }) {
+function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
   if (variant === 'basic') {
     return (
       <div
@@ -377,22 +330,27 @@ function CourseCard({
   course,
   onNotify,
 }: {
-  course: Course;
+  course: CourseSummaryResponse;
   onNotify: () => void;
 }) {
+  const status = course.status === 'ACTIVE' ? 'active' : 'coming-soon';
+  const ctaText = status === 'active' ? '자세히 보기' : '오픈 알림 받기';
+  console.log({ ctaText });
+  const thumbnailVariant = SLUG_VARIANT[course.slug] ?? 'soon';
+
   return (
     <div className="flex flex-col overflow-hidden rounded-200 border border-border-default">
       <div className="h-[292px] shrink-0">
-        <CourseThumbnail variant={course.thumbnailVariant} />
+        <CourseThumbnail variant={thumbnailVariant} />
       </div>
       <div className="flex flex-1 flex-col bg-background-default p-350 pt-300">
         <div className="mb-300 flex items-center gap-75">
           <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
           <p className="font-designer-16m text-text-default">
             <span className="font-designer-16b text-text-brand">
-              {course.learnerCount}
+              {course.participantCount}
             </span>
-            {course.learnerSuffix}
+            {course.participantLabel}
           </p>
         </div>
 
@@ -401,7 +359,7 @@ function CourseCard({
             {course.title}
           </p>
           <p className="whitespace-pre-line font-designer-20r text-text-default">
-            {course.description}
+            {course.headline}
           </p>
         </div>
 
@@ -416,25 +374,28 @@ function CourseCard({
           ))}
         </div>
 
-        {course.status === 'active' && course.price !== undefined && (
-          <div className="mt-300 flex flex-col">
-            {course.originalPrice !== undefined && (
-              <p className="font-designer-16r text-gray-400 line-through">
-                정가 {course.originalPrice.toLocaleString()}원
+        {status === 'active' &&
+          course.discountPrice !== null &&
+          course.discountPrice !== undefined && (
+            <div className="mt-300 flex flex-col">
+              {course.regularPrice !== null &&
+                course.regularPrice !== undefined && (
+                  <p className="font-designer-16r text-gray-400 line-through">
+                    정가 {course.regularPrice.toLocaleString()}원
+                  </p>
+                )}
+              <p className="font-designer-28b text-gray-1000">
+                {course.discountPrice.toLocaleString()}원
               </p>
-            )}
-            <p className="font-designer-28b text-gray-1000">
-              {course.price.toLocaleString()}원
-            </p>
-          </div>
-        )}
+            </div>
+          )}
 
-        {course.status === 'active' ? (
+        {status === 'active' ? (
           <Link
-            href={`/class/${course.id}`}
+            href={`/class/${course.slug}`}
             className="mt-300 block w-full rounded-100 bg-background-brand-default py-200 text-center font-designer-20m text-text-inverse"
           >
-            {course.ctaText}
+            {ctaText}
           </Link>
         ) : (
           <button
@@ -442,7 +403,7 @@ function CourseCard({
             onClick={onNotify}
             className="mt-300 w-full rounded-100 border border-border-brand bg-background-default py-200 font-designer-20m text-text-brand"
           >
-            {course.ctaText}
+            {ctaText}
           </button>
         )}
       </div>
@@ -454,6 +415,8 @@ export default function ClassPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>('최신순');
   const [notifyModalOpen, setNotifyModalOpen] = useState(false);
+
+  const { data: courses } = useGetCourseList();
 
   return (
     <div className="w-full">
@@ -553,7 +516,7 @@ export default function ClassPage() {
             }}
           >
             <p
-              className="absolute font-designer-20b text-text-brand whitespace-nowrap"
+              className="absolute whitespace-nowrap font-designer-20b text-text-brand"
               style={{ top: 18, left: '50%', transform: 'translateX(-50%)' }}
             >
               Community
@@ -768,9 +731,9 @@ export default function ClassPage() {
 
         {/* Cards grid */}
         <div className="grid grid-cols-1 gap-300 md:grid-cols-2 lg:grid-cols-3">
-          {COURSES.map((course) => (
+          {courses?.map((course) => (
             <CourseCard
-              key={course.id}
+              key={course.courseId}
               course={course}
               onNotify={() => setNotifyModalOpen(true)}
             />

@@ -460,6 +460,88 @@ export default function JourneyMapPage() {
             </button>
           </div>
         </div>
+
+        {/* Lesson card list */}
+        <div className="mt-800">
+          <h2 className="font-designer-28b text-gray-800">전체 레슨 목록</h2>
+          <div className="mt-400 flex flex-col gap-200">
+            {chapters.flatMap((chapter) =>
+              chapter.lessons.map((l) => {
+                const journeyLesson = lessonStatusMap.get(l.lessonId);
+                const isAccessible = journeyLesson?.accessible ?? !l.locked;
+                const isCompleted = journeyLesson?.status === 'COMPLETED';
+
+                const card = (
+                  <div
+                    className={cn(
+                      'flex items-center gap-300 rounded-200 border bg-background-default p-300 transition-colors',
+                      isAccessible
+                        ? 'cursor-pointer border-border-default hover:border-border-brand'
+                        : 'cursor-not-allowed border-border-subtle opacity-60',
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full font-designer-16b',
+                        isCompleted
+                          ? 'bg-background-brand-default text-white'
+                          : 'bg-gray-200 text-gray-500',
+                      )}
+                    >
+                      {String(l.order).padStart(2, '0')}
+                    </div>
+                    <div className="flex flex-1 flex-col gap-50">
+                      <p
+                        className={cn(
+                          'font-designer-16b',
+                          isCompleted ? 'text-text-brand' : 'text-gray-800',
+                        )}
+                      >
+                        {l.title}
+                      </p>
+                      <div className="flex items-center gap-200">
+                        {l.isFree && (
+                          <span className="rounded-full bg-rose-100 px-150 py-25 font-designer-12b text-text-brand">
+                            무료
+                          </span>
+                        )}
+                        <span className="font-designer-14r text-gray-500">
+                          약 {l.estimatedMinutes}분
+                        </span>
+                        {isCompleted && (
+                          <span className="font-designer-14b text-text-brand">
+                            완료
+                          </span>
+                        )}
+                        {!isAccessible && (
+                          <span className="font-designer-14r text-gray-400">
+                            잠김
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {isAccessible && (
+                      <BookOpen className="h-300 w-300 shrink-0 text-gray-400" />
+                    )}
+                  </div>
+                );
+
+                if (isAccessible && l.lessonId > 0) {
+                  return (
+                    <Link
+                      key={l.lessonId}
+                      href={`/class/vibe-intro/lesson/${l.lessonId}`}
+                    >
+                      {card}
+                    </Link>
+                  );
+                }
+
+                return <div key={l.lessonId ?? l.order}>{card}</div>;
+              }),
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
