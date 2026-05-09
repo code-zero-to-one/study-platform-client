@@ -582,23 +582,7 @@ export default function ClassDetailPage({
                   )}
                 </div>
 
-                {/* Study With Me */}
-                <div className="mt-300 overflow-hidden rounded-100 bg-gray-800 p-300">
-                  <p className="font-designer-14m text-white">
-                    5월 20일(토) 저녁 8시
-                  </p>
-                  <p className="mt-75 font-designer-18b text-white">
-                    Study with Me 진행!
-                  </p>
-                  <p className="mt-150 font-designer-14r text-gray-400">
-                    디스코드에서 모여서 배운 것을 토대로
-                    <br />
-                    각자 공부해봐요!
-                  </p>
-                  <p className="mt-300 font-designer-12r text-gray-400">
-                    *디스코드 방은 알림톡으로 안내드립니다.
-                  </p>
-                </div>
+                {/* Study With Me — TODO: API/CMS 연동 필요 (이벤트 날짜·내용 백엔드 제공) */}
               </div>
             </div>
           </div>
