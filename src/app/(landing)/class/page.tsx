@@ -174,7 +174,11 @@ function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
         />
         <p
           className="absolute whitespace-nowrap font-bold leading-normal tracking-tight text-rose-500 font-display-headings6"
-          style={{ left: 154, top: 146, transform: 'translateX(-50%)' }}
+          style={{
+            left: 154,
+            top: 146,
+            transform: 'translateX(-50%)',
+          }}
         >
           Vibe Coding
         </p>
@@ -367,7 +371,7 @@ function CourseCard({
           {course.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-gray-200 px-200 py-50 font-designer-16r text-gray-500"
+              className="rounded-full bg-gray-50 px-200 py-50 font-designer-16r text-gray-400"
             >
               {tag}
             </span>
@@ -401,7 +405,7 @@ function CourseCard({
           <button
             type="button"
             onClick={onNotify}
-            className="mt-300 w-full rounded-100 border border-border-brand bg-background-default py-200 font-designer-20m text-text-brand"
+            className="w-full rounded-100 border border-border-brand bg-background-default py-200 font-designer-20m text-text-brand"
           >
             {ctaText}
           </button>
@@ -517,7 +521,11 @@ export default function ClassPage() {
           >
             <p
               className="absolute whitespace-nowrap font-designer-20b text-text-brand"
-              style={{ top: 18, left: '50%', transform: 'translateX(-50%)' }}
+              style={{
+                top: 18,
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }}
             >
               Community
             </p>
@@ -547,7 +555,12 @@ export default function ClassPage() {
               className="absolute"
               width={90}
               height={54}
-              style={{ width: 90, height: 54, left: 20, bottom: 38 }}
+              style={{
+                width: 90,
+                height: 54,
+                left: 20,
+                bottom: 38,
+              }}
             />
           </div>
 
@@ -560,7 +573,12 @@ export default function ClassPage() {
             className="absolute"
             width={74}
             height={74}
-            style={{ left: '22.8%', top: 39, width: 74, height: 74 }}
+            style={{
+              left: '22.8%',
+              top: 39,
+              width: 74,
+              height: 74,
+            }}
           />
           {/* Sparkle large — right */}
 
@@ -571,7 +589,12 @@ export default function ClassPage() {
             className="absolute"
             width={74}
             height={74}
-            style={{ left: '74.5%', top: 346, width: 74, height: 74 }}
+            style={{
+              left: '74.5%',
+              top: 346,
+              width: 74,
+              height: 74,
+            }}
           />
           {/* Sparkle small */}
 
@@ -582,7 +605,12 @@ export default function ClassPage() {
             className="absolute"
             width={44}
             height={44}
-            style={{ left: '57.3%', top: 192, width: 44, height: 44 }}
+            style={{
+              left: '57.3%',
+              top: 192,
+              width: 44,
+              height: 44,
+            }}
           />
 
           {/* Wave curve — bottom-left */}
@@ -594,7 +622,12 @@ export default function ClassPage() {
             className="absolute"
             width={230}
             height={113}
-            style={{ left: '31.7%', top: 219, width: 230, height: 113 }}
+            style={{
+              left: '31.7%',
+              top: 219,
+              width: 230,
+              height: 113,
+            }}
           />
           {/* Wave curve — top-right (rotated 180deg) */}
 

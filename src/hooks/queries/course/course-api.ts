@@ -1,10 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { axiosInstance } from '@/api/client/axios';
 import type {
+  BuilderFeedCommentCreateRequest,
   BuilderFeedCommentsResponse,
   BuilderFeedCreateRequest,
   BuilderFeedDetailResponse,
   BuilderFeedListResponse,
+  BuilderFeedPreviewResponse,
+  BuilderFeedReportCreateRequest,
+  BuilderFeedStatsResponse,
   CourseCompletionRecapResponse,
   CourseCurriculumResponse,
   CourseDetailResponse,
@@ -14,9 +18,12 @@ import type {
   CourseSummaryResponse,
   LessonDetailResponse,
   LessonQnaCreateRequest,
+  LessonQnaDetailResponse,
   LessonQnaListResponse,
+  LessonQnaSidebarResponse,
   LessonRetrospectiveCreateRequest,
   LessonRetrospectiveResponse,
+  MyBuilderFeedsResponse,
 } from '@/types/api/course.types';
 
 // ─── Course List ──────────────────────────────────────────────────────────────
@@ -177,12 +184,40 @@ export const useSubmitLessonRetrospective = () => {
       lessonId: number;
       request: LessonRetrospectiveCreateRequest;
     }) => {
-      const { data } = await axiosInstance.post<{
-        content: { lessonRetrospectiveId: number };
-      }>(`lessons/${lessonId}/retrospective`, request);
-      return data.content;
+      try {
+        const { data } = await axiosInstance.post<{
+          content: { lessonRetrospectiveId: number };
+        }>(`lessons/${lessonId}/retrospective`, request);
+        return { ...data.content, mocked: false as const };
+      } catch (error) {
+        // Backend `/lessons/{lessonId}/retrospective` POST not yet ready — fall back to mock so UX flow proceeds.
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[mock] retrospective submit fallback', {
+            lessonId,
+            error,
+          });
+        }
+        queryClient.setQueryData<LessonRetrospectiveResponse>(
+          ['lessonRetrospective', lessonId],
+          {
+            lessonId,
+            understandingScore: request.understandingScore,
+            content: request.content,
+            artifactType: request.artifactType,
+            artifactValue: request.artifactValue,
+            feedback: request.feedback,
+          },
+        );
+        queryClient.setQueryData<LessonDetailResponse | undefined>(
+          ['lessonDetail', lessonId],
+          (prev) => (prev ? { ...prev, retrospectiveSubmitted: true } : prev),
+        );
+        return { lessonRetrospectiveId: Date.now(), mocked: true as const };
+      }
     },
-    onSuccess: async (_, variables) => {
+    onSuccess: async (result, variables) => {
+      // Skip invalidation when mocked — backend refetch would overwrite optimistic state.
+      if (result.mocked) return;
       await queryClient.invalidateQueries({
         queryKey: ['lessonDetail', variables.lessonId],
       });
@@ -232,28 +267,54 @@ export const useCreateLessonQna = () => {
   });
 };
 
+export const useGetLessonQnaDetail = (qnaId: number | null) => {
+  return useQuery({
+    queryKey: ['lessonQnaDetail', qnaId],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<{
+        content: LessonQnaDetailResponse;
+      }>(`qnas/${qnaId}`);
+      return data.content;
+    },
+    enabled: !!qnaId,
+  });
+};
+
 // ─── Builder Feed ─────────────────────────────────────────────────────────────
 
 export const useGetBuilderFeeds = ({
   courseId,
   sort,
+  filter,
   lessonId,
+  memberId,
   page = 0,
   size = 6,
 }: {
   courseId: number;
-  sort?: string;
+  sort?: 'LATEST' | 'POPULAR';
+  filter?: 'ALL' | 'MY' | 'OPERATOR_PICK';
   lessonId?: number;
+  memberId?: number;
   page?: number;
   size?: number;
 }) => {
   return useQuery({
-    queryKey: ['builderFeeds', courseId, sort, lessonId, page, size],
+    queryKey: [
+      'builderFeeds',
+      courseId,
+      sort,
+      filter,
+      lessonId,
+      memberId,
+      page,
+      size,
+    ],
     queryFn: async () => {
       const { data } = await axiosInstance.get<{
         content: BuilderFeedListResponse;
       }>(`courses/${courseId}/builder-feeds`, {
-        params: { sort, lessonId, page, size },
+        params: { sort, filter, lessonId, memberId, page, size },
       });
       return data.content;
     },
@@ -332,14 +393,14 @@ export const useCreateFeedComment = () => {
   return useMutation({
     mutationFn: async ({
       feedId,
-      content,
+      request,
     }: {
       feedId: number;
-      content: string;
+      request: BuilderFeedCommentCreateRequest;
     }) => {
       const { data } = await axiosInstance.post<{
         content: { commentId: number };
-      }>(`builder-feeds/${feedId}/comments`, { content });
+      }>(`builder-feeds/${feedId}/comments`, request);
       return data.content;
     },
     onSuccess: async (_, variables) => {
@@ -347,5 +408,78 @@ export const useCreateFeedComment = () => {
         queryKey: ['feedComments', variables.feedId],
       });
     },
+  });
+};
+
+export const useReportBuilderFeed = () => {
+  return useMutation({
+    mutationFn: async ({
+      feedId,
+      request,
+    }: {
+      feedId: number;
+      request: BuilderFeedReportCreateRequest;
+    }) => {
+      const { data } = await axiosInstance.post<{
+        content: { reportId: number };
+      }>(`builder-feeds/${feedId}/report`, request);
+      return data.content;
+    },
+  });
+};
+
+// ─── Builder Feed (lesson preview) ────────────────────────────────────────────
+
+export const useGetLessonBuilderFeedPreview = (lessonId: number) => {
+  return useQuery({
+    queryKey: ['lessonBuilderFeedPreview', lessonId],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<{
+        content: BuilderFeedPreviewResponse;
+      }>(`lessons/${lessonId}/builder-feeds/preview`);
+      return data.content;
+    },
+    enabled: !!lessonId,
+  });
+};
+
+// ─── My Builder Feeds / Stats ─────────────────────────────────────────────────
+
+export const useGetMyBuilderFeedStats = () => {
+  return useQuery({
+    queryKey: ['myBuilderFeedStats'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<{
+        content: BuilderFeedStatsResponse;
+      }>('members/me/builder-feed-stats');
+      return data.content;
+    },
+  });
+};
+
+export const useGetMyBuilderFeeds = () => {
+  return useQuery({
+    queryKey: ['myBuilderFeeds'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<{
+        content: MyBuilderFeedsResponse;
+      }>('members/me/builder-feeds');
+      return data.content;
+    },
+  });
+};
+
+// ─── Lesson Q&A Sidebar ───────────────────────────────────────────────────────
+
+export const useGetLessonQnaSidebar = (lessonId: number) => {
+  return useQuery({
+    queryKey: ['lessonQnaSidebar', lessonId],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<{
+        content: LessonQnaSidebarResponse;
+      }>(`lessons/${lessonId}/qnas/sidebar`);
+      return data.content;
+    },
+    enabled: !!lessonId,
   });
 };

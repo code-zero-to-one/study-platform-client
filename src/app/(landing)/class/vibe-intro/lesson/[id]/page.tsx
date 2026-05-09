@@ -1,41 +1,107 @@
 'use client';
 
-import {
-  ArrowLeft,
-  Heart,
-  MessageCircle,
-  Share2,
-  ChevronLeft,
-  ChevronRight,
-  Image as ImageIcon,
-  Link as LinkIcon,
-  X,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
-import Image from 'next/image';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { use, useState } from 'react';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useRouter } from 'next/navigation';
+import { use, useEffect, useMemo, useState } from 'react';
+import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import {
-  useGetBuilderFeeds,
   useGetCourseDrawer,
-  useGetCourseProgress,
+  useGetLessonBuilderFeedPreview,
   useGetLessonDetail,
-  useGetLessonQnas,
+  useGetLessonQnaSidebar,
   useSubmitLessonRetrospective,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import type { CourseDrawerChapterResponse } from '@/types/api/course.types';
+import { CurriculumDrawer } from './_components/curriculum-drawer';
+import { LessonBuilderFeedCard } from './_components/lesson-builder-feed-card';
+import { LessonQnaCard } from './_components/lesson-qna-card';
+import { LessonQnaDetailModal } from './_components/lesson-qna-detail-modal';
+import { LessonQnaSubmissionModal } from './_components/lesson-qna-submission-modal';
+import { RatingBox as LessonRatingCard } from './_components/lesson-rating-box';
+import {
+  LessonReviewForm,
+  NEGATIVE_CHIPS,
+  POSITIVE_CHIPS,
+} from './_components/lesson-review-form';
+import { LessonTabs, type LessonTabValue } from './_components/lesson-tabs';
+import { LessonTopBar } from './_components/lesson-top-bar';
 
-const POSITIVE_CHIPS = [
-  '설명이 이해하기 쉬웠어요',
-  '실습이 재밌었어요',
-  '만들어졌다는 게 신기했어요',
-];
-const NEGATIVE_CHIPS = [
-  '실습이 막혔어요',
-  '설명이 어려웠어요',
-  '뭘 하는 건지 모르겠어요',
+const MOCK_COURSE_TITLE = '바이브 코딩 입문자 코스';
+const MOCK_TOTAL_LESSONS = 20;
+
+const MOCK_DRAWER_CHAPTERS: CourseDrawerChapterResponse[] = [
+  {
+    chapterId: 1,
+    order: 1,
+    title: 'AI 처음 만나는 날',
+    defaultExpanded: true,
+    lessons: [
+      {
+        lessonId: 1,
+        order: 1,
+        title: 'Claude와 친해지기',
+        isFree: true,
+        status: 'IN_PROGRESS',
+        isLocked: false,
+        isCurrentLesson: true,
+      },
+      {
+        lessonId: 2,
+        order: 2,
+        title: 'Claude와 친해지기',
+        isFree: true,
+        status: 'LOCKED',
+        isLocked: true,
+        isCurrentLesson: false,
+      },
+      {
+        lessonId: 3,
+        order: 3,
+        title: 'Claude와 친해지기',
+        isFree: true,
+        status: 'LOCKED',
+        isLocked: true,
+        isCurrentLesson: false,
+      },
+    ],
+  },
+  {
+    chapterId: 2,
+    order: 2,
+    title: 'AI 처음 만나는 날',
+    defaultExpanded: false,
+    lessons: [
+      {
+        lessonId: 4,
+        order: 4,
+        title: 'Claude와 친해지기',
+        isFree: false,
+        status: 'IN_PROGRESS',
+        isLocked: false,
+        isCurrentLesson: false,
+      },
+      {
+        lessonId: 5,
+        order: 5,
+        title: 'Claude와 친해지기',
+        isFree: false,
+        status: 'LOCKED',
+        isLocked: true,
+        isCurrentLesson: false,
+      },
+      {
+        lessonId: 6,
+        order: 6,
+        title: 'Claude와 친해지기',
+        isFree: false,
+        status: 'LOCKED',
+        isLocked: true,
+        isCurrentLesson: false,
+      },
+    ],
+  },
 ];
 
 export default function LessonPage({
@@ -45,9 +111,13 @@ export default function LessonPage({
 }) {
   const { id } = use(params);
   const lessonId = parseInt(id, 10);
-  const [rating, setRating] = useState(3);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [reflection, setReflection] = useState('');
+  const router = useRouter();
+  const showToast = useToastStore((s) => s.showToast);
+
+  const [tab, setTab] = useState<LessonTabValue>('follow');
+  const [rating, setRating] = useState(0);
+  const [reflection1, setReflection1] = useState('');
+  const [reflection2, setReflection2] = useState('');
   const [selectedChips, setSelectedChips] = useState<Set<string>>(new Set());
   const [feedbackText, setFeedbackText] = useState('');
   const [feedIndex, setFeedIndex] = useState(0);
@@ -55,21 +125,46 @@ export default function LessonPage({
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set(),
   );
-  const showToast = useToastStore((s) => s.showToast);
+  const [submissionModalOpen, setSubmissionModalOpen] = useState(false);
+  const [selectedQnaId, setSelectedQnaId] = useState<number | null>(null);
 
   const { data: lesson } = useGetLessonDetail(lessonId);
   const courseId = lesson?.courseId ?? 0;
   const { data: drawer } = useGetCourseDrawer(courseId);
-  const { data: qnaData } = useGetLessonQnas(lessonId);
-  const { data: progress } = useGetCourseProgress(courseId);
-  const { data: builderFeedData } = useGetBuilderFeeds({
-    courseId,
-    lessonId,
-    size: 5,
-  });
-  const feeds = builderFeedData?.feeds ?? [];
-  const currentFeed = feeds[feedIndex];
+  const { data: qnaSidebar } = useGetLessonQnaSidebar(lessonId);
+  const { data: feedPreview } = useGetLessonBuilderFeedPreview(lessonId);
   const submitRetrospective = useSubmitLessonRetrospective();
+
+  const drawerChapters = drawer?.chapters ?? MOCK_DRAWER_CHAPTERS;
+  const courseTitle =
+    drawer?.courseTitle ?? lesson?.courseTitle ?? MOCK_COURSE_TITLE;
+
+  // Initialize expanded chapters from drawer.defaultExpanded
+  useEffect(() => {
+    if (drawerChapters.length === 0) return;
+    setExpandedChapters((prev) => {
+      if (prev.size > 0) return prev;
+      return new Set(
+        drawerChapters.filter((c) => c.defaultExpanded).map((c) => c.chapterId),
+      );
+    });
+  }, [drawerChapters]);
+
+  const totalLessons = useMemo(
+    () =>
+      drawerChapters.reduce((sum, c) => sum + c.lessons.length, 0) ||
+      MOCK_TOTAL_LESSONS,
+    [drawerChapters],
+  );
+
+  const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
+  const isFormValid =
+    rating > 0 &&
+    reflection1.trim().length > 0 &&
+    reflection2.trim().length > 0 &&
+    selectedChips.size >= 2;
+  const isSubmitDisabled =
+    !isFormValid || submitRetrospective.isPending || alreadySubmitted;
 
   function toggleChip(chip: string) {
     setSelectedChips((prev) => {
@@ -80,586 +175,155 @@ export default function LessonPage({
     });
   }
 
-  function toggleChapter(id: number) {
+  function toggleChapter(chapterId: number) {
     setExpandedChapters((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(chapterId)) next.delete(chapterId);
+      else next.add(chapterId);
       return next;
     });
   }
 
-  async function handleSubmit() {
-    if (selectedChips.size < 2) {
-      showToast('최소 2개 이상 선택해주세요.', 'error');
-      return;
-    }
+  function handleSubmit() {
+    if (isSubmitDisabled) return;
     const chips = [...selectedChips];
     const checklistFlags = [...POSITIVE_CHIPS, ...NEGATIVE_CHIPS].map((c) =>
       chips.includes(c),
     );
+    // Two-question UI bundled into single backend `content` field with delimiter.
+    const combinedContent = `${reflection1}\n---\n${reflection2}`;
     submitRetrospective.mutate(
       {
         lessonId,
         request: {
           understandingScore: rating,
-          content: reflection,
+          content: combinedContent,
           artifactType: null,
           artifactValue: null,
           feedback: { checklistFlags, freeText: feedbackText },
         },
       },
       {
-        onSuccess: () => showToast('제출이 완료되었어요!'),
+        onSuccess: () => {
+          showToast('제출이 완료되었어요!');
+          router.push('/class/vibe-intro/complete');
+        },
         onError: () => showToast('제출에 실패했어요.', 'error'),
       },
     );
   }
 
-  const displayRating = hoverRating || rating;
-
   return (
-    <div className="relative w-full bg-gray-100">
-      {/* Curriculum Drawer */}
-      {curriculumOpen && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="flex h-full w-[350px] flex-col bg-white shadow-2">
-            <div className="flex items-center justify-between border-b border-border-subtle px-300 py-250">
-              <div>
-                <p className="font-designer-18b text-gray-800">
-                  바이브 코딩 입문자 코스
-                </p>
-                <p className="font-designer-14r text-gray-500">
-                  수강 중 이어하기
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCurriculumOpen(false)}
-                className="text-gray-800"
-              >
-                <X className="h-300 w-300" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto py-200">
-              {(drawer?.chapters ?? []).map((chapter) => (
-                <div key={chapter.chapterId}>
-                  <button
-                    type="button"
-                    onClick={() => toggleChapter(chapter.chapterId)}
-                    className="flex w-full items-center justify-between px-300 py-200"
-                  >
-                    <div className="flex items-center gap-150">
-                      <div className="flex h-300 w-300 items-center justify-center rounded-50 bg-background-brand-default">
-                        <p className="font-designer-12b text-white">
-                          {String(chapter.order).padStart(2, '0')}
-                        </p>
-                      </div>
-                      <p className="font-designer-14b text-gray-800">
-                        {chapter.title}
-                      </p>
-                    </div>
-                    {expandedChapters.has(chapter.chapterId) ? (
-                      <ChevronUp className="h-250 w-250 text-gray-500" />
-                    ) : (
-                      <ChevronDown className="h-250 w-250 text-gray-500" />
-                    )}
-                  </button>
-                  {expandedChapters.has(chapter.chapterId) && (
-                    <div className="pb-100">
-                      {chapter.lessons.map((l) => (
-                        <Link
-                          key={l.lessonId}
-                          href={`/class/vibe-intro/lesson/${l.lessonId}`}
-                          className={cn(
-                            'flex items-center gap-150 px-350 py-150 font-designer-14r text-gray-800',
-                            l.lessonId === lessonId &&
-                              'bg-rose-50 text-text-brand',
-                          )}
-                        >
-                          <div
-                            className={cn(
-                              'h-25 w-25 rounded-full border border-border-subtle',
-                              l.lessonId === lessonId &&
-                                'border-border-brand bg-background-brand-default',
-                            )}
-                          />
-                          {l.title}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div
-            className="flex-1 bg-black/40"
-            onClick={() => setCurriculumOpen(false)}
-          />
-        </div>
-      )}
+    <div className="relative min-h-screen w-full bg-gray-100">
+      <CurriculumDrawer
+        open={curriculumOpen}
+        onClose={() => setCurriculumOpen(false)}
+        courseTitle={courseTitle}
+        chapters={drawerChapters}
+        expandedChapters={expandedChapters}
+        onToggleChapter={toggleChapter}
+        currentLessonId={lessonId}
+      />
 
-      {/* Top bar */}
-      <div className="sticky top-0 z-10 flex h-[64px] w-full items-center bg-white">
-        {/* Curriculum toggle */}
-        <button
-          type="button"
-          onClick={() => setCurriculumOpen(true)}
-          className="flex h-[64px] w-[64px] shrink-0 flex-col items-center justify-center bg-background-brand-default text-white"
-        >
-          <Image
-            src="/class/vibe-intro/checklist.svg"
-            alt=""
-            aria-hidden="true"
-            width={32}
-            height={32}
-          />
-          <p className="font-designer-14m text-white">커리큘럼</p>
-        </button>
+      <LessonTopBar
+        onToggleCurriculum={() => setCurriculumOpen((v) => !v)}
+        currentLesson={lessonId}
+        totalLessons={totalLessons}
+        courseTitle={courseTitle}
+      />
 
-        {/* Course progress */}
-        <div className="flex items-center gap-350 px-350">
-          <div className="flex items-center gap-125 rounded-100 bg-rose-200 px-125 py-25">
-            <p className="font-designer-16m text-rose-400">{lessonId} / 20</p>
-          </div>
-          <p className="font-designer-16b text-gray-1000">
-            {lesson?.courseTitle ?? '바이브 코딩 입문자 코스'}
-          </p>
-        </div>
-
-        {/* Progress bar */}
-        <div className="flex-1 px-300">
-          <div className="relative h-[14px] overflow-hidden rounded-full bg-gray-200">
-            <div
-              className="absolute left-0 top-0 h-full rounded-full bg-background-brand-default transition-all"
-              style={{
-                width: `${(lessonId / (progress?.totalLessons ?? 20)) * 100}%`,
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Discord count */}
-        <div className="mr-400 flex items-center gap-75 rounded-100 bg-gray-800 px-250 py-100">
-          <p className="font-designer-16b">
-            <span className="text-text-brand">
-              {lesson?.currentLearningMemberCount ?? '–'}
-            </span>
-            <span className="text-white">명과 디스코드에서 함께 공부중!</span>
-          </p>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="mx-auto max-w-page px-600">
-        <div className="grid grid-cols-content-sidebar-360 items-start gap-500 pt-400">
-          {/* LEFT: lesson content */}
+      <div className="mx-auto w-full max-w-[1236px] px-[24px]">
+        <div className="grid grid-cols-content-sidebar-360 items-start gap-[20px] pt-[40px]">
+          {/* LEFT */}
           <div className="min-w-0">
-            {/* Back link */}
             <Link
               href="/class/vibe-intro/home"
-              className="inline-flex items-center gap-125 rounded-full border border-border-default bg-background-default px-200 py-100"
+              className="inline-flex items-center gap-125 rounded-full border border-gray-200 bg-background-default px-[16px] py-[8px]"
             >
-              <ArrowLeft className="h-300 w-300" />
+              <ArrowLeft className="h-[20px] w-[20px] text-gray-800" />
               <span className="font-designer-14m text-gray-1000">
                 학습 여정 맵 돌아가기
               </span>
             </Link>
 
-            {/* Lesson header */}
-            <div className="mt-300 flex items-center justify-between">
+            <div className="mt-[24px] flex items-center justify-between">
               <div className="flex items-center gap-200">
-                <span className="rounded-100 bg-background-brand-default px-125 py-25 font-designer-14m text-text-inverse">
+                <span className="rounded-100 bg-rose-200 px-125 py-25 font-designer-14m text-rose-400">
                   Lesson {String(lessonId).padStart(2, '0')}
                 </span>
-                <h1 className="font-designer-28b text-gray-800">
-                  {lesson?.title ?? 'AI와 처음 만나는 날'}
+                <h1 className="font-designer-32b text-gray-800">
+                  {lesson?.title ?? 'AI 처음 만나는 날'}
                 </h1>
               </div>
               <p className="font-designer-16m text-gray-500">
-                {lesson
-                  ? `약 ${lesson.lessonViewCount > 0 ? '18' : '18'}분 소요`
-                  : '약 18분 소요'}
+                {lesson?.estimatedMinutes
+                  ? `약 ${lesson.estimatedMinutes}분 소요`
+                  : ''}
               </p>
             </div>
 
-            {/* Sub-tabs */}
-            <div className="mt-300 flex gap-250 border-b border-border-subtle">
-              {['따라해보기', '레슨 돌아보기'].map((tab, i) => (
-                <button
-                  key={tab}
-                  type="button"
-                  className={cn(
-                    'flex flex-col gap-[9px] pb-0 pt-100 font-designer-16r',
-                    i === 0
-                      ? 'font-designer-16b text-text-brand'
-                      : 'text-gray-800',
-                  )}
-                >
-                  {tab}
-                  {i === 0 && (
-                    <div className="h-px w-full bg-background-brand-default" />
-                  )}
-                </button>
-              ))}
+            <div className="mt-[24px]">
+              <LessonTabs value={tab} onChange={setTab} />
             </div>
 
-            {/* Lesson content area (markdown viewer) */}
-            <div className="mt-300 min-h-[964px] rounded-150 bg-background-default">
-              {/* TODO: markdown viewer for lesson content */}
+            <div className="mt-[24px] min-h-[964px] rounded-150 bg-background-default p-[40px]">
+              {lesson?.contentMarkdown ? (
+                <MarkdownContentCore content={lesson.contentMarkdown} />
+              ) : (
+                <p className="font-designer-16r text-gray-500">
+                  본문이 준비 중입니다.
+                </p>
+              )}
             </div>
 
-            {/* Review section */}
-            <hr className="my-400 border-border-default" />
+            <hr className="my-[40px] border-gray-300" />
 
-            <div className="space-y-500 pb-800">
-              {/* 레슨 돌아보기 title */}
-              <div>
-                <h2 className="font-designer-28b text-gray-800">
-                  레슨 돌아보기
-                </h2>
-                <p className="mt-125 font-designer-16r text-gray-1000">
-                  오늘 만든 결과물과 배운점을 가볍게 적어주세요. 기록을 제출하면
-                  다음 레슨이 자동으로 열려요.
-                </p>
-              </div>
+            {tab === 'review' || tab === 'follow' ? (
+              <LessonReviewForm
+                reflection1={reflection1}
+                reflection2={reflection2}
+                selectedChips={selectedChips}
+                feedbackText={feedbackText}
+                submitDisabled={isSubmitDisabled}
+                submitting={submitRetrospective.isPending}
+                alreadySubmitted={alreadySubmitted}
+                onReflection1Change={setReflection1}
+                onReflection2Change={setReflection2}
+                onToggleChip={toggleChip}
+                onFeedbackChange={setFeedbackText}
+                onAttachScreenshot={() =>
+                  showToast('스크린샷 첨부는 준비 중입니다.')
+                }
+                onAttachLink={() => showToast('링크 입력은 준비 중입니다.')}
+                onSubmit={handleSubmit}
+              />
+            ) : null}
 
-              {/* Star rating */}
-              <div className="rounded-200 border border-border-default bg-background-default p-350">
-                <div className="mb-300">
-                  <p className="font-designer-20m text-gray-800">
-                    Q. <span className="text-text-brand">*</span> 오늘 코딩
-                    바이브 내용이 얼마나 이해가 되었나요?
-                  </p>
-                  <p className="mt-75 font-designer-16r text-gray-800">
-                    별점을 선택해 오늘 레슨 내용 이해도를 알려주세요.
-                  </p>
-                </div>
-                <div className="flex items-center justify-center gap-200">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRating(star)}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      className="h-[42px] w-[42px] shrink-0"
-                    >
-                      <Image
-                        src={
-                          star <= displayRating
-                            ? '/class/vibe-intro/star-enabled.svg'
-                            : '/class/vibe-intro/star-disabled.svg'
-                        }
-                        alt={`${star}점`}
-                        width={42}
-                        height={42}
-                      />
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-200 text-center font-designer-14b text-gray-400">
-                  {
-                    [
-                      '',
-                      '어려웠어요',
-                      '조금 어려웠어요',
-                      '보통이에요',
-                      '재밌었어요',
-                      '너무 재밌었어요',
-                    ][displayRating]
-                  }
-                </p>
-              </div>
-
-              {/* Reflection text */}
-              <div>
-                <p className="font-designer-20m text-gray-800">
-                  Q. <span className="text-text-brand">*</span> 이번 레슨, 어떤
-                  기대로 시작했나요?
-                </p>
-                <p className="mt-75 font-designer-16r text-gray-800">
-                  어려웠던 점이나 뿌듯했던 순간을 기록해 보세요. 이 기록들은
-                  모여서 당신만의 멋진 포트폴리오가 됩니다.
-                </p>
-                <textarea
-                  value={reflection}
-                  onChange={(e) => setReflection(e.target.value)}
-                  placeholder={`"이번 레슨, 어떤 기대로 시작했나요?"\n예) 내 포트폴리오에 넣을 사이트를 만들어보고 싶었어요 / AI가 진짜 코드를 짜주는지 궁금했어요`}
-                  className="mt-300 h-[448px] w-full resize-none rounded-200 border border-border-default p-300 font-designer-16m text-gray-800 outline-none placeholder:whitespace-pre-line placeholder:text-gray-400 focus:border-border-brand"
-                />
-              </div>
-
-              {/* Project completion */}
-              <div>
-                <h3 className="font-designer-28b text-gray-800">
-                  오늘의 프로젝트 완성 알리기
-                </h3>
-                <p className="mt-125 font-designer-16r text-gray-1000">
-                  두 가지 중 한 가지만 등록할 수 있습니다.
-                </p>
-                <div className="mt-300 flex gap-250">
-                  <button
-                    type="button"
-                    className="flex h-[62px] flex-1 items-center justify-center gap-125 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
-                  >
-                    <ImageIcon className="h-300 w-300" />
-                    스크린샷 첨부
-                  </button>
-                  <button
-                    type="button"
-                    className="flex h-[62px] flex-1 items-center justify-center gap-125 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
-                  >
-                    <LinkIcon className="h-300 w-300" />
-                    링크 입력
-                  </button>
-                </div>
-              </div>
-
-              {/* Today's lesson chips */}
-              <div>
-                <h3 className="font-designer-28b text-gray-800">
-                  오늘 레슨은 어떠셨나요?
-                </h3>
-                <p className="mt-125 font-designer-16r text-gray-1000">
-                  최소 2개 이상 선택해주세요.
-                </p>
-                <div className="mt-300 flex flex-col gap-200">
-                  <div className="flex flex-wrap gap-125">
-                    {POSITIVE_CHIPS.map((chip) => (
-                      <button
-                        key={chip}
-                        type="button"
-                        onClick={() => toggleChip(chip)}
-                        className={cn(
-                          'rounded-full px-350 py-125 font-designer-16r transition-colors',
-                          selectedChips.has(chip)
-                            ? 'bg-[#dafbe7] font-designer-16b text-[#02c76e]'
-                            : 'border border-[#02c76e] text-[#02c76e]',
-                        )}
-                      >
-                        {chip}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex flex-wrap gap-125">
-                    {NEGATIVE_CHIPS.map((chip) => (
-                      <button
-                        key={chip}
-                        type="button"
-                        onClick={() => toggleChip(chip)}
-                        className={cn(
-                          'rounded-full px-350 py-125 font-designer-16r transition-colors',
-                          selectedChips.has(chip)
-                            ? 'bg-[#fecdcd] font-designer-16b text-[#ff4343]'
-                            : 'border border-[#f76363] text-[#f76363]',
-                        )}
-                      >
-                        {chip}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <textarea
-                  value={feedbackText}
-                  onChange={(e) => setFeedbackText(e.target.value)}
-                  placeholder={`어떠한 피드백도 환영입니다! \n간략히 적어주세요(선택사항).`}
-                  className="mt-300 h-[130px] w-full resize-none rounded-200 border border-border-default p-300 font-designer-16m text-gray-800 outline-none placeholder:whitespace-pre-line placeholder:text-gray-400 focus:border-border-brand"
-                />
-              </div>
-
-              {/* Submit CTA */}
-              <button
-                type="button"
-                onClick={() => {
-                  handleSubmit().catch(() => {});
-                }}
-                className="flex h-[80px] w-full items-center justify-center gap-150 rounded-100 bg-gray-300 font-designer-24b text-white transition-colors hover:bg-background-brand-default"
-              >
-                <Image
-                  src="/class/vibe-intro/lesson-lock.svg"
-                  alt=""
-                  aria-hidden="true"
-                  width={24}
-                  height={24}
-                />
-                제출하고 다음 Lesson 하러 가기
-              </button>
-            </div>
+            <div className="h-[80px]" />
           </div>
 
-          {/* RIGHT: sticky sidebar */}
-          <div className="sticky top-[64px]">
-            <div className="space-y-300">
-              {/* Q&A section */}
-              <div className="overflow-hidden rounded-150 border border-border-default bg-background-default">
-                <div className="p-300">
-                  <h3 className="text-center font-designer-16b text-gray-1000">
-                    여기서 막히셨나요?
-                  </h3>
-                  <p className="mt-125 text-center font-designer-14r text-gray-1000">
-                    30분 이상 막히면 바로 질문하기!
-                    <br />
-                    질문을 남겨주시면 빠르게 답변드립니다.
-                  </p>
-                  <button
-                    type="button"
-                    className="mt-300 flex w-full items-center justify-center gap-50 rounded-100 bg-background-brand-default p-250 font-designer-16b text-text-inverse"
-                  >
-                    질문하기
-                  </button>
-
-                  {/* My questions */}
-                  <div className="mt-300">
-                    <div className="flex items-center gap-125">
-                      <p className="font-designer-14b text-gray-1000">
-                        내 질문
-                      </p>
-                      <span className="rounded-100 bg-gray-200 px-100 font-designer-14b text-gray-600">
-                        {qnaData?.myQnas.length ?? 0}
-                      </span>
-                    </div>
-                    {(qnaData?.myQnas ?? []).map((q) => (
-                      <div
-                        key={q.qnaId}
-                        className="relative mt-150 overflow-hidden rounded-100 border border-border-subtle bg-gray-100 p-150"
-                      >
-                        <div className="flex items-center gap-125">
-                          <p className="flex-1 font-designer-14b text-gray-800">
-                            {q.title}
-                          </p>
-                          <p className="font-designer-13m text-gray-400">
-                            {new Date(q.createdAt)
-                              .toLocaleDateString('ko-KR', {
-                                month: '2-digit',
-                                day: '2-digit',
-                              })
-                              .replace(/\. /g, '.')
-                              .replace('.', '')}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="mt-150 flex items-center justify-between">
-                      <button type="button">
-                        <ChevronLeft className="h-300 w-300 text-border-default" />
-                      </button>
-                      <button type="button">
-                        <ChevronRight className="h-300 w-300 text-border-default" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Other builders' questions */}
-                  <div className="mt-300">
-                    <p className="font-designer-14b text-gray-1000">
-                      빌더들의 질문
-                    </p>
-                    <div className="mt-150 space-y-125">
-                      {(qnaData?.qnas ?? []).slice(0, 3).map((q) => (
-                        <div
-                          key={q.qnaId}
-                          className="overflow-hidden rounded-100 border border-border-subtle bg-gray-100 p-150"
-                        >
-                          <div className="flex items-center gap-125">
-                            <p className="flex-1 font-designer-14b text-gray-800">
-                              {q.title}
-                            </p>
-                            <p className="font-designer-13m text-gray-400">
-                              {new Date(q.createdAt)
-                                .toLocaleDateString('ko-KR', {
-                                  month: '2-digit',
-                                  day: '2-digit',
-                                })
-                                .replace(/\. /g, '.')
-                                .replace('.', '')}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Hot builder feed */}
-              <div className="overflow-hidden rounded-150 border border-border-default bg-background-default">
-                <div className="p-300">
-                  <p className="font-designer-16b text-gray-1000">
-                    지금 HOT한 빌더 피드
-                  </p>
-                  {currentFeed ? (
-                    <div className="relative mt-250">
-                      {currentFeed.thumbnailUrl ? (
-                        <Image
-                          src={currentFeed.thumbnailUrl}
-                          alt=""
-                          className="overflow-hidden rounded-150 object-cover"
-                          width={400}
-                          height={186}
-                          style={{ height: 186, width: '100%' }}
-                        />
-                      ) : (
-                        <div
-                          className="overflow-hidden rounded-150 bg-gray-600"
-                          style={{ height: 186 }}
-                        />
-                      )}
-                      <div className="mt-200 px-150">
-                        <div className="flex items-center gap-125 pb-125">
-                          <div className="flex h-300 w-300 items-center justify-center rounded-full bg-gray-200" />
-                          <p className="font-designer-14b text-gray-800">
-                            {currentFeed.author.nickname}
-                          </p>
-                        </div>
-                        <p className="font-designer-14r text-gray-1000 leading-relaxed">
-                          {currentFeed.content}
-                        </p>
-                        <div className="mt-150 flex items-center gap-125">
-                          <div className="flex items-center gap-50">
-                            <Heart className="h-250 w-250 text-gray-1000" />
-                            <p className="font-designer-14r text-gray-1000">
-                              {currentFeed.likeCount}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-50">
-                            <MessageCircle className="h-250 w-250 text-gray-1000" />
-                            <p className="font-designer-14r text-gray-1000">
-                              {currentFeed.commentCount}
-                            </p>
-                          </div>
-                          <Share2 className="h-250 w-250 text-gray-1000" />
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        aria-label="이전"
-                        onClick={() => setFeedIndex((i) => Math.max(0, i - 1))}
-                        className="absolute left-0 top-[93px] -translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-100"
-                      >
-                        <ChevronLeft className="h-250 w-250" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="다음"
-                        onClick={() =>
-                          setFeedIndex((i) => Math.min(feeds.length - 1, i + 1))
-                        }
-                        className="absolute right-0 top-[93px] translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-100"
-                      >
-                        <ChevronRight className="h-250 w-250" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="mt-250 h-[186px] rounded-150 bg-gray-200" />
-                  )}
-                </div>
-              </div>
-            </div>
+          {/* RIGHT sticky sidebar */}
+          <div className="sticky top-[88px] flex flex-col gap-[20px]">
+            <LessonRatingCard rating={rating} onChange={setRating} />
+            <LessonQnaCard
+              myQnas={qnaSidebar?.qnas ?? []}
+              onAskClick={() => setSubmissionModalOpen(true)}
+              onSelectQna={setSelectedQnaId}
+            />
+            <LessonBuilderFeedCard feeds={feedPreview?.feeds ?? []} />
           </div>
         </div>
       </div>
+
+      <LessonQnaSubmissionModal
+        lessonId={lessonId}
+        open={submissionModalOpen}
+        onClose={() => setSubmissionModalOpen(false)}
+      />
+      <LessonQnaDetailModal
+        qnaId={selectedQnaId}
+        onClose={() => setSelectedQnaId(null)}
+      />
     </div>
   );
 }

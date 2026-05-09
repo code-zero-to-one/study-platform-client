@@ -1,9 +1,11 @@
 'use client';
 
 import { BookOpen } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useGetCourseCurriculum,
   useGetCourseDetail,
@@ -15,6 +17,10 @@ import type {
   CourseJourneyMapLessonResponse,
   LessonProgressStatus,
 } from '@/types/api/course.types';
+
+const LoginModal = dynamic(
+  () => import('@/components/auth/modals/login-modal'),
+);
 
 const COURSE_SLUG = 'vibe-intro';
 
@@ -187,7 +193,13 @@ function mergeLessons(
   });
 }
 
-function LessonStamp({ lesson }: { lesson: LessonDisplayInfo }) {
+function LessonStamp({
+  lesson,
+  isAuthenticated,
+}: {
+  lesson: LessonDisplayInfo;
+  isAuthenticated: boolean;
+}) {
   const isCompleted = lesson.status === 'COMPLETED';
   const isInProgress = lesson.status === 'IN_PROGRESS';
 
@@ -242,6 +254,11 @@ function LessonStamp({ lesson }: { lesson: LessonDisplayInfo }) {
   );
 
   if (lesson.accessible) {
+    if (!isAuthenticated) {
+      return (
+        <LoginModal openTrigger={<button type="button">{content}</button>} />
+      );
+    }
     return (
       <Link href={`/class/vibe-intro/lesson/${lesson.lessonId}`}>
         {content}
@@ -272,6 +289,7 @@ function ChapterHeader({ chapterNumber }: { chapterNumber: number }) {
 }
 
 export default function JourneyMapPage() {
+  const { isAuthenticated } = useAuth();
   const { data: course } = useGetCourseDetail(COURSE_SLUG);
   const courseId = course?.courseId ?? 0;
 
@@ -302,7 +320,7 @@ export default function JourneyMapPage() {
         {/* Course badge */}
         <div className="flex justify-center">
           <span className="rounded-full bg-rose-300 px-250 py-125 font-designer-20b text-white">
-            바이브 코딩 입문자 코스
+            {course?.title ?? ''}
           </span>
         </div>
 
@@ -345,27 +363,43 @@ export default function JourneyMapPage() {
         </div>
 
         {/* Free trial callout */}
-        <div className="mt-300 flex flex-col gap-75 rounded-200 border border-border-default bg-gray-100 px-350 py-300">
-          <p className="font-designer-20b text-gray-800">
-            Lesson 03까지 무료로 온보딩을 하실 수 있어요! 무료로 즐겨보세요!
-          </p>
-          <p className="font-designer-16m text-gray-800">
-            이후 결제는 무료 온보딩을 하시고 결정하셔도 늦지 않습니다.
-          </p>
-        </div>
+        {course?.freeLessonCount && course.freeLessonCount > 0 ? (
+          <div className="mt-300 flex flex-col gap-75 rounded-200 border border-border-default bg-gray-100 px-350 py-300">
+            <p className="font-designer-20b text-gray-800">
+              Lesson {String(course.freeLessonCount).padStart(2, '0')}까지
+              무료로 온보딩을 하실 수 있어요! 무료로 즐겨보세요!
+            </p>
+            <p className="font-designer-16m text-gray-800">
+              이후 결제는 무료 온보딩을 하시고 결정하셔도 늦지 않습니다.
+            </p>
+          </div>
+        ) : null}
 
         {/* Journey map */}
         <div className="mt-500 flex flex-col items-center">
-          <Link
-            href={
-              chapters[0]?.lessons[0]
-                ? `/class/vibe-intro/lesson/${chapters[0].lessons[0].lessonId}`
-                : '#'
-            }
-            className="flex h-[44px] w-[100px] items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-white"
-          >
-            Start
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href={
+                chapters[0]?.lessons[0]
+                  ? `/class/vibe-intro/lesson/${chapters[0].lessons[0].lessonId}`
+                  : '#'
+              }
+              className="flex h-[44px] w-[100px] items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-white"
+            >
+              Start
+            </Link>
+          ) : (
+            <LoginModal
+              openTrigger={
+                <button
+                  type="button"
+                  className="flex h-[44px] w-[100px] items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-white"
+                >
+                  Start
+                </button>
+              }
+            />
+          )}
 
           {chapters.map((chapter, ci) => {
             const lessons = mergeLessons(chapter, lessonStatusMap);
@@ -424,7 +458,11 @@ export default function JourneyMapPage() {
                       )}
                     >
                       {row.map((lesson) => (
-                        <LessonStamp key={lesson.lessonId} lesson={lesson} />
+                        <LessonStamp
+                          key={lesson.lessonId}
+                          lesson={lesson}
+                          isAuthenticated={isAuthenticated}
+                        />
                       ))}
                     </div>
                   </div>
