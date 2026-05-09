@@ -3,7 +3,7 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useRef, useState } from 'react';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import {
   useGetCourseDrawer,
@@ -18,7 +18,6 @@ import { LessonBuilderFeedCard } from './_components/lesson-builder-feed-card';
 import { LessonQnaCard } from './_components/lesson-qna-card';
 import { LessonQnaDetailModal } from './_components/lesson-qna-detail-modal';
 import { LessonQnaSubmissionModal } from './_components/lesson-qna-submission-modal';
-import { RatingBox as LessonRatingCard } from './_components/lesson-rating-box';
 import {
   LessonReviewForm,
   NEGATIVE_CHIPS,
@@ -38,12 +37,21 @@ export default function LessonPage({
   const showToast = useToastStore((s) => s.showToast);
 
   const [tab, setTab] = useState<LessonTabValue>('follow');
+  const reviewRef = useRef<HTMLDivElement>(null);
+
+  function handleTabChange(next: LessonTabValue) {
+    setTab(next);
+    if (next === 'review') {
+      reviewRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }
   const [rating, setRating] = useState(0);
   const [reflection1, setReflection1] = useState('');
-  const [reflection2, setReflection2] = useState('');
   const [selectedChips, setSelectedChips] = useState<Set<string>>(new Set());
   const [feedbackText, setFeedbackText] = useState('');
-  const [feedIndex, setFeedIndex] = useState(0);
   const [curriculumOpen, setCurriculumOpen] = useState(false);
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set(),
@@ -58,7 +66,7 @@ export default function LessonPage({
   const { data: feedPreview } = useGetLessonBuilderFeedPreview(lessonId);
   const submitRetrospective = useSubmitLessonRetrospective();
 
-  const drawerChapters = drawer?.chapters ?? [];
+  const drawerChapters = useMemo(() => drawer?.chapters ?? [], [drawer]);
   const courseTitle = drawer?.courseTitle ?? lesson?.courseTitle ?? '';
 
   // Initialize expanded chapters from drawer.defaultExpanded
@@ -79,10 +87,7 @@ export default function LessonPage({
 
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
   const isFormValid =
-    rating > 0 &&
-    reflection1.trim().length > 0 &&
-    reflection2.trim().length > 0 &&
-    selectedChips.size >= 2;
+    rating > 0 && reflection1.trim().length > 0 && selectedChips.size >= 2;
   const isSubmitDisabled =
     !isFormValid || submitRetrospective.isPending || alreadySubmitted;
 
@@ -110,14 +115,12 @@ export default function LessonPage({
     const checklistFlags = [...POSITIVE_CHIPS, ...NEGATIVE_CHIPS].map((c) =>
       chips.includes(c),
     );
-    // Two-question UI bundled into single backend `content` field with delimiter.
-    const combinedContent = `${reflection1}\n---\n${reflection2}`;
     submitRetrospective.mutate(
       {
         lessonId,
         request: {
           understandingScore: rating,
-          content: combinedContent,
+          content: reflection1,
           artifactType: null,
           artifactValue: null,
           feedback: { checklistFlags, freeText: feedbackText },
@@ -152,21 +155,21 @@ export default function LessonPage({
         courseTitle={courseTitle}
       />
 
-      <div className="mx-auto w-full max-w-[1236px] px-[24px]">
-        <div className="grid grid-cols-content-sidebar-360 items-start gap-[20px] pt-[40px]">
+      <div className="mx-auto w-full max-w-[1236px] px-300">
+        <div className="grid grid-cols-content-sidebar-360 items-start gap-250 pt-500">
           {/* LEFT */}
           <div className="min-w-0">
             <Link
               href="/class/vibe-intro/home"
-              className="inline-flex items-center gap-125 rounded-full border border-gray-200 bg-background-default px-[16px] py-[8px]"
+              className="inline-flex items-center gap-125 rounded-full border border-gray-200 bg-background-default px-200 py-100"
             >
-              <ArrowLeft className="h-[20px] w-[20px] text-gray-800" />
+              <ArrowLeft className="h-250 w-250 text-gray-800" />
               <span className="font-designer-14m text-gray-1000">
                 학습 여정 맵 돌아가기
               </span>
             </Link>
 
-            <div className="mt-[24px] flex items-center justify-between">
+            <div className="mt-300 flex items-center justify-between">
               <div className="flex items-center gap-200">
                 <span className="rounded-100 bg-rose-200 px-125 py-25 font-designer-14m text-rose-400">
                   Lesson {String(lessonId).padStart(2, '0')}
@@ -182,11 +185,11 @@ export default function LessonPage({
               </p>
             </div>
 
-            <div className="mt-[24px]">
-              <LessonTabs value={tab} onChange={setTab} />
+            <div className="mt-300">
+              <LessonTabs value={tab} onChange={handleTabChange} />
             </div>
 
-            <div className="mt-[24px] min-h-[964px] rounded-150 bg-background-default p-[40px]">
+            <div className="mt-300 min-h-[964px] rounded-150 bg-background-default p-500">
               {lesson?.contentMarkdown ? (
                 <MarkdownContentCore content={lesson.contentMarkdown} />
               ) : (
@@ -196,19 +199,20 @@ export default function LessonPage({
               )}
             </div>
 
-            <hr className="my-[40px] border-gray-300" />
+            <div ref={reviewRef} />
+            <hr className="my-500 border-gray-300" />
 
             {tab === 'review' || tab === 'follow' ? (
               <LessonReviewForm
+                rating={rating}
                 reflection1={reflection1}
-                reflection2={reflection2}
                 selectedChips={selectedChips}
                 feedbackText={feedbackText}
                 submitDisabled={isSubmitDisabled}
                 submitting={submitRetrospective.isPending}
                 alreadySubmitted={alreadySubmitted}
+                onRatingChange={setRating}
                 onReflection1Change={setReflection1}
-                onReflection2Change={setReflection2}
                 onToggleChip={toggleChip}
                 onFeedbackChange={setFeedbackText}
                 onAttachScreenshot={() =>
@@ -219,12 +223,11 @@ export default function LessonPage({
               />
             ) : null}
 
-            <div className="h-[80px]" />
+            <div className="h-1000" />
           </div>
 
           {/* RIGHT sticky sidebar */}
-          <div className="sticky top-[88px] flex flex-col gap-[20px]">
-            <LessonRatingCard rating={rating} onChange={setRating} />
+          <div className="sticky top-[88px] flex flex-col gap-250">
             <LessonQnaCard
               myQnas={qnaSidebar?.qnas ?? []}
               onAskClick={() => setSubmissionModalOpen(true)}

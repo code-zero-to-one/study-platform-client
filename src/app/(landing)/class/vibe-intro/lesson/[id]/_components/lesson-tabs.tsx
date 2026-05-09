@@ -11,7 +11,7 @@ interface Props {
 
 const TABS: { value: LessonTabValue; label: string }[] = [
   { value: 'follow', label: '따라해보기' },
-  { value: 'review', label: '클래스 돌아보기' },
+  { value: 'review', label: '레슨 돌아보기' },
 ];
 
 export function LessonTabs({ value, onChange }: Props) {
