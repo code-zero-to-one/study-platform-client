@@ -337,8 +337,9 @@ function CourseCard({
   course: CourseSummaryResponse;
   onNotify: () => void;
 }) {
-  const status = course.status === 'ACTIVE' ? 'active' : 'coming-soon';
-  const ctaText = status === 'active' ? '자세히 보기' : '오픈 알림 받기';
+  const status = course.status === 'OPEN' ? 'open' : 'coming-soon';
+
+  const ctaText = status === 'open' ? '자세히 보기' : '오픈 알림 받기';
   const thumbnailVariant = SLUG_VARIANT[course.slug] ?? 'soon';
 
   return (
@@ -377,7 +378,7 @@ function CourseCard({
           ))}
         </div>
 
-        {status === 'active' &&
+        {status === 'open' &&
           course.discountPrice !== null &&
           course.discountPrice !== undefined && (
             <div className="mt-300 flex flex-col">
@@ -393,7 +394,7 @@ function CourseCard({
             </div>
           )}
 
-        {status === 'active' ? (
+        {status === 'open' ? (
           <Link
             href={`/class/${course.slug}`}
             className="mt-300 block w-full rounded-100 bg-background-brand-default py-200 text-center font-designer-20m text-text-inverse"
