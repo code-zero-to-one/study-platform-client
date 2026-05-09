@@ -4,6 +4,7 @@ import { GoogleTagManager } from '@next/third-parties/google';
 import type { Metadata } from 'next';
 import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
+import { Footer } from '@/components/common/layout/footer';
 import Header from '@/components/common/layout/home-header';
 import GlobalToast from '@/components/common/ui/global-toast';
 import { createAuthHydrationSession } from '@/features/auth/model/auth-hydration-session';
@@ -84,6 +85,7 @@ export default async function LandingPageLayout({
             <main className="w-full flex-1">{children}</main>
           </div>
         </div>
+        <Footer />
         <GlobalToast />
       </MainProvider>
     </>

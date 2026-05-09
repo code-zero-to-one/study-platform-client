@@ -5,7 +5,6 @@ import { ChevronUp, Link as LinkIcon, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Footer } from '@/components/common/layout/footer';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   useGetCourseCompletionRecap,
@@ -211,8 +210,6 @@ export default function CourseCompletePage() {
           </Link>
         </div>
       </div>
-
-      <Footer />
 
       {/* Counseling float */}
       <button
