@@ -19,7 +19,7 @@ import { LessonBuilderFeedCard } from './_components/lesson-builder-feed-card';
 import { LessonQnaCard } from './_components/lesson-qna-card';
 import { LessonQnaDetailModal } from './_components/lesson-qna-detail-modal';
 import { LessonQnaSubmissionModal } from './_components/lesson-qna-submission-modal';
-import { LessonRatingCard } from './_components/lesson-rating-card';
+import { RatingBox as LessonRatingCard } from './_components/lesson-rating-box';
 import {
   LessonReviewForm,
   NEGATIVE_CHIPS,
