@@ -243,7 +243,20 @@ export interface BuilderFeedListItemResponse {
   createdAt: string;
 }
 
+export interface BuilderFeedWeeklyTopBuilder {
+  memberId: number;
+  nickname: string;
+  role: string;
+  feedId: number | null;
+  likeCount: number | null;
+  highlight: string | null;
+}
+
 export interface BuilderFeedListResponse {
+  courseId: number | null;
+  courseTitle: string | null;
+  totalCountLabel: string | null;
+  weeklyTopBuilder: BuilderFeedWeeklyTopBuilder | null;
   feeds: BuilderFeedListItemResponse[];
   totalCount: number;
   hasNext: boolean;
@@ -262,20 +275,91 @@ export interface BuilderFeedDetailResponse {
   createdAt: string;
 }
 
-export interface BuilderFeedCommentResponse {
+export interface BuilderFeedCommentReplyResponse {
   commentId: number;
   content: string;
   author: FeedAuthor;
   createdAt: string;
 }
 
+export interface BuilderFeedCommentResponse {
+  commentId: number;
+  content: string;
+  author: FeedAuthor;
+  createdAt: string;
+  replies: BuilderFeedCommentReplyResponse[];
+}
+
 export interface BuilderFeedCommentsResponse {
   comments: BuilderFeedCommentResponse[];
-  totalCount: number;
 }
 
 export interface BuilderFeedCreateRequest {
   lessonId: number;
   content: string;
-  imageUrls?: string[];
+  imageKeys?: string[];
+}
+
+export interface BuilderFeedCommentCreateRequest {
+  content: string;
+  parentCommentId?: number | null;
+}
+
+export interface BuilderFeedReportCreateRequest {
+  reason: string;
+  commentId?: number | null;
+}
+
+// ─── Builder Feed Preview (lesson sidebar) ────────────────────────────────────
+
+export interface BuilderFeedPreviewItemResponse {
+  feedId: number;
+  content: string;
+  thumbnailUrl: string | null;
+  author: FeedAuthor;
+  likeCount: number;
+  commentCount: number;
+  isLiked: boolean;
+}
+
+export interface BuilderFeedPreviewResponse {
+  feeds: BuilderFeedPreviewItemResponse[];
+  totalCount: number;
+}
+
+// ─── My Builder Feeds / Stats ─────────────────────────────────────────────────
+
+export interface MyBuilderFeedItemResponse {
+  feedId: number;
+  courseId: number;
+  lessonId: number;
+  content: string;
+  thumbnailUrl: string | null;
+  likeCount: number;
+  commentCount: number;
+  createdAt: string;
+}
+
+export interface MyBuilderFeedsResponse {
+  feeds: MyBuilderFeedItemResponse[];
+  totalCount: number;
+}
+
+export interface BuilderFeedStatsResponse {
+  feedCount: number;
+  totalLikeCount: number;
+  totalCommentCount: number;
+}
+
+// ─── Lesson Q&A Sidebar ───────────────────────────────────────────────────────
+
+export interface LessonQnaSidebarItem {
+  qnaId: number;
+  title: string;
+  answerCount: number;
+  createdAt: string;
+}
+
+export interface LessonQnaSidebarResponse {
+  qnas: LessonQnaSidebarItem[];
 }

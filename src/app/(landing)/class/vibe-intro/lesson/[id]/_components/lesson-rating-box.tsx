@@ -17,15 +17,12 @@ const HINTS = [
   '너무 재밌었어요',
 ];
 
-export function LessonRatingCard({ rating, onChange }: Props) {
+export function RatingBox({ rating, onChange }: Props) {
   const [hover, setHover] = useState(0);
   const display = hover || rating;
 
   return (
-    <div className="flex flex-col gap-200 rounded-150 border border-gray-300 bg-background-default p-300">
-      <p className="text-center font-designer-16b text-gray-1000">
-        오늘의 코딩 바이브는 몇 점인가요?
-      </p>
+    <div className="flex h-[120px] w-full flex-col items-center justify-center gap-100 rounded-200 border border-gray-300 bg-background-default">
       <div className="flex items-center justify-center gap-75">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -51,7 +48,7 @@ export function LessonRatingCard({ rating, onChange }: Props) {
           </button>
         ))}
       </div>
-      <p className="text-center font-designer-13m text-gray-400">
+      <p className="text-center font-designer-14sb text-gray-400">
         {HINTS[display]}
       </p>
     </div>

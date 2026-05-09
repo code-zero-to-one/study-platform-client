@@ -16,6 +16,7 @@ import {
   useCreateFeedComment,
   useGetBuilderFeedDetail,
   useGetFeedComments,
+  useReportBuilderFeed,
   useToggleFeedLike,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
@@ -34,6 +35,7 @@ export default function FeedDetailPage({
   const { data: commentsData } = useGetFeedComments(feedId);
   const toggleLikeMutation = useToggleFeedLike();
   const createCommentMutation = useCreateFeedComment();
+  const reportFeedMutation = useReportBuilderFeed();
 
   const liked = feed?.isLiked ?? false;
   const likeCount = feed?.likeCount ?? 0;
@@ -54,12 +56,24 @@ export default function FeedDetailPage({
   function handleCreateComment() {
     if (!comment.trim()) return;
     createCommentMutation.mutate(
-      { feedId, content: comment },
+      { feedId, request: { content: comment } },
       {
         onSuccess: () => {
           setComment('');
           showToast('댓글이 등록되었어요!');
         },
+      },
+    );
+  }
+
+  function handleReport() {
+    const reason = window.prompt('신고 사유를 입력해주세요.');
+    if (!reason?.trim()) return;
+    reportFeedMutation.mutate(
+      { feedId, request: { reason } },
+      {
+        onSuccess: () => showToast('신고가 접수되었어요.'),
+        onError: () => showToast('신고 접수에 실패했어요.', 'error'),
       },
     );
   }
@@ -97,17 +111,31 @@ export default function FeedDetailPage({
               </button>
             </div>
 
-            {/* Options: like, share, save */}
+            {/* Options: save, share, report */}
             <div className="mt-200 flex gap-200">
-              {['보관', '공유', '신고'].map((action) => (
-                <button
-                  key={action}
-                  type="button"
-                  className="rounded-50 border border-border-subtle px-150 py-50 font-designer-12r text-gray-500"
-                >
-                  {action}
-                </button>
-              ))}
+              <button
+                type="button"
+                className="rounded-50 border border-border-subtle px-150 py-50 font-designer-12r text-gray-500"
+              >
+                보관
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleShare().catch(() => {});
+                }}
+                className="rounded-50 border border-border-subtle px-150 py-50 font-designer-12r text-gray-500"
+              >
+                공유
+              </button>
+              <button
+                type="button"
+                onClick={handleReport}
+                disabled={reportFeedMutation.isPending}
+                className="rounded-50 border border-border-subtle px-150 py-50 font-designer-12r text-gray-500 disabled:opacity-50"
+              >
+                신고
+              </button>
             </div>
 
             {/* Image */}

@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useMemo, useState } from 'react';
 import {
-  useGetBuilderFeeds,
   useGetCourseDrawer,
+  useGetLessonBuilderFeedPreview,
   useGetLessonDetail,
-  useGetLessonQnas,
+  useGetLessonQnaSidebar,
   useSubmitLessonRetrospective,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
@@ -129,13 +129,8 @@ export default function LessonPage({
   const { data: lesson } = useGetLessonDetail(lessonId);
   const courseId = lesson?.courseId ?? 0;
   const { data: drawer } = useGetCourseDrawer(courseId);
-  const { data: qnaData } = useGetLessonQnas(lessonId);
-  const { data: feedData } = useGetBuilderFeeds({
-    courseId,
-    lessonId,
-    page: 0,
-    size: 5,
-  });
+  const { data: qnaSidebar } = useGetLessonQnaSidebar(lessonId);
+  const { data: feedPreview } = useGetLessonBuilderFeedPreview(lessonId);
   const submitRetrospective = useSubmitLessonRetrospective();
 
   const drawerChapters = drawer?.chapters ?? MOCK_DRAWER_CHAPTERS;
@@ -297,11 +292,11 @@ export default function LessonPage({
           <div className="sticky top-[88px] flex flex-col gap-[20px]">
             <LessonRatingCard rating={rating} onChange={setRating} />
             <LessonQnaCard
-              myQnas={qnaData?.myQnas ?? []}
+              myQnas={qnaSidebar?.qnas ?? []}
               onAskClick={() => setSubmissionModalOpen(true)}
               onSelectQna={setSelectedQnaId}
             />
-            <LessonBuilderFeedCard feeds={feedData?.feeds ?? []} />
+            <LessonBuilderFeedCard feeds={feedPreview?.feeds ?? []} />
           </div>
         </div>
       </div>

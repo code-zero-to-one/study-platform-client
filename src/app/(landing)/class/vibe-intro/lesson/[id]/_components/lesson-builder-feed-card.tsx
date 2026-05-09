@@ -9,10 +9,10 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import type { BuilderFeedListItemResponse } from '@/types/api/course.types';
+import type { BuilderFeedPreviewItemResponse } from '@/types/api/course.types';
 
 interface Props {
-  feeds: BuilderFeedListItemResponse[];
+  feeds: BuilderFeedPreviewItemResponse[];
 }
 
 export function LessonBuilderFeedCard({ feeds }: Props) {
