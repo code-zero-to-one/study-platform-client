@@ -3,7 +3,6 @@
 import {
   Users,
   Clock,
-  ThumbsUp,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
@@ -18,7 +17,11 @@ import Link from 'next/link';
 import { use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useAuth } from '@/features/auth/model/use-auth';
-import { useGetCourseCurriculum } from '@/hooks/queries/course/course-api';
+import {
+  useGetCourseCurriculum,
+  useGetCourseDetail,
+  useGetCourseList,
+} from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const LoginModal = dynamic(
@@ -116,6 +119,9 @@ export default function ClassDetailPage({
 
   // 커리큘럼은 DB에서 가져오되, 코스가 없으면 하드코딩된 CHAPTERS로 fallback.
   const { data: curriculum } = useGetCourseCurriculum(slug);
+  const { data: courseDetail } = useGetCourseDetail(slug);
+  const { data: allCourses } = useGetCourseList();
+  const courseSummary = allCourses?.find((c) => c.slug === slug);
   const chaptersForRoadmap = useMemo(() => {
     if (curriculum?.chapters && curriculum.chapters.length > 0) {
       return curriculum.chapters.map((chapter) => ({
@@ -125,6 +131,7 @@ export default function ClassDetailPage({
         lessons: chapter.lessons.map((lesson) => ({
           order: lesson.order,
           title: lesson.title,
+          lessonId: lesson.lessonId,
         })),
       }));
     }
@@ -133,6 +140,7 @@ export default function ClassDetailPage({
       lessons: chapter.lessons.map((title, index) => ({
         order: index + 1,
         title,
+        lessonId: undefined as number | undefined,
       })),
     }));
   }, [curriculum]);
@@ -167,26 +175,26 @@ export default function ClassDetailPage({
       {/* Page header */}
       <div className="mx-auto max-w-page px-600 pt-600">
         <h1 className="font-designer-36b text-gray-800">
-          바이브 코딩 입문자 코스
+          {courseDetail?.title ?? '바이브 코딩 입문자 코스'}
         </h1>
         <div className="mt-300 flex flex-wrap gap-400">
           <div className="flex items-center gap-75">
             <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
             <p className="font-designer-16m text-gray-800">
-              <span className="font-designer-16b text-text-brand">30</span>
-              명이 함께 배우고 있어요!
+              <span className="font-designer-16b text-text-brand">
+                {courseSummary?.participantCount ?? 0}
+              </span>
+              {courseSummary?.participantLabel ?? '명이 함께 배우고 있어요!'}
             </p>
           </div>
-          <div className="flex items-center gap-75">
-            <Clock className="h-300 w-300 shrink-0 text-text-subtlest" />
-            <p className="font-designer-16m text-gray-800">평균 5일 소요</p>
-          </div>
-          <div className="flex items-center gap-75">
-            <ThumbsUp className="h-300 w-300 shrink-0 text-text-subtlest" />
-            <p className="font-designer-16m text-gray-800">
-              <span className="font-designer-16b text-text-brand">25</span>명
-            </p>
-          </div>
+          {curriculum?.durationDays && (
+            <div className="flex items-center gap-75">
+              <Clock className="h-300 w-300 shrink-0 text-text-subtlest" />
+              <p className="font-designer-16m text-gray-800">
+                평균 {curriculum.durationDays}일 소요
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -446,6 +454,14 @@ export default function ClassDetailPage({
                             <p className="font-designer-18b text-gray-800">
                               {lesson.title}
                             </p>
+                            {lesson.lessonId !== undefined && (
+                              <Link
+                                href={`/class/${slug}/lesson/${lesson.lessonId}`}
+                                className="ml-auto shrink-0 rounded-100 border border-border-brand px-200 py-75 font-designer-14m text-text-brand"
+                              >
+                                자세히 보기
+                              </Link>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -506,12 +522,11 @@ export default function ClassDetailPage({
             <div className="overflow-hidden rounded-150 border border-border-subtle">
               <div className="p-300">
                 <h3 className="font-designer-28b text-gray-800">
-                  바이브 코딩 입문자 코스
+                  {courseDetail?.title ?? '바이브 코딩 입문자 코스'}
                 </h3>
-                <p className="mt-150 font-designer-16r text-gray-800">
-                  바이브 코딩 막막함 이젠 여기서 끝내세요!
-                  <br />
-                  ZERO-ONE의 빌더들과 함께 뿌셔보세요!
+                <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-800">
+                  {courseDetail?.description ??
+                    '바이브 코딩 막막함 이젠 여기서 끝내세요!\nZERO-ONE의 빌더들과 함께 뿌셔보세요!'}
                 </p>
 
                 <span className="mt-150 inline-block rounded-50 bg-gray-400 px-75 py-25 font-designer-12r text-text-inverse">
@@ -520,14 +535,21 @@ export default function ClassDetailPage({
                 <p className="mt-75 font-designer-14r text-gray-500">
                   Claude Pro 1개월 Gift 증정 + 커뮤니티 +
                   <br />
-                  N개 레슨 + 실습 가이드
+                  {courseDetail?.freeLessonCount !== null &&
+                  courseDetail?.freeLessonCount !== undefined
+                    ? `${courseDetail.freeLessonCount}개 레슨`
+                    : 'N개 레슨'}{' '}
+                  + 실습 가이드
                 </p>
 
                 <div className="mt-300 flex items-center gap-50">
                   <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
                   <p className="font-designer-14m text-gray-800">
-                    지금 <span className="text-text-brand">00</span>
-                    명이 이 코스를 탐색하고 있어요!
+                    지금{' '}
+                    <span className="text-text-brand">
+                      {courseSummary?.participantCount ?? 0}
+                    </span>
+                    명이 이 코스를 들었어요!
                   </p>
                 </div>
 

@@ -339,7 +339,6 @@ function CourseCard({
 }) {
   const status = course.status === 'ACTIVE' ? 'active' : 'coming-soon';
   const ctaText = status === 'active' ? '자세히 보기' : '오픈 알림 받기';
-  console.log({ ctaText });
   const thumbnailVariant = SLUG_VARIANT[course.slug] ?? 'soon';
 
   return (

@@ -13,7 +13,6 @@ import {
   useSubmitLessonRetrospective,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import type { CourseDrawerChapterResponse } from '@/types/api/course.types';
 import { CurriculumDrawer } from './_components/curriculum-drawer';
 import { LessonBuilderFeedCard } from './_components/lesson-builder-feed-card';
 import { LessonQnaCard } from './_components/lesson-qna-card';
@@ -27,82 +26,6 @@ import {
 } from './_components/lesson-review-form';
 import { LessonTabs, type LessonTabValue } from './_components/lesson-tabs';
 import { LessonTopBar } from './_components/lesson-top-bar';
-
-const MOCK_COURSE_TITLE = '바이브 코딩 입문자 코스';
-const MOCK_TOTAL_LESSONS = 20;
-
-const MOCK_DRAWER_CHAPTERS: CourseDrawerChapterResponse[] = [
-  {
-    chapterId: 1,
-    order: 1,
-    title: 'AI 처음 만나는 날',
-    defaultExpanded: true,
-    lessons: [
-      {
-        lessonId: 1,
-        order: 1,
-        title: 'Claude와 친해지기',
-        isFree: true,
-        status: 'IN_PROGRESS',
-        isLocked: false,
-        isCurrentLesson: true,
-      },
-      {
-        lessonId: 2,
-        order: 2,
-        title: 'Claude와 친해지기',
-        isFree: true,
-        status: 'LOCKED',
-        isLocked: true,
-        isCurrentLesson: false,
-      },
-      {
-        lessonId: 3,
-        order: 3,
-        title: 'Claude와 친해지기',
-        isFree: true,
-        status: 'LOCKED',
-        isLocked: true,
-        isCurrentLesson: false,
-      },
-    ],
-  },
-  {
-    chapterId: 2,
-    order: 2,
-    title: 'AI 처음 만나는 날',
-    defaultExpanded: false,
-    lessons: [
-      {
-        lessonId: 4,
-        order: 4,
-        title: 'Claude와 친해지기',
-        isFree: false,
-        status: 'IN_PROGRESS',
-        isLocked: false,
-        isCurrentLesson: false,
-      },
-      {
-        lessonId: 5,
-        order: 5,
-        title: 'Claude와 친해지기',
-        isFree: false,
-        status: 'LOCKED',
-        isLocked: true,
-        isCurrentLesson: false,
-      },
-      {
-        lessonId: 6,
-        order: 6,
-        title: 'Claude와 친해지기',
-        isFree: false,
-        status: 'LOCKED',
-        isLocked: true,
-        isCurrentLesson: false,
-      },
-    ],
-  },
-];
 
 export default function LessonPage({
   params,
@@ -135,9 +58,8 @@ export default function LessonPage({
   const { data: feedPreview } = useGetLessonBuilderFeedPreview(lessonId);
   const submitRetrospective = useSubmitLessonRetrospective();
 
-  const drawerChapters = drawer?.chapters ?? MOCK_DRAWER_CHAPTERS;
-  const courseTitle =
-    drawer?.courseTitle ?? lesson?.courseTitle ?? MOCK_COURSE_TITLE;
+  const drawerChapters = drawer?.chapters ?? [];
+  const courseTitle = drawer?.courseTitle ?? lesson?.courseTitle ?? '';
 
   // Initialize expanded chapters from drawer.defaultExpanded
   useEffect(() => {
@@ -151,9 +73,7 @@ export default function LessonPage({
   }, [drawerChapters]);
 
   const totalLessons = useMemo(
-    () =>
-      drawerChapters.reduce((sum, c) => sum + c.lessons.length, 0) ||
-      MOCK_TOTAL_LESSONS,
+    () => drawerChapters.reduce((sum, c) => sum + c.lessons.length, 0),
     [drawerChapters],
   );
 
