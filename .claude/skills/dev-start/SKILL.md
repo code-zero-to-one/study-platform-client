@@ -105,6 +105,9 @@ Create `docs/Figma/{page-slug}.md`:
 ## API Mapping
 | Region | Hook | DTO Type | File |
 
+## Component–API Map
+| Component | Renders fields | Hook | DTO type | Notes |
+
 ## Notes
 ```
 
@@ -118,13 +121,20 @@ Create `docs/Figma/{page-slug}.md`:
 | Authenticated user pages | `src/app/(service)/.../page.tsx` |
 | Admin pages | `src/app/(admin)/.../page.tsx` |
 
-#### 6b. API Mapping
+#### 6b. API Mapping (per-component)
 
-For every data-bearing region from Step 2:
-1. Search `src/hooks/queries/`, `src/api/`, `src/api/openapi/` for matching hook
-2. Found → record in mapping table; Not found → `// TODO: API not found - <region>` placeholder
+For every component in Step 4's reuse map AND every new component to be written:
 
-**Never invent endpoints.**
+1. Identify which data fields that component renders (from Figma text nodes, lists, badges)
+2. Search `src/hooks/queries/`, `src/api/`, `src/api/openapi/` for matching hook
+3. Record in Component–API Map table (saved to spec doc in Step 5):
+
+| Component | Renders | Hook | DTO Field | Status |
+|-----------|---------|------|-----------|--------|
+| ClassCard | title, thumbnailUrl, memberCount | useGetClassList | ClassListItem.title/thumbnail/memberCount | ✅ |
+| SomeWidget | price | — | — | TODO: no hook found |
+
+**Never invent endpoints.** Missing hook → `// TODO: API not found - <ComponentName>` placeholder in component props.
 
 #### 6c. Middleware Route Registration
 
@@ -222,7 +232,7 @@ Wait for user OK before continuing.
 ```bash
 git add src/app/.../page.tsx \
         docs/Figma/{slug}.md \
-        {any helper components or problem docs created}
+        {any helper components created}
 git commit -m "feat : {RouteName} 페이지 구현"
 ```
 
@@ -254,7 +264,7 @@ Print: `Run /pr to open PR against develop.` Do not auto-create PR.
 - `Bash` — grep for component reuse, global.css token read, git pull, yarn commands, git add/commit
 - `Read` — inspect existing hooks, DTOs, global.css, backend classes
 - `Grep` — locate hook candidates, component files
-- `Write` — page.tsx, helper components, spec doc, problem doc
+- `Write` — page.tsx, helper components, spec doc
 - `mcp__chrome-devtools__navigate_page` — load/reload route for verification
 - `mcp__chrome-devtools__take_screenshot` — capture Chrome state at each iteration
 - `mcp__chrome-devtools__hover` / `mcp__chrome-devtools__click` — activate interactive states
@@ -276,7 +286,11 @@ Print: `Run /pr to open PR against develop.` Do not auto-create PR.
 - [ ] `docs/Figma/{slug}.md` written with all tables (Step 5)
 - [ ] Route under correct group (landing/service/admin)
 - [ ] `(landing)` route registered as `PUBLIC_SESSION` in `route-policy.ts` (Step 6c)
-- [ ] Every data region either mapped to real hook or marked TODO
+- [ ] Completeness audit printed after Step 2f: "Components found: N (Level-1: A, Nested: B, Variant: C)"
+- [ ] Components found count matches Step 4 reuse map entry count
+- [ ] API mapping is per-component with explicit DTO field names (Step 6b)
+- [ ] `docs/Figma/{slug}.md` includes Component–API Map table (Step 5)
+- [ ] Every component either mapped to real hook or marked TODO
 - [ ] Backend repo refreshed via `git pull origin dev`
 - [ ] DTO cross-check passed (or aborted on mismatch)
 - [ ] QA URL printed in summary

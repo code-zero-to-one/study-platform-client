@@ -119,3 +119,29 @@ For any bounded container (card, tile, badge, panel) whose primary visual conten
 | > 0.5 | Primary visual element | Use exact pixel dimensions |
 | 0.25–0.5 | Secondary decorative | Use exact dimensions, verify against screenshot |
 | < 0.25 | Accent/badge | May approximate |
+
+### 2f. Recursive Component Instance Walk
+
+After Level-1 sections are drilled, traverse each section's own metadata for nested instances.
+
+For each Level-1 section that returned `INSTANCE` children:
+
+```bash
+# Get children of each Level-1 section node
+get_metadata(sectionNodeId, fileKey)
+```
+
+For any nested `type === "INSTANCE"` node found:
+
+| Node depth | Action |
+|-----------|--------|
+| Depth 2 (inside a section) | `get_design_context` if not already covered by section drill |
+| Depth 3+ | Sample one representative instance — note if it repeats a pattern |
+
+**Completeness audit.** After all drills, print:
+
+```
+Components found: N (Level-1 sections: A, Nested instances: B, Variant cells: C)
+```
+
+This number becomes the baseline for Step 4 (Component Reuse Check).

@@ -35,13 +35,30 @@ This skill **coexists** with `.claude/commands/design-to-dev.md` (the legacy sla
 
 ### 1. Figma Fetch
 
-Run all three Figma MCP calls in parallel:
+Run all **four** Figma MCP calls in parallel:
 
 - `mcp__claude_ai_Figma__get_design_context(nodeId, fileKey)` — layout, transforms (rotation/scale), typography, effects, hierarchy
 - `mcp__claude_ai_Figma__get_variable_defs(nodeId, fileKey)` — design tokens
 - `mcp__claude_ai_Figma__get_screenshot(nodeId, fileKey)` — reference image
+- `mcp__claude_ai_Figma__get_metadata(nodeId, fileKey)` — full child tree for sub-component enumeration
 
 Follow `.claude/rules/figma-design.md` exhaustively — read **all** properties (rotation precision, gradients, blend modes, effects, etc.). Never implement from screenshot alone.
+
+### 1b. Sub-component Drill
+
+From `get_metadata`, collect all nodes where:
+- `type === "INSTANCE"` — component instances
+- `type === "FRAME"` with 3+ nested levels — complex frame children
+
+For each collected node, call `get_design_context` individually (run all in parallel).
+
+For variant components: call `get_design_context` on **every variant cell** — not just the default.
+
+Record count before proceeding to Step 2:
+
+```
+Sub-components found: N (instances: A, complex frames: B, variant cells: C)
+```
 
 ### 2. Token Mapping
 
@@ -56,6 +73,14 @@ For every Figma variable, look up matching `@theme inline` token in `src/app/glo
 Base Tailwind scale (`p-4`, `rounded-lg`) is **prohibited** — it resolves to `undefined` after the project's `@theme inline` reset.
 
 ### 3. Component Generation
+
+Before writing code, verify completeness:
+
+```
+Sub-components identified in Step 1b: N → N mapped to implementation or marked TODO
+```
+
+Abort if count differs with no explanation.
 
 Write to `src/components/...` (location chosen based on component nature: `common/ui/`, `pages/`, or domain folder).
 
@@ -187,6 +212,10 @@ Run `/pr` to open PR against `develop`.
 ## Final_Checklist
 
 - [ ] All Figma properties read (transforms, gradients, typography, effects)
+- [ ] `get_metadata` called in parallel with other Step 1 calls
+- [ ] All INSTANCE + complex FRAME children drilled individually (Step 1b)
+- [ ] All variant cells sampled (Step 1b)
+- [ ] Sub-component count matches implementation count (Step 3)
 - [ ] Component uses `cn()` only, no arbitrary values, no base Tailwind scale
 - [ ] `yarn lint:fix && yarn prettier:fix && yarn typecheck` all pass
 - [ ] Storybook story only generated if user explicitly requested

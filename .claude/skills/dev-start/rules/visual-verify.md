@@ -36,7 +36,7 @@ LOOP:
   1. mcp__chrome-devtools__take_screenshot  →  Chrome state
   2. Compare Chrome screenshot against Figma reference for ALL checks above
   3. List every ❌ failing check
-  4. If zero ❌ → EXIT LOOP → proceed to Step 8c
+  4. If zero ❌ → EXIT LOOP → proceed to Step 9
   5. For each ❌:
        a. Identify root cause (see table below)
        b. Apply fix to code
