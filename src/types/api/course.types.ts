@@ -25,6 +25,24 @@ export type ViewerStatus =
   | 'FREE_ENROLLED'
   | 'PAID';
 
+// ─── Course List ──────────────────────────────────────────────────────────────
+
+export interface CourseSummaryResponse {
+  courseId: number;
+  slug: string;
+  title: string;
+  headline: string;
+  summary: string;
+  thumbnailUrl: string | null;
+  status: string;
+  tags: string[];
+  participantCount: number;
+  participantLabel: string;
+  regularPrice: number | null;
+  discountPrice: number | null;
+  ctaType: string;
+}
+
 // ─── Course ───────────────────────────────────────────────────────────────────
 
 export interface CourseJourneyMapResponse {
@@ -77,6 +95,7 @@ export interface LessonDetailResponse {
   contentMarkdown: string;
   progressStatus: LessonProgressStatus;
   retrospectiveSubmitted: boolean;
+  currentLearningMemberCount?: number;
 }
 
 export interface LessonRetrospectiveCreateRequest {
