@@ -21,11 +21,11 @@ export function LessonTopBar({
     totalLessons > 0 ? Math.min(100, (currentLesson / totalLessons) * 100) : 0;
 
   return (
-    <div className="sticky top-0 z-30 flex h-[64px] w-full items-center bg-background-default">
+    <div className="sticky top-0 z-30 flex h-800 w-full items-center bg-background-default">
       <button
         type="button"
         onClick={onToggleCurriculum}
-        className="flex h-[64px] w-[64px] shrink-0 flex-col items-center justify-center gap-25 bg-background-brand-default text-text-inverse"
+        className="flex h-800 w-800 shrink-0 flex-col items-center justify-center gap-25 bg-background-brand-default text-text-inverse"
       >
         <Image
           src="/class/vibe-intro/checklist.svg"
@@ -47,7 +47,7 @@ export function LessonTopBar({
       </div>
 
       <div className="flex-1 px-300">
-        <div className="relative h-[14px] overflow-hidden rounded-full bg-gray-200">
+        <div className="relative h-175 overflow-hidden rounded-full bg-gray-200">
           <div
             className="absolute left-0 top-0 h-full rounded-full bg-background-brand-default transition-all"
             style={{ width: `${progressPct}%` }}
@@ -55,7 +55,7 @@ export function LessonTopBar({
         </div>
       </div>
 
-      <div className="mr-400 flex h-[36px] items-center rounded-100 bg-gray-800 px-250">
+      <div className="mr-400 flex h-450 items-center rounded-100 bg-gray-800 px-250">
         <p className="font-designer-16b">
           <span className="text-text-brand">{discordCount}</span>
           <span className="text-text-inverse">
