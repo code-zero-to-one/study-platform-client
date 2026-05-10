@@ -58,6 +58,8 @@ For every Figma variable from Step 1's `get_variable_defs`:
 
 Token reference: `bg-gray-{0…1000}`, `p-{token}` / `gap-{token}` (custom scale), `rounded-{token}` (custom).
 
+> **⚠️ Base Tailwind color classes are also undefined.** `@theme inline` resets ALL `--color-*` tokens including base ones. `bg-white` → `var(--color-white)` → undefined → **transparent** (no lint error, no type error). Always use project tokens: white = `bg-gray-0`, not `bg-white`.
+
 ### 4. Component Reuse Check
 
 Before writing any code, identify which Figma sections already exist as components.
@@ -282,6 +284,7 @@ Print: `Run /pr to open PR against develop.` Do not auto-create PR.
 - [ ] Visual content sizes derived from container sub-node call, not page-level (Step 2e)
 - [ ] Token mapping table built against global.css `@theme inline` (Step 3)
 - [ ] No arbitrary values or base Tailwind scale used anywhere
+- [ ] No base Tailwind color classes (`bg-white`, `text-white`, `bg-black`) — `@theme inline` undefines them; use `bg-gray-0` for white
 - [ ] Component reuse map built — existing components identified and imported (Step 4)
 - [ ] `docs/Figma/{slug}.md` written with all tables (Step 5)
 - [ ] Route under correct group (landing/service/admin)

@@ -88,6 +88,21 @@ When summarizing a Figma inspection, produce:
 - Do not omit decorative nodes (sparkles, dots, orbit rings) — they are part of the composition.
 - Do not assume default values. Always read the explicit value from the Figma response.
 
+## Spec Re-Verification
+
+Figma MCP responses and plan files are point-in-time snapshots. They may be partial (token-truncated) or outdated by the time of implementation.
+
+### When implementing from a plan or prior analysis
+
+1. **Re-fetch current Figma data** — do not rely on property values recorded in a plan. Call `get_design_context` / `get_variable_defs` again at implementation time.
+2. **Verify all states for any bidirectional logic** — for toggles, accordions, rotations, mirrors: read BOTH states (open/closed, expanded/collapsed, before/after) from Figma simultaneously before writing the condition. Reading only one state produces an inverted implementation 50% of the time.
+3. **Plan says "change X to Y" + current code has X** — treat as a conflict signal. Re-verify against current Figma before applying. The plan may have been written from partial data.
+4. **Token values in plans** — re-check against current `global.css`. Tokens may have been added or renamed since the plan was written.
+
+### Principle
+
+Plans describe **intent at write time**. Implementation requires **current facts**. When the two diverge, read the source of truth (Figma, `global.css`) and update the plan — do not blindly follow the plan.
+
 ## Triggering Conditions
 
 Apply this rule whenever:

@@ -37,3 +37,43 @@ Use breakpoint prefixes with fluid-first approach — never fixed widths:
 ```
 
 Standard breakpoints: `sm:` (640px) · `md:` (768px) · `lg:` (1024px)
+
+## Pre-Commit Verification
+
+`yarn lint:fix && yarn prettier:fix && yarn typecheck` catch syntax and type errors but have structural blind spots for convention violations. These patterns pass all three checks yet violate project conventions:
+
+| Pattern | Why automated checks miss it |
+|---------|------------------------------|
+| `style={{ prop: value }}` | ESLint `no-arbitrary-values` inspects `className` strings only — the `style` prop is invisible to it |
+| `className="... [14px] ..."` | Only caught if `no-arbitrary-values` ESLint rule is explicitly configured |
+| `bg-white`, `text-white`, `bg-black` | Valid Tailwind class names; the underlying CSS variable is simply absent → renders transparent/invisible with no error |
+| `p-4`, `m-2`, `gap-4` (base scale) | Valid class names; `@theme inline` resets the variable → undefined, same silent failure |
+
+### Required checks before committing modified files
+
+```bash
+# 1. Inline styles (style prop bypasses token system)
+grep -n 'style={{' <file>
+
+# 2. Tailwind arbitrary values (exclude TypeScript generics and comments)
+grep -n 'className.*\[' <file> | grep -v '^\s*//'
+
+# 3. Base color classes (undefined after @theme inline reset)
+grep -n 'bg-white\|text-white\|bg-black\|text-black' <file>
+
+# 4. Base numeric scale classes (spot-check)
+grep -nP '(?<!\w)(p|m|gap|px|py|pt|pb|pl|pr)-[0-9]\b' <file>
+```
+
+All results must be zero. If a needed token is missing from `global.css`, add it first — never use `style={}` or `[value]` as a temporary workaround.
+
+### Adding missing tokens
+
+Spacing scale formula: `px_value × 12.5 = token_number`
+
+```css
+/* Example: need 30px spacing */
+/* 30 × 12.5 = 375 → add to global.css: */
+--spacing-375: 30px;
+/* then use: p-375, gap-375, etc. */
+```
