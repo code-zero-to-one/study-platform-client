@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { axiosInstance } from '@/api/client/axios';
+import { axiosInstanceV5 } from '@/api/client/axios';
 import type {
   BuilderFeedCommentCreateRequest,
   BuilderFeedCommentsResponse,
@@ -32,7 +32,7 @@ export const useGetCourseList = () => {
   return useQuery({
     queryKey: ['courses'],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: { content: CourseSummaryResponse[] };
       }>('courses');
       return data.content.content;
@@ -46,7 +46,7 @@ export const useGetCourseDetail = (slug: string) => {
   return useQuery({
     queryKey: ['courseDetail', slug],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: CourseDetailResponse;
       }>(`courses/${slug}`);
       return data.content;
@@ -59,7 +59,7 @@ export const useGetCourseCurriculum = (slug: string) => {
   return useQuery({
     queryKey: ['courseCurriculum', slug],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: CourseCurriculumResponse;
       }>(`courses/${slug}/curriculum`);
       return data.content;
@@ -72,7 +72,7 @@ export const useGetCourseDrawer = (courseId: number) => {
   return useQuery({
     queryKey: ['courseDrawer', courseId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: CourseDrawerResponse;
       }>(`courses/${courseId}/drawer`);
       return data.content;
@@ -87,7 +87,7 @@ export const useGetCourseJourneyMap = (courseId: number) => {
   return useQuery({
     queryKey: ['courseJourneyMap', courseId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: CourseJourneyMapResponse;
       }>(`courses/${courseId}/journey-map`);
       return data.content;
@@ -102,7 +102,7 @@ export const useGetCourseProgress = (courseId: number) => {
   return useQuery({
     queryKey: ['courseProgress', courseId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: CourseProgressResponse;
       }>(`courses/${courseId}/progress`);
       return data.content;
@@ -117,7 +117,7 @@ export const useGetCourseCompletionRecap = (courseId: number) => {
   return useQuery({
     queryKey: ['courseCompletionRecap', courseId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: CourseCompletionRecapResponse;
       }>(`courses/${courseId}/completion-recap`);
       return data.content;
@@ -135,7 +135,7 @@ export const useSubmitNextPlan = () => {
       courseId: number;
       nextPlan: string;
     }) => {
-      const { data } = await axiosInstance.post<{ content: unknown }>(
+      const { data } = await axiosInstanceV5.post<{ content: unknown }>(
         `courses/${courseId}/next-plan`,
         { nextPlan },
       );
@@ -150,7 +150,7 @@ export const useGetLessonDetail = (lessonId: number) => {
   return useQuery({
     queryKey: ['lessonDetail', lessonId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: LessonDetailResponse;
       }>(`lessons/${lessonId}`);
       return data.content;
@@ -165,7 +165,7 @@ export const useGetLessonRetrospective = (lessonId: number) => {
   return useQuery({
     queryKey: ['lessonRetrospective', lessonId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: LessonRetrospectiveResponse;
       }>(`lessons/${lessonId}/retrospective`);
       return data.content;
@@ -185,7 +185,7 @@ export const useSubmitLessonRetrospective = () => {
       request: LessonRetrospectiveCreateRequest;
     }) => {
       try {
-        const { data } = await axiosInstance.post<{
+        const { data } = await axiosInstanceV5.post<{
           content: { lessonRetrospectiveId: number };
         }>(`lessons/${lessonId}/retrospective`, request);
         return { ...data.content, mocked: false as const };
@@ -230,16 +230,16 @@ export const useSubmitLessonRetrospective = () => {
 
 // ─── Q&A ──────────────────────────────────────────────────────────────────────
 
-export const useGetLessonQnas = (lessonId: number) => {
+export const useGetCourseQnas = (courseId: number) => {
   return useQuery({
-    queryKey: ['lessonQnas', lessonId],
+    queryKey: ['courseQnas', courseId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: LessonQnaListResponse;
-      }>(`lessons/${lessonId}/qnas`);
+      }>(`courses/${courseId}/qnas`);
       return data.content;
     },
-    enabled: !!lessonId,
+    enabled: !!courseId,
   });
 };
 
@@ -247,21 +247,20 @@ export const useCreateLessonQna = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
-      lessonId,
+      courseId,
       request,
     }: {
-      lessonId: number;
+      courseId: number;
       request: LessonQnaCreateRequest;
     }) => {
-      const { data } = await axiosInstance.post<{ content: { qnaId: number } }>(
-        `lessons/${lessonId}/qnas`,
-        request,
-      );
+      const { data } = await axiosInstanceV5.post<{
+        content: { qnaId: number };
+      }>(`courses/${courseId}/qnas`, request);
       return data.content;
     },
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: ['lessonQnas', variables.lessonId],
+        queryKey: ['courseQnas', variables.courseId],
       });
     },
   });
@@ -271,7 +270,7 @@ export const useGetLessonQnaDetail = (qnaId: number | null) => {
   return useQuery({
     queryKey: ['lessonQnaDetail', qnaId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: LessonQnaDetailResponse;
       }>(`qnas/${qnaId}`);
       return data.content;
@@ -311,7 +310,7 @@ export const useGetBuilderFeeds = ({
       size,
     ],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: BuilderFeedListResponse;
       }>(`courses/${courseId}/builder-feeds`, {
         params: { sort, filter, lessonId, memberId, page, size },
@@ -332,7 +331,7 @@ export const useCreateBuilderFeed = () => {
       courseId: number;
       request: BuilderFeedCreateRequest;
     }) => {
-      const { data } = await axiosInstance.post<{
+      const { data } = await axiosInstanceV5.post<{
         content: { feedId: number };
       }>(`courses/${courseId}/builder-feeds`, request);
       return data.content;
@@ -349,7 +348,7 @@ export const useGetBuilderFeedDetail = (feedId: number) => {
   return useQuery({
     queryKey: ['builderFeedDetail', feedId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: BuilderFeedDetailResponse;
       }>(`builder-feeds/${feedId}`);
       return data.content;
@@ -362,7 +361,7 @@ export const useToggleFeedLike = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (feedId: number) => {
-      const { data } = await axiosInstance.post<{
+      const { data } = await axiosInstanceV5.post<{
         content: { isLiked: boolean; likeCount: number };
       }>(`builder-feeds/${feedId}/like`);
       return data.content;
@@ -379,7 +378,7 @@ export const useGetFeedComments = (feedId: number) => {
   return useQuery({
     queryKey: ['feedComments', feedId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: BuilderFeedCommentsResponse;
       }>(`builder-feeds/${feedId}/comments`);
       return data.content;
@@ -398,7 +397,7 @@ export const useCreateFeedComment = () => {
       feedId: number;
       request: BuilderFeedCommentCreateRequest;
     }) => {
-      const { data } = await axiosInstance.post<{
+      const { data } = await axiosInstanceV5.post<{
         content: { commentId: number };
       }>(`builder-feeds/${feedId}/comments`, request);
       return data.content;
@@ -420,7 +419,7 @@ export const useReportBuilderFeed = () => {
       feedId: number;
       request: BuilderFeedReportCreateRequest;
     }) => {
-      const { data } = await axiosInstance.post<{
+      const { data } = await axiosInstanceV5.post<{
         content: { reportId: number };
       }>(`builder-feeds/${feedId}/report`, request);
       return data.content;
@@ -434,7 +433,7 @@ export const useGetLessonBuilderFeedPreview = (lessonId: number) => {
   return useQuery({
     queryKey: ['lessonBuilderFeedPreview', lessonId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: BuilderFeedPreviewResponse;
       }>(`lessons/${lessonId}/builder-feeds/preview`);
       return data.content;
@@ -449,7 +448,7 @@ export const useGetMyBuilderFeedStats = () => {
   return useQuery({
     queryKey: ['myBuilderFeedStats'],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: BuilderFeedStatsResponse;
       }>('members/me/builder-feed-stats');
       return data.content;
@@ -461,7 +460,7 @@ export const useGetMyBuilderFeeds = () => {
   return useQuery({
     queryKey: ['myBuilderFeeds'],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: MyBuilderFeedsResponse;
       }>('members/me/builder-feeds');
       return data.content;
@@ -475,7 +474,7 @@ export const useGetLessonQnaSidebar = (lessonId: number) => {
   return useQuery({
     queryKey: ['lessonQnaSidebar', lessonId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<{
+      const { data } = await axiosInstanceV5.get<{
         content: LessonQnaSidebarResponse;
       }>(`lessons/${lessonId}/qnas/sidebar`);
       return data.content;

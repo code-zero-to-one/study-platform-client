@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/api/client/axios';
+import { axiosInstanceV5 } from '@/api/client/axios';
 import type {
   AdminBuilderFeedCurationRequest,
   AdminCompletionMessageRequest,
@@ -35,9 +35,9 @@ export const getAdminCourses = async ({
   page,
   size,
 }: AdminCourseListParams): Promise<ApiPageResponse<AdminCourseSummary>> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<ApiPageResponse<AdminCourseSummary>>
-  >('/admin/courses', {
+  >('admin/courses', {
     params: { status, page, size },
   });
 
@@ -47,9 +47,9 @@ export const getAdminCourses = async ({
 export const createAdminCourse = async (
   request: AdminCourseUpsertRequest,
 ): Promise<AdminCourseCreateResponse> => {
-  const response = await axiosInstance.post<
+  const response = await axiosInstanceV5.post<
     ApiBaseResponse<AdminCourseCreateResponse>
-  >('/admin/courses', request);
+  >('admin/courses', request);
 
   return unwrap(response);
 };
@@ -57,9 +57,9 @@ export const createAdminCourse = async (
 export const getAdminCourseDetail = async (
   courseId: number,
 ): Promise<AdminCourseDetailResponse> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<AdminCourseDetailResponse>
-  >(`/admin/courses/${courseId}`);
+  >(`admin/courses/${courseId}`);
 
   return unwrap(response);
 };
@@ -71,8 +71,8 @@ export const updateAdminCourse = async ({
   courseId: number;
   request: AdminCourseUpdateRequest;
 }): Promise<void> => {
-  await axiosInstance.put<ApiBaseResponse<void>>(
-    `/admin/courses/${courseId}`,
+  await axiosInstanceV5.put<ApiBaseResponse<void>>(
+    `admin/courses/${courseId}`,
     request,
   );
 };
@@ -80,9 +80,9 @@ export const updateAdminCourse = async ({
 export const deleteAdminCourse = async (
   courseId: number,
 ): Promise<AdminCourseDeleteResponse> => {
-  const response = await axiosInstance.delete<
+  const response = await axiosInstanceV5.delete<
     ApiBaseResponse<AdminCourseDeleteResponse>
-  >(`/admin/courses/${courseId}`);
+  >(`admin/courses/${courseId}`);
 
   return unwrap(response);
 };
@@ -90,9 +90,9 @@ export const deleteAdminCourse = async (
 export const getAdminCourseLessons = async (
   courseId: number,
 ): Promise<AdminLessonSummary[]> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<AdminLessonSummary[]>
-  >(`/admin/courses/${courseId}/lessons`);
+  >(`admin/courses/${courseId}/lessons`);
 
   return unwrap(response);
 };
@@ -100,9 +100,9 @@ export const getAdminCourseLessons = async (
 export const getAdminLessonDetail = async (
   lessonId: number,
 ): Promise<AdminLessonDetailResponse> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<AdminLessonDetailResponse>
-  >(`/admin/lessons/${lessonId}`);
+  >(`admin/lessons/${lessonId}`);
 
   return unwrap(response);
 };
@@ -114,9 +114,9 @@ export const createAdminLesson = async ({
   courseId: number;
   request: AdminLessonUpsertRequest;
 }): Promise<AdminLessonCreateResponse> => {
-  const response = await axiosInstance.post<
+  const response = await axiosInstanceV5.post<
     ApiBaseResponse<AdminLessonCreateResponse>
-  >(`/admin/courses/${courseId}/lessons`, request);
+  >(`admin/courses/${courseId}/lessons`, request);
 
   return unwrap(response);
 };
@@ -128,8 +128,8 @@ export const updateAdminLesson = async ({
   lessonId: number;
   request: AdminLessonUpdateRequest;
 }): Promise<void> => {
-  await axiosInstance.put<ApiBaseResponse<void>>(
-    `/admin/lessons/${lessonId}`,
+  await axiosInstanceV5.put<ApiBaseResponse<void>>(
+    `admin/lessons/${lessonId}`,
     request,
   );
 };
@@ -137,9 +137,9 @@ export const updateAdminLesson = async ({
 export const deleteAdminLesson = async (
   lessonId: number,
 ): Promise<AdminLessonDeleteResponse> => {
-  const response = await axiosInstance.delete<
+  const response = await axiosInstanceV5.delete<
     ApiBaseResponse<AdminLessonDeleteResponse>
-  >(`/admin/lessons/${lessonId}`);
+  >(`admin/lessons/${lessonId}`);
 
   return unwrap(response);
 };
@@ -151,8 +151,8 @@ export const bulkUpdateAdminLessons = async ({
   courseId: number;
   request: AdminLessonBulkUpdateRequest;
 }): Promise<void> => {
-  await axiosInstance.patch<ApiBaseResponse<void>>(
-    `/admin/courses/${courseId}/lessons/bulk`,
+  await axiosInstanceV5.patch<ApiBaseResponse<void>>(
+    `admin/courses/${courseId}/lessons/bulk`,
     request,
   );
 };
@@ -164,8 +164,8 @@ export const reorderAdminLessons = async ({
   courseId: number;
   request: AdminLessonOrderRequest;
 }): Promise<void> => {
-  await axiosInstance.patch<ApiBaseResponse<void>>(
-    `/admin/courses/${courseId}/lessons/order`,
+  await axiosInstanceV5.patch<ApiBaseResponse<void>>(
+    `admin/courses/${courseId}/lessons/order`,
     request,
   );
 };
@@ -173,9 +173,9 @@ export const reorderAdminLessons = async ({
 export const getAdminCompletionMessage = async (
   courseId: number,
 ): Promise<AdminCompletionMessageResponse> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<AdminCompletionMessageResponse>
-  >(`/admin/courses/${courseId}/completion-message`);
+  >(`admin/courses/${courseId}/completion-message`);
 
   return unwrap(response);
 };
@@ -187,9 +187,9 @@ export const upsertAdminCompletionMessage = async ({
   courseId: number;
   request: AdminCompletionMessageRequest;
 }): Promise<AdminCompletionMessageResponse> => {
-  const response = await axiosInstance.put<
+  const response = await axiosInstanceV5.put<
     ApiBaseResponse<AdminCompletionMessageResponse>
-  >(`/admin/courses/${courseId}/completion-message`, request);
+  >(`admin/courses/${courseId}/completion-message`, request);
 
   return unwrap(response);
 };
@@ -197,9 +197,9 @@ export const upsertAdminCompletionMessage = async ({
 export const getAdminLessonQnas = async (
   lessonId: number,
 ): Promise<AdminLessonQnaListResponse> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<AdminLessonQnaListResponse>
-  >(`/admin/lessons/${lessonId}/qnas`);
+  >(`admin/lessons/${lessonId}/qnas`);
 
   return unwrap(response);
 };
@@ -207,9 +207,9 @@ export const getAdminLessonQnas = async (
 export const getAdminLessonQnaDetail = async (
   qnaId: number,
 ): Promise<AdminLessonQnaDetailResponse> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<AdminLessonQnaDetailResponse>
-  >(`/admin/qnas/${qnaId}`);
+  >(`admin/qnas/${qnaId}`);
 
   return unwrap(response);
 };
@@ -221,9 +221,9 @@ export const createAdminLessonQnaAnswer = async ({
   qnaId: number;
   content: string;
 }): Promise<AdminLessonQnaAnswerCreateResponse> => {
-  const response = await axiosInstance.post<
+  const response = await axiosInstanceV5.post<
     ApiBaseResponse<AdminLessonQnaAnswerCreateResponse>
-  >(`/admin/qnas/${qnaId}/answers`, { content });
+  >(`admin/qnas/${qnaId}/answers`, { content });
 
   return unwrap(response);
 };
@@ -231,9 +231,9 @@ export const createAdminLessonQnaAnswer = async ({
 export const getAdminLessonRetrospectives = async (
   lessonId: number,
 ): Promise<AdminLessonRetrospectiveResponse> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<AdminLessonRetrospectiveResponse>
-  >(`/admin/lessons/${lessonId}/retrospectives`);
+  >(`admin/lessons/${lessonId}/retrospectives`);
 
   return unwrap(response);
 };
@@ -241,9 +241,9 @@ export const getAdminLessonRetrospectives = async (
 export const getAdminLessonBuilderFeeds = async (
   lessonId: number,
 ): Promise<AdminLessonBuilderFeedsResponse> => {
-  const response = await axiosInstance.get<
+  const response = await axiosInstanceV5.get<
     ApiBaseResponse<AdminLessonBuilderFeedsResponse>
-  >(`/admin/lessons/${lessonId}/builder-feeds`);
+  >(`admin/lessons/${lessonId}/builder-feeds`);
 
   return unwrap(response);
 };
@@ -255,8 +255,8 @@ export const updateAdminBuilderFeedCuration = async ({
   feedId: number;
   request: AdminBuilderFeedCurationRequest;
 }): Promise<void> => {
-  await axiosInstance.patch<ApiBaseResponse<void>>(
-    `/admin/builder-feeds/${feedId}/curation`,
+  await axiosInstanceV5.patch<ApiBaseResponse<void>>(
+    `admin/builder-feeds/${feedId}/curation`,
     request,
   );
 };
