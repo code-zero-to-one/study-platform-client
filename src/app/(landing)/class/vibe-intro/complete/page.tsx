@@ -144,7 +144,7 @@ export default function CourseCompletePage() {
           </div>
 
           {/* Message card */}
-          <div className="mt-500 w-[663px] rounded-br-750 rounded-tl-750 rounded-tr-750 border border-rose-300 p-400 text-center shadow-1">
+          <div className="mt-500 w-8288 rounded-br-750 rounded-tl-750 rounded-tr-750 border border-rose-300 p-400 text-center shadow-1">
             <p className="font-designer-16b text-gray-800">
               <span className="text-text-brand">{recap?.studyDays ?? 5}</span>일
               동안 고생 많으셨어요! :)
@@ -224,7 +224,7 @@ export default function CourseCompletePage() {
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-600 right-600 z-50 flex size-875 flex-col items-center justify-center rounded-full border border-gray-300 bg-white shadow-1"
+        className="fixed bottom-600 right-600 z-50 flex size-875 flex-col items-center justify-center rounded-full border border-gray-300 bg-background-default shadow-1"
         aria-label="맨 위로"
       >
         <ChevronUp className="h-300 w-300 text-gray-500" />

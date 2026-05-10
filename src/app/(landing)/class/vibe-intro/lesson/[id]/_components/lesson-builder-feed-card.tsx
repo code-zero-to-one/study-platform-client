@@ -31,17 +31,16 @@ export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
         <button
           type="button"
           onClick={() => current && onSelectFeed?.(current.feedId)}
-          className="h-2325 w-full overflow-hidden rounded-150 bg-gray-600"
+          className="relative h-2325 w-full overflow-hidden rounded-150 bg-gray-600"
           disabled={!onSelectFeed}
         >
           {current?.thumbnailUrl && (
             <Image
               src={current.thumbnailUrl}
               alt=""
-              width={314}
-              height={186}
+              fill
               unoptimized
-              className="h-full w-full object-cover"
+              className="object-cover"
             />
           )}
         </button>

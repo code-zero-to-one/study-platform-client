@@ -45,7 +45,7 @@ export function Footer() {
           ].map((icon) => (
             <div
               key={icon.alt}
-              className="flex size-875 items-center justify-center rounded-full bg-white"
+              className="flex size-875 items-center justify-center rounded-full bg-background-default"
             >
               <Image src={icon.src} alt={icon.alt} width={32} height={32} />
             </div>

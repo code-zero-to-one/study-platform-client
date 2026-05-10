@@ -74,6 +74,16 @@ export function BenefitScrollCharacter() {
     });
   }, [activeIndex]);
 
+  useEffect(() => {
+    return () => {
+      cardsRef.current.forEach((card) => {
+        card.style.transition = '';
+        card.style.opacity = '';
+        card.style.transform = '';
+      });
+    };
+  }, []);
+
   return (
     <div
       ref={containerRef}
