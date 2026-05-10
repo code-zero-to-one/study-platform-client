@@ -419,13 +419,23 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-5600: 448px;
   --spacing-8288: 663px;
   --spacing-10700: 856px;
+  --spacing-3000: 15rem;
+  --spacing-7000: 35rem;
+  --spacing-2000: 10rem;
+  --spacing-4000: 20rem;
+  --spacing-6000: 30rem;
+  --spacing-10000: 50rem;
+
+  /* fluid layout */
+  --min-h-hero-section: clamp(260px, 30.2vw, 580px);
 
   /* shadow */
   --shadow-*: initial;
   --shadow-1: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);
   --shadow-2: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
   --shadow-3:
-    0px 0px 8px 0px rgba(0, 0, 0, 0.08), 0px 8px 16px 0px rgba(0, 0, 0, 0.08),
+    0px 0px 8px 0px rgba(0, 0, 0, 0.08),
+    0px 8px 16px 0px rgba(0, 0, 0, 0.08),
     0px 16px 20px 0px rgba(0, 0, 0, 0.12);
   --shadow-4:
     0px 4px 32px rgba(0, 0, 0, 0.24), 0px 10px 10px rgba(0, 0, 0, 0.24);
@@ -455,6 +465,10 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 
 @utility h-650 {
   height: 52px;
+}
+
+@utility text-58 {
+  font-size: 58px;
 }
 
 @utility w-140 {

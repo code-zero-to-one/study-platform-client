@@ -28,7 +28,7 @@ yarn typecheck      # No type errors
 ### Code Conventions (auto-applied)
 
 - Always use `cn()` for `className` composition. No template literal classNames.
-- No Tailwind arbitrary values (`p-[4px]`, `w-[320px]`). Use project custom tokens.
+- No arbitrary px values for **spacing/sizing** utilities (`p-[4px]`, `w-[320px]`, `h-[100px]`, `gap-[10px]`). Use project custom tokens. Other arbitrary values (`grid-cols-[...]`, `bg-[url('/img.png')]`, etc.) are allowed.
 - No hardcoded colors/spacing. Use only `@theme inline` tokens from `global.css`.
 
 @.claude/rules/no-img-no-eslint-disable.md
