@@ -84,14 +84,6 @@ const TEAM_MESSAGES = [
   },
 ];
 
-const FAQ_ITEMS = [
-  '코딩 한 번도 안 해봤는데 따라갈 수 있나요?',
-  '어떤 준비물이 필요한가요?',
-  '하루에 얼마나 시간을 써야 하나요?',
-  'Claude Pro를 이미 구독 중이에요!',
-  '환불이 가능한가요?',
-];
-
 const CHAPTERS = [
   {
     num: '01',
@@ -123,12 +115,14 @@ export default function ClassDetailPage({
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set([0]),
   );
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const showToast = useToastStore((state) => state.showToast);
   const { isAuthenticated } = useAuth();
 
   // 커리큘럼은 DB에서 가져오되, 코스가 없으면 하드코딩된 CHAPTERS로 fallback.
   const { data: curriculum } = useGetCourseCurriculum(slug);
   const { data: courseDetail } = useGetCourseDetail(slug);
+
   const { data: allCourses } = useGetCourseList();
   const courseSummary = allCourses?.find((c) => c.slug === slug);
   const chaptersForRoadmap = useMemo(() => {
@@ -659,26 +653,91 @@ export default function ClassDetailPage({
               </div>
             </section>
 
+            {/* SECTION: 강사진 */}
+            {courseDetail?.instructors &&
+              courseDetail.instructors.length > 0 && (
+                <section>
+                  <h2 className="font-designer-24b text-gray-800">
+                    강사진 소개
+                  </h2>
+                  <div className="mt-400 space-y-300">
+                    {courseDetail.instructors.map((instructor) => (
+                      <div
+                        key={instructor.name}
+                        className="flex items-start gap-300 rounded-200 border border-border-default bg-gray-100 p-350"
+                      >
+                        {instructor.profileImageUrl && (
+                          <Image
+                            src={instructor.profileImageUrl}
+                            alt={instructor.name}
+                            width={64}
+                            height={64}
+                            className="shrink-0 rounded-full object-cover"
+                          />
+                        )}
+                        <div>
+                          <p className="font-designer-20b text-gray-800">
+                            {instructor.name}
+                          </p>
+                          {instructor.role && (
+                            <p className="mt-75 font-designer-16m text-text-brand">
+                              {instructor.role}
+                            </p>
+                          )}
+                          {instructor.bio && (
+                            <p className="mt-150 font-designer-16r text-gray-800">
+                              {instructor.bio}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
             {/* SECTION: FAQ */}
             <section id="faq">
               <h2 className="font-designer-24b text-gray-800">
                 궁금한 점 있으세요?
               </h2>
               <div className="mt-400 space-y-125">
-                {FAQ_ITEMS.map((question) => (
+                {(courseDetail?.faqs ?? []).map((faq, idx) => (
                   <div
-                    key={question}
-                    className="flex h-800 items-center justify-between rounded-200 border border-border-default bg-gray-100 px-350"
+                    key={faq.question}
+                    className="overflow-hidden rounded-200 border border-border-default bg-gray-100"
                   >
-                    <div className="flex items-center">
-                      <span className="mr-250 font-designer-16m text-text-brand">
-                        Q
-                      </span>
-                      <span className="font-designer-16m text-gray-800">
-                        {question}
-                      </span>
-                    </div>
-                    <ChevronDown className="h-300 w-300 shrink-0 text-gray-800" />
+                    <button
+                      type="button"
+                      className="flex h-800 w-full items-center justify-between px-350"
+                      onClick={() =>
+                        setExpandedFaq(expandedFaq === idx ? null : idx)
+                      }
+                    >
+                      <div className="flex items-center">
+                        <span className="mr-250 font-designer-16m text-text-brand">
+                          Q
+                        </span>
+                        <span className="font-designer-16m text-gray-800">
+                          {faq.question}
+                        </span>
+                      </div>
+                      {expandedFaq === idx ? (
+                        <ChevronUp className="h-300 w-300 shrink-0 text-gray-800" />
+                      ) : (
+                        <ChevronDown className="h-300 w-300 shrink-0 text-gray-800" />
+                      )}
+                    </button>
+                    {expandedFaq === idx && (
+                      <div className="flex items-start gap-250 border-t border-border-default px-350 py-300">
+                        <span className="font-designer-16m text-gray-500">
+                          A
+                        </span>
+                        <span className="font-designer-16r text-gray-800">
+                          {faq.answer}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -686,7 +745,7 @@ export default function ClassDetailPage({
           </div>
 
           {/* RIGHT: sticky sidebar */}
-          <div className="sticky top-[57px]">
+          <div className="sticky top-550">
             <div className="overflow-hidden rounded-150 border border-border-subtle">
               <div className="p-300">
                 <h3 className="font-designer-28b text-gray-800">

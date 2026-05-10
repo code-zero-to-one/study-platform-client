@@ -46,3 +46,22 @@ axiosInstanceForMultipart.interceptors.response.use(
     axiosInstanceForMultipart(requestConfig),
   ),
 );
+
+// v5 Class API 전용 인스턴스
+export const axiosInstanceV5 = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v5/`,
+  timeout: 60000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
+
+attachApiLogger(axiosInstanceV5, 'client-v5-json');
+axiosInstanceV5.interceptors.request.use(attachAccessTokenToRequest);
+axiosInstanceV5.interceptors.response.use(
+  (config) => config,
+  createClientAuthResponseRejectedHandler((requestConfig) =>
+    axiosInstanceV5(requestConfig),
+  ),
+);

@@ -14,9 +14,10 @@ import type { BuilderFeedPreviewItemResponse } from '@/types/api/course.types';
 
 interface Props {
   feeds: BuilderFeedPreviewItemResponse[];
+  onSelectFeed?: (feedId: number) => void;
 }
 
-export function LessonBuilderFeedCard({ feeds }: Props) {
+export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
   const [page, setPage] = useState(0);
   const total = feeds.length;
   const hasFeed = total > 0;
@@ -27,7 +28,12 @@ export function LessonBuilderFeedCard({ feeds }: Props) {
       <p className="font-designer-16b text-gray-1000">지금 HOT한 빌더 피드</p>
 
       <div className="relative">
-        <div className="relative h-2325 overflow-hidden rounded-150 bg-gray-600">
+        <button
+          type="button"
+          onClick={() => current && onSelectFeed?.(current.feedId)}
+          className="relative h-2325 w-full overflow-hidden rounded-150 bg-gray-600"
+          disabled={!onSelectFeed}
+        >
           {current?.thumbnailUrl && (
             <Image
               src={current.thumbnailUrl}
@@ -37,7 +43,7 @@ export function LessonBuilderFeedCard({ feeds }: Props) {
               className="object-cover"
             />
           )}
-        </div>
+        </button>
 
         {hasFeed && total > 1 && (
           <>
