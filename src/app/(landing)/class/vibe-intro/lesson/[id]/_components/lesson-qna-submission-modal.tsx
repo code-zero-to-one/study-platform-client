@@ -31,11 +31,24 @@ export function LessonQnaSubmissionModal({
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<AttachedImage[]>([]);
-  const [noticeVisible, setNoticeVisible] = useState(true);
+  const [autoVisible, setAutoVisible] = useState(false);
+  const [hoverVisible, setHoverVisible] = useState(false);
+  const noticeVisible = autoVisible || hoverVisible;
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const showToast = useToastStore((s) => s.showToast);
   const createQna = useCreateLessonQna();
+
+  useEffect(() => {
+    if (!open) {
+      setAutoVisible(false);
+      setHoverVisible(false);
+      return;
+    }
+    setAutoVisible(true);
+    const timer = setTimeout(() => setAutoVisible(false), 2000);
+    return () => clearTimeout(timer);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -125,7 +138,7 @@ export function LessonQnaSubmissionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-gray-1000/40" onClick={onClose} />
-      <div className="relative z-10 mx-400 flex max-h-[90vh] w-full max-w-[800px] flex-col overflow-hidden rounded-200 bg-background-default shadow-3">
+      <div className="relative z-10 mx-400 flex max-h-modal w-full max-w-10000 flex-col overflow-hidden rounded-200 bg-background-default shadow-3">
         {/* Header */}
         <div className="relative flex shrink-0 items-center px-750 py-500">
           <div className="flex items-center gap-150">
@@ -135,7 +148,8 @@ export function LessonQnaSubmissionModal({
             <button
               type="button"
               aria-label="유의사항 보기"
-              onClick={() => setNoticeVisible((v) => !v)}
+              onMouseEnter={() => setHoverVisible(true)}
+              onMouseLeave={() => setHoverVisible(false)}
               className="text-gray-400 hover:text-gray-600"
             >
               <Info className="h-250 w-250" />
@@ -152,27 +166,29 @@ export function LessonQnaSubmissionModal({
         </div>
 
         {/* Body */}
-        <div className="flex flex-1 flex-col gap-300 overflow-y-auto px-750 pb-500">
-          {/* Notice box */}
+        <div className="relative flex flex-1 flex-col gap-300 overflow-y-auto px-750 pb-500">
           {noticeVisible && (
-            <div className="relative rounded-150 border border-border-subtle px-300 py-250 pr-500">
+            <div className="absolute left-2500 right-750 top-0 z-20 rounded-200 border border-border-subtle bg-background-default px-300 py-250 pr-500">
               <button
                 type="button"
                 aria-label="유의사항 닫기"
-                onClick={() => setNoticeVisible(false)}
+                onClick={() => {
+                  setAutoVisible(false);
+                  setHoverVisible(false);
+                }}
                 className="absolute right-200 top-200 text-gray-400 hover:text-gray-600"
               >
                 <X className="h-200 w-200" />
               </button>
-              <p className="mb-150 font-designer-14b text-gray-800">
-                질문시 유의사항
+              <p className="mb-150 font-designer-14b text-gray-500">
+                질문 시 유의사항
               </p>
-              <ul className="list-disc space-y-75 pl-300 font-designer-14r text-gray-600">
+              <ul className="list-disc space-y-75 pl-300 font-designer-13r text-gray-400">
                 <li>
                   질문 후 답변이 달리기 전까지는 수정 및 삭제가 자유롭습니다.
                 </li>
                 <li>
-                  답변이 달린 후에는 수정 및 삭제가 어려우니 유의해주시기
+                  답변을 받은 후에는 수정 및 삭제가 어려우니 유의해주시기
                   바랍니다.
                 </li>
               </ul>

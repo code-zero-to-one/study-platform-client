@@ -68,7 +68,7 @@ export default function FeedWritePage() {
       {/* Cancel confirmation modal */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="flex w-[400px] flex-col items-center gap-300 rounded-200 bg-background-default p-500">
+          <div className="flex w-5000 flex-col items-center gap-300 rounded-200 bg-background-default p-500">
             <div className="text-center">
               <p className="font-designer-20b text-gray-800">
                 피드 등록을 취소하시겠습니까?
@@ -189,7 +189,7 @@ export default function FeedWritePage() {
               <div className="flex gap-150">
                 <button
                   type="button"
-                  className="flex h-[130px] w-[130px] flex-col items-center justify-center gap-75 rounded-150 border border-border-default bg-background-default"
+                  className="flex h-1625 w-1625 flex-col items-center justify-center gap-75 rounded-150 border border-border-default bg-background-default"
                 >
                   <Plus className="h-300 w-300 text-gray-400" />
                   <span className="font-designer-14m text-gray-400">
@@ -200,7 +200,7 @@ export default function FeedWritePage() {
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="relative h-[130px] w-[130px] rounded-150 bg-gray-200"
+                    className="relative h-1625 w-1625 rounded-150 bg-gray-200"
                   />
                 ))}
               </div>

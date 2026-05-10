@@ -1,6 +1,7 @@
 'use client';
 
 import { Eye, X } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useGetLessonQnaDetail } from '@/hooks/queries/course/course-api';
 
@@ -12,7 +13,7 @@ interface Props {
 function GradeBadge({ role }: { role: string }) {
   const letter = role.charAt(0).toUpperCase();
   return (
-    <div className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-full bg-rose-100 font-designer-14b text-rose-500">
+    <div className="flex h-350 w-350 shrink-0 items-center justify-center rounded-full bg-rose-100 font-designer-14b text-rose-500">
       {letter}
     </div>
   );
@@ -37,7 +38,7 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-gray-1000/40" onClick={onClose} />
-      <div className="relative z-10 flex w-full max-w-[800px] flex-col rounded-200 bg-background-default shadow-3 mx-400 max-h-[90vh]">
+      <div className="relative z-10 flex w-full max-w-10000 flex-col rounded-200 bg-background-default shadow-3 mx-400 max-h-modal">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-subtle px-400 py-300">
           <p className="font-designer-16b text-gray-800">질문 상세</p>
@@ -53,11 +54,11 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
         {/* Body */}
         <div className="overflow-y-auto px-400 py-350">
           {isLoading ? (
-            <div className="flex h-[200px] items-center justify-center">
+            <div className="flex h-2500 items-center justify-center">
               <p className="font-designer-16r text-gray-400">불러오는 중...</p>
             </div>
           ) : !qna ? (
-            <div className="flex h-[200px] items-center justify-center">
+            <div className="flex h-2500 items-center justify-center">
               <p className="font-designer-16r text-gray-400">
                 질문을 불러올 수 없어요.
               </p>
@@ -68,7 +69,7 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
               <div>
                 {/* Author row */}
                 <div className="mb-250 flex items-center gap-150">
-                  <div className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-full bg-gray-200">
+                  <div className="flex h-400 w-400 shrink-0 items-center justify-center rounded-full bg-gray-200">
                     <p className="font-designer-14b text-gray-600">
                       {qna.author.nickname.charAt(0)}
                     </p>
@@ -106,11 +107,13 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
                 {qna.imageUrls.length > 0 && (
                   <div className="mt-250 flex flex-wrap gap-200">
                     {qna.imageUrls.map((url, i) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         key={i}
                         src={url}
                         alt={`첨부 이미지 ${i + 1}`}
+                        width={800}
+                        height={300}
+                        unoptimized
                         className="max-h-[300px] rounded-100 object-cover"
                       />
                     ))}
@@ -132,7 +135,7 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
                       >
                         {/* Answerer row */}
                         <div className="mb-200 flex items-center gap-150">
-                          <div className="flex h-[32px] w-[32px] shrink-0 items-center justify-center rounded-full bg-gray-200">
+                          <div className="flex h-400 w-400 shrink-0 items-center justify-center rounded-full bg-gray-200">
                             <p className="font-designer-14b text-gray-600">
                               {answer.author.nickname.charAt(0)}
                             </p>
@@ -161,12 +164,14 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
                         {answer.imageUrls.length > 0 && (
                           <div className="mt-200 flex flex-wrap gap-200">
                             {answer.imageUrls.map((url, i) => (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
+                              <Image
                                 key={i}
                                 src={url}
                                 alt={`답변 이미지 ${i + 1}`}
-                                className="max-h-[200px] rounded-100 object-cover"
+                                width={800}
+                                height={200}
+                                unoptimized
+                                className="max-h-2500 rounded-100 object-cover"
                               />
                             ))}
                           </div>

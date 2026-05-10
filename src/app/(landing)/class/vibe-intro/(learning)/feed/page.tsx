@@ -58,7 +58,7 @@ function FeedCard({ feed }: { feed: FeedCardData }) {
       </div>
 
       {/* Image placeholder */}
-      <div className="mx-250 mt-150 h-[240px] rounded-150 bg-gray-300" />
+      <div className="mx-250 mt-150 h-3000 rounded-150 bg-gray-300" />
 
       {/* Caption */}
       <p className="mt-150 line-clamp-2 px-250 font-designer-14r text-gray-800">
@@ -202,7 +202,7 @@ export default function BuilderFeedPage() {
                 <ChevronDown className="h-250 w-250" />
               </button>
               {lessonOpen && (
-                <div className="absolute right-0 top-full z-10 mt-75 flex max-h-[320px] min-w-[160px] flex-col overflow-y-auto rounded-150 border border-border-default bg-background-default p-125 shadow-1">
+                <div className="absolute right-0 top-full z-10 mt-75 flex max-h-4000 min-w-2000 flex-col overflow-y-auto rounded-150 border border-border-default bg-background-default p-125 shadow-1">
                   <button
                     type="button"
                     onClick={() => {
@@ -293,7 +293,7 @@ export default function BuilderFeedPage() {
         <div className="mt-500 flex justify-center">
           <button
             type="button"
-            className="flex h-[60px] w-[570px] items-center justify-center rounded-100 border border-border-default font-designer-16r text-gray-800"
+            className="flex h-750 w-[570px] items-center justify-center rounded-100 border border-border-default font-designer-16r text-gray-800"
           >
             피드 더보기
           </button>

@@ -173,19 +173,14 @@ function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
           }}
         />
         <p
-          className="absolute whitespace-nowrap font-bold leading-normal tracking-tight text-rose-500 font-display-headings6"
+          className="absolute left-[154px] top-[146px] whitespace-nowrap font-bold leading-normal tracking-tight text-rose-500 font-display-headings6"
           style={{
-            left: 154,
-            top: 146,
             transform: 'translateX(-50%)',
           }}
         >
           Vibe Coding
         </p>
-        <p
-          className="absolute whitespace-nowrap font-bold tracking-tight text-rose-500 font-display-headings6"
-          style={{ left: 42, top: 197 }}
-        >
+        <p className="absolute left-[42px] top-[197px] whitespace-nowrap font-bold tracking-tight text-rose-500 font-display-headings6">
           for Work
         </p>
       </div>
@@ -239,7 +234,7 @@ function NotifyModal({
       style={{ background: 'rgba(0,0,0,0.4)' }}
     >
       <div
-        className="relative w-[560px] overflow-hidden rounded-200 bg-background-default"
+        className="relative w-7000 overflow-hidden rounded-200 bg-background-default"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -446,24 +441,19 @@ export default function ClassPage() {
             aria-hidden="true"
             width={32}
             height={32}
-            className="absolute"
+            className="absolute top-125 h-1625"
             style={{
               left: '34.3%',
-              top: '10px',
               width: '31.4%',
-              height: '130px',
               transform: 'rotate(-9.38deg)',
             }}
           />
 
           {/* Code card */}
           <div
-            className="absolute flex flex-col items-center justify-center gap-75 rounded-250 border border-rose-300"
+            className="absolute top-625 flex h-[180px] w-[180px] flex-col items-center justify-center gap-75 rounded-250 border border-rose-300"
             style={{
               left: '39.1%',
-              top: '51px',
-              width: 180,
-              height: 180,
               background:
                 'radial-gradient(circle at center, var(--color-rose-100) 52%, var(--color-rose-200) 76%, var(--color-rose-300) 100%)',
               opacity: 0.85,
@@ -478,7 +468,6 @@ export default function ClassPage() {
                 aria-hidden="true"
                 width={32}
                 height={50}
-                style={{ height: 50, width: 32 }}
               />
 
               <Image
@@ -487,7 +476,6 @@ export default function ClassPage() {
                 aria-hidden="true"
                 width={23}
                 height={56}
-                style={{ height: 56, width: 23 }}
               />
 
               <Image
@@ -497,8 +485,6 @@ export default function ClassPage() {
                 width={32}
                 height={50}
                 style={{
-                  height: 50,
-                  width: 32,
                   transform: 'scaleY(-1) rotate(180deg)',
                 }}
               />
@@ -507,12 +493,9 @@ export default function ClassPage() {
 
           {/* Community card */}
           <div
-            className="absolute rounded-250 border border-rose-300"
+            className="absolute top-1250 h-2325 w-2325 rounded-250 border border-rose-300"
             style={{
               left: '50.3%',
-              top: '100px',
-              width: 185,
-              height: 185,
               background:
                 'radial-gradient(circle at center, var(--color-rose-100) 52%, var(--color-rose-200) 76%, var(--color-rose-300) 100%)',
               opacity: 0.85,
@@ -701,7 +684,7 @@ export default function ClassPage() {
         {/* Hero heading */}
         <div
           className="relative z-10 flex flex-col items-center justify-end pb-500"
-          style={{ minHeight: 'clamp(260px, 30.2vw, 580px)' }}
+          style={{ minHeight: 'var(--min-h-hero-section)' }}
         >
           <h1 className="font-designer-62b text-center text-gray-1000">
             따라만 하면 완성되는

@@ -61,7 +61,7 @@ export default function VibeIntroLearningLayout({
               key={tab.href}
               href={tab.href}
               className={cn(
-                'flex h-[70px] w-[480px] flex-col items-center justify-center gap-[10px]',
+                'flex h-875 w-6000 flex-col items-center justify-center gap-125',
                 isActive
                   ? 'font-designer-24b text-text-brand'
                   : 'font-designer-24r text-gray-400',
@@ -70,7 +70,7 @@ export default function VibeIntroLearningLayout({
               {tab.label}
               <div
                 className={cn(
-                  'h-[2px] w-full',
+                  'h-25 w-full',
                   isActive ? 'bg-background-brand-default' : '',
                 )}
               />

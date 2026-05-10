@@ -184,7 +184,7 @@ export default function FeedDetailPage({
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="댓글을 남겨주세요"
-                className="h-[80px] w-full resize-none rounded-150 border border-border-default p-200 font-designer-14r text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand"
+                className="h-1000 w-full resize-none rounded-150 border border-border-default p-200 font-designer-14r text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand"
               />
               <div className="flex justify-end">
                 <p className="font-designer-12r text-gray-400">

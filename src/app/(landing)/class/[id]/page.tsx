@@ -535,34 +535,24 @@ export default function ClassDetailPage({
                   {/* Q/A 데코 — relative 컨테이너 안에서 배치 */}
                   <div className="relative mt-300 h-[150px]">
                     <div
-                      className="absolute flex size-[85px] items-center justify-center"
+                      className="absolute left-0 top-100 flex size-[85px] items-center justify-center"
                       style={{
                         transform: 'rotate(-20.32deg)',
-                        top: '8px',
-                        left: '0',
                       }}
                     >
                       <div className="size-[66px] rounded-100 border border-purple-600 bg-purple-200/20" />
-                      <span
-                        className="absolute font-designer-36b leading-none text-grape-600"
-                        style={{ fontSize: '58px' }}
-                      >
+                      <span className="absolute text-58 font-designer-36b leading-none text-grape-600">
                         Q
                       </span>
                     </div>
                     <div
-                      className="absolute flex size-[89px] items-center justify-center"
+                      className="absolute left-750 top-500 flex size-[89px] items-center justify-center"
                       style={{
                         transform: 'rotate(27.01deg)',
-                        top: '40px',
-                        left: '60px',
                       }}
                     >
                       <div className="size-[66px] rounded-100 border border-yellow-500 bg-yellow-200/20" />
-                      <span
-                        className="absolute font-designer-36b leading-none text-yellow-300"
-                        style={{ fontSize: '58px' }}
-                      >
+                      <span className="absolute text-58 font-designer-36b leading-none text-yellow-300">
                         A
                       </span>
                     </div>
@@ -578,10 +568,7 @@ export default function ClassDetailPage({
                     }
                   </p>
                   {/* 말풍선1 — #FF698C, Figma SVG path, 꼬리 좌하단 */}
-                  <div
-                    className="absolute"
-                    style={{ left: '30px', top: '178px' }}
-                  >
+                  <div className="absolute left-375 top-[178px]">
                     <svg
                       width="108.575"
                       height="64.48"
@@ -598,26 +585,14 @@ export default function ClassDetailPage({
                         fill="#FF698C"
                       />
                     </svg>
-                    <div
-                      className="absolute flex flex-col gap-[5px]"
-                      style={{
-                        top: '14px',
-                        left: '11px',
-                      }}
-                    >
-                      <div className="h-[3px] w-[64px] rounded-full bg-gray-0" />
-                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
-                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
+                    <div className="absolute top-175 left-150 flex flex-col gap-[5px]">
+                      <div className="h-30 w-800 rounded-full bg-gray-0" />
+                      <div className="h-30 w-[42px] rounded-full bg-gray-0" />
+                      <div className="h-30 w-[42px] rounded-full bg-gray-0" />
                     </div>
                   </div>
                   {/* 말풍선2 — #FFB5C6, scaleX(-1) 미러로 꼬리 우하단 */}
-                  <div
-                    className="absolute"
-                    style={{
-                      left: '66.43px',
-                      top: '230.98px',
-                    }}
-                  >
+                  <div className="absolute top-[232px] left-800">
                     <svg
                       width="86.948"
                       height="54.02"
@@ -635,17 +610,10 @@ export default function ClassDetailPage({
                         fill="#FFB5C6"
                       />
                     </svg>
-                    <div
-                      className="absolute flex flex-col items-end gap-[5px]"
-                      style={{
-                        top: '10px',
-                        left: '11.57px',
-                        width: '64px',
-                      }}
-                    >
-                      <div className="h-[3px] w-full rounded-full bg-gray-0" />
-                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
-                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
+                    <div className="absolute top-125 left-150 flex w-800 flex-col items-end gap-[5px]">
+                      <div className="h-30 w-full rounded-full bg-gray-0" />
+                      <div className="h-30 w-[42px] rounded-full bg-gray-0" />
+                      <div className="h-30 w-[42px] rounded-full bg-gray-0" />
                     </div>
                   </div>
                 </div>
