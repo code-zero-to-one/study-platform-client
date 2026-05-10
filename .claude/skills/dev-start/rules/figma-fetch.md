@@ -21,6 +21,8 @@ Follow `.claude/rules/figma-design.md` exhaustively. After receiving results:
 
 ## Step 1b. Figma Asset URL Lifecycle
 
+> "The best way to ensure your images are always available is to download them to your codebase and reference those local files instead." — Figma official
+
 **CRITICAL:** Figma MCP asset URLs (`https://www.figma.com/api/mcp/asset/<uuid>`) are **session-scoped**. Each call to `get_design_context` returns a unique set of signed URLs — the same logical asset gets a different UUID every session. URLs from a previous session or plan document **will not load** in a new session.
 
 **Rule:** Immediately after Step 1 (or any `get_design_context` call), download all image assets to `/public/{route-slug}/`:

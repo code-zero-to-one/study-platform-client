@@ -152,6 +152,8 @@ If the design contains Tooltip / Dropdown / Modal / Popover:
 
 Figma MCP asset URLs (`https://www.figma.com/api/mcp/asset/<uuid>`) are **session-scoped**. The same asset returns a different UUID on every `get_design_context` call. Plan files from previous sessions contain expired URLs.
 
+> "The best way to ensure your images are always available is to download them to your codebase and reference those local files instead." — Figma official
+
 **Never reuse an asset URL from a plan file.** Re-call `get_design_context` in the current session and download fresh:
 
 ```bash
