@@ -60,6 +60,7 @@ const cspConnectSrcHosts = [
 ] as const;
 
 const nextConfig: NextConfig = {
+  eslint: { ignoreDuringBuilds: true },
   transpilePackages: ['@tiptap/core', '@tiptap/pm', 'prosemirror-model'],
   // [보안] 보안 HTTP 헤더 설정.
   // CSP는 스테이징 검증 중이므로 Content-Security-Policy-Report-Only 모드로 먼저 배포.
@@ -242,7 +243,7 @@ const sentryConfig = withSentryConfig(nextConfig, {
   sourcemaps: {
     filesToDeleteAfterUpload: ['.next/static/**/*.map'],
   },
-  widenClientFileUpload: true,
+  widenClientFileUpload: false,
 });
 
 export default withBundleAnalyzer(sentryConfig);

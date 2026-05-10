@@ -1,6 +1,6 @@
 'use client';
 
-import { X } from 'lucide-react';
+import { ChevronUp, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -28,7 +28,7 @@ function LessonBadge({ lesson }: { lesson: CourseDrawerLessonResponse }) {
     return (
       <div
         className={cn(
-          'flex h-[20px] w-[40px] shrink-0 items-center justify-center rounded-50',
+          'flex h-250 w-500 shrink-0 items-center justify-center rounded-50',
           accessible
             ? 'bg-rose-300'
             : 'border border-gray-300 bg-background-default',
@@ -49,7 +49,7 @@ function LessonBadge({ lesson }: { lesson: CourseDrawerLessonResponse }) {
   return (
     <div
       className={cn(
-        'flex h-[20px] w-[40px] shrink-0 items-center justify-center rounded-50',
+        'flex h-250 w-500 shrink-0 items-center justify-center rounded-50',
         accessible
           ? 'border border-gray-300 bg-gray-300'
           : 'border border-gray-300 bg-background-default',
@@ -80,9 +80,9 @@ function ChapterHeader({
     <button
       type="button"
       onClick={onToggle}
-      className="flex w-full items-center justify-between border-b border-gray-200 bg-gray-100 px-[30px] py-[20px]"
+      className="flex w-full items-center justify-between border-b border-gray-200 bg-gray-100 px-375 py-250"
     >
-      <div className="flex items-center gap-[11px]">
+      <div className="flex items-center gap-150">
         <Image
           src={`${ASSET}/${allCompleted ? 'edit-note.svg' : 'chapter-lock.svg'}`}
           alt=""
@@ -91,20 +91,19 @@ function ChapterHeader({
           height={42}
           className="shrink-0"
         />
-        <div className="flex flex-col items-start gap-[2px]">
+        <div className="flex flex-col items-start gap-25">
           <p className="font-designer-14b text-text-brand">
             Chapter {String(chapter.order).padStart(2, '0')}
           </p>
           <p className="font-designer-18b text-gray-800">{chapter.title}</p>
         </div>
       </div>
-      <Image
-        src={`${ASSET}/chevron-up.svg`}
-        alt=""
+      <ChevronUp
         aria-hidden="true"
-        width={24}
-        height={24}
-        className={cn('transition-transform', !expanded && 'rotate-180')}
+        className={cn(
+          'h-300 w-300 shrink-0 text-gray-800 transition-transform',
+          !expanded && 'rotate-180',
+        )}
       />
     </button>
   );
@@ -118,22 +117,18 @@ function ChapterLessons({
   currentLessonId: number;
 }) {
   return (
-    <div className="relative bg-background-default pb-[20px] pt-[30px]">
-      <div
-        className="absolute bottom-[20px] top-[10px] w-px bg-gray-300"
-        style={{ left: 50 }}
-      />
+    <div className="relative bg-background-default pb-250 pt-375">
+      <div className="absolute bottom-250 left-625 top-125 w-px bg-gray-300" />
       <ul className="flex flex-col">
         {lessons.map((lesson) => {
           const isCurrent = lesson.lessonId === currentLessonId;
           const lessonNumber = `Lesson ${String(lesson.order).padStart(2, '0')}`;
           const titleText = lesson.title.replace(/^Lesson\s*0?\d+\.?\s*/i, '');
           return (
-            <li key={lesson.lessonId} className="h-[51px]">
+            <li key={lesson.lessonId}>
               <Link
                 href={`/class/vibe-intro/lesson/${lesson.lessonId}`}
-                className="relative flex h-full items-center gap-[10px]"
-                style={{ paddingLeft: 44 }}
+                className="relative flex items-center gap-125 py-175 pl-550"
               >
                 <Image
                   src={`${ASSET}/${isCurrent ? 'marker-active.svg' : 'marker-default.svg'}`}
@@ -177,22 +172,22 @@ export function CurriculumDrawer({
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      <div className="flex h-full w-[400px] flex-col bg-background-default shadow-2">
-        <div className="relative px-[30px] pb-[24px] pt-[30px]">
+      <div className="flex h-full w-5000 flex-col bg-background-default shadow-2">
+        <div className="relative px-375 pb-300 pt-375">
           <p className="font-designer-24b text-gray-800">커리큘럼</p>
-          <p className="mt-[24px] font-designer-20b text-gray-800">
+          <p className="mt-300 font-designer-20b text-gray-800">
             {courseTitle}
           </p>
-          <p className="mt-[6px] font-designer-14r text-gray-800">
+          <p className="mt-75 font-designer-14r text-gray-800">
             수강기한 무제한
           </p>
           <button
             type="button"
             onClick={onClose}
             aria-label="커리큘럼 닫기"
-            className="absolute right-[30px] top-[30px] flex h-[30px] w-[30px] items-center justify-center text-gray-800"
+            className="absolute right-375 top-375 flex h-375 w-375 items-center justify-center text-gray-800"
           >
-            <X className="h-[24px] w-[24px]" />
+            <X className="h-300 w-300" />
           </button>
         </div>
 

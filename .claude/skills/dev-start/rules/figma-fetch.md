@@ -12,16 +12,16 @@ Run **in parallel**:
 - `mcp__claude_ai_Figma__get_variable_defs(nodeId, fileKey)` — design tokens
 - `mcp__claude_ai_Figma__get_screenshot(nodeId, fileKey)` — reference image (save URL for Step 9)
 - `mcp__claude_ai_Figma__get_metadata(nodeId, fileKey)` — full child tree for Step 2 drill
-- `mcp__claude_ai_Figma__get_code_connect_suggestions(nodeId, fileKey)` — Code Connect JSX snippets if configured
 
 Follow `.claude/rules/figma-design.md` exhaustively. After receiving results:
 
 - If `get_design_context` output appears truncated (ends mid-property or contains `...`) → flag for re-call in Step 2.
-- If `get_code_connect_suggestions` returns JSX for any child node → mark those instances as **CC-mapped** (used in Step 4).
 
 ---
 
 ## Step 1b. Figma Asset URL Lifecycle
+
+> "The best way to ensure your images are always available is to download them to your codebase and reference those local files instead." — Figma official
 
 **CRITICAL:** Figma MCP asset URLs (`https://www.figma.com/api/mcp/asset/<uuid>`) are **session-scoped**. Each call to `get_design_context` returns a unique set of signed URLs — the same logical asset gets a different UUID every session. URLs from a previous session or plan document **will not load** in a new session.
 
@@ -121,3 +121,29 @@ For any bounded container (card, tile, badge, panel) whose primary visual conten
 | > 0.5 | Primary visual element | Use exact pixel dimensions |
 | 0.25–0.5 | Secondary decorative | Use exact dimensions, verify against screenshot |
 | < 0.25 | Accent/badge | May approximate |
+
+### 2f. Recursive Component Instance Walk
+
+After Level-1 sections are drilled, traverse each section's own metadata for nested instances.
+
+For each Level-1 section that returned `INSTANCE` children:
+
+```bash
+# Get children of each Level-1 section node
+get_metadata(sectionNodeId, fileKey)
+```
+
+For any nested `type === "INSTANCE"` node found:
+
+| Node depth | Action |
+|-----------|--------|
+| Depth 2 (inside a section) | `get_design_context` if not already covered by section drill |
+| Depth 3+ | Sample one representative instance — note if it repeats a pattern |
+
+**Completeness audit.** After all drills, print:
+
+```
+Components found: N (Level-1 sections: A, Nested instances: B, Variant cells: C)
+```
+
+This number becomes the baseline for Step 4 (Component Reuse Check).

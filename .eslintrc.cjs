@@ -89,5 +89,8 @@ module.exports = {
 
     // console.log 등 디버깅 코드 커밋 방지 (warn/error는 허용)
     'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
+
+    // Next.js <Image> 대신 <img> 사용 금지 — rushstack override 방지용 명시적 error
+    '@next/next/no-img-element': 'error',
   },
 };

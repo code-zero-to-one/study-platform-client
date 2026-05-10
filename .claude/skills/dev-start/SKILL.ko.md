@@ -54,7 +54,10 @@ PR 생성은 이 스킬 범위 밖입니다 — 완료 후 사용자가 `/pr`을
 → **한국어 참조:** `.claude/skills/dev-start/rules/figma-fetch.ko.md`
 
 요약:
-- 5개 Figma MCP 호출 병렬 실행 (`get_design_context`, `get_variable_defs`, `get_screenshot`, `get_metadata`, `get_code_connect_suggestions`)
+- 4개 Figma MCP 호출 병렬 실행 (`get_design_context`, `get_variable_defs`, `get_screenshot`, `get_metadata`)
+
+> "The best way to ensure your images are always available is to download them to your codebase and reference those local files instead." — Figma official
+
 - 이미지 에셋은 즉시 `/public/{route-slug}/`에 다운로드 — Figma MCP URL을 소스 코드에 하드코딩 금지
 - 수제 SVG, HTML 텍스트 문자, CSS로 에셋 대체 절대 금지 — 실제 파일 다운로드
 - 모든 Level-1 섹션 개별 드릴; 모든 variant 셀 샘플링; 정확한 회전각 기록
@@ -77,6 +80,8 @@ PR 생성은 이 스킬 범위 밖입니다 — 완료 후 사용자가 `/pr`을
 
 토큰 참조: `bg-gray-{0…1000}`, `p-{token}` / `gap-{token}` (커스텀 스케일), `rounded-{token}` (커스텀).
 
+> **⚠️ 기본 Tailwind 색상 클래스도 undefined.** `@theme inline`은 `--color-*` 전체(기본 포함)를 리셋. `bg-white` → `var(--color-white)` → undefined → **투명 렌더링** (lint 에러 없음, type 에러 없음). 반드시 프로젝트 토큰 사용: 흰색 = `bg-gray-0`, `bg-white` 금지.
+
 ### 4단계. 컴포넌트 재사용 확인
 
 코드 작성 전, Figma 섹션 중 이미 구현된 컴포넌트 파악.
@@ -90,7 +95,6 @@ grep -r "{ComponentName}" src/components/ --include="*.tsx" -l
 | 결과 | 처리 |
 |------|------|
 | `src/components/`에서 발견 | import 경로 기록. 8단계에서 사용. 재구현 금지. |
-| CC 매핑됨 (1단계 표시) | Code Connect JSX 스니펫 직접 사용. |
 | 미발견 | TODO 표시. `design-to-dev` 스킬 별도 실행 안내. |
 
 출력: 컴포넌트 재사용 맵 (Figma 인스턴스 → 코드베이스 경로 → 상태).
@@ -125,6 +129,9 @@ grep -r "{ComponentName}" src/components/ --include="*.tsx" -l
 ## API Mapping
 | 영역 | 훅 | DTO 타입 | 파일 |
 
+## 컴포넌트–API 맵
+| 컴포넌트 | 렌더링 필드 | 훅 | DTO 타입 | 비고 |
+
 ## Notes
 ```
 
@@ -138,13 +145,20 @@ grep -r "{ComponentName}" src/components/ --include="*.tsx" -l
 | 인증된 사용자 페이지 | `src/app/(service)/.../page.tsx` |
 | 어드민 페이지 | `src/app/(admin)/.../page.tsx` |
 
-#### 6b. API 매핑
+#### 6b. API 매핑 (컴포넌트별)
 
-2단계에서 식별한 데이터 영역마다:
-1. `src/hooks/queries/`, `src/api/`, `src/api/openapi/`에서 매칭 훅 검색
-2. 발견 → 매핑 테이블 기록; 미발견 → `// TODO: API not found - <영역>` 플레이스홀더
+4단계 재사용 맵의 모든 컴포넌트 AND 새로 작성할 모든 컴포넌트에 대해:
 
-**존재하지 않는 엔드포인트 절대 조작 금지.**
+1. 해당 컴포넌트가 렌더링하는 데이터 필드 파악 (Figma 텍스트 노드, 목록, 배지 기준)
+2. `src/hooks/queries/`, `src/api/`, `src/api/openapi/`에서 매칭 훅 검색
+3. 컴포넌트–API 맵 테이블에 기록 (5단계 스펙 문서에 저장):
+
+| 컴포넌트 | 렌더링 필드 | 훅 | DTO 필드 | 상태 |
+|---------|-----------|-----|---------|------|
+| ClassCard | title, thumbnailUrl, memberCount | useGetClassList | ClassListItem.title/thumbnail/memberCount | ✅ |
+| SomeWidget | price | — | — | TODO: 훅 없음 |
+
+**존재하지 않는 엔드포인트 절대 조작 금지.** 훅 없음 → 컴포넌트 props에 `// TODO: API not found - <ComponentName>` 플레이스홀더.
 
 #### 6c. 미들웨어 라우트 등록
 
@@ -211,7 +225,7 @@ yarn typecheck
 
 `yarn typecheck` 실패 → **중단 (S4)**. 오류 보고.
 
-### 8b–8c단계. Chrome ↔ Figma 반복 시각 검증 + 문제 문서화
+### 8b단계. Chrome ↔ Figma 시각 검증
 
 → **전체 프로토콜:** `.claude/skills/dev-start/rules/visual-verify.md`
 → **한국어 참조:** `.claude/skills/dev-start/rules/visual-verify.ko.md`
@@ -219,8 +233,7 @@ yarn typecheck
 요약:
 - Chrome 스크린샷 촬영 → 모든 검사 항목을 Figma 기준으로 비교 → ❌ 항목 전체 수정 → 반복
 - 모든 ❌ 항목이 동시에 해소될 때만 종료 — 불일치를 사용자에게 넘기지 말 것
-- 수정한 모든 문제를 `docs/Figma/problems/{slug}-problems.md`에 기록
-- 최대 5회 반복; 수렴 안 될 경우 → S7 차단
+- 최대 2회 반복; 수렴 안 될 경우 → 남은 ❌ 항목을 9단계 요약에 기록하고 사용자에게 인계
 
 ### 9단계. 검증 게이트
 
@@ -269,8 +282,7 @@ git commit -m "feat : {RouteName} 페이지 구현"
 | S3 | `../study-platform-mvp/` 없음 | **중단**, 클론 안내 |
 | S4 | `yarn typecheck` 실패 | **중단**, 오류 보고 |
 | S5 | 서브섹션 `get_design_context` 재호출 후도 잘림 | partial로 기록하고 최선의 결과로 계속, 스펙 Notes에 표시 |
-| S6 | 시각 검증 실패 (8b단계) | 9단계 전 수정 — 불일치를 사용자에게 넘기지 말 것 |
-| S7 | Chrome ↔ Figma 반복 루프 5회 후도 수렴 안 됨 | **중단**, 8c단계 문제 문서에 남은 불일치 기록, 사용자에게 보고 |
+| S6 | Chrome ↔ Figma 2회 반복 후도 수렴 안 됨 | 남은 ❌ 항목을 9단계 요약에 기록하고 사용자에게 인계 |
 
 ## 도구 목록
 
@@ -278,7 +290,6 @@ git commit -m "feat : {RouteName} 페이지 구현"
 - `mcp__claude_ai_Figma__get_variable_defs` — 토큰 추출
 - `mcp__claude_ai_Figma__get_screenshot` — 시각 참조
 - `mcp__claude_ai_Figma__get_metadata` — 자식 트리 열거
-- `mcp__claude_ai_Figma__get_code_connect_suggestions` — Code Connect JSX
 - `Bash` — grep, global.css 토큰 읽기, git pull, yarn, git add/commit
 - `Read` — 훅, DTO, global.css, 백엔드 클래스 검사
 - `Grep` — 훅 후보 및 컴포넌트 파일 검색
@@ -293,27 +304,31 @@ git commit -m "feat : {RouteName} 페이지 구현"
 - [ ] 모든 Figma 이미지 에셋 `/public/{route-slug}/`에 다운로드 — 소스에 Figma MCP URL 없음 (1b단계)
 - [ ] 에셋을 HTML 텍스트 문자, 인라인 SVG, CSS로 대체하지 않음 — `const imgX` 수와 다운로드 파일 수 일치 (1b단계)
 - [ ] 크로스 세션 플랜 실행 시: `get_design_context` 재호출로 에셋 URL 갱신 (1b단계)
-- [ ] Figma MCP 5개 호출 병렬 실행 (1단계)
+- [ ] Figma MCP 4개 호출 병렬 실행 (1단계)
 - [ ] 모든 Level-1 섹션 개별 드릴 완료 (2단계)
 - [ ] 모든 variant 셀 샘플링 완료 (2b단계)
 - [ ] 모든 변환값 정확한 소수점 단위로 기록 (2c단계)
 - [ ] 시각 콘텐츠 크기를 컨테이너 서브 노드 호출로 측정 (페이지 레벨 아님) (2e단계)
 - [ ] global.css `@theme inline` 대비 토큰 매핑 테이블 완성 (3단계)
 - [ ] 임의값 및 기본 Tailwind 스케일 사용 없음
+- [ ] 기본 Tailwind 색상 클래스(`bg-white`, `text-white`, `bg-black`) 사용 없음 — `@theme inline`이 undefined 처리; 흰색은 `bg-gray-0` 사용
 - [ ] 컴포넌트 재사용 맵 완성 — 기존 컴포넌트 식별 및 import (4단계)
 - [ ] 모든 테이블 포함한 `docs/Figma/{slug}.md` 완성 (5단계)
 - [ ] 올바른 라우트 그룹 (landing/service/admin)
 - [ ] `(landing)` 라우트를 `route-policy.ts`에 `PUBLIC_SESSION`으로 등록 (6c단계)
-- [ ] 모든 데이터 영역 훅 매핑 또는 TODO 표시
+- [ ] 2f단계 완전성 감사 출력: "Components found: N (Level-1: A, Nested: B, Variant: C)"
+- [ ] 발견된 컴포넌트 수와 4단계 재사용 맵 항목 수 일치
+- [ ] API 매핑이 DTO 필드명 포함 컴포넌트별로 완성 (6b단계)
+- [ ] `docs/Figma/{slug}.md`에 컴포넌트–API 맵 테이블 포함 (5단계)
+- [ ] 모든 컴포넌트 훅 매핑 또는 TODO 표시
 - [ ] 백엔드 저장소 `git pull origin dev` 완료
 - [ ] DTO 교차 검증 통과 (또는 불일치 시 중단)
 - [ ] QA URL 요약에 출력
 - [ ] `cn()` 사용, 재사용 컴포넌트 적용, 프로젝트 토큰만 사용
 - [ ] `yarn lint:fix && yarn prettier:fix && yarn typecheck` 전체 통과
-- [ ] Chrome ↔ Figma 반복 루프 — 모든 검사 동시 통과 후 종료 (8b단계)
+- [ ] Chrome ↔ Figma 반복 루프 — 모든 검사 동시 통과 (최대 2회) 후 종료 (8b단계)
 - [ ] hover/click으로 인터랙티브 상태 검증 (8b단계)
 - [ ] 크로스 세션 시: Figma 스크린샷 재취득 후 비교 (8b단계)
-- [ ] 수정한 모든 문제를 문제 문서에 기록 — `docs/Figma/problems/{slug}-problems.md` (8c단계)
 - [ ] Figma 스크린샷 URL 사용자에게 제공 (9단계)
 - [ ] 시각적 일치 사용자 확인 후 커밋
 - [ ] 현재 브랜치에 단일 커밋, 본문에 TODO 및 편차 기록

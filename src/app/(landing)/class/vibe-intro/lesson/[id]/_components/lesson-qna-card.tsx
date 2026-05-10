@@ -31,7 +31,9 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
         <p className="text-center font-designer-14r text-gray-1000">
           30분 이상 막히면 바로 질문하기!
           <br />
-          질문을 남겨주시면 빠르게 답변드립니다.
+          운영자들이 대기 중입니다.
+          <br />
+          질문을 남겨주시면 누구보다 빠르게 대답해드릴게요.
         </p>
       </div>
 
@@ -86,7 +88,7 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
                 <span
                   key={q.qnaId}
                   className={cn(
-                    'h-[6px] w-[6px] rounded-full',
+                    'h-75 w-75 rounded-full',
                     i === page ? 'bg-background-brand-default' : 'bg-gray-300',
                   )}
                 />

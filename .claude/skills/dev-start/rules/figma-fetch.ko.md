@@ -12,16 +12,16 @@
 - `mcp__claude_ai_Figma__get_variable_defs(nodeId, fileKey)` — 디자인 토큰
 - `mcp__claude_ai_Figma__get_screenshot(nodeId, fileKey)` — 참조 이미지 (9단계용으로 URL 저장)
 - `mcp__claude_ai_Figma__get_metadata(nodeId, fileKey)` — 2단계 드릴용 전체 자식 트리
-- `mcp__claude_ai_Figma__get_code_connect_suggestions(nodeId, fileKey)` — Code Connect JSX 스니펫 (설정된 경우)
 
 `.claude/rules/figma-design.md` 규칙을 **빠짐없이** 따릅니다. 결과 수신 후:
 
 - `get_design_context` 출력이 잘린 것으로 보이면 → 2단계에서 재호출 표시.
-- `get_code_connect_suggestions`가 자식 노드의 JSX를 반환하면 → 해당 인스턴스를 **CC 매핑됨**으로 표시 (4단계에서 활용).
 
 ---
 
 ## 1b단계. Figma 에셋 URL 수명주기
+
+> "The best way to ensure your images are always available is to download them to your codebase and reference those local files instead." — Figma official
 
 **중요:** Figma MCP 에셋 URL (`https://www.figma.com/api/mcp/asset/<uuid>`)은 **세션 범위**입니다. `get_design_context`를 호출할 때마다 같은 에셋에 대해 다른 UUID의 URL이 반환됩니다. 이전 세션이나 플랜 문서의 URL은 **새 세션에서 로드되지 않습니다**.
 
@@ -121,3 +121,29 @@ variant 셀 하나라도 빠트리면 → 해당 상태가 구현되지 않음.
 | > 0.5 | 주요 시각 요소 | 정확한 픽셀 치수 사용 |
 | 0.25–0.5 | 보조 장식 | 정확한 치수 사용, 스크린샷 대비 검증 |
 | < 0.25 | 악센트/배지 | 근사치 허용 |
+
+### 2f. 중첩 컴포넌트 인스턴스 재귀 탐색
+
+Level-1 섹션 드릴 완료 후, 각 섹션의 메타데이터에서 중첩 인스턴스를 탐색합니다.
+
+`INSTANCE` 자식을 가진 각 Level-1 섹션에 대해:
+
+```bash
+# 각 Level-1 섹션 노드의 자식 조회
+get_metadata(sectionNodeId, fileKey)
+```
+
+중첩된 `type === "INSTANCE"` 노드 발견 시:
+
+| 노드 깊이 | 처리 |
+|---------|------|
+| Depth 2 (섹션 내부) | 섹션 드릴에서 이미 다루지 않은 경우 `get_design_context` 호출 |
+| Depth 3 이상 | 대표 인스턴스 하나 샘플링 — 패턴 반복 여부 기록 |
+
+**완전성 감사.** 모든 드릴 완료 후 출력:
+
+```
+Components found: N (Level-1 sections: A, Nested instances: B, Variant cells: C)
+```
+
+이 숫자가 4단계 (컴포넌트 재사용 확인)의 기준값이 됩니다.
