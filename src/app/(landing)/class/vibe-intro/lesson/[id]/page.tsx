@@ -15,6 +15,7 @@ import {
 import { useToastStore } from '@/stores/use-toast-store';
 import { CurriculumDrawer } from './_components/curriculum-drawer';
 import { LessonBuilderFeedCard } from './_components/lesson-builder-feed-card';
+import { LessonBuilderFeedDetailModal } from './_components/lesson-builder-feed-detail-modal';
 import { LessonQnaCard } from './_components/lesson-qna-card';
 import { LessonQnaDetailModal } from './_components/lesson-qna-detail-modal';
 import { LessonQnaSubmissionModal } from './_components/lesson-qna-submission-modal';
@@ -58,6 +59,7 @@ export default function LessonPage({
   );
   const [submissionModalOpen, setSubmissionModalOpen] = useState(false);
   const [selectedQnaId, setSelectedQnaId] = useState<number | null>(null);
+  const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
 
   const { data: lesson } = useGetLessonDetail(lessonId);
   const courseId = lesson?.courseId ?? 0;
@@ -233,7 +235,10 @@ export default function LessonPage({
               onAskClick={() => setSubmissionModalOpen(true)}
               onSelectQna={setSelectedQnaId}
             />
-            <LessonBuilderFeedCard feeds={feedPreview?.feeds ?? []} />
+            <LessonBuilderFeedCard
+              feeds={feedPreview?.feeds ?? []}
+              onSelectFeed={setSelectedFeedId}
+            />
           </div>
         </div>
       </div>
@@ -247,6 +252,10 @@ export default function LessonPage({
       <LessonQnaDetailModal
         qnaId={selectedQnaId}
         onClose={() => setSelectedQnaId(null)}
+      />
+      <LessonBuilderFeedDetailModal
+        feedId={selectedFeedId}
+        onClose={() => setSelectedFeedId(null)}
       />
     </div>
   );

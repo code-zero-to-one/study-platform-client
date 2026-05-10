@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type { LessonQnaMyItem } from '@/types/api/course.types';
@@ -31,9 +31,7 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
         <p className="text-center font-designer-14r text-gray-1000">
           30분 이상 막히면 바로 질문하기!
           <br />
-          운영자들이 대기 중입니다.
-          <br />
-          질문을 남겨주시면 누구보다 빠르게 대답해드릴게요.
+          질문을 남겨주시면 빠르게 답변드립니다.
         </p>
       </div>
 
@@ -62,6 +60,10 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
             <p className="flex-1 truncate font-designer-14b text-gray-800">
               {current.title}
             </p>
+            <div className="flex shrink-0 items-center gap-50 font-designer-13m text-gray-400">
+              <MessageSquare className="h-225 w-225" />
+              <span>{current.answerCount}</span>
+            </div>
             <p className="shrink-0 font-designer-13m text-gray-400">
               {formatDate(current.createdAt)}
             </p>

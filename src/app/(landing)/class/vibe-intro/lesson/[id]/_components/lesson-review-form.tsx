@@ -3,6 +3,7 @@
 import { Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { RatingBox } from './lesson-rating-box';
 
 export const POSITIVE_CHIPS = [
@@ -58,15 +59,20 @@ function QuestionBlock({
         </div>
         <p className="font-designer-16r text-gray-800">{helper}</p>
       </div>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={cn(
-          'w-full resize-none rounded-200 border border-gray-300 bg-background-default px-300 py-250 font-designer-16m text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand',
-          tall ? 'h-5600' : 'h-1625',
-        )}
-      />
+      {tall ? (
+        <MarkdownEditor
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+        />
+      ) : (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="h-1625 w-full resize-none rounded-200 border border-gray-300 bg-background-default px-300 py-250 font-designer-16m text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand"
+        />
+      )}
     </div>
   );
 }
