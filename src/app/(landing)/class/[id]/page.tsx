@@ -16,6 +16,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { BenefitScrollCharacter } from '@/components/pages/class/benefit-scroll-character';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useGetCourseCurriculum,
@@ -81,6 +82,14 @@ const TEAM_MESSAGES = [
     heading: '혼자가 아닌 디스코드에서 함께 공부하며 동기부여 받아요.',
     body: '입문자분들을 위해 디스코드에서 모여 공부하는 시스템으로\n함께의 가치를 드리고 싶습니다.',
   },
+];
+
+const FAQ_ITEMS = [
+  '코딩 한 번도 안 해봤는데 따라갈 수 있나요?',
+  '어떤 준비물이 필요한가요?',
+  '하루에 얼마나 시간을 써야 하나요?',
+  'Claude Pro를 이미 구독 중이에요!',
+  '환불이 가능한가요?',
 ];
 
 const CHAPTERS = [
@@ -476,8 +485,8 @@ export default function ClassDetailPage({
               <h2 className="font-designer-24b text-gray-800">
                 ZERO-ONE에서 드리는 입문자 코스 혜택!
               </h2>
-              <div className="mt-400 space-y-250">
-                <div className="overflow-hidden rounded-200 bg-rose-100 p-350">
+              <div className="relative mt-400 flex flex-col gap-250">
+                <div className="relative overflow-hidden rounded-200 bg-rose-100 p-350">
                   <p className="font-designer-20b text-gray-800">
                     Claude Code Pro 1개월 구독권을 드려요
                   </p>
@@ -501,7 +510,7 @@ export default function ClassDetailPage({
                     />
                   </div>
                 </div>
-                <div className="overflow-hidden rounded-200 bg-purple-100 p-350">
+                <div className="overflow-hidden rounded-200 bg-purple-150 p-350">
                   <p className="font-designer-20b text-gray-800">
                     디스코드에서 함께 공부해요
                   </p>
@@ -512,15 +521,15 @@ export default function ClassDetailPage({
                   </p>
                   <div className="mt-300">
                     <Image
-                      src="/class/detail/benefit-2.png"
-                      alt="디스코드 함께 공부"
+                      src="/class/detail/benefit-3.png"
+                      alt="디스코드"
                       width={96}
                       height={96}
                       className="rounded-150"
                     />
                   </div>
                 </div>
-                <div className="overflow-hidden rounded-200 bg-yellow-100 p-350">
+                <div className="relative overflow-hidden rounded-200 bg-yellow-100 p-350">
                   <p className="font-designer-20b text-gray-800">
                     막히면 바로 질문하세요
                   </p>
@@ -529,28 +538,150 @@ export default function ClassDetailPage({
                       '레슨마다 질문답변을 남길 수 있어요.\n운영진이 직접 답변해드립니다.\n다른 빌더들은 어떤 곳에서 막혔는지, 어떻게 해결했는지도 참고해보세요.'
                     }
                   </p>
-                  <div className="mt-300">
-                    <Image
-                      src="/class/detail/benefit-3.png"
-                      alt="질문답변"
-                      width={96}
-                      height={96}
-                      className="rounded-150"
-                    />
+                  {/* Q/A 데코 — relative 컨테이너 안에서 배치 */}
+                  <div className="relative mt-300 h-[150px]">
+                    <div
+                      className="absolute flex size-[85px] items-center justify-center"
+                      style={{
+                        transform: 'rotate(-20.32deg)',
+                        top: '8px',
+                        left: '0',
+                      }}
+                    >
+                      <div className="size-[66px] rounded-100 border border-purple-600 bg-purple-200/20" />
+                      <span
+                        className="absolute font-designer-36b leading-none text-grape-600"
+                        style={{ fontSize: '58px' }}
+                      >
+                        Q
+                      </span>
+                    </div>
+                    <div
+                      className="absolute flex size-[89px] items-center justify-center"
+                      style={{
+                        transform: 'rotate(27.01deg)',
+                        top: '40px',
+                        left: '60px',
+                      }}
+                    >
+                      <div className="size-[66px] rounded-100 border border-yellow-500 bg-yellow-200/20" />
+                      <span
+                        className="absolute font-designer-36b leading-none text-yellow-300"
+                        style={{ fontSize: '58px' }}
+                      >
+                        A
+                      </span>
+                    </div>
                   </div>
                 </div>
+                <div className="relative min-h-3888 overflow-hidden rounded-200 bg-rose-150 p-350">
+                  <p className="font-designer-20b text-gray-800">
+                    수료 빌더들과 네트워킹하는 커뮤니티
+                  </p>
+                  <p className="mt-200 whitespace-pre-line font-designer-18r text-gray-800">
+                    {
+                      '완주 후 ZERO-ONE 오픈톡방에 초대됩니다.\n의지만땅 빌더분들과 소통하실 수 있어요.\n함께 협업하거나, 고민을 주고받고 같은 목표를 향해 달려나가보세요.'
+                    }
+                  </p>
+                  {/* 말풍선1 — #FF698C, Figma SVG path, 꼬리 좌하단 */}
+                  <div
+                    className="absolute"
+                    style={{ left: '30px', top: '178px' }}
+                  >
+                    <svg
+                      width="108.575"
+                      height="64.48"
+                      viewBox="0 0 108.575 64.4803"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M0 14.7481C0 6.60297 6.60296 0 14.7481 0H93.827C101.972 0 108.575 6.60296 108.575 14.7481V33.7525C108.575 41.8976 101.972 48.5006 93.827 48.5006H14.7481C6.60296 48.5006 0 41.8976 0 33.7525V14.7481Z"
+                        fill="#FF698C"
+                      />
+                      <path
+                        d="M15.432 55.6655V41.8869H46.8472L22.5968 61.7281C15.9831 68.7827 15.0646 60.6258 15.432 55.6655Z"
+                        fill="#FF698C"
+                      />
+                    </svg>
+                    <div
+                      className="absolute flex flex-col gap-[5px]"
+                      style={{
+                        top: '14px',
+                        left: '11px',
+                      }}
+                    >
+                      <div className="h-[3px] w-[64px] rounded-full bg-gray-0" />
+                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
+                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
+                    </div>
+                  </div>
+                  {/* 말풍선2 — #FFB5C6, scaleX(-1) 미러로 꼬리 우하단 */}
+                  <div
+                    className="absolute"
+                    style={{
+                      left: '66.43px',
+                      top: '230.98px',
+                    }}
+                  >
+                    <svg
+                      width="86.948"
+                      height="54.02"
+                      viewBox="0 0 86.9482 54.0207"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ transform: 'scaleX(-1)' }}
+                    >
+                      <path
+                        d="M0 12.3625C0 5.53967 5.53098 0.0086764 12.3538 0.0086764L74.5944 0C81.4172 0 86.9482 5.53098 86.9482 12.3538V28.2728C86.9482 35.0956 81.4172 40.6266 74.5944 40.6266L12.3538 40.6353C5.53098 40.6353 0 35.1043 0 28.2815V12.3625Z"
+                        fill="#FFB5C6"
+                      />
+                      <path
+                        d="M12.9267 46.637V35.0953H39.2416L18.9283 51.7153C13.3883 57.6246 12.6189 50.792 12.9267 46.637Z"
+                        fill="#FFB5C6"
+                      />
+                    </svg>
+                    <div
+                      className="absolute flex flex-col items-end gap-[5px]"
+                      style={{
+                        top: '10px',
+                        left: '11.57px',
+                        width: '64px',
+                      }}
+                    >
+                      <div className="h-[3px] w-full rounded-full bg-gray-0" />
+                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
+                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
+                    </div>
+                  </div>
+                </div>
+                <BenefitScrollCharacter />
               </div>
             </section>
 
             {/* SECTION: FAQ */}
             <section id="faq">
               <h2 className="font-designer-24b text-gray-800">
-                자주 묻는 질문
+                궁금한 점 있으세요?
               </h2>
-              {/* TODO: FAQ content to be confirmed */}
-              <p className="mt-300 font-designer-16r text-gray-500">
-                준비 중입니다.
-              </p>
+              <div className="mt-400 space-y-125">
+                {FAQ_ITEMS.map((question) => (
+                  <div
+                    key={question}
+                    className="flex h-800 items-center justify-between rounded-200 border border-border-default bg-gray-100 px-350"
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-250 font-designer-16m text-text-brand">
+                        Q
+                      </span>
+                      <span className="font-designer-16m text-gray-800">
+                        {question}
+                      </span>
+                    </div>
+                    <ChevronDown className="h-300 w-300 shrink-0 text-gray-800" />
+                  </div>
+                ))}
+              </div>
             </section>
           </div>
 
@@ -637,10 +768,10 @@ export default function ClassDetailPage({
 
                 {/* Study With Me — TODO: API/CMS 연동 필요 (이벤트 날짜·내용 백엔드 제공) */}
                 <div className="mt-300 rounded-100 bg-gray-800 p-300">
-                  <p className="font-designer-14m text-white">
+                  <p className="font-designer-14m text-gray-0">
                     매주 월·화·수 오전 6시
                   </p>
-                  <p className="mt-75 font-designer-18b text-white">
+                  <p className="mt-75 font-designer-18b text-gray-0">
                     Study with Me 진행!
                   </p>
                   <p className="mt-150 whitespace-pre-line font-designer-14r text-gray-400">
