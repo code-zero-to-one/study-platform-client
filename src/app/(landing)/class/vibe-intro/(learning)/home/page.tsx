@@ -1,9 +1,10 @@
 'use client';
 
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Lock, LockOpen, Timer, Users } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
@@ -24,7 +25,6 @@ const LoginModal = dynamic(
 
 const COURSE_SLUG = 'vibe-intro';
 
-// Fallback chapter structure used when backend has no data yet (404).
 const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
   {
     chapterId: -1,
@@ -166,6 +166,7 @@ interface LessonDisplayInfo {
   isFree: boolean;
   status: LessonProgressStatus;
   accessible: boolean;
+  estimatedMinutes: number;
 }
 
 function buildLessonMap(
@@ -189,6 +190,7 @@ function mergeLessons(
       isFree: l.isFree,
       status: journeyLesson?.status ?? (l.locked ? 'LOCKED' : 'IN_PROGRESS'),
       accessible: journeyLesson?.accessible ?? !l.locked,
+      estimatedMinutes: l.estimatedMinutes,
     };
   });
 }
@@ -200,42 +202,40 @@ function LessonStamp({
   lesson: LessonDisplayInfo;
   isAuthenticated: boolean;
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
   const isCompleted = lesson.status === 'COMPLETED';
-  const isInProgress = lesson.status === 'IN_PROGRESS';
+  const isLocked = lesson.status === 'LOCKED';
+  const isCurrent = lesson.status === 'IN_PROGRESS' && lesson.accessible;
 
-  const content = (
-    <div className="relative flex h-[172px] w-[172px] shrink-0 flex-col items-center justify-center">
+  const stampContent = (
+    <div
+      className="relative flex size-1650 shrink-0 flex-col items-center justify-center"
+      onMouseEnter={() => !isCompleted && setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
       <Image
         src="/class/vibe-intro/lesson-stamp.svg"
         alt=""
         aria-hidden="true"
-        width={172}
-        height={172}
+        width={132}
+        height={132}
         className={cn(
           'absolute inset-0',
           isCompleted && 'brightness-110 saturate-150',
-          isInProgress && 'animate-pulse',
+          isCurrent && 'animate-pulse',
         )}
       />
       <div className="relative z-10 flex flex-col items-center">
-        {lesson.isFree && !isCompleted && (
+        {lesson.isFree && !isCompleted && !isLocked && (
           <p className="mb-25 font-designer-16m text-gray-500">무료 온보딩</p>
         )}
-        {!lesson.isFree && lesson.status === 'LOCKED' && (
-          <Image
-            src="/class/vibe-intro/lesson-lock.svg"
-            alt="잠금"
-            width={24}
-            height={24}
-            className="mb-25"
-          />
-        )}
+        {isLocked && <Lock className="mb-25 size-300 text-gray-500" />}
         {isCompleted && (
           <p className="mb-25 font-designer-12b text-text-brand">완료</p>
         )}
         <p
           className={cn(
-            'font-designer-24b',
+            'font-designer-18b',
             isCompleted ? 'text-text-brand' : 'text-gray-500',
           )}
         >
@@ -243,47 +243,64 @@ function LessonStamp({
         </p>
         <p
           className={cn(
-            'font-designer-24b',
+            'font-designer-18b',
             isCompleted ? 'text-text-brand' : 'text-gray-500',
           )}
         >
           {String(lesson.order).padStart(2, '0')}
         </p>
       </div>
+      {showTooltip && (
+        <div className="absolute -top-400 left-1/2 flex -translate-x-1/2 items-center gap-75 rounded-100 bg-gray-900 px-150 py-75">
+          <Users className="size-200 text-gray-0" />
+          <span className="font-designer-12r text-gray-0">학습 중</span>
+        </div>
+      )}
     </div>
   );
 
   if (lesson.accessible) {
     if (!isAuthenticated) {
       return (
-        <LoginModal openTrigger={<button type="button">{content}</button>} />
+        <LoginModal
+          openTrigger={<button type="button">{stampContent}</button>}
+        />
       );
     }
     return (
       <Link href={`/class/vibe-intro/lesson/${lesson.lessonId}`}>
-        {content}
+        {stampContent}
       </Link>
     );
   }
 
   return (
     <div aria-disabled="true" className="cursor-not-allowed">
-      {content}
+      {stampContent}
     </div>
   );
 }
 
-function ChapterHeader({ chapterNumber }: { chapterNumber: number }) {
+function ChapterHeader({
+  chapterNumber,
+  title,
+}: {
+  chapterNumber: number;
+  title: string;
+}) {
   return (
-    <div className="relative flex w-full items-center">
-      <div className="h-px flex-1 bg-rose-500" />
-      <div className="mx-0 flex items-center gap-125 rounded-full border border-rose-500 bg-background-default px-250 py-125">
-        <BookOpen className="h-300 w-300 text-text-brand" />
-        <p className="font-designer-24b text-text-brand">
-          Chapter {String(chapterNumber).padStart(2, '0')}
-        </p>
+    <div className="flex w-full flex-col items-center gap-250">
+      <div className="relative flex w-full items-center">
+        <div className="h-px flex-1 bg-rose-500" />
+        <div className="mx-0 flex items-center gap-125 rounded-full border border-rose-500 bg-background-default px-250 py-125">
+          <BookOpen className="h-300 w-300 text-text-brand" />
+          <p className="font-designer-24b text-text-brand">
+            Chapter {String(chapterNumber).padStart(2, '0')}
+          </p>
+        </div>
+        <div className="h-px flex-1 bg-rose-500" />
       </div>
-      <div className="h-px flex-1 bg-rose-500" />
+      <p className="font-designer-20b text-text-brand">{title}</p>
     </div>
   );
 }
@@ -296,19 +313,24 @@ export default function JourneyMapPage() {
   const { data: curriculum, isLoading } = useGetCourseCurriculum(COURSE_SLUG);
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
+  const [visibleChapterCount, setVisibleChapterCount] = useState(2);
 
   const lessonStatusMap = buildLessonMap(journeyMap?.lessons ?? []);
   const chapters =
     curriculum?.chapters && curriculum.chapters.length > 0
       ? curriculum.chapters
       : FALLBACK_CHAPTERS;
+
   const completedLessons = progress?.completedLessons ?? 0;
   const totalLessons = progress?.totalLessons ?? 0;
   const progressRate = progress?.progressRate ?? 0;
 
+  const visibleChapters = chapters.slice(0, visibleChapterCount);
+  const hasMoreChapters = visibleChapterCount < chapters.length;
+
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-5000 items-center justify-center">
         <p className="font-designer-16r text-gray-500">로딩 중...</p>
       </div>
     );
@@ -343,14 +365,14 @@ export default function JourneyMapPage() {
               width={173}
               height={61}
             />
-            <p className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-designer-20b text-center text-text-brand">
+            <p className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-center font-designer-20b text-text-brand">
               {completedLessons === 0
                 ? `Chapter 01  시작!`
                 : `${completedLessons}개 완료!`}
             </p>
           </div>
           <div className="flex-1">
-            <div className="relative h-[20px] overflow-hidden rounded-full bg-gray-200">
+            <div className="relative h-250 overflow-hidden rounded-full bg-gray-200">
               <div
                 className="absolute left-0 top-0 h-full rounded-full bg-background-brand-default transition-all"
                 style={{ width: `${progressRate}%` }}
@@ -366,8 +388,7 @@ export default function JourneyMapPage() {
         {course?.freeLessonCount && course.freeLessonCount > 0 ? (
           <div className="mt-300 flex flex-col gap-75 rounded-200 border border-border-default bg-gray-100 px-350 py-300">
             <p className="font-designer-20b text-gray-800">
-              Lesson {String(course.freeLessonCount).padStart(2, '0')}까지
-              무료로 온보딩을 하실 수 있어요! 무료로 즐겨보세요!
+              Chapter3까지 무료 코스! 마음껏 학습하세요.
             </p>
             <p className="font-designer-16m text-gray-800">
               이후 결제는 무료 온보딩을 하시고 결정하셔도 늦지 않습니다.
@@ -377,32 +398,9 @@ export default function JourneyMapPage() {
 
         {/* Journey map */}
         <div className="mt-500 flex flex-col items-center">
-          {isAuthenticated ? (
-            <Link
-              href={
-                chapters[0]?.lessons[0]
-                  ? `/class/vibe-intro/lesson/${chapters[0].lessons[0].lessonId}`
-                  : '#'
-              }
-              className="flex h-[44px] w-[100px] items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-white"
-            >
-              Start
-            </Link>
-          ) : (
-            <LoginModal
-              openTrigger={
-                <button
-                  type="button"
-                  className="flex h-[44px] w-[100px] items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-white"
-                >
-                  Start
-                </button>
-              }
-            />
-          )}
-
-          {chapters.map((chapter, ci) => {
+          {visibleChapters.map((chapter, ci) => {
             const lessons = mergeLessons(chapter, lessonStatusMap);
+
             const rows: LessonDisplayInfo[][] = [];
             for (let i = 0; i < lessons.length; i += 3) {
               rows.push(lessons.slice(i, i + 3));
@@ -410,16 +408,90 @@ export default function JourneyMapPage() {
 
             return (
               <div
-                key={chapter.chapterId}
+                key={chapter.order}
                 className="flex w-full flex-col items-center"
               >
-                <div className="mt-400 w-full max-w-[1060px]">
-                  <ChapterHeader chapterNumber={chapter.chapterNumber} />
+                <div className="mt-400 w-full">
+                  <ChapterHeader
+                    chapterNumber={chapter.chapterNumber}
+                    title={chapter.title}
+                  />
                 </div>
 
                 {rows.map((row, ri) => (
                   <div key={ri} className="flex w-full flex-col items-center">
-                    {(ci > 0 || ri > 0) && (
+                    <div
+                      className={cn(
+                        'relative flex items-center justify-center',
+                        ci === 0 && ri === 0 ? 'mt-800' : 'mt-300',
+                      )}
+                    >
+                      {ci === 0 && ri === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Image
+                            src="/class/vibe-intro/journey-1st-load.svg"
+                            alt=""
+                            aria-hidden="true"
+                            width={795}
+                            height={10}
+                          />
+                        </div>
+                      )}
+                      <div
+                        className={cn(
+                          'relative z-10 flex items-center justify-center gap-2500',
+                          ri % 2 === 1 && 'flex-row-reverse',
+                        )}
+                      >
+                        {row.map((lesson, li) => (
+                          <div key={lesson.lessonId} className="relative">
+                            {ci === 0 && ri === 0 && li === 0 && (
+                              <div className="absolute bottom-full left-1/2 flex -translate-x-1/2 flex-col items-center">
+                                {isAuthenticated ? (
+                                  <Link
+                                    href={
+                                      chapters[0]?.lessons[0]
+                                        ? `/class/vibe-intro/lesson/${chapters[0].lessons[0].lessonId}`
+                                        : '#'
+                                    }
+                                    className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-gray-0"
+                                  >
+                                    Start
+                                  </Link>
+                                ) : (
+                                  <LoginModal
+                                    openTrigger={
+                                      <button
+                                        type="button"
+                                        className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-gray-0"
+                                      >
+                                        Start
+                                      </button>
+                                    }
+                                  />
+                                )}
+                                <svg
+                                  aria-hidden="true"
+                                  width="21"
+                                  height="24"
+                                  viewBox="0 0 21 24"
+                                >
+                                  <polygon
+                                    points="0,0 21,0 10.5,13"
+                                    className="fill-background-brand-default"
+                                  />
+                                </svg>
+                              </div>
+                            )}
+                            <LessonStamp
+                              lesson={lesson}
+                              isAuthenticated={isAuthenticated}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {ri < rows.length - 1 && (
                       <div className="flex justify-center">
                         {ri % 2 === 0 ? (
                           <Image
@@ -440,35 +512,10 @@ export default function JourneyMapPage() {
                         )}
                       </div>
                     )}
-                    {ci === 0 && ri === 0 && (
-                      <div className="mt-300 flex justify-center">
-                        <Image
-                          src="/class/vibe-intro/journey-1st-load.svg"
-                          alt=""
-                          aria-hidden="true"
-                          width={795}
-                          height={10}
-                        />
-                      </div>
-                    )}
-                    <div
-                      className={cn(
-                        'mt-300 flex items-center justify-center gap-[200px]',
-                        ri % 2 === 1 && 'flex-row-reverse',
-                      )}
-                    >
-                      {row.map((lesson) => (
-                        <LessonStamp
-                          key={lesson.lessonId}
-                          lesson={lesson}
-                          isAuthenticated={isAuthenticated}
-                        />
-                      ))}
-                    </div>
                   </div>
                 ))}
 
-                {ci < chapters.length - 1 && (
+                {ci < visibleChapters.length - 1 && (
                   <div className="flex justify-center">
                     <Image
                       src="/class/vibe-intro/journey-load.svg"
@@ -483,25 +530,41 @@ export default function JourneyMapPage() {
             );
           })}
 
-          <div className="mt-400">
-            <button
-              type="button"
-              disabled={!progress?.isCourseCompleted}
-              className={cn(
-                'flex h-[44px] w-[100px] items-center justify-center rounded-100 font-designer-24b text-white',
-                progress?.isCourseCompleted
-                  ? 'bg-background-brand-default'
-                  : 'cursor-not-allowed bg-gray-300',
-              )}
-            >
-              Finish
-            </button>
-          </div>
+          {hasMoreChapters ? (
+            <div className="mt-500">
+              <button
+                type="button"
+                onClick={() =>
+                  setVisibleChapterCount((prev) =>
+                    Math.min(prev + 2, chapters.length),
+                  )
+                }
+                className="rounded-100 border border-gray-400 px-400 py-200 font-designer-16r text-gray-800"
+              >
+                더보기
+              </button>
+            </div>
+          ) : (
+            <div className="mt-400">
+              <button
+                type="button"
+                disabled={!progress?.isCourseCompleted}
+                className={cn(
+                  'flex h-450 w-1250 items-center justify-center rounded-100 font-designer-24b text-white',
+                  progress?.isCourseCompleted
+                    ? 'bg-background-brand-default'
+                    : 'cursor-not-allowed bg-gray-300',
+                )}
+              >
+                Finish
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Lesson card list */}
         <div className="mt-800">
-          <h2 className="font-designer-28b text-gray-800">전체 레슨 목록</h2>
+          <h2 className="font-designer-28b text-gray-800">레슨 목록</h2>
           <div className="mt-400 flex flex-col gap-200">
             {chapters.flatMap((chapter) =>
               chapter.lessons.map((l) => {
@@ -512,18 +575,18 @@ export default function JourneyMapPage() {
                 const card = (
                   <div
                     className={cn(
-                      'flex items-center gap-300 rounded-200 border bg-background-default p-300 transition-colors',
+                      'flex h-1250 items-center gap-300 rounded-200 border px-500 transition-colors',
                       isAccessible
-                        ? 'cursor-pointer border-border-default hover:border-border-brand'
-                        : 'cursor-not-allowed border-border-subtle opacity-60',
+                        ? 'cursor-pointer border-gray-300 bg-gray-50 hover:border-border-brand'
+                        : 'cursor-not-allowed border-gray-300 bg-gray-50 opacity-60',
                     )}
                   >
                     <div
                       className={cn(
-                        'flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full font-designer-16b',
+                        'flex size-550 shrink-0 items-center justify-center rounded-50 font-designer-16b text-gray-0',
                         isCompleted
-                          ? 'bg-background-brand-default text-white'
-                          : 'bg-gray-200 text-gray-500',
+                          ? 'bg-background-brand-default'
+                          : 'bg-gray-400',
                       )}
                     >
                       {String(l.order).padStart(2, '0')}
@@ -537,29 +600,24 @@ export default function JourneyMapPage() {
                       >
                         {l.title}
                       </p>
-                      <div className="flex items-center gap-200">
+                      <div className="flex items-center gap-150">
                         {l.isFree && (
-                          <span className="rounded-full bg-rose-100 px-150 py-25 font-designer-12b text-text-brand">
+                          <span className="rounded-50 bg-rose-100 px-150 py-25 font-designer-12b text-text-brand">
                             무료
                           </span>
                         )}
-                        <span className="font-designer-14r text-gray-500">
-                          약 {l.estimatedMinutes}분
+                        <span className="flex items-center gap-50 font-designer-12r text-gray-500">
+                          <Timer className="size-200" />
+                          {l.estimatedMinutes}분
                         </span>
-                        {isCompleted && (
-                          <span className="font-designer-14b text-text-brand">
-                            완료
-                          </span>
-                        )}
-                        {!isAccessible && (
-                          <span className="font-designer-14r text-gray-400">
-                            잠김
-                          </span>
-                        )}
                       </div>
                     </div>
-                    {isAccessible && (
-                      <BookOpen className="h-300 w-300 shrink-0 text-gray-400" />
+                    {isCompleted ? (
+                      <LockOpen className="size-300 shrink-0 text-text-brand" />
+                    ) : isAccessible ? (
+                      <LockOpen className="size-300 shrink-0 text-gray-400" />
+                    ) : (
+                      <Lock className="size-300 shrink-0 text-gray-400" />
                     )}
                   </div>
                 );

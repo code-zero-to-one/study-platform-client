@@ -240,6 +240,7 @@ export default function LessonPage({
 
       <LessonQnaSubmissionModal
         lessonId={lessonId}
+        courseId={lesson?.courseId ?? 0}
         open={submissionModalOpen}
         onClose={() => setSubmissionModalOpen(false)}
       />
