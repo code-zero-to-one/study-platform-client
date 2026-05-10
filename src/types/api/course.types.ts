@@ -1,5 +1,17 @@
 // ─── Course Detail ────────────────────────────────────────────────────────────
 
+export interface CourseFaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface CourseInstructor {
+  name: string;
+  role?: string;
+  bio?: string;
+  profileImageUrl?: string;
+}
+
 export interface CourseDetailResponse {
   courseId: number;
   slug: string;
@@ -14,6 +26,8 @@ export interface CourseDetailResponse {
   fullAccess: boolean | null;
   isEnrolled: boolean | null;
   purchaseAvailable: boolean | null;
+  faqs?: CourseFaqItem[];
+  instructors?: CourseInstructor[];
 }
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -198,9 +212,10 @@ export interface LessonQnaItem {
 }
 
 export interface LessonQnaCreateRequest {
+  lessonId: number;
   title: string;
   content: string;
-  imageUrls?: string[];
+  imageKeys?: string[];
 }
 
 // ─── Q&A Detail ───────────────────────────────────────────────────────────────
