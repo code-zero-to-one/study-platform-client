@@ -31,6 +31,8 @@ yarn typecheck      # No type errors
 - No Tailwind arbitrary values (`p-[4px]`, `w-[320px]`). Use project custom tokens.
 - No hardcoded colors/spacing. Use only `@theme inline` tokens from `global.css`.
 
+@.claude/rules/no-img-no-eslint-disable.md
+
 ---
 
 ## Project Overview
