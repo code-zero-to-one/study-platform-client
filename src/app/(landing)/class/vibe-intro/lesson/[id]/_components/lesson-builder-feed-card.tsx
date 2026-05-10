@@ -7,6 +7,7 @@ import {
   MessageCircle,
   Share2,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type { BuilderFeedPreviewItemResponse } from '@/types/api/course.types';
@@ -26,13 +27,14 @@ export function LessonBuilderFeedCard({ feeds }: Props) {
       <p className="font-designer-16b text-gray-1000">지금 HOT한 빌더 피드</p>
 
       <div className="relative">
-        <div className="h-2325 overflow-hidden rounded-150 bg-gray-600">
+        <div className="relative h-2325 overflow-hidden rounded-150 bg-gray-600">
           {current?.thumbnailUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={current.thumbnailUrl}
               alt=""
-              className="h-full w-full object-cover"
+              fill
+              unoptimized
+              className="object-cover"
             />
           )}
         </div>
