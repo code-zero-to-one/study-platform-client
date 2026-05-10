@@ -37,7 +37,11 @@ export default function HeaderNav({ isLoggedIn: _isLoggedIn }: HeaderNavProps) {
                 <div className="relative flex items-center justify-center rounded-100 bg-background-brand-default px-125 py-75">
                   <div
                     className="absolute left-1/2 -translate-x-1/2"
-                    style={{ top: -15, width: 41, height: 41 }}
+                    style={{
+                      top: -21,
+                      width: 41,
+                      height: 41,
+                    }}
                   >
                     <div
                       className="absolute"
