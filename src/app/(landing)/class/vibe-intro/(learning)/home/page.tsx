@@ -398,7 +398,7 @@ export default function JourneyMapPage() {
 
         {/* Journey map */}
         <div className="mt-500 flex flex-col items-center">
-          {visibleChapters.map((chapter, ci) => {
+          {visibleChapters.map((chapter, index) => {
             const lessons = mergeLessons(chapter, lessonStatusMap);
 
             const rows: LessonDisplayInfo[][] = [];
@@ -423,10 +423,10 @@ export default function JourneyMapPage() {
                     <div
                       className={cn(
                         'relative flex items-center justify-center',
-                        ci === 0 && ri === 0 ? 'mt-800' : 'mt-300',
+                        index === 0 && ri === 0 ? 'mt-800' : 'mt-300',
                       )}
                     >
-                      {ci === 0 && ri === 0 && (
+                      {index === 0 && ri === 0 && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <Image
                             src="/class/vibe-intro/journey-1st-load.svg"
@@ -445,7 +445,7 @@ export default function JourneyMapPage() {
                       >
                         {row.map((lesson, li) => (
                           <div key={lesson.lessonId} className="relative">
-                            {ci === 0 && ri === 0 && li === 0 && (
+                            {index === 0 && ri === 0 && li === 0 && (
                               <div className="absolute bottom-full left-1/2 flex -translate-x-1/2 flex-col items-center">
                                 {isAuthenticated ? (
                                   <Link
@@ -515,7 +515,7 @@ export default function JourneyMapPage() {
                   </div>
                 ))}
 
-                {ci < visibleChapters.length - 1 && (
+                {index < visibleChapters.length - 1 && (
                   <div className="flex justify-center">
                     <Image
                       src="/class/vibe-intro/journey-load.svg"
@@ -641,27 +641,26 @@ export default function JourneyMapPage() {
       </div>
 
       {/* Sticky payment CTA for free-enrolled users */}
-      {course?.viewerStatus === 'FREE_ENROLLED' &&
-        course?.purchaseAvailable && (
-          <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle bg-background-default px-600 py-300 shadow-3">
-            <div className="mx-auto flex max-w-page items-center justify-between gap-300">
-              <div className="flex flex-col gap-25">
-                <p className="font-designer-16b text-gray-1000">
-                  전체 강의 무제한 수강
-                </p>
-                <p className="font-designer-14r text-gray-500">
-                  지금 결제하고 모든 레슨을 들어보세요
-                </p>
-              </div>
-              <Link
-                href={`/payment/${courseId}`}
-                className="shrink-0 rounded-100 bg-background-brand-default px-400 py-200 font-designer-16b text-text-inverse"
-              >
-                결제하기
-              </Link>
+      {course?.viewerStatus === 'FREE_ENROLLED' && course?.canPurchase && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle bg-background-default px-600 py-300 shadow-3">
+          <div className="mx-auto flex max-w-page items-center justify-between gap-300">
+            <div className="flex flex-col gap-25">
+              <p className="font-designer-16b text-gray-1000">
+                전체 강의 무제한 수강
+              </p>
+              <p className="font-designer-14r text-gray-500">
+                지금 결제하고 모든 레슨을 들어보세요
+              </p>
             </div>
+            <Link
+              href={`/payment/${courseId}?type=course&planCode=${course.plans?.[0]?.planCode ?? 'ALL_IN_ONE'}`}
+              className="shrink-0 rounded-100 bg-background-brand-default px-400 py-200 font-designer-16b text-text-inverse"
+            >
+              결제하기
+            </Link>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 }

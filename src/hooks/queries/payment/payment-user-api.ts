@@ -119,7 +119,10 @@ export const usePreparePayment = () => {
   });
 };
 
-export const usePreparePaymentQuery = (groupStudyId: number) => {
+export const usePreparePaymentQuery = (
+  groupStudyId: number,
+  enabled = true,
+) => {
   return useQuery<PreparePaymentResult>({
     queryKey: ['payment', groupStudyId],
     queryFn: async () => {
@@ -152,6 +155,7 @@ export const usePreparePaymentQuery = (groupStudyId: number) => {
         };
       }
     },
+    enabled,
   });
 };
 

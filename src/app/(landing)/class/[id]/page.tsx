@@ -14,11 +14,15 @@ import {
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { BenefitScrollCharacter } from '@/components/pages/class/benefit-scroll-character';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
+  useCreateCourseFreeEnrollment,
+  useCreateStudyWithMeSubscription,
+  useGetBuilderFeedShowcase,
   useGetCourseCurriculum,
   useGetCourseDetail,
   useGetCourseList,
@@ -111,20 +115,29 @@ export default function ClassDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: slug } = use(params);
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('roadmap');
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set([0]),
   );
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [studyWithMePhone, setStudyWithMePhone] = useState('');
+  const [studyWithMeAgreed, setStudyWithMeAgreed] = useState(false);
   const showToast = useToastStore((state) => state.showToast);
   const { isAuthenticated } = useAuth();
 
   // 커리큘럼은 DB에서 가져오되, 코스가 없으면 하드코딩된 CHAPTERS로 fallback.
   const { data: curriculum } = useGetCourseCurriculum(slug);
   const { data: courseDetail } = useGetCourseDetail(slug);
+  const courseId = courseDetail?.courseId ?? 0;
+  const { data: builderFeedShowcase } = useGetBuilderFeedShowcase(courseId);
+  const createCourseFreeEnrollment = useCreateCourseFreeEnrollment();
+  const createStudyWithMeSubscription = useCreateStudyWithMeSubscription();
 
   const { data: allCourses } = useGetCourseList();
   const courseSummary = allCourses?.find((c) => c.slug === slug);
+  const learningHomeHref =
+    slug === 'vibe-intro' ? '/class/vibe-intro/home' : `/class/${slug}`;
   const chaptersForRoadmap = useMemo(() => {
     if (curriculum?.chapters && curriculum.chapters.length > 0) {
       return curriculum.chapters.map((chapter) => ({
@@ -164,6 +177,58 @@ export default function ClassDetailPage({
     }
   }
 
+  async function handleStartCourse() {
+    if (!courseDetail) {
+      showToast('코스 정보를 불러오는 중입니다.', 'info');
+      return;
+    }
+
+    if (
+      courseDetail.viewerStatus === 'LOGIN_ONLY' &&
+      courseDetail.canFreeEnroll
+    ) {
+      try {
+        await createCourseFreeEnrollment.mutateAsync(courseDetail.courseId);
+        showToast('무료 코스 등록이 완료되었어요.');
+      } catch {
+        showToast('무료 코스 등록 중 오류가 발생했어요.', 'error');
+        return;
+      }
+    }
+
+    router.push(learningHomeHref);
+  }
+
+  async function handleStudyWithMeSubmit() {
+    if (!courseDetail) {
+      showToast('코스 정보를 불러오는 중입니다.', 'info');
+      return;
+    }
+    if (!studyWithMePhone.trim()) {
+      showToast('전화번호를 입력해주세요.', 'error');
+      return;
+    }
+    if (!studyWithMeAgreed) {
+      showToast('개인정보 수집·이용에 동의해주세요.', 'error');
+      return;
+    }
+
+    try {
+      await createStudyWithMeSubscription.mutateAsync({
+        courseId: courseDetail.courseId,
+        request: {
+          phone: studyWithMePhone.trim(),
+          agreed: studyWithMeAgreed,
+        },
+      });
+      setStudyWithMePhone('');
+      setStudyWithMeAgreed(false);
+      showToast('Study with Me 알림 신청이 완료되었어요.');
+    } catch {
+      showToast('Study with Me 알림 신청 중 오류가 발생했어요.', 'error');
+    }
+  }
+
   function toggleChapter(index: number) {
     setExpandedChapters((prev) => {
       const next = new Set(prev);
@@ -185,9 +250,9 @@ export default function ClassDetailPage({
             <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
             <p className="font-designer-16m text-gray-800">
               <span className="font-designer-16b text-text-brand">
-                {courseSummary?.participantCount ?? 0}
+                {courseSummary?.learnerCount ?? 0}
               </span>
-              {courseSummary?.participantLabel ?? '명이 함께 배우고 있어요!'}
+              {courseSummary?.learnerLabel ?? '명이 함께 배우고 있어요!'}
             </p>
           </div>
           {curriculum?.durationDays && (
@@ -320,51 +385,77 @@ export default function ClassDetailPage({
                 ZERO-ONE 빌더들이 만든 결과물이에요
               </h2>
               <div className="relative mt-400">
-                <div className="grid grid-cols-2 gap-300">
-                  {[0, 1].map((i) => (
-                    <div
-                      key={i}
-                      className="overflow-hidden rounded-100 border border-border-subtle"
-                    >
-                      <div className="flex items-center gap-125 p-250">
-                        <div className="flex h-300 w-300 shrink-0 items-center justify-center rounded-full bg-gray-200">
-                          <Users className="h-200 w-200 text-gray-500" />
+                {builderFeedShowcase?.items.length ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-300">
+                      {builderFeedShowcase.items.slice(0, 2).map((feed) => (
+                        <div
+                          key={feed.feedId}
+                          className="overflow-hidden rounded-100 border border-border-subtle"
+                        >
+                          <div className="flex items-center gap-125 p-250">
+                            <div className="flex h-300 w-300 shrink-0 items-center justify-center rounded-full bg-gray-200">
+                              <Users className="h-200 w-200 text-gray-500" />
+                            </div>
+                            <p className="font-designer-14m text-gray-800">
+                              {feed.author.nickname}
+                            </p>
+                          </div>
+                          <p className="line-clamp-3 px-250 font-designer-13r text-gray-800">
+                            {feed.content}
+                          </p>
+                          {feed.thumbnailUrl ? (
+                            <div className="relative mt-150 h-3400 bg-gray-600">
+                              <Image
+                                src={feed.thumbnailUrl}
+                                alt="빌더 피드 이미지"
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="mt-150 h-3400 bg-gray-600" />
+                          )}
+                          <div className="flex items-center gap-125 p-250">
+                            <div className="flex items-center gap-50">
+                              <Heart className="h-250 w-250 text-gray-1000" />
+                              <p className="font-designer-16r text-gray-1000">
+                                {feed.likeCount}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-50">
+                              <MessageSquare className="h-250 w-250 text-gray-1000" />
+                              <p className="font-designer-16r text-gray-1000">
+                                {feed.commentCount}
+                              </p>
+                            </div>
+                            <Share2 className="h-250 w-250 text-gray-1000" />
+                          </div>
                         </div>
-                        <p className="font-designer-14m text-gray-800">뭉다</p>
-                      </div>
-                      <p className="px-250 font-designer-13r text-gray-800">
-                        오늘 처음 만들어본 바이브 코딩!
-                        <br />뭘 먼저 시작해야될지 모르겠어서 고민이 많았던...
-                      </p>
-                      <div className="mt-150 h-[276px] bg-gray-600" />
-                      <div className="flex items-center gap-125 p-250">
-                        <div className="flex items-center gap-50">
-                          <Heart className="h-250 w-250 text-gray-1000" />
-                          <p className="font-designer-16r text-gray-1000">24</p>
-                        </div>
-                        <div className="flex items-center gap-50">
-                          <MessageSquare className="h-250 w-250 text-gray-1000" />
-                          <p className="font-designer-16r text-gray-1000">10</p>
-                        </div>
-                        <Share2 className="h-250 w-250 text-gray-1000" />
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  aria-label="이전"
-                  className="absolute left-0 top-[calc(50%-2rem)] -translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
-                >
-                  <ChevronLeft className="h-250 w-250" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="다음"
-                  className="absolute right-0 top-[calc(50%-2rem)] translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
-                >
-                  <ChevronRight className="h-250 w-250" />
-                </button>
+                    <button
+                      type="button"
+                      aria-label="이전"
+                      className="absolute left-0 top-[calc(50%-2rem)] -translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                    >
+                      <ChevronLeft className="h-250 w-250" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="다음"
+                      className="absolute right-0 top-[calc(50%-2rem)] translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                    >
+                      <ChevronRight className="h-250 w-250" />
+                    </button>
+                  </>
+                ) : (
+                  <div className="rounded-100 border border-border-subtle bg-gray-100 p-500 text-center">
+                    <p className="font-designer-16r text-gray-500">
+                      아직 공개된 빌더 피드가 없어요.
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
 
@@ -446,25 +537,21 @@ export default function ClassDetailPage({
                         {chapter.lessons.map((lesson) => (
                           <div
                             key={`${chapter.num}-${lesson.order}`}
-                            className="flex items-center gap-200 border-t border-border-default bg-background-default px-350 py-300"
+                            className="flex flex-col justify-center gap-[5px] border-t border-border-default bg-background-default 3"
                           >
-                            <span className="shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
-                              온보딩
-                            </span>
-                            <p className="font-designer-16r text-gray-800">
-                              Lesson {String(lesson.order).padStart(2, '0')}
-                            </p>
-                            <p className="font-designer-18b text-gray-800">
-                              {lesson.title}
-                            </p>
-                            {lesson.lessonId !== undefined && (
-                              <Link
-                                href={`/class/${slug}/lesson/${lesson.lessonId}`}
-                                className="ml-auto shrink-0 rounded-100 border border-border-brand px-200 py-75 font-designer-14m text-text-brand"
-                              >
-                                자세히 보기
-                              </Link>
-                            )}
+                            <div className="flex gap-[11px]">
+                              <span className="shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
+                                온보딩
+                              </span>
+                              <p className="font-designer-16r text-gray-800">
+                                Lesson {String(lesson.order).padStart(2, '0')}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-designer-18b text-gray-800">
+                                {lesson.title}
+                              </p>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -758,7 +845,7 @@ export default function ClassDetailPage({
                   <p className="font-designer-14m text-gray-800">
                     지금{' '}
                     <span className="text-text-brand">
-                      {courseSummary?.participantCount}
+                      {courseSummary?.learnerCount}
                     </span>
                     명이 이 코스를 들었어요!
                   </p>
@@ -773,12 +860,16 @@ export default function ClassDetailPage({
                     공유하기
                   </button>
                   {isAuthenticated ? (
-                    <Link
-                      href="/class/vibe-intro/home"
+                    <button
+                      type="button"
+                      onClick={handleStartCourse}
+                      disabled={createCourseFreeEnrollment.isPending}
                       className="flex h-700 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
                     >
-                      무료 코스 시작하기
-                    </Link>
+                      {createCourseFreeEnrollment.isPending
+                        ? '등록 중...'
+                        : '무료 코스 시작하기'}
+                    </button>
                   ) : (
                     <LoginModal
                       openTrigger={
@@ -793,7 +884,6 @@ export default function ClassDetailPage({
                   )}
                 </div>
 
-                {/* Study With Me — TODO: API/CMS 연동 필요 (이벤트 날짜·내용 백엔드 제공) */}
                 <div className="mt-300 rounded-100 bg-gray-800 p-300">
                   <p className="font-designer-14m text-gray-0">
                     매주 월·화·수 오전 6시

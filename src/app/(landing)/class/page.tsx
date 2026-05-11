@@ -5,7 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useGetCourseList } from '@/hooks/queries/course/course-api';
+import {
+  useCreateOpenAlertSubscription,
+  useGetCourseList,
+} from '@/hooks/queries/course/course-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import type { CourseSummaryResponse } from '@/types/api/course.types';
 
 type SortOption = '최신순' | '인기순' | '완주율순';
@@ -137,26 +141,49 @@ function CourseThumbnail({
 function NotifyModal({
   open,
   onClose,
+  courseId,
 }: {
   open: boolean;
   onClose: () => void;
+  courseId?: number;
 }) {
   const [email, setEmail] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [emailError, setEmailError] = useState(false);
+  const [agreedError, setAgreedError] = useState(false);
+  const showToast = useToastStore((state) => state.showToast);
+  const createAlertSubscription = useCreateOpenAlertSubscription();
 
   if (!open) return null;
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!email.trim()) {
       setEmailError(true);
       return;
     }
-    // TODO: API not found - open notification signup endpoint
-    setEmail('');
-    setAgreed(false);
-    setEmailError(false);
-    onClose();
+    if (!agreed) {
+      setAgreedError(true);
+      return;
+    }
+    if (!courseId) {
+      showToast('코스 정보를 찾을 수 없어요.', 'error');
+      return;
+    }
+
+    try {
+      await createAlertSubscription.mutateAsync({
+        courseId,
+        request: { email: email.trim(), agreed },
+      });
+      showToast('오픈 알림 신청이 완료되었어요.');
+      setEmail('');
+      setAgreed(false);
+      setEmailError(false);
+      setAgreedError(false);
+      onClose();
+    } catch {
+      showToast('오픈 알림 신청 중 오류가 발생했어요.', 'error');
+    }
   }
 
   return (
@@ -229,7 +256,10 @@ function NotifyModal({
               <input
                 type="checkbox"
                 checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
+                onChange={(e) => {
+                  setAgreed(e.target.checked);
+                  setAgreedError(false);
+                }}
                 className="mt-25 h-300 w-300 shrink-0 rounded-50 accent-rose-500"
               />
               <span className="font-designer-14b">
@@ -242,14 +272,20 @@ function NotifyModal({
             <p className="pl-[34px] font-designer-12r text-gray-800">
               수집 항목: 전화번호·이메일 / 보유 기간: 오픈 안내 발송 후 30일
             </p>
+            {agreedError && (
+              <p className="pl-[34px] font-designer-12r text-text-error">
+                개인정보 수집·이용에 동의해주세요.
+              </p>
+            )}
           </div>
 
           <button
             type="button"
             onClick={handleSubmit}
+            disabled={createAlertSubscription.isPending}
             className="h-700 w-full rounded-100 bg-background-brand-default font-designer-18b text-text-inverse"
           >
-            입력 완료
+            {createAlertSubscription.isPending ? '신청 중...' : '입력 완료'}
           </button>
         </div>
       </div>
@@ -279,9 +315,9 @@ function CourseCard({
           <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
           <p className="font-designer-16m text-text-default">
             <span className="font-designer-16b text-text-brand">
-              {course.participantCount}
+              {course.learnerCount}
             </span>
-            명이 이 코스를 들었어요!
+            {course.learnerLabel}
           </p>
         </div>
 
@@ -346,6 +382,7 @@ export default function ClassPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>('최신순');
   const [notifyModalOpen, setNotifyModalOpen] = useState(false);
+  const [notifyCourseId, setNotifyCourseId] = useState<number>();
 
   const { data: courses } = useGetCourseList();
 
@@ -353,6 +390,7 @@ export default function ClassPage() {
     <div className="w-full">
       <NotifyModal
         open={notifyModalOpen}
+        courseId={notifyCourseId}
         onClose={() => setNotifyModalOpen(false)}
       />
       {/* Banner */}
@@ -683,7 +721,10 @@ export default function ClassPage() {
             <CourseCard
               key={course.courseId}
               course={course}
-              onNotify={() => setNotifyModalOpen(true)}
+              onNotify={() => {
+                setNotifyCourseId(course.courseId);
+                setNotifyModalOpen(true);
+              }}
             />
           ))}
         </div>

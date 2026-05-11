@@ -8,22 +8,37 @@ import type {
   BuilderFeedListResponse,
   BuilderFeedPreviewResponse,
   BuilderFeedReportCreateRequest,
+  BuilderFeedShowcaseResponse,
   BuilderFeedStatsResponse,
   CourseCompletionRecapResponse,
   CourseCurriculumResponse,
   CourseDetailResponse,
   CourseDrawerResponse,
+  CourseFreeEnrollmentResponse,
   CourseJourneyMapResponse,
+  CoursePaymentPrepareRequest,
+  CoursePaymentPrepareResponse,
+  CoursePaymentConfirmResponse,
   CourseProgressResponse,
+  CourseTossPaymentConfirmRequest,
   CourseSummaryResponse,
   LessonDetailResponse,
+  LessonQnaAnswerCreateRequest,
+  LessonQnaAnswerReactionRequest,
   LessonQnaCreateRequest,
   LessonQnaDetailResponse,
   LessonQnaListResponse,
+  LessonQnaReactionRequest,
+  LessonQnaReportRequest,
   LessonQnaSidebarResponse,
   LessonRetrospectiveCreateRequest,
   LessonRetrospectiveResponse,
+  MyCourseFreeEnrollmentResponse,
   MyBuilderFeedsResponse,
+  OpenAlertSubscriptionRequest,
+  OpenAlertSubscriptionResponse,
+  StudyWithMeSubscriptionRequest,
+  StudyWithMeSubscriptionResponse,
 } from '@/types/api/course.types';
 
 // ─── Course List ──────────────────────────────────────────────────────────────
@@ -78,6 +93,131 @@ export const useGetCourseDrawer = (courseId: number) => {
       return data.content;
     },
     enabled: !!courseId,
+  });
+};
+
+// ─── Course Enrollment / Notifications / Payment ────────────────────────────
+
+export const useCreateCourseFreeEnrollment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (courseId: number) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: CourseFreeEnrollmentResponse;
+      }>(`courses/${courseId}/free-enrollments`);
+      return data.content;
+    },
+    onSuccess: async (_, courseId) => {
+      await queryClient.invalidateQueries({ queryKey: ['courseDetail'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['myCourseFreeEnrollment', courseId],
+      });
+    },
+  });
+};
+
+export const useGetMyCourseFreeEnrollment = (courseId: number) => {
+  return useQuery({
+    queryKey: ['myCourseFreeEnrollment', courseId],
+    queryFn: async () => {
+      const { data } = await axiosInstanceV5.get<{
+        content: MyCourseFreeEnrollmentResponse;
+      }>(`courses/${courseId}/free-enrollments/me`);
+      return data.content;
+    },
+    enabled: !!courseId,
+  });
+};
+
+export const useCreateOpenAlertSubscription = () => {
+  return useMutation({
+    mutationFn: async ({
+      courseId,
+      request,
+    }: {
+      courseId: number;
+      request: OpenAlertSubscriptionRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: OpenAlertSubscriptionResponse;
+      }>(`courses/${courseId}/alert-subscription`, request);
+      return data.content;
+    },
+  });
+};
+
+export const useCreateStudyWithMeSubscription = () => {
+  return useMutation({
+    mutationFn: async ({
+      courseId,
+      request,
+    }: {
+      courseId: number;
+      request: StudyWithMeSubscriptionRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: StudyWithMeSubscriptionResponse;
+      }>(`courses/${courseId}/study-with-me/subscription`, request);
+      return data.content;
+    },
+  });
+};
+
+export const usePrepareCoursePayment = () => {
+  return useMutation({
+    mutationFn: async ({
+      courseId,
+      request,
+    }: {
+      courseId: number;
+      request: CoursePaymentPrepareRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: CoursePaymentPrepareResponse;
+      }>(`courses/${courseId}/payments/prepare`, request);
+      return data.content;
+    },
+  });
+};
+
+export const usePrepareCoursePaymentQuery = ({
+  courseId,
+  planCode,
+  enabled = true,
+}: {
+  courseId: number;
+  planCode: CoursePaymentPrepareRequest['planCode'];
+  enabled?: boolean;
+}) => {
+  return useQuery({
+    queryKey: ['coursePayment', courseId, planCode],
+    queryFn: async () => {
+      const { data } = await axiosInstanceV5.post<{
+        content: CoursePaymentPrepareResponse;
+      }>(`courses/${courseId}/payments/prepare`, { planCode });
+      return data.content;
+    },
+    enabled: enabled && !!courseId,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
+  });
+};
+
+export const useConfirmCourseTossPayment = () => {
+  return useMutation({
+    mutationFn: async ({
+      courseId,
+      request,
+    }: {
+      courseId: number;
+      request: CourseTossPaymentConfirmRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: CoursePaymentConfirmResponse;
+      }>(`courses/${courseId}/payments/toss/confirm`, request);
+      return data.content;
+    },
   });
 };
 
@@ -184,43 +324,12 @@ export const useSubmitLessonRetrospective = () => {
       lessonId: number;
       request: LessonRetrospectiveCreateRequest;
     }) => {
-      try {
-        const { data } = await axiosInstanceV5.post<{
-          content: { lessonRetrospectiveId: number };
-        }>(`lessons/${lessonId}/retrospective`, request);
-        return { ...data.content, mocked: false as const };
-      } catch (error) {
-        // Backend `/lessons/{lessonId}/retrospective` POST not yet ready — fall back to mock so UX flow proceeds.
-        if (process.env.NODE_ENV !== 'production') {
-          console.warn('[mock] retrospective submit fallback', {
-            lessonId,
-            error,
-          });
-        }
-        queryClient.setQueryData<LessonRetrospectiveResponse>(
-          ['lessonRetrospective', lessonId],
-          {
-            lessonId,
-            understandingScore: request.understandingScore,
-            content: request.content,
-            artifactType: request.artifactType,
-            artifactValue: request.artifactValue,
-            feedback: request.feedback,
-          },
-        );
-        queryClient.setQueryData<LessonDetailResponse | undefined>(
-          ['lessonDetail', lessonId],
-          (prev) => (prev ? { ...prev, retrospectiveSubmitted: true } : prev),
-        );
-        return {
-          lessonRetrospectiveId: Date.now(),
-          mocked: true as const,
-        };
-      }
+      const { data } = await axiosInstanceV5.post<{
+        content: { lessonRetrospectiveId: number };
+      }>(`lessons/${lessonId}/retrospective`, request);
+      return data.content;
     },
-    onSuccess: async (result, variables) => {
-      // Skip invalidation when mocked — backend refetch would overwrite optimistic state.
-      if (result.mocked) return;
+    onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ['lessonDetail', variables.lessonId],
       });
@@ -233,13 +342,25 @@ export const useSubmitLessonRetrospective = () => {
 
 // ─── Q&A ──────────────────────────────────────────────────────────────────────
 
-export const useGetCourseQnas = (courseId: number) => {
+export const useGetCourseQnas = ({
+  courseId,
+  search,
+  filter,
+  sort,
+}: {
+  courseId: number;
+  search?: string;
+  filter?: string;
+  sort?: string;
+}) => {
   return useQuery({
-    queryKey: ['courseQnas', courseId],
+    queryKey: ['courseQnas', courseId, search, filter, sort],
     queryFn: async () => {
       const { data } = await axiosInstanceV5.get<{
         content: LessonQnaListResponse;
-      }>(`courses/${courseId}/qnas`);
+      }>(`courses/${courseId}/qnas`, {
+        params: { search, filter, sort },
+      });
       return data.content;
     },
     enabled: !!courseId,
@@ -279,6 +400,97 @@ export const useGetLessonQnaDetail = (qnaId: number | null) => {
       return data.content;
     },
     enabled: !!qnaId,
+  });
+};
+
+export const useCreateLessonQnaAnswer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      qnaId,
+      request,
+    }: {
+      qnaId: number;
+      request: LessonQnaAnswerCreateRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: { answerId: number };
+      }>(`qnas/${qnaId}/answers`, request);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', variables.qnaId],
+      });
+    },
+  });
+};
+
+export const useReactLessonQna = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      qnaId,
+      request,
+    }: {
+      qnaId: number;
+      request: LessonQnaReactionRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: unknown;
+      }>(`qnas/${qnaId}/reactions`, request);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', variables.qnaId],
+      });
+    },
+  });
+};
+
+export const useReactLessonQnaAnswer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      answerId,
+      qnaId,
+      request,
+    }: {
+      answerId: number;
+      qnaId: number;
+      request: LessonQnaAnswerReactionRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: unknown;
+      }>(`qna-answers/${answerId}/reactions`, request);
+      return { content: data.content, qnaId };
+    },
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', result.qnaId],
+      });
+    },
+  });
+};
+
+export const useReportLessonQna = () => {
+  return useMutation({
+    mutationFn: async ({
+      qnaId,
+      request,
+    }: {
+      qnaId: number;
+      request: LessonQnaReportRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: unknown;
+      }>(`qnas/${qnaId}/report`, request);
+      return data.content;
+    },
   });
 };
 
@@ -442,6 +654,19 @@ export const useGetLessonBuilderFeedPreview = (lessonId: number) => {
       return data.content;
     },
     enabled: !!lessonId,
+  });
+};
+
+export const useGetBuilderFeedShowcase = (courseId: number) => {
+  return useQuery({
+    queryKey: ['builderFeedShowcase', courseId],
+    queryFn: async () => {
+      const { data } = await axiosInstanceV5.get<{
+        content: BuilderFeedShowcaseResponse;
+      }>(`courses/${courseId}/showcase`);
+      return data.content;
+    },
+    enabled: !!courseId,
   });
 };
 
