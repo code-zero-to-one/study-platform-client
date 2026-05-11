@@ -151,6 +151,7 @@ export interface CourseCurriculumChapterResponse {
   order: number;
   chapterNumber: number;
   title: string;
+  description: string | null;
   estimatedMinutes: number;
   lessons: CourseCurriculumLessonResponse[];
 }
@@ -179,6 +180,7 @@ export interface CourseDrawerChapterResponse {
   chapterId: number;
   order: number;
   title: string;
+  description: string | null;
   defaultExpanded: boolean;
   lessons: CourseDrawerLessonResponse[];
 }

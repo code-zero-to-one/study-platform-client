@@ -153,6 +153,11 @@ export default function AdminLessonManagementPageClient({
   >();
   const [editorVersion, setEditorVersion] = useState(0);
   const draftKey = `lesson:${courseId}:${lessonFormMode}:${editingLessonId ?? 'new'}`;
+  // edit 모드에서는 server hydration이 끝난 뒤에만 draft 자동저장을 활성화한다.
+  // 그렇지 않으면 빈 초기 form이 server 응답보다 먼저 localStorage에 저장되어
+  // 다음 진입 시 빈 draft가 우선되며 기존 본문이 사라진 것처럼 보이게 된다.
+  const isLessonHydrated =
+    lessonFormMode === 'create' || hydratedLessonId === editingLessonId;
   const {
     status: lessonDraftStatus,
     setStatus: setLessonDraftStatus,
@@ -160,6 +165,7 @@ export default function AdminLessonManagementPageClient({
   } = useAdminLocalDraft({
     draftKey,
     value: lessonForm,
+    enabled: isLessonHydrated,
   });
 
   const createLessonMutation = useCreateAdminLessonMutation();
@@ -268,9 +274,16 @@ export default function AdminLessonManagementPageClient({
     const draft = readAdminDraft<AdminLessonUpsertRequest>(
       `lesson:${courseId}:edit:${lessonDetailQuery.data.lessonId}`,
     );
+    // 본문·제목·번호 모두 비어 있는 draft는 race condition으로 저장된 빈 form일 가능성이 높으므로
+    // 무시하고 server data를 사용한다.
+    const isMeaningfulDraft =
+      draft != null &&
+      (draft.content?.trim() ||
+        draft.title?.trim() ||
+        draft.lessonNumber !== undefined);
 
-    setLessonForm(draft ?? serverLessonForm);
-    if (draft) {
+    setLessonForm(isMeaningfulDraft ? draft : serverLessonForm);
+    if (isMeaningfulDraft) {
       setLessonDraftStatus('restored');
     }
     setHydratedLessonId(lessonDetailQuery.data.lessonId);
