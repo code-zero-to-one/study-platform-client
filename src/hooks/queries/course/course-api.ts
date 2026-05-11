@@ -212,7 +212,10 @@ export const useSubmitLessonRetrospective = () => {
           ['lessonDetail', lessonId],
           (prev) => (prev ? { ...prev, retrospectiveSubmitted: true } : prev),
         );
-        return { lessonRetrospectiveId: Date.now(), mocked: true as const };
+        return {
+          lessonRetrospectiveId: Date.now(),
+          mocked: true as const,
+        };
       }
     },
     onSuccess: async (result, variables) => {

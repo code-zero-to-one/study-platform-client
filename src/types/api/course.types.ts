@@ -48,7 +48,7 @@ export interface CourseSummaryResponse {
   headline: string;
   summary: string;
   thumbnailUrl: string | null;
-  status: string;
+  status: 'OPEN' | 'COMING_SOON';
   tags: string[];
   participantCount: number;
   participantLabel: string;
