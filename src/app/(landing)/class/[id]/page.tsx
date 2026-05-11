@@ -130,7 +130,7 @@ export default function ClassDetailPage({
       return curriculum.chapters.map((chapter) => ({
         num: String(chapter.chapterNumber).padStart(2, '0'),
         title: chapter.title,
-        desc: '',
+        desc: chapter.description ?? '',
         lessons: chapter.lessons.map((lesson) => ({
           order: lesson.order,
           title: lesson.title,

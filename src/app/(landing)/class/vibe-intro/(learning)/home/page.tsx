@@ -31,6 +31,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 1,
     chapterNumber: 1,
     title: '시작하기',
+    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
@@ -64,6 +65,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 2,
     chapterNumber: 2,
     title: '심화하기',
+    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
@@ -113,6 +115,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 3,
     chapterNumber: 3,
     title: '완성하기',
+    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
