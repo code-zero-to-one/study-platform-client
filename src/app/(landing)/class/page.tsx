@@ -36,7 +36,27 @@ const SLUG_VARIANT: Record<string, 'basic' | 'work' | 'soon'> = {
   'vibe-intro': 'basic',
 };
 
-function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
+function CourseThumbnail({
+  variant,
+  course,
+}: {
+  variant: 'basic' | 'work' | 'soon';
+  course: CourseSummaryResponse;
+}) {
+  if (course.thumbnailUrl) {
+    return (
+      <div className="relative h-full w-full overflow-hidden">
+        <Image
+          src={course.thumbnailUrl}
+          alt={course.title}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        />
+      </div>
+    );
+  }
+
   if (variant === 'basic') {
     return (
       <div
@@ -54,57 +74,6 @@ function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
           width={42}
           height={42}
           style={{ left: 32, top: 17, width: 42, height: 42 }}
-        />
-
-        <Image
-          src="/class/star-sm.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={26}
-          height={26}
-          style={{ left: 19, top: 42, width: 26, height: 26 }}
-        />
-
-        <Image
-          src="/class/vector-basic.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={39}
-          height={39}
-          style={{ left: 388, top: 20, width: 39, height: 39 }}
-        />
-        <p
-          className="absolute left-1/2 z-10 -translate-x-1/2 whitespace-nowrap text-center font-black leading-normal tracking-tight text-gray-1000 font-display-headings5"
-          style={{ top: 31 }}
-        >
-          Vibe Coding
-        </p>
-
-        <Image
-          src="/class/sphere.svg"
-          alt=""
-          className="absolute left-1/2 -translate-x-1/2"
-          width={214}
-          height={133}
-          style={{ top: 74, width: 214, height: 133 }}
-        />
-        <p
-          className="absolute left-1/2 -translate-x-1/2 text-center font-black tracking-tight text-gray-1000 font-display-headings5"
-          style={{ top: 189 }}
-        >
-          Basic
-        </p>
-
-        <Image
-          src="/class/star-lg.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={42}
-          height={42}
-          style={{ left: 328, top: 179, width: 42, height: 42 }}
         />
       </div>
     );
@@ -129,49 +98,7 @@ function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
           height={39}
           style={{ left: 361, top: 227, width: 39, height: 39 }}
         />
-        <Image
-          src="/class/subtract.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={405}
-          height={233}
-          style={{ left: 23, top: 30, width: 405, height: 233 }}
-        />
-        <Image
-          src="/class/bracket-left.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={42}
-          height={66}
-          style={{ left: 295, top: 30, width: 42, height: 66 }}
-        />
-        <Image
-          src="/class/slash.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={31}
-          height={74}
-          style={{ left: 346, top: 30, width: 31, height: 74 }}
-        />
 
-        <Image
-          src="/class/bracket-right.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={42}
-          height={66}
-          style={{
-            left: 385,
-            top: 30,
-            width: 42,
-            height: 66,
-            transform: 'scaleY(-1) rotate(180deg)',
-          }}
-        />
         <p
           className="absolute left-[154px] top-[146px] whitespace-nowrap font-bold leading-normal tracking-tight text-rose-500 font-display-headings6"
           style={{
@@ -195,9 +122,14 @@ function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
           'linear-gradient(-57.92deg, var(--color-gray-300) 0.43%, var(--color-gray-50) 99.57%)',
       }}
     >
-      <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-center font-black tracking-tight text-gray-500 font-display-headings5">
-        Coming soon
-      </p>
+      <Image
+        src="/class/vector-work.svg"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute"
+        width={39}
+        height={39}
+      />
     </div>
   );
 }
@@ -340,21 +272,21 @@ function CourseCard({
   return (
     <div className="flex flex-col overflow-hidden rounded-200 border border-border-default">
       <div className="h-[292px] shrink-0">
-        <CourseThumbnail variant={thumbnailVariant} />
+        <CourseThumbnail variant={thumbnailVariant} course={course} />
       </div>
       <div className="flex flex-1 flex-col bg-background-default p-350 pt-300">
         <div className="mb-300 flex items-center gap-75">
           <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
           <p className="font-designer-16m text-text-default">
             <span className="font-designer-16b text-text-brand">
-              {course.participantCount}
+              {course.learnerCount}
             </span>
-            {course.participantLabel}
+            명이 이 코스를 들었어요!
           </p>
         </div>
 
-        <div className="mb-300 flex flex-col gap-75">
-          <p className="font-designer-28b leading-normal text-gray-1000">
+        <div className="mb-225 flex flex-col gap-75">
+          <p className="font-designer-26b leading-normal text-gray-1000">
             {course.title}
           </p>
           <p className="whitespace-pre-line font-designer-20r text-text-default">

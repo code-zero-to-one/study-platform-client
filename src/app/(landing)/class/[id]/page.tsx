@@ -202,9 +202,9 @@ export default function ClassDetailPage({
       </div>
 
       {/* Tab nav — sticky */}
-      <div className="sticky top-0 z-10 border-b border-border-default bg-background-default">
+      <div className="mt-[27px] sticky top-0 z-10 border-b border-border-default bg-background-default">
         <div className="mx-auto max-w-page px-600">
-          <nav className="flex">
+          <nav className="flex gap-125">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
