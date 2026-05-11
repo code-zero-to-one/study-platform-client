@@ -279,14 +279,14 @@ function CourseCard({
           <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
           <p className="font-designer-16m text-text-default">
             <span className="font-designer-16b text-text-brand">
-              {course.learnerCount}
+              {course.participantCount}
             </span>
             명이 이 코스를 들었어요!
           </p>
         </div>
 
         <div className="mb-225 flex flex-col gap-75">
-          <p className="font-designer-26b leading-normal text-gray-1000">
+          <p className="font-designer-28b leading-normal text-gray-1000">
             {course.title}
           </p>
           <p className="whitespace-pre-line font-designer-20r text-text-default">
