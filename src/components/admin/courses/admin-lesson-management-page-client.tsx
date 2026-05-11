@@ -274,13 +274,13 @@ export default function AdminLessonManagementPageClient({
     const draft = readAdminDraft<AdminLessonUpsertRequest>(
       `lesson:${courseId}:edit:${lessonDetailQuery.data.lessonId}`,
     );
-    // 본문·제목·번호 모두 비어 있는 draft는 race condition으로 저장된 빈 form일 가능성이 높으므로
+    // server에 본문이 있는데 draft의 본문이 비어 있으면 race condition으로 저장된 빈 form이므로
     // 무시하고 server data를 사용한다.
     const isMeaningfulDraft =
-      draft != null &&
+      draft !== null &&
       (draft.content?.trim() ||
-        draft.title?.trim() ||
-        draft.lessonNumber !== undefined);
+        (!serverLessonForm.content?.trim() &&
+          (draft.title?.trim() || draft.lessonNumber !== undefined)));
 
     setLessonForm(isMeaningfulDraft ? draft : serverLessonForm);
     if (isMeaningfulDraft) {
