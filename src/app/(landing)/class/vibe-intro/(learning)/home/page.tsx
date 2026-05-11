@@ -639,6 +639,29 @@ export default function JourneyMapPage() {
           </div>
         </div>
       </div>
+
+      {/* Sticky payment CTA for free-enrolled users */}
+      {course?.viewerStatus === 'FREE_ENROLLED' &&
+        course?.purchaseAvailable && (
+          <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle bg-background-default px-600 py-300 shadow-3">
+            <div className="mx-auto flex max-w-page items-center justify-between gap-300">
+              <div className="flex flex-col gap-25">
+                <p className="font-designer-16b text-gray-1000">
+                  전체 강의 무제한 수강
+                </p>
+                <p className="font-designer-14r text-gray-500">
+                  지금 결제하고 모든 레슨을 들어보세요
+                </p>
+              </div>
+              <Link
+                href={`/payment/${courseId}`}
+                className="shrink-0 rounded-100 bg-background-brand-default px-400 py-200 font-designer-16b text-text-inverse"
+              >
+                결제하기
+              </Link>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
