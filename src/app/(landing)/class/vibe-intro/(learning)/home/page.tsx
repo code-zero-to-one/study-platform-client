@@ -4,8 +4,13 @@ import { BookOpen, Lock, LockOpen, Timer, Users } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/common/ui/(shadcn)/ui/dialog';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useGetCourseCurriculum,
@@ -211,12 +216,121 @@ function mergeLessons(
   });
 }
 
+interface LessonPreviewModalProps {
+  open: boolean;
+  onClose: () => void;
+  lesson: LessonDisplayInfo;
+  chapter: CourseCurriculumChapterResponse;
+  learnerCount: number;
+  onStart: () => void;
+  onSkip: () => void;
+}
+
+function LessonPreviewModal({
+  open,
+  onClose,
+  lesson,
+  chapter,
+  learnerCount,
+  onStart,
+  onSkip,
+}: LessonPreviewModalProps) {
+  const isOptionBonus = lesson.title.toLowerCase().includes('option');
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-10500 sm:max-w-10500 gap-0 overflow-hidden rounded-200 border-0 bg-background-default p-0">
+        {/* Header */}
+        <div className="flex items-center gap-125 px-875 pt-750">
+          <span className="shrink-0 rounded-full bg-gray-400 px-250 py-50 font-designer-18b text-gray-0">
+            Chapter {String(chapter.chapterNumber).padStart(2, '0')}
+          </span>
+          <span className="whitespace-nowrap font-designer-18b text-gray-600">
+            {chapter.title}
+          </span>
+          <div className="ml-auto flex shrink-0 items-center gap-50 text-gray-600">
+            <Timer className="size-300" />
+            <span className="whitespace-nowrap font-designer-16r">
+              약 {lesson.estimatedMinutes}분 소요
+            </span>
+          </div>
+        </div>
+        {/* Divider */}
+        <div className="mx-875 mt-375 border-t border-gray-200" />
+        {/* Body: lesson type + title + together pill */}
+        <div className="flex w-full items-start justify-between px-875 pt-375">
+          <div className="flex flex-col gap-150">
+            <p className="whitespace-nowrap font-designer-24b text-text-brand">
+              {isOptionBonus
+                ? 'Option Bonus'
+                : `Lesson ${String(lesson.order).padStart(2, '0')}`}
+            </p>
+            <p className="whitespace-nowrap font-designer-24b text-gray-800">
+              {lesson.title}
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-50 rounded-full border border-gray-200 bg-white px-375 py-150">
+            <div className="flex items-center">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'size-300 rounded-full border border-background-brand-default bg-white',
+                    i > 0 && '-ml-75',
+                  )}
+                />
+              ))}
+              <div className="-ml-75 flex size-300 items-center justify-center rounded-full bg-gray-100">
+                <span className="text-[10px] leading-none text-gray-400">
+                  ···
+                </span>
+              </div>
+            </div>
+            <span className="whitespace-nowrap font-designer-14m text-gray-800">
+              지금 <span className="text-text-brand">{learnerCount}</span>
+              명이 함께 달리고 있어요!
+            </span>
+          </div>
+        </div>
+        {/* 학습 목표 */}
+        <div className="flex flex-col gap-75 px-875 pt-375">
+          <p className="font-designer-18b text-gray-800">학습 목표</p>
+          <p className="font-designer-15r text-gray-800">
+            이 레슨에서 무엇을 배우는지 확인하고 시작해요.
+          </p>
+        </div>
+        {/* CTAs */}
+        <div className="flex flex-col gap-150 px-875 pb-875 pt-375">
+          {isOptionBonus && (
+            <button
+              type="button"
+              onClick={onSkip}
+              className="h-625 w-full rounded-100 border border-background-brand-default font-designer-14b text-text-brand"
+            >
+              건너뛰기
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onStart}
+            className="h-625 w-full rounded-100 bg-background-brand-default font-designer-14b text-white"
+          >
+            시작하기
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function LessonStamp({
   lesson,
   isAuthenticated,
+  onSelect,
 }: {
   lesson: LessonDisplayInfo;
   isAuthenticated: boolean;
+  onSelect: (lesson: LessonDisplayInfo) => void;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCompleted = lesson.status === 'COMPLETED';
@@ -267,7 +381,7 @@ function LessonStamp({
         </p>
       </div>
       {showTooltip && (
-        <div className="absolute -top-400 left-1/2 flex -translate-x-1/2 items-center gap-75 rounded-100 bg-gray-900 px-150 py-75">
+        <div className="absolute -top-400 left-1/2 flex -translate-x-1/2 items-center gap-75 whitespace-nowrap rounded-100 bg-gray-900 px-150 py-75">
           <Users className="size-200 text-gray-0" />
           <span className="font-designer-12r text-gray-0">학습 중</span>
         </div>
@@ -284,9 +398,9 @@ function LessonStamp({
       );
     }
     return (
-      <Link href={`/class/vibe-intro/lesson/${lesson.lessonId}`}>
+      <button type="button" onClick={() => onSelect(lesson)}>
         {stampContent}
-      </Link>
+      </button>
     );
   }
 
@@ -329,7 +443,12 @@ export default function JourneyMapPage() {
   const { data: curriculum, isLoading } = useGetCourseCurriculum(COURSE_SLUG);
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
+  const router = useRouter();
   const [visibleChapterCount, setVisibleChapterCount] = useState(2);
+  const [selectedLesson, setSelectedLesson] = useState<{
+    lesson: LessonDisplayInfo;
+    chapter: CourseCurriculumChapterResponse;
+  } | null>(null);
 
   const lessonStatusMap = buildLessonMap(journeyMap?.lessons ?? []);
   const chapters =
@@ -340,6 +459,10 @@ export default function JourneyMapPage() {
   const completedLessons = progress?.completedLessons ?? 0;
   const totalLessons = progress?.totalLessons ?? 0;
   const progressRate = progress?.progressRate ?? 0;
+
+  const nextAccessibleLesson = journeyMap?.lessons.find(
+    (l) => l.status !== 'COMPLETED' && l.isAccessible,
+  );
 
   const visibleChapters = chapters.slice(0, visibleChapterCount);
   const hasMoreChapters = visibleChapterCount < chapters.length;
@@ -400,15 +523,56 @@ export default function JourneyMapPage() {
           </p>
         </div>
 
-        {/* Free trial callout */}
-        {course?.freeLessonCount && course.freeLessonCount > 0 ? (
-          <div className="mt-300 flex flex-col gap-75 rounded-200 border border-border-default bg-gray-100 px-350 py-300">
+        {/* 안내창 — Variant A: free trial in progress */}
+        {course?.viewerStatus === 'FREE_ENROLLED' &&
+        completedLessons < (course.freeLessonCount ?? 0) ? (
+          <div className="mt-300 flex flex-col gap-75 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
             <p className="font-designer-20b text-gray-800">
               Chapter3까지 무료 코스! 마음껏 학습하세요.
             </p>
             <p className="font-designer-16m text-gray-800">
               이후 결제는 무료 온보딩을 하시고 결정하셔도 늦지 않습니다.
             </p>
+          </div>
+        ) : /* Variant B: free trial done → payment CTA */
+        course?.viewerStatus === 'FREE_ENROLLED' &&
+          completedLessons >= (course.freeLessonCount ?? 0) &&
+          course?.canPurchase ? (
+          <div className="mt-300 flex flex-col gap-150 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
+            <div className="flex flex-col gap-75">
+              <p className="font-designer-20b text-gray-800">
+                무료 온보딩을 완료했어요! 이제 전체 강의를 시작해보세요.
+              </p>
+              <p className="font-designer-16m text-gray-800">
+                결제 후 모든 레슨에 바로 접근할 수 있어요.
+              </p>
+            </div>
+            <Link
+              href={`/payment/${courseId}?type=course&planCode=${course.plans?.[0]?.planCode ?? 'ALL_IN_ONE'}`}
+              className="flex h-650 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-16b text-white"
+            >
+              결제하기
+            </Link>
+          </div>
+        ) : /* Variant C: paid user → next lesson info */
+        course?.viewerStatus === 'PAID' && nextAccessibleLesson ? (
+          <div className="mt-300 flex items-center gap-300 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
+            <div className="flex shrink-0 flex-col items-center justify-center rounded-100 bg-background-brand-default px-150 py-75 text-white">
+              <span className="font-designer-12b">Lesson</span>
+              <span className="font-designer-12b">
+                {String(nextAccessibleLesson.order).padStart(2, '0')}
+              </span>
+            </div>
+            <div className="flex flex-col gap-50">
+              <p className="font-designer-20b text-gray-800">
+                NEXT → Lesson{' '}
+                {String(nextAccessibleLesson.order).padStart(2, '0')} -{' '}
+                {nextAccessibleLesson.title}
+              </p>
+              <p className="font-designer-16m text-gray-800">
+                다음 레슨을 이어서 학습해보세요.
+              </p>
+            </div>
           </div>
         ) : null}
 
@@ -506,6 +670,12 @@ export default function JourneyMapPage() {
                             <LessonStamp
                               lesson={lesson}
                               isAuthenticated={isAuthenticated}
+                              onSelect={(l) =>
+                                setSelectedLesson({
+                                  lesson: l,
+                                  chapter,
+                                })
+                              }
                             />
                           </div>
                         ))}
@@ -550,7 +720,7 @@ export default function JourneyMapPage() {
                     Math.min(prev + 2, chapters.length),
                   )
                 }
-                className="rounded-100 border border-gray-400 px-400 py-200 font-designer-16r text-gray-800"
+                className="h-750 w-7125 rounded-100 border border-gray-400 font-designer-16r text-gray-800"
               >
                 더보기
               </button>
@@ -561,7 +731,7 @@ export default function JourneyMapPage() {
                 type="button"
                 disabled={!progress?.isCourseCompleted}
                 className={cn(
-                  'flex h-450 w-1250 items-center justify-center rounded-100 font-designer-24b text-white',
+                  'flex h-550 w-1250 items-center justify-center rounded-100 font-designer-24b text-white',
                   progress?.isCourseCompleted
                     ? 'bg-background-brand-default'
                     : 'cursor-not-allowed bg-gray-300',
@@ -650,6 +820,34 @@ export default function JourneyMapPage() {
           </div>
         </div>
       </div>
+
+      {selectedLesson && (
+        <LessonPreviewModal
+          open={true}
+          onClose={() => setSelectedLesson(null)}
+          lesson={selectedLesson.lesson}
+          chapter={selectedLesson.chapter}
+          learnerCount={course?.learnerCount ?? 0}
+          onStart={() => {
+            router.push(
+              `/class/vibe-intro/lesson/${selectedLesson.lesson.lessonId}`,
+            );
+            setSelectedLesson(null);
+          }}
+          onSkip={() => {
+            const nextAccessible = journeyMap?.lessons.find(
+              (l) =>
+                l.lessonId !== selectedLesson.lesson.lessonId && l.isAccessible,
+            );
+            if (nextAccessible) {
+              router.push(
+                `/class/vibe-intro/lesson/${nextAccessible.lessonId}`,
+              );
+            }
+            setSelectedLesson(null);
+          }}
+        />
+      )}
 
       {/* Sticky payment CTA for free-enrolled users */}
       {course?.viewerStatus === 'FREE_ENROLLED' && course?.canPurchase && (

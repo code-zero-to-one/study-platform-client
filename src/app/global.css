@@ -72,6 +72,8 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 @theme inline {
   /* colors */
   --color-*: initial;
+  --color-black: #000000;
+  --color-white: #ffffff;
 
   --color-gray-0: #ffffff;
   --color-gray-50: #fafafa;
@@ -394,6 +396,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-250: 20px;
   --spacing-275: 22px;
   --spacing-300: 24px;
+  --spacing-325: 26px;
   --spacing-350: 28px;
   --spacing-375: 30px;
   --spacing-400: 32px;
@@ -403,6 +406,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-550: 44px;
   --spacing-600: 48px;
   --spacing-625: 50px;
+  --spacing-650: 52px;
   --spacing-700: 56px;
   --spacing-750: 60px;
   --spacing-875: 70px;
@@ -419,6 +423,8 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-2500: 200px;
   --spacing-2525: 202px;
   --spacing-6750: 540px;
+  --spacing-7125: 570px;
+  --spacing-10500: 840px;
   --spacing-3875: 310px;
   --spacing-3888: 311px;
   --spacing-5000: 400px;
@@ -1688,6 +1694,8 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 /* shadcn 색상 테마 */
 
 :root {
+  --stroke-0: var(--color-gray-300); /* SVG journey-road stroke */
+
   --background: hsl(0 0% 100%);
 
   --foreground: hsl(0 0% 3.9%);
