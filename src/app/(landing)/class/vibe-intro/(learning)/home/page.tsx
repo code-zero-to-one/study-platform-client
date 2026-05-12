@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
 } from '@/components/common/ui/(shadcn)/ui/dialog';
+import UserAvatar from '@/components/common/ui/avatar';
 import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
@@ -277,13 +278,15 @@ function LessonPreviewModal({
               {lesson.title}
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-50 rounded-full border border-gray-200 bg-white px-375 py-150">
+          <div className="flex shrink-0 items-center gap-50 rounded-full border border-gray-200 text-gray-0 px-375 py-150">
             <div className="flex items-center">
               {[0, 1, 2].map((i) => (
-                <div
+                <UserAvatar
                   key={i}
+                  image={undefined}
+                  size={24}
                   className={cn(
-                    'size-300 rounded-full border border-background-brand-default bg-white',
+                    'border border-background-brand-default',
                     i > 0 && '-ml-75',
                   )}
                 />
