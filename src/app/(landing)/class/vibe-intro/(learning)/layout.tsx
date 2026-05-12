@@ -22,7 +22,7 @@ export default function VibeIntroLearningLayout({
     <>
       {/* Banner */}
       <div
-        className="flex h-[120px] w-full items-center justify-center"
+        className="flex h-1500 w-full items-center justify-center"
         style={{
           background:
             'linear-gradient(90deg, var(--color-rose-100) 0%, var(--color-gray-0) 53.37%, var(--color-rose-100) 100%)',
@@ -37,7 +37,7 @@ export default function VibeIntroLearningLayout({
             className="rounded-150 shrink-0"
           />
           <div className="flex flex-col">
-            <p className="font-designer-20b text-gray-800">
+            <p className="text-[22px] font-semibold text-gray-800">
               Study with Me,{' '}
               <span className="text-text-brand">디스코드에서 함께 공부</span>
               해요
@@ -63,8 +63,8 @@ export default function VibeIntroLearningLayout({
               className={cn(
                 'flex h-875 w-6000 flex-col items-center justify-center gap-125',
                 isActive
-                  ? 'font-designer-24b text-text-brand'
-                  : 'font-designer-24r text-gray-400',
+                  ? 'font-designer-18b text-text-brand'
+                  : 'font-designer-18r text-gray-400',
               )}
             >
               {tab.label}

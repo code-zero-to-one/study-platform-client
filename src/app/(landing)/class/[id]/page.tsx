@@ -109,6 +109,33 @@ const CHAPTERS = [
   },
 ];
 
+const FAQS = [
+  {
+    question: '코딩을 전혀 몰라도 들을 수 있나요?',
+    answer:
+      '네, 이 코스는 코딩 경험이 전혀 없는 분들을 위해 설계되었어요. 기초부터 차근차근 알려드립니다.',
+  },
+  {
+    question: '수강 기간은 얼마나 되나요?',
+    answer:
+      '수강 기간은 별도 제한 없이 커리큘럼을 모두 완료할 때까지 자유롭게 학습하실 수 있어요.',
+  },
+  {
+    question: '결제 후 환불이 가능한가요?',
+    answer:
+      '결제 후 7일 이내, 강의 진도율 20% 미만인 경우 전액 환불 가능합니다.',
+  },
+  {
+    question: '강의는 어떤 방식으로 진행되나요?',
+    answer:
+      '영상 강의와 실습 과제를 병행하며, 디스코드를 통해 멘토와 다른 수강생들과 소통할 수 있어요.',
+  },
+  {
+    question: '수료증이 발급되나요?',
+    answer: '모든 강의를 완료하면 ZERO-ONE 수료증을 발급해 드립니다.',
+  },
+];
+
 export default function ClassDetailPage({
   params,
 }: {
@@ -437,14 +464,14 @@ export default function ClassDetailPage({
                     <button
                       type="button"
                       aria-label="이전"
-                      className="absolute left-0 top-[calc(50%-2rem)] -translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
                     >
                       <ChevronLeft className="h-250 w-250" />
                     </button>
                     <button
                       type="button"
                       aria-label="다음"
-                      className="absolute right-0 top-[calc(50%-2rem)] translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
                     >
                       <ChevronRight className="h-250 w-250" />
                     </button>
@@ -537,9 +564,9 @@ export default function ClassDetailPage({
                         {chapter.lessons.map((lesson) => (
                           <div
                             key={`${chapter.num}-${lesson.order}`}
-                            className="flex flex-col justify-center gap-[5px] border-t border-border-default bg-background-default 3"
+                            className="flex flex-col justify-center gap-75 border-t border-border-default bg-background-default px-250 py-200"
                           >
-                            <div className="flex gap-[11px]">
+                            <div className="flex gap-125">
                               <span className="shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
                                 온보딩
                               </span>
@@ -757,44 +784,46 @@ export default function ClassDetailPage({
                 궁금한 점 있으세요?
               </h2>
               <div className="mt-400 space-y-125">
-                {(courseDetail?.faqs ?? []).map((faq, idx) => (
-                  <div
-                    key={faq.question}
-                    className="overflow-hidden rounded-200 border border-border-default bg-gray-100"
-                  >
-                    <button
-                      type="button"
-                      className="flex h-800 w-full items-center justify-between px-350"
-                      onClick={() =>
-                        setExpandedFaq(expandedFaq === idx ? null : idx)
-                      }
+                {(courseDetail?.faqs?.length ? courseDetail.faqs : FAQS).map(
+                  (faq, idx) => (
+                    <div
+                      key={faq.question}
+                      className="overflow-hidden rounded-200 border border-border-default bg-gray-100"
                     >
-                      <div className="flex items-center">
-                        <span className="mr-250 font-designer-16m text-text-brand">
-                          Q
-                        </span>
-                        <span className="font-designer-16m text-gray-800">
-                          {faq.question}
-                        </span>
-                      </div>
-                      {expandedFaq === idx ? (
-                        <ChevronUp className="h-300 w-300 shrink-0 text-gray-800" />
-                      ) : (
-                        <ChevronDown className="h-300 w-300 shrink-0 text-gray-800" />
+                      <button
+                        type="button"
+                        className="flex h-800 w-full items-center justify-between px-350"
+                        onClick={() =>
+                          setExpandedFaq(expandedFaq === idx ? null : idx)
+                        }
+                      >
+                        <div className="flex items-center">
+                          <span className="mr-250 font-designer-16m text-text-brand">
+                            Q
+                          </span>
+                          <span className="font-designer-16m text-gray-800">
+                            {faq.question}
+                          </span>
+                        </div>
+                        {expandedFaq === idx ? (
+                          <ChevronUp className="h-300 w-300 shrink-0 text-gray-800" />
+                        ) : (
+                          <ChevronDown className="h-300 w-300 shrink-0 text-gray-800" />
+                        )}
+                      </button>
+                      {expandedFaq === idx && (
+                        <div className="flex items-start gap-250 border-t border-border-default px-350 py-300">
+                          <span className="font-designer-16m text-gray-500">
+                            A
+                          </span>
+                          <span className="font-designer-16r text-gray-800">
+                            {faq.answer}
+                          </span>
+                        </div>
                       )}
-                    </button>
-                    {expandedFaq === idx && (
-                      <div className="flex items-start gap-250 border-t border-border-default px-350 py-300">
-                        <span className="font-designer-16m text-gray-500">
-                          A
-                        </span>
-                        <span className="font-designer-16r text-gray-800">
-                          {faq.answer}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  ),
+                )}
               </div>
             </section>
           </div>
