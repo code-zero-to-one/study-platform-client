@@ -162,7 +162,7 @@ export interface CourseJourneyMapLessonResponse {
   title: string;
   isFree: boolean;
   status: LessonProgressStatus;
-  accessible: boolean;
+  isAccessible: boolean;
 }
 
 export interface CourseProgressResponse {
@@ -203,14 +203,19 @@ export interface LessonDetailResponse {
 }
 
 export interface LessonRetrospectiveCreateRequest {
-  understandingScore: number;
-  content: string;
+  highlightAnswer: string;
+  unexpectedAnswer: string;
   artifactType: string | null;
   artifactValue: string | null;
-  feedback: {
-    checklistFlags: boolean[];
-    freeText: string;
-  };
+  feedback: { checklistFlags: boolean[]; freeText: string } | null;
+}
+
+export interface LessonRetrospectiveCreateResponse {
+  retrospectiveId: number;
+  feedId: number;
+  isLessonCompleted: boolean;
+  nextAccessibleLessonId: number | null;
+  isCourseCompleted: boolean;
 }
 
 export interface LessonRetrospectiveResponse {

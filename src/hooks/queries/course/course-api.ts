@@ -32,6 +32,7 @@ import type {
   LessonQnaReportRequest,
   LessonQnaSidebarResponse,
   LessonRetrospectiveCreateRequest,
+  LessonRetrospectiveCreateResponse,
   LessonRetrospectiveResponse,
   MyCourseFreeEnrollmentResponse,
   MyBuilderFeedsResponse,
@@ -325,7 +326,7 @@ export const useSubmitLessonRetrospective = () => {
       request: LessonRetrospectiveCreateRequest;
     }) => {
       const { data } = await axiosInstanceV5.post<{
-        content: { lessonRetrospectiveId: number };
+        content: LessonRetrospectiveCreateResponse;
       }>(`lessons/${lessonId}/retrospective`, request);
       return data.content;
     },
@@ -336,6 +337,8 @@ export const useSubmitLessonRetrospective = () => {
       await queryClient.invalidateQueries({
         queryKey: ['lessonRetrospective', variables.lessonId],
       });
+      await queryClient.invalidateQueries({ queryKey: ['courseJourneyMap'] });
+      await queryClient.invalidateQueries({ queryKey: ['courseProgress'] });
     },
   });
 };
