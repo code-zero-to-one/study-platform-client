@@ -42,6 +42,7 @@ const emptyLessonForm: AdminLessonUpsertRequest = {
   chapterNumber: 1,
   lessonNumber: 1,
   title: '',
+  description: '',
   content: '',
   estimatedMinutes: 30,
   retrospectivePurpose: 'PRACTICE_PROOF',
@@ -244,6 +245,7 @@ export default function AdminLessonManagementPageClient({
       chapterNumber: firstLesson.chapterNumber,
       lessonNumber: firstLesson.lessonNumber,
       title: firstLesson.title,
+      description: '',
       content: '',
       estimatedMinutes: 30,
       retrospectivePurpose: firstLesson.retrospectivePurpose,
@@ -265,6 +267,7 @@ export default function AdminLessonManagementPageClient({
       chapterNumber: lessonDetailQuery.data.chapterNumber,
       lessonNumber: lessonDetailQuery.data.lessonNumber,
       title: lessonDetailQuery.data.title,
+      description: lessonDetailQuery.data.description ?? '',
       content: lessonDetailQuery.data.content,
       estimatedMinutes: lessonDetailQuery.data.estimatedMinutes,
       retrospectivePurpose: lessonDetailQuery.data.retrospectivePurpose,
@@ -328,6 +331,7 @@ export default function AdminLessonManagementPageClient({
       chapterNumber: lesson.chapterNumber,
       lessonNumber: lesson.lessonNumber,
       title: lesson.title,
+      description: '',
       content: '',
       estimatedMinutes: 30,
       retrospectivePurpose: lesson.retrospectivePurpose,
@@ -688,6 +692,25 @@ export default function AdminLessonManagementPageClient({
                 onValueChange={(title) =>
                   setLessonForm((prev) => ({ ...prev, title }))
                 }
+              />
+            </AdminCourseField>
+            <AdminCourseField
+              label="레슨 소개 (2줄)"
+              helper="선택 · 카드/리스트/상세 헤더 등에 노출되는 짧은 요약 · 최대 500자"
+            >
+              <textarea
+                disabled={isLessonFormLocked}
+                value={lessonForm.description}
+                placeholder="레슨 한 줄 소개와 핵심 모먼트를 2줄로 정리해주세요."
+                maxLength={CLASS_INPUT_LIMITS.lesson.descriptionMax}
+                onChange={(event) =>
+                  setLessonForm((prev) => ({
+                    ...prev,
+                    description: event.target.value,
+                  }))
+                }
+                className="border-border-default focus:border-border-brand-default font-designer-14r text-text-default min-h-800 w-full rounded-100 border bg-background-default px-150 py-100 outline-none disabled:bg-background-disabled"
+                rows={2}
               />
             </AdminCourseField>
             <AdminCourseField

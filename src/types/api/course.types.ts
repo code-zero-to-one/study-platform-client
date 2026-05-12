@@ -99,6 +99,7 @@ export interface LessonDetailResponse {
   courseSlug: string;
   courseTitle: string;
   title: string;
+  description: string | null;
   isFree: boolean;
   estimatedMinutes: number | null;
   videoUrl: string | null;
@@ -141,6 +142,7 @@ export interface CourseCurriculumLessonResponse {
   lessonId: number;
   order: number;
   title: string;
+  description: string | null;
   isFree: boolean;
   locked: boolean;
   estimatedMinutes: number;
