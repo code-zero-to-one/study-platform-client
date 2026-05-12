@@ -37,12 +37,14 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 1,
     chapterNumber: 1,
     title: '시작하기',
+    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
         lessonId: -1,
         order: 1,
         title: 'Lesson 01',
+        description: null,
         isFree: true,
         locked: false,
         estimatedMinutes: 18,
@@ -51,6 +53,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -2,
         order: 2,
         title: 'Lesson 02',
+        description: null,
         isFree: true,
         locked: false,
         estimatedMinutes: 18,
@@ -59,6 +62,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -3,
         order: 3,
         title: 'Lesson 03',
+        description: null,
         isFree: true,
         locked: false,
         estimatedMinutes: 18,
@@ -70,12 +74,14 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 2,
     chapterNumber: 2,
     title: '심화하기',
+    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
         lessonId: -4,
         order: 4,
         title: 'Lesson 04',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -84,6 +90,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -5,
         order: 5,
         title: 'Lesson 05',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -92,6 +99,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -6,
         order: 6,
         title: 'Lesson 06',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -100,6 +108,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -7,
         order: 7,
         title: 'Lesson 07',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -108,6 +117,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -8,
         order: 8,
         title: 'Lesson 08',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -119,12 +129,14 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 3,
     chapterNumber: 3,
     title: '완성하기',
+    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
         lessonId: -9,
         order: 9,
         title: 'Lesson 09',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -133,6 +145,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -10,
         order: 10,
         title: 'Lesson 10',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -141,6 +154,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -11,
         order: 11,
         title: 'Lesson 11',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -149,6 +163,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -12,
         order: 12,
         title: 'Lesson 12',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -157,6 +172,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -13,
         order: 13,
         title: 'Lesson 13',
+        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -337,7 +353,7 @@ function LessonStamp({
         className={cn(
           'absolute inset-0',
           isCompleted && 'brightness-110 saturate-150',
-          isCurrent && 'animate-[1.6]',
+          isCurrent && 'animate-[pulse_1.6s_ease-in-out_infinite]',
         )}
       />
       <div className="relative z-10 flex flex-col items-center">
@@ -517,9 +533,8 @@ export default function JourneyMapPage() {
           </p>
         </div>
 
-        {/* 안내창 — Variant A: free trial in progress */}
-        {course?.viewerStatus === 'FREE_ENROLLED' &&
-        completedLessons < (course.freeLessonCount ?? 0) ? (
+        {/* 안내창 — State 1: 최초 접속 (no progress yet) */}
+        {course?.viewerStatus === 'FREE_ENROLLED' && completedLessons === 0 ? (
           <div className="mt-300 flex flex-col gap-75 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
             <p className="font-designer-20b text-gray-800">
               Chapter3까지 무료 코스! 마음껏 학습하세요.
@@ -528,17 +543,18 @@ export default function JourneyMapPage() {
               이후 결제는 무료 온보딩을 하시고 결정하셔도 늦지 않습니다.
             </p>
           </div>
-        ) : /* Variant B: free trial done → payment CTA */
+        ) : /* State 2: free lessons exhausted → payment CTA */
         course?.viewerStatus === 'FREE_ENROLLED' &&
           completedLessons >= (course.freeLessonCount ?? 0) &&
           course?.canPurchase ? (
           <div className="mt-300 flex flex-col gap-150 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
             <div className="flex flex-col gap-75">
               <p className="font-designer-20b text-gray-800">
-                무료 온보딩을 완료했어요! 이제 전체 강의를 시작해보세요.
+                Chapter3까지 재미있게 따라 오셨나요? 이어서 공부를 원하시면
+                결제를 진행해주세요.
               </p>
               <p className="font-designer-16m text-gray-800">
-                결제 후 모든 레슨에 바로 접근할 수 있어요.
+                얼리버드 가격으로 39,900원에 만나실 수 있어요! 놓치지 마세요!
               </p>
             </div>
             <Link
@@ -548,8 +564,12 @@ export default function JourneyMapPage() {
               결제하기
             </Link>
           </div>
-        ) : /* Variant C: paid user → next lesson info */
-        course?.viewerStatus === 'PAID' && nextAccessibleLesson ? (
+        ) : /* State 3: mid-progress free or paid → next lesson info */
+        nextAccessibleLesson &&
+          (course?.viewerStatus === 'PAID' ||
+            (course?.viewerStatus === 'FREE_ENROLLED' &&
+              completedLessons > 0 &&
+              completedLessons < (course.freeLessonCount ?? 0))) ? (
           <div className="mt-300 flex items-center gap-300 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
             <div className="flex shrink-0 flex-col items-center justify-center rounded-100 bg-background-brand-default px-150 py-75 text-white">
               <span className="font-designer-12b">Lesson</span>
