@@ -185,6 +185,7 @@ interface LessonDisplayInfo {
   lessonId: number;
   order: number;
   title: string;
+  description: string | null;
   isFree: boolean;
   status: LessonProgressStatus;
   accessible: boolean;
@@ -210,6 +211,7 @@ function mergeLessons(
       lessonId: l.lessonId,
       order: l.order,
       title: l.title,
+      description: l.description,
       isFree: l.isFree,
       status: journeyLesson?.status ?? (l.locked ? 'LOCKED' : 'IN_PROGRESS'),
       accessible: journeyLesson?.isAccessible ?? !l.locked,
@@ -302,7 +304,8 @@ function LessonPreviewModal({
         <div className="flex flex-col gap-75 px-875 pt-375">
           <p className="font-designer-18b text-gray-800">학습 목표</p>
           <p className="font-designer-15r text-gray-800">
-            이 레슨에서 무엇을 배우는지 확인하고 시작해요.
+            {lesson.description ??
+              '이 레슨에서 무엇을 배우는지 확인하고 시작해요.'}
           </p>
         </div>
         {/* CTAs */}
@@ -334,11 +337,13 @@ function LessonStamp({
   isAuthenticated,
   onSelect,
   shouldBlink = false,
+  learnerCount,
 }: {
   lesson: LessonDisplayInfo;
   isAuthenticated: boolean;
   onSelect: (lesson: LessonDisplayInfo) => void;
   shouldBlink?: boolean;
+  learnerCount: number;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCompleted = lesson.status === 'COMPLETED';
@@ -411,7 +416,9 @@ function LessonStamp({
       {showTooltip && (
         <div className="absolute -top-400 left-1/2 flex -translate-x-1/2 items-center gap-75 whitespace-nowrap rounded-100 bg-gray-900 px-150 py-75">
           <Users className="size-200 text-gray-0" />
-          <span className="font-designer-12r text-gray-0">학습 중</span>
+          <span className="font-designer-12r text-gray-0">
+            {learnerCount}명이 함께 달리는 중
+          </span>
         </div>
       )}
     </div>
@@ -492,6 +499,12 @@ export default function JourneyMapPage() {
   const nextAccessibleLesson = journeyMap?.lessons.find(
     (l) => l.status !== 'COMPLETED' && l.isAccessible,
   );
+
+  const nextLessonDescription =
+    chapters
+      .flatMap((c) => c.lessons)
+      .find((l) => l.lessonId === nextAccessibleLesson?.lessonId)
+      ?.description ?? null;
 
   const visibleChapters = chapters.slice(0, visibleChapterCount);
   const hasMoreChapters = visibleChapterCount < chapters.length;
@@ -611,7 +624,7 @@ export default function JourneyMapPage() {
                 {nextAccessibleLesson.title}
               </p>
               <p className="font-designer-16m text-gray-800">
-                다음 레슨을 이어서 학습해보세요.
+                {nextLessonDescription ?? '다음 레슨을 이어서 학습해보세요.'}
               </p>
             </div>
           </div>
@@ -722,6 +735,11 @@ export default function JourneyMapPage() {
                                 index === 0 &&
                                 ri === 0 &&
                                 li === 0
+                              }
+                              learnerCount={
+                                journeyMap?.learnerCount ??
+                                course?.learnerCount ??
+                                0
                               }
                             />
                           </div>

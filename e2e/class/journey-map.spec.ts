@@ -135,11 +135,23 @@ function makeCurriculum(): { content: CourseCurriculumResponse } {
   };
 }
 
-function makeJourneyMap(lessons: CourseJourneyMapLessonResponse[]): {
+type JourneyLessonInput = Omit<
+  CourseJourneyMapLessonResponse,
+  'chapterId' | 'chapterNumber' | 'estimatedMinutes'
+> &
+  Partial<
+    Pick<
+      CourseJourneyMapLessonResponse,
+      'chapterId' | 'chapterNumber' | 'estimatedMinutes'
+    >
+  >;
+
+function makeJourneyMap(lessons: JourneyLessonInput[]): {
   content: {
     courseId: number;
     courseTitle: string;
     viewerStatus: string;
+    learnerCount: number;
     lessons: CourseJourneyMapLessonResponse[];
   };
 } {
@@ -148,7 +160,13 @@ function makeJourneyMap(lessons: CourseJourneyMapLessonResponse[]): {
       courseId: COURSE_ID,
       courseTitle: '바이브 코딩 인트로',
       viewerStatus: 'FREE_ENROLLED',
-      lessons,
+      learnerCount: 24,
+      lessons: lessons.map((l) => ({
+        chapterId: 1,
+        chapterNumber: 1,
+        estimatedMinutes: 18,
+        ...l,
+      })),
     },
   };
 }

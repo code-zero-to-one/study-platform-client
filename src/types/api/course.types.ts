@@ -149,20 +149,49 @@ export interface CourseTossPaymentConfirmRequest {
 
 // ─── Course ───────────────────────────────────────────────────────────────────
 
+export interface CourseJourneyMapLessonResponse {
+  lessonId: number;
+  chapterId: number;
+  chapterNumber: number;
+  order: number;
+  title: string;
+  isFree: boolean;
+  estimatedMinutes: number;
+  status: LessonProgressStatus;
+  isAccessible: boolean;
+}
+
+export interface CourseJourneyMapChapterResponse {
+  chapterId: number;
+  order: number;
+  chapterNumber: number;
+  title: string;
+  lessons: CourseJourneyMapLessonResponse[];
+}
+
 export interface CourseJourneyMapResponse {
   courseId: number;
   courseTitle: string;
   viewerStatus: ViewerStatus;
+  totalLessons: number;
+  completedLessons: number;
+  progressRate: number;
+  isCourseCompleted: boolean;
+  learnerCount: number;
+  latestCompletedLesson: {
+    lessonId: number;
+    order: number;
+    title: string;
+  } | null;
+  nextAccessibleLesson: {
+    lessonId: number;
+    order: number;
+    title: string;
+    isFree: boolean;
+    isAccessible: boolean;
+  } | null;
+  chapters: CourseJourneyMapChapterResponse[];
   lessons: CourseJourneyMapLessonResponse[];
-}
-
-export interface CourseJourneyMapLessonResponse {
-  lessonId: number;
-  order: number;
-  title: string;
-  isFree: boolean;
-  status: LessonProgressStatus;
-  isAccessible: boolean;
 }
 
 export interface CourseProgressResponse {
@@ -204,6 +233,7 @@ export interface LessonDetailResponse {
 }
 
 export interface LessonRetrospectiveCreateRequest {
+  starRating?: number | null;
   highlightAnswer: string;
   unexpectedAnswer: string;
   artifactType: string | null;
