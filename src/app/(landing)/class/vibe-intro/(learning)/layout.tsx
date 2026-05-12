@@ -50,7 +50,7 @@ export default function VibeIntroLearningLayout({
       </div>
 
       {/* Tab nav */}
-      <div className="flex w-full border-b border-border-default">
+      <div className="flex w-full">
         {TABS.map((tab) => {
           const isActive =
             pathname === tab.href ||
@@ -70,8 +70,10 @@ export default function VibeIntroLearningLayout({
               {tab.label}
               <div
                 className={cn(
-                  'h-25 w-full',
-                  isActive ? 'bg-background-brand-default' : '',
+                  'w-full',
+                  isActive
+                    ? 'h-25 bg-background-brand-default'
+                    : 'h-px bg-border-default',
                 )}
               />
             </Link>
