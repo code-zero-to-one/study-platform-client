@@ -170,10 +170,11 @@ export default function ClassDetailPage({
       return curriculum.chapters.map((chapter) => ({
         num: String(chapter.chapterNumber).padStart(2, '0'),
         title: chapter.title,
-        desc: '',
+        desc: chapter.description ?? '',
         lessons: chapter.lessons.map((lesson) => ({
           order: lesson.order,
           title: lesson.title,
+          description: lesson.description ?? '',
           lessonId: lesson.lessonId,
         })),
       }));
@@ -183,6 +184,7 @@ export default function ClassDetailPage({
       lessons: chapter.lessons.map((title, index) => ({
         order: index + 1,
         title,
+        description: '',
         lessonId: undefined as number | undefined,
       })),
     }));
@@ -578,21 +580,32 @@ export default function ClassDetailPage({
                         {chapter.lessons.map((lesson) => (
                           <div
                             key={`${chapter.num}-${lesson.order}`}
-                            className="flex flex-col justify-center gap-75 border-t border-border-default bg-background-default px-250 py-200"
+                            className="flex items-start gap-200 border-t border-border-default bg-background-default px-350 py-300"
                           >
-                            <div className="flex gap-125">
-                              <span className="shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
-                                온보딩
-                              </span>
-                              <p className="font-designer-16r text-gray-800">
-                                Lesson {String(lesson.order).padStart(2, '0')}
-                              </p>
-                            </div>
-                            <div>
+                            <span className="mt-25 shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
+                              온보딩
+                            </span>
+                            <p className="mt-25 shrink-0 font-designer-16r text-gray-800">
+                              Lesson {String(lesson.order).padStart(2, '0')}
+                            </p>
+                            <div className="flex min-w-0 flex-1 flex-col gap-50">
                               <p className="font-designer-18b text-gray-800">
                                 {lesson.title}
                               </p>
+                              {lesson.description && (
+                                <p className="whitespace-pre-line font-designer-14r text-gray-600">
+                                  {lesson.description}
+                                </p>
+                              )}
                             </div>
+                            {lesson.lessonId !== undefined && (
+                              <Link
+                                href={`/class/${slug}/lesson/${lesson.lessonId}`}
+                                className="ml-auto mt-25 shrink-0 rounded-100 border border-border-brand px-200 py-75 font-designer-14m text-text-brand"
+                              >
+                                자세히 보기
+                              </Link>
+                            )}
                           </div>
                         ))}
                       </div>

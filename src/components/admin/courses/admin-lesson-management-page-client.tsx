@@ -42,6 +42,7 @@ const emptyLessonForm: AdminLessonUpsertRequest = {
   chapterNumber: 1,
   lessonNumber: 1,
   title: '',
+  description: '',
   content: '',
   estimatedMinutes: 30,
   retrospectivePurpose: 'PRACTICE_PROOF',
@@ -153,6 +154,11 @@ export default function AdminLessonManagementPageClient({
   >();
   const [editorVersion, setEditorVersion] = useState(0);
   const draftKey = `lesson:${courseId}:${lessonFormMode}:${editingLessonId ?? 'new'}`;
+  // edit 모드에서는 server hydration이 끝난 뒤에만 draft 자동저장을 활성화한다.
+  // 그렇지 않으면 빈 초기 form이 server 응답보다 먼저 localStorage에 저장되어
+  // 다음 진입 시 빈 draft가 우선되며 기존 본문이 사라진 것처럼 보이게 된다.
+  const isLessonHydrated =
+    lessonFormMode === 'create' || hydratedLessonId === editingLessonId;
   const {
     status: lessonDraftStatus,
     setStatus: setLessonDraftStatus,
@@ -160,6 +166,7 @@ export default function AdminLessonManagementPageClient({
   } = useAdminLocalDraft({
     draftKey,
     value: lessonForm,
+    enabled: isLessonHydrated,
   });
 
   const createLessonMutation = useCreateAdminLessonMutation();
@@ -238,6 +245,7 @@ export default function AdminLessonManagementPageClient({
       chapterNumber: firstLesson.chapterNumber,
       lessonNumber: firstLesson.lessonNumber,
       title: firstLesson.title,
+      description: '',
       content: '',
       estimatedMinutes: 30,
       retrospectivePurpose: firstLesson.retrospectivePurpose,
@@ -259,6 +267,7 @@ export default function AdminLessonManagementPageClient({
       chapterNumber: lessonDetailQuery.data.chapterNumber,
       lessonNumber: lessonDetailQuery.data.lessonNumber,
       title: lessonDetailQuery.data.title,
+      description: lessonDetailQuery.data.description ?? '',
       content: lessonDetailQuery.data.content,
       estimatedMinutes: lessonDetailQuery.data.estimatedMinutes,
       retrospectivePurpose: lessonDetailQuery.data.retrospectivePurpose,
@@ -268,9 +277,16 @@ export default function AdminLessonManagementPageClient({
     const draft = readAdminDraft<AdminLessonUpsertRequest>(
       `lesson:${courseId}:edit:${lessonDetailQuery.data.lessonId}`,
     );
+    // server에 본문이 있는데 draft의 본문이 비어 있으면 race condition으로 저장된 빈 form이므로
+    // 무시하고 server data를 사용한다.
+    const isMeaningfulDraft =
+      draft !== null &&
+      (draft.content?.trim() ||
+        (!serverLessonForm.content?.trim() &&
+          (draft.title?.trim() || draft.lessonNumber !== undefined)));
 
-    setLessonForm(draft ?? serverLessonForm);
-    if (draft) {
+    setLessonForm(isMeaningfulDraft ? draft : serverLessonForm);
+    if (isMeaningfulDraft) {
       setLessonDraftStatus('restored');
     }
     setHydratedLessonId(lessonDetailQuery.data.lessonId);
@@ -315,6 +331,7 @@ export default function AdminLessonManagementPageClient({
       chapterNumber: lesson.chapterNumber,
       lessonNumber: lesson.lessonNumber,
       title: lesson.title,
+      description: '',
       content: '',
       estimatedMinutes: 30,
       retrospectivePurpose: lesson.retrospectivePurpose,
@@ -675,6 +692,25 @@ export default function AdminLessonManagementPageClient({
                 onValueChange={(title) =>
                   setLessonForm((prev) => ({ ...prev, title }))
                 }
+              />
+            </AdminCourseField>
+            <AdminCourseField
+              label="레슨 소개 (2줄)"
+              helper="선택 · 카드/리스트/상세 헤더 등에 노출되는 짧은 요약 · 최대 500자"
+            >
+              <textarea
+                disabled={isLessonFormLocked}
+                value={lessonForm.description}
+                placeholder="레슨 한 줄 소개와 핵심 모먼트를 2줄로 정리해주세요."
+                maxLength={CLASS_INPUT_LIMITS.lesson.descriptionMax}
+                onChange={(event) =>
+                  setLessonForm((prev) => ({
+                    ...prev,
+                    description: event.target.value,
+                  }))
+                }
+                className="border-border-default focus:border-border-brand-default font-designer-14r text-text-default min-h-800 w-full rounded-100 border bg-background-default px-150 py-100 outline-none disabled:bg-background-disabled"
+                rows={2}
               />
             </AdminCourseField>
             <AdminCourseField
