@@ -22,7 +22,7 @@ export default function VibeIntroLearningLayout({
     <>
       {/* Banner */}
       <div
-        className="flex h-1500 w-full items-center justify-center"
+        className="flex h-1500 w-full items-center justify-center pt-[29px] pb-[34px]"
         style={{
           background:
             'linear-gradient(90deg, var(--color-rose-100) 0%, var(--color-gray-0) 53.37%, var(--color-rose-100) 100%)',
