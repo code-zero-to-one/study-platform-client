@@ -31,14 +31,12 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 1,
     chapterNumber: 1,
     title: '시작하기',
-    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
         lessonId: -1,
         order: 1,
         title: 'Lesson 01',
-        description: null,
         isFree: true,
         locked: false,
         estimatedMinutes: 18,
@@ -47,7 +45,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -2,
         order: 2,
         title: 'Lesson 02',
-        description: null,
         isFree: true,
         locked: false,
         estimatedMinutes: 18,
@@ -56,7 +53,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -3,
         order: 3,
         title: 'Lesson 03',
-        description: null,
         isFree: true,
         locked: false,
         estimatedMinutes: 18,
@@ -68,14 +64,12 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 2,
     chapterNumber: 2,
     title: '심화하기',
-    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
         lessonId: -4,
         order: 4,
         title: 'Lesson 04',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -84,7 +78,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -5,
         order: 5,
         title: 'Lesson 05',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -93,7 +86,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -6,
         order: 6,
         title: 'Lesson 06',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -102,7 +94,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -7,
         order: 7,
         title: 'Lesson 07',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -111,7 +102,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -8,
         order: 8,
         title: 'Lesson 08',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -123,14 +113,12 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
     order: 3,
     chapterNumber: 3,
     title: '완성하기',
-    description: null,
     estimatedMinutes: 0,
     lessons: [
       {
         lessonId: -9,
         order: 9,
         title: 'Lesson 09',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -139,7 +127,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -10,
         order: 10,
         title: 'Lesson 10',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -148,7 +135,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -11,
         order: 11,
         title: 'Lesson 11',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -157,7 +143,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -12,
         order: 12,
         title: 'Lesson 12',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -166,7 +151,6 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         lessonId: -13,
         order: 13,
         title: 'Lesson 13',
-        description: null,
         isFree: false,
         locked: true,
         estimatedMinutes: 18,
@@ -652,26 +636,28 @@ export default function JourneyMapPage() {
       </div>
 
       {/* Sticky payment CTA for free-enrolled users */}
-      {course?.viewerStatus === 'FREE_ENROLLED' && course?.canPurchase && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle bg-background-default px-600 py-300 shadow-3">
-          <div className="mx-auto flex max-w-page items-center justify-between gap-300">
-            <div className="flex flex-col gap-25">
-              <p className="font-designer-16b text-gray-1000">
-                전체 강의 무제한 수강
-              </p>
-              <p className="font-designer-14r text-gray-500">
-                지금 결제하고 모든 레슨을 들어보세요
-              </p>
+      {course?.viewerStatus === 'FREE_ENROLLED' &&
+        course?.canPurchase &&
+        course?.plans?.[0]?.planCode && (
+          <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle bg-background-default px-600 py-300 shadow-3">
+            <div className="mx-auto flex max-w-page items-center justify-between gap-300">
+              <div className="flex flex-col gap-25">
+                <p className="font-designer-16b text-gray-1000">
+                  전체 강의 무제한 수강
+                </p>
+                <p className="font-designer-14r text-gray-500">
+                  지금 결제하고 모든 레슨을 들어보세요
+                </p>
+              </div>
+              <Link
+                href={`/payment/${courseId}?type=course&planCode=${course.plans[0].planCode}`}
+                className="shrink-0 rounded-100 bg-background-brand-default px-400 py-200 font-designer-16b text-text-inverse"
+              >
+                결제하기
+              </Link>
             </div>
-            <Link
-              href={`/payment/${courseId}?type=course&planCode=${course.plans?.[0]?.planCode ?? 'ALL_IN_ONE'}`}
-              className="shrink-0 rounded-100 bg-background-brand-default px-400 py-200 font-designer-16b text-text-inverse"
-            >
-              결제하기
-            </Link>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }
