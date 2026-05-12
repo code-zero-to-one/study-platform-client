@@ -25,7 +25,6 @@ interface Props {
   submitting: boolean;
   alreadySubmitted: boolean;
   showArtifact: boolean;
-  retrospectivePurpose?: string;
   retrospectivePrompt?: string;
   onHighlightAnswerChange: (v: string) => void;
   onUnexpectedAnswerChange: (v: string) => void;
@@ -81,9 +80,9 @@ function QuestionBlock({
 
 function SectionTitle({ bold, suffix }: { bold: string; suffix: string }) {
   return (
-    <div className="flex items-center gap-100">
+    <div className="flex flex-col gap-75">
       <p className="font-designer-28b text-gray-800">{bold}</p>
-      <p className="font-designer-28r text-gray-800">{suffix}</p>
+      <p className="font-designer-16r text-gray-800">{suffix}</p>
     </div>
   );
 }
@@ -97,7 +96,6 @@ export function LessonReviewForm({
   submitting,
   alreadySubmitted,
   showArtifact,
-  retrospectivePurpose,
   retrospectivePrompt,
   onHighlightAnswerChange,
   onUnexpectedAnswerChange,
@@ -121,9 +119,7 @@ export function LessonReviewForm({
       {/* Q1 — highlight */}
       <div className="flex flex-col gap-350">
         <QuestionBlock
-          question={
-            retrospectivePurpose ?? '오늘 가장 신기했던 코드 하나만 적어볼까요?'
-          }
+          question="오늘 가장 신기했던 코드 하나만 적어볼까요?"
           helper="어려웠던 점이나 뿌듯했던 순간을 기록해 보세요. 이 기록들은 모여서 당신만의 멋진 포트폴리오가 됩니다."
           value={highlightAnswer}
           placeholder="예 : Cursor에서 Cmd+K를 누르면 Claude가 바로 나타나는 게 신기했다."
@@ -150,7 +146,7 @@ export function LessonReviewForm({
         <div className="flex flex-col gap-350">
           <SectionTitle
             bold="오늘의 프로젝트 완성 알리기"
-            suffix="(두 가지중 한 가지만)"
+            suffix="이미지는 필수로 등록해주세요(링크는 선택)"
           />
           <div className="flex gap-250">
             <button
@@ -175,7 +171,7 @@ export function LessonReviewForm({
 
       {/* Chips */}
       <div className="flex flex-col gap-350">
-        <SectionTitle bold="오늘 레슨은 어떠셨나요?" suffix="(최소 2개 이상)" />
+        <SectionTitle bold="오늘 레슨은 어떠셨나요?" suffix="최소 2개 이상" />
         <div className="flex flex-col gap-200">
           <div className="flex flex-wrap gap-125">
             {POSITIVE_CHIPS.map((chip) => (

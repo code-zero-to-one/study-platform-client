@@ -220,7 +220,6 @@ export default function LessonPage({
                 submitting={submitRetrospective.isPending}
                 alreadySubmitted={alreadySubmitted}
                 showArtifact={lesson?.artifactSubmissionRequired ?? false}
-                retrospectivePurpose={lesson?.retrospectivePurpose}
                 retrospectivePrompt={lesson?.retrospectivePrompt}
                 onHighlightAnswerChange={setHighlightAnswer}
                 onUnexpectedAnswerChange={setUnexpectedAnswer}
