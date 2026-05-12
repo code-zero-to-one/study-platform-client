@@ -23,6 +23,7 @@ export const CLASS_INPUT_LIMITS = {
   },
   lesson: {
     titleMax: 150,
+    descriptionMax: 500,
   },
 } as const;
 

@@ -107,6 +107,7 @@ export interface AdminLessonDetailResponse {
   chapterNumber: number;
   lessonNumber: number;
   title: string;
+  description: string | null;
   content: string;
   estimatedMinutes: number;
   retrospectivePurpose: AdminRetrospectivePurpose;
@@ -118,6 +119,7 @@ export interface AdminLessonUpsertRequest {
   chapterNumber: number;
   lessonNumber: number;
   title: string;
+  description: string;
   content: string;
   estimatedMinutes: number;
   retrospectivePurpose: AdminRetrospectivePurpose;

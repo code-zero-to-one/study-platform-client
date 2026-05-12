@@ -38,6 +38,7 @@ const emptyLessonForm: AdminLessonUpsertRequest = {
   chapterNumber: 1,
   lessonNumber: 1,
   title: '',
+  description: '',
   content: '',
   estimatedMinutes: 30,
   retrospectivePurpose: 'PRACTICE_PROOF',
@@ -94,6 +95,7 @@ export default function AdminLessonDetailPageClient({
         chapterNumber: lessonDetailQuery.data.chapterNumber,
         lessonNumber: lessonDetailQuery.data.lessonNumber,
         title: lessonDetailQuery.data.title,
+        description: '',
         content: normalizeAdminCourseMarkdownContent(
           lessonDetailQuery.data.content,
         ),
@@ -112,6 +114,7 @@ export default function AdminLessonDetailPageClient({
       chapterNumber: lessonDetailQuery.data.chapterNumber,
       lessonNumber: lessonDetailQuery.data.lessonNumber,
       title: lessonDetailQuery.data.title,
+      description: '',
       content: normalizeAdminCourseMarkdownContent(
         lessonDetailQuery.data.content,
       ),
@@ -254,6 +257,7 @@ export default function AdminLessonDetailPageClient({
           chapterNumber: payload.chapterNumber || undefined,
           lessonNumber: payload.lessonNumber || undefined,
           title: payload.title,
+          description: '',
           content: payload.content,
           estimatedMinutes: payload.estimatedMinutes || undefined,
           retrospectivePurpose: payload.retrospectivePurpose,

@@ -187,6 +187,12 @@ export default function LessonPage({
               </p>
             </div>
 
+            {lesson?.description ? (
+              <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-700">
+                {lesson.description}
+              </p>
+            ) : null}
+
             <div className="mt-300">
               <LessonTabs value={tab} onChange={handleTabChange} />
             </div>
