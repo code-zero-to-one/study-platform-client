@@ -113,7 +113,7 @@ export default function CourseCompletePage() {
                 key={s.label}
                 className="flex h-1250 w-2125 flex-col items-center justify-center gap-25 rounded-200 border border-rose-300 bg-rose-50"
               >
-                <p className="font-designer-24b text-text-brand">{s.value}</p>
+                <p className="font-designer-24sb text-text-brand">{s.value}</p>
                 <p className="font-designer-16m text-gray-1000">{s.label}</p>
               </div>
             ))}
@@ -144,10 +144,12 @@ export default function CourseCompletePage() {
           </div>
 
           {/* Message card */}
-          <div className="mt-500 w-8288 rounded-br-750 rounded-tl-750 rounded-tr-750 border border-rose-300 p-400 text-center shadow-1">
-            <p className="font-designer-16b text-gray-800">
-              <span className="text-text-brand">{recap?.studyDays ?? 5}</span>일
-              동안 고생 많으셨어요! :)
+          <div className="mt-500 w-8288 rounded-br-750 rounded-tl-750 rounded-tr-750 border border-rose-300 p-400 text-center shadow-brand-card">
+            <p className="font-designer-16sb text-gray-800">
+              <span className="font-designer-16b text-text-brand">
+                {recap?.studyDays ?? 5}
+              </span>
+              일 동안 고생 많으셨어요! :)
             </p>
             <p className="mt-150 font-designer-16r text-gray-800">
               한 가지 알려드릴께요. 두 번째 사이트는 처음 하셨을 때보다 훨씬
@@ -203,7 +205,7 @@ export default function CourseCompletePage() {
           </div>
 
           <Link
-            href="/class/vibe-intro/home"
+            href="/class"
             className="mt-300 font-designer-16m text-text-brand"
           >
             건너뛰기

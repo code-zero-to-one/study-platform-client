@@ -14,11 +14,15 @@ import {
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { BenefitScrollCharacter } from '@/components/pages/class/benefit-scroll-character';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
+  useCreateCourseFreeEnrollment,
+  useCreateStudyWithMeSubscription,
+  useGetBuilderFeedShowcase,
   useGetCourseCurriculum,
   useGetCourseDetail,
   useGetCourseList,
@@ -105,36 +109,71 @@ const CHAPTERS = [
   },
 ];
 
+const FAQS = [
+  {
+    question: '코딩을 전혀 몰라도 들을 수 있나요?',
+    answer:
+      '네, 이 코스는 코딩 경험이 전혀 없는 분들을 위해 설계되었어요. 기초부터 차근차근 알려드립니다.',
+  },
+  {
+    question: '수강 기간은 얼마나 되나요?',
+    answer:
+      '수강 기간은 별도 제한 없이 커리큘럼을 모두 완료할 때까지 자유롭게 학습하실 수 있어요.',
+  },
+  {
+    question: '결제 후 환불이 가능한가요?',
+    answer:
+      '결제 후 7일 이내, 강의 진도율 20% 미만인 경우 전액 환불 가능합니다.',
+  },
+  {
+    question: '강의는 어떤 방식으로 진행되나요?',
+    answer:
+      '영상 강의와 실습 과제를 병행하며, 디스코드를 통해 멘토와 다른 수강생들과 소통할 수 있어요.',
+  },
+  {
+    question: '수료증이 발급되나요?',
+    answer: '모든 강의를 완료하면 ZERO-ONE 수료증을 발급해 드립니다.',
+  },
+];
+
 export default function ClassDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id: slug } = use(params);
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('roadmap');
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set([0]),
   );
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [studyWithMePhone, setStudyWithMePhone] = useState('');
+  const [studyWithMeAgreed, setStudyWithMeAgreed] = useState(false);
   const showToast = useToastStore((state) => state.showToast);
   const { isAuthenticated } = useAuth();
 
   // 커리큘럼은 DB에서 가져오되, 코스가 없으면 하드코딩된 CHAPTERS로 fallback.
   const { data: curriculum } = useGetCourseCurriculum(slug);
   const { data: courseDetail } = useGetCourseDetail(slug);
+  const courseId = courseDetail?.courseId ?? 0;
+  const { data: builderFeedShowcase } = useGetBuilderFeedShowcase(courseId);
+  const createCourseFreeEnrollment = useCreateCourseFreeEnrollment();
+  const createStudyWithMeSubscription = useCreateStudyWithMeSubscription();
 
   const { data: allCourses } = useGetCourseList();
   const courseSummary = allCourses?.find((c) => c.slug === slug);
+  const learningHomeHref =
+    slug === 'vibe-intro' ? '/class/vibe-intro/home' : `/class/${slug}`;
   const chaptersForRoadmap = useMemo(() => {
     if (curriculum?.chapters && curriculum.chapters.length > 0) {
       return curriculum.chapters.map((chapter) => ({
         num: String(chapter.chapterNumber).padStart(2, '0'),
         title: chapter.title,
-        desc: chapter.description ?? '',
+        desc: '',
         lessons: chapter.lessons.map((lesson) => ({
           order: lesson.order,
           title: lesson.title,
-          description: lesson.description ?? '',
           lessonId: lesson.lessonId,
         })),
       }));
@@ -144,7 +183,6 @@ export default function ClassDetailPage({
       lessons: chapter.lessons.map((title, index) => ({
         order: index + 1,
         title,
-        description: '',
         lessonId: undefined as number | undefined,
       })),
     }));
@@ -163,6 +201,58 @@ export default function ClassDetailPage({
       showToast('링크가 복사되었어요!');
     } catch {
       // clipboard API unavailable
+    }
+  }
+
+  async function handleStartCourse() {
+    if (!courseDetail) {
+      showToast('코스 정보를 불러오는 중입니다.', 'info');
+      return;
+    }
+
+    if (
+      courseDetail.viewerStatus === 'LOGIN_ONLY' &&
+      courseDetail.canFreeEnroll
+    ) {
+      try {
+        await createCourseFreeEnrollment.mutateAsync(courseDetail.courseId);
+        showToast('무료 코스 등록이 완료되었어요.');
+      } catch {
+        showToast('무료 코스 등록 중 오류가 발생했어요.', 'error');
+        return;
+      }
+    }
+
+    router.push(learningHomeHref);
+  }
+
+  async function handleStudyWithMeSubmit() {
+    if (!courseDetail) {
+      showToast('코스 정보를 불러오는 중입니다.', 'info');
+      return;
+    }
+    if (!studyWithMePhone.trim()) {
+      showToast('전화번호를 입력해주세요.', 'error');
+      return;
+    }
+    if (!studyWithMeAgreed) {
+      showToast('개인정보 수집·이용에 동의해주세요.', 'error');
+      return;
+    }
+
+    try {
+      await createStudyWithMeSubscription.mutateAsync({
+        courseId: courseDetail.courseId,
+        request: {
+          phone: studyWithMePhone.trim(),
+          agreed: studyWithMeAgreed,
+        },
+      });
+      setStudyWithMePhone('');
+      setStudyWithMeAgreed(false);
+      showToast('Study with Me 알림 신청이 완료되었어요.');
+    } catch {
+      showToast('Study with Me 알림 신청 중 오류가 발생했어요.', 'error');
     }
   }
 
@@ -187,9 +277,9 @@ export default function ClassDetailPage({
             <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
             <p className="font-designer-16m text-gray-800">
               <span className="font-designer-16b text-text-brand">
-                {courseSummary?.participantCount ?? 0}
+                {courseSummary?.learnerCount ?? 0}
               </span>
-              {courseSummary?.participantLabel ?? '명이 함께 배우고 있어요!'}
+              {courseSummary?.learnerLabel ?? '명이 함께 배우고 있어요!'}
             </p>
           </div>
           {curriculum?.durationDays && (
@@ -204,9 +294,9 @@ export default function ClassDetailPage({
       </div>
 
       {/* Tab nav — sticky */}
-      <div className="sticky top-0 z-10 border-b border-border-default bg-background-default">
+      <div className="mt-[27px] sticky top-0 z-10 border-b border-border-default bg-background-default">
         <div className="mx-auto max-w-page px-600">
-          <nav className="flex">
+          <nav className="flex gap-125">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
@@ -253,26 +343,41 @@ export default function ClassDetailPage({
               </p>
 
               {/* Curriculum preview carousel */}
-              <div className="relative mt-400">
-                <div className="flex h-[354px] items-center justify-center overflow-hidden rounded-100 bg-gray-300">
-                  <p className="font-designer-18r text-black">
-                    커리큘럼 미리보기 이미지
-                  </p>
+              <div className="mt-400">
+                <div className="relative">
+                  {/* TODO: h-[354px] uses a banned px arbitrary value — add --spacing-4425 token */}
+                  <div className="mx-[10.35%] flex h-[354px] items-center justify-center overflow-hidden rounded-100 bg-gray-300">
+                    <p className="font-designer-18r text-black">
+                      커리큘럼 미리보기 이미지
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="이전"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                  >
+                    <ChevronLeft className="h-250 w-250" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="다음"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                  >
+                    <ChevronRight className="h-250 w-250" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  aria-label="이전"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
-                >
-                  <ChevronLeft className="h-250 w-250" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="다음"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
-                >
-                  <ChevronRight className="h-250 w-250" />
-                </button>
+                {/* Indicator dots — 4 dots, 10px each, 10px gap, centered */}
+                <div className="mt-200 flex items-center justify-center gap-125">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        'size-125 rounded-full',
+                        i === 0 ? 'bg-rose-500' : 'bg-gray-300',
+                      )}
+                    />
+                  ))}
+                </div>
               </div>
 
               {/* Target audience */}
@@ -322,51 +427,77 @@ export default function ClassDetailPage({
                 ZERO-ONE 빌더들이 만든 결과물이에요
               </h2>
               <div className="relative mt-400">
-                <div className="grid grid-cols-2 gap-300">
-                  {[0, 1].map((i) => (
-                    <div
-                      key={i}
-                      className="overflow-hidden rounded-100 border border-border-subtle"
-                    >
-                      <div className="flex items-center gap-125 p-250">
-                        <div className="flex h-300 w-300 shrink-0 items-center justify-center rounded-full bg-gray-200">
-                          <Users className="h-200 w-200 text-gray-500" />
+                {builderFeedShowcase?.items.length ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-300">
+                      {builderFeedShowcase.items.slice(0, 2).map((feed) => (
+                        <div
+                          key={feed.feedId}
+                          className="overflow-hidden rounded-100 border border-border-subtle"
+                        >
+                          <div className="flex items-center gap-125 p-250">
+                            <div className="flex h-300 w-300 shrink-0 items-center justify-center rounded-full bg-gray-200">
+                              <Users className="h-200 w-200 text-gray-500" />
+                            </div>
+                            <p className="font-designer-14m text-gray-800">
+                              {feed.author.nickname}
+                            </p>
+                          </div>
+                          <p className="line-clamp-3 px-250 font-designer-13r text-gray-800">
+                            {feed.content}
+                          </p>
+                          {feed.thumbnailUrl ? (
+                            <div className="relative mt-150 h-3400 bg-gray-600">
+                              <Image
+                                src={feed.thumbnailUrl}
+                                alt="빌더 피드 이미지"
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="mt-150 h-3400 bg-gray-600" />
+                          )}
+                          <div className="flex items-center gap-125 p-250">
+                            <div className="flex items-center gap-50">
+                              <Heart className="h-250 w-250 text-gray-1000" />
+                              <p className="font-designer-16r text-gray-1000">
+                                {feed.likeCount}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-50">
+                              <MessageSquare className="h-250 w-250 text-gray-1000" />
+                              <p className="font-designer-16r text-gray-1000">
+                                {feed.commentCount}
+                              </p>
+                            </div>
+                            <Share2 className="h-250 w-250 text-gray-1000" />
+                          </div>
                         </div>
-                        <p className="font-designer-14m text-gray-800">뭉다</p>
-                      </div>
-                      <p className="px-250 font-designer-13r text-gray-800">
-                        오늘 처음 만들어본 바이브 코딩!
-                        <br />뭘 먼저 시작해야될지 모르겠어서 고민이 많았던...
-                      </p>
-                      <div className="mt-150 h-[276px] bg-gray-600" />
-                      <div className="flex items-center gap-125 p-250">
-                        <div className="flex items-center gap-50">
-                          <Heart className="h-250 w-250 text-gray-1000" />
-                          <p className="font-designer-16r text-gray-1000">24</p>
-                        </div>
-                        <div className="flex items-center gap-50">
-                          <MessageSquare className="h-250 w-250 text-gray-1000" />
-                          <p className="font-designer-16r text-gray-1000">10</p>
-                        </div>
-                        <Share2 className="h-250 w-250 text-gray-1000" />
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  aria-label="이전"
-                  className="absolute left-0 top-[calc(50%-2rem)] -translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
-                >
-                  <ChevronLeft className="h-250 w-250" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="다음"
-                  className="absolute right-0 top-[calc(50%-2rem)] translate-x-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
-                >
-                  <ChevronRight className="h-250 w-250" />
-                </button>
+                    <button
+                      type="button"
+                      aria-label="이전"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                    >
+                      <ChevronLeft className="h-250 w-250" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="다음"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                    >
+                      <ChevronRight className="h-250 w-250" />
+                    </button>
+                  </>
+                ) : (
+                  <div className="rounded-100 border border-border-subtle bg-gray-100 p-500 text-center">
+                    <p className="font-designer-16r text-gray-500">
+                      아직 공개된 빌더 피드가 없어요.
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
 
@@ -448,32 +579,21 @@ export default function ClassDetailPage({
                         {chapter.lessons.map((lesson) => (
                           <div
                             key={`${chapter.num}-${lesson.order}`}
-                            className="flex items-start gap-200 border-t border-border-default bg-background-default px-350 py-300"
+                            className="flex flex-col justify-center gap-75 border-t border-border-default bg-background-default px-250 py-200"
                           >
-                            <span className="mt-25 shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
-                              온보딩
-                            </span>
-                            <p className="mt-25 shrink-0 font-designer-16r text-gray-800">
-                              Lesson {String(lesson.order).padStart(2, '0')}
-                            </p>
-                            <div className="flex min-w-0 flex-1 flex-col gap-50">
+                            <div className="flex gap-125">
+                              <span className="shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
+                                온보딩
+                              </span>
+                              <p className="font-designer-16r text-gray-800">
+                                Lesson {String(lesson.order).padStart(2, '0')}
+                              </p>
+                            </div>
+                            <div>
                               <p className="font-designer-18b text-gray-800">
                                 {lesson.title}
                               </p>
-                              {lesson.description && (
-                                <p className="whitespace-pre-line font-designer-14r text-gray-600">
-                                  {lesson.description}
-                                </p>
-                              )}
                             </div>
-                            {lesson.lessonId !== undefined && (
-                              <Link
-                                href={`/class/${slug}/lesson/${lesson.lessonId}`}
-                                className="ml-auto mt-25 shrink-0 rounded-100 border border-border-brand px-200 py-75 font-designer-14m text-text-brand"
-                              >
-                                자세히 보기
-                              </Link>
-                            )}
                           </div>
                         ))}
                       </div>
@@ -544,34 +664,24 @@ export default function ClassDetailPage({
                   {/* Q/A 데코 — relative 컨테이너 안에서 배치 */}
                   <div className="relative mt-300 h-[150px]">
                     <div
-                      className="absolute flex size-[85px] items-center justify-center"
+                      className="absolute left-0 top-100 flex size-[85px] items-center justify-center"
                       style={{
                         transform: 'rotate(-20.32deg)',
-                        top: '8px',
-                        left: '0',
                       }}
                     >
                       <div className="size-[66px] rounded-100 border border-purple-600 bg-purple-200/20" />
-                      <span
-                        className="absolute font-designer-36b leading-none text-grape-600"
-                        style={{ fontSize: '58px' }}
-                      >
+                      <span className="absolute text-58 font-designer-36b leading-none text-grape-600">
                         Q
                       </span>
                     </div>
                     <div
-                      className="absolute flex size-[89px] items-center justify-center"
+                      className="absolute left-750 top-500 flex size-[89px] items-center justify-center"
                       style={{
                         transform: 'rotate(27.01deg)',
-                        top: '40px',
-                        left: '60px',
                       }}
                     >
                       <div className="size-[66px] rounded-100 border border-yellow-500 bg-yellow-200/20" />
-                      <span
-                        className="absolute font-designer-36b leading-none text-yellow-300"
-                        style={{ fontSize: '58px' }}
-                      >
+                      <span className="absolute text-58 font-designer-36b leading-none text-yellow-300">
                         A
                       </span>
                     </div>
@@ -587,10 +697,7 @@ export default function ClassDetailPage({
                     }
                   </p>
                   {/* 말풍선1 — #FF698C, Figma SVG path, 꼬리 좌하단 */}
-                  <div
-                    className="absolute"
-                    style={{ left: '30px', top: '178px' }}
-                  >
+                  <div className="absolute left-375 top-[178px]">
                     <svg
                       width="108.575"
                       height="64.48"
@@ -607,26 +714,14 @@ export default function ClassDetailPage({
                         fill="#FF698C"
                       />
                     </svg>
-                    <div
-                      className="absolute flex flex-col gap-[5px]"
-                      style={{
-                        top: '14px',
-                        left: '11px',
-                      }}
-                    >
-                      <div className="h-[3px] w-[64px] rounded-full bg-gray-0" />
-                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
-                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
+                    <div className="absolute top-175 left-150 flex flex-col gap-[5px]">
+                      <div className="h-30 w-800 rounded-full bg-gray-0" />
+                      <div className="h-30 w-[42px] rounded-full bg-gray-0" />
+                      <div className="h-30 w-[42px] rounded-full bg-gray-0" />
                     </div>
                   </div>
                   {/* 말풍선2 — #FFB5C6, scaleX(-1) 미러로 꼬리 우하단 */}
-                  <div
-                    className="absolute"
-                    style={{
-                      left: '66.43px',
-                      top: '230.98px',
-                    }}
-                  >
+                  <div className="absolute top-[232px] left-800">
                     <svg
                       width="86.948"
                       height="54.02"
@@ -644,17 +739,10 @@ export default function ClassDetailPage({
                         fill="#FFB5C6"
                       />
                     </svg>
-                    <div
-                      className="absolute flex flex-col items-end gap-[5px]"
-                      style={{
-                        top: '10px',
-                        left: '11.57px',
-                        width: '64px',
-                      }}
-                    >
-                      <div className="h-[3px] w-full rounded-full bg-gray-0" />
-                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
-                      <div className="h-[3px] w-[42px] rounded-full bg-gray-0" />
+                    <div className="absolute top-125 left-150 flex w-800 flex-col items-end gap-[5px]">
+                      <div className="h-30 w-full rounded-full bg-gray-0" />
+                      <div className="h-30 w-[42px] rounded-full bg-gray-0" />
+                      <div className="h-30 w-[42px] rounded-full bg-gray-0" />
                     </div>
                   </div>
                 </div>
@@ -711,44 +799,46 @@ export default function ClassDetailPage({
                 궁금한 점 있으세요?
               </h2>
               <div className="mt-400 space-y-125">
-                {(courseDetail?.faqs ?? []).map((faq, idx) => (
-                  <div
-                    key={faq.question}
-                    className="overflow-hidden rounded-200 border border-border-default bg-gray-100"
-                  >
-                    <button
-                      type="button"
-                      className="flex h-800 w-full items-center justify-between px-350"
-                      onClick={() =>
-                        setExpandedFaq(expandedFaq === idx ? null : idx)
-                      }
+                {(courseDetail?.faqs?.length ? courseDetail.faqs : FAQS).map(
+                  (faq, idx) => (
+                    <div
+                      key={faq.question}
+                      className="overflow-hidden rounded-200 border border-border-default bg-gray-100"
                     >
-                      <div className="flex items-center">
-                        <span className="mr-250 font-designer-16m text-text-brand">
-                          Q
-                        </span>
-                        <span className="font-designer-16m text-gray-800">
-                          {faq.question}
-                        </span>
-                      </div>
-                      {expandedFaq === idx ? (
-                        <ChevronUp className="h-300 w-300 shrink-0 text-gray-800" />
-                      ) : (
-                        <ChevronDown className="h-300 w-300 shrink-0 text-gray-800" />
+                      <button
+                        type="button"
+                        className="flex h-800 w-full items-center justify-between px-350"
+                        onClick={() =>
+                          setExpandedFaq(expandedFaq === idx ? null : idx)
+                        }
+                      >
+                        <div className="flex items-center">
+                          <span className="mr-250 font-designer-16m text-text-brand">
+                            Q
+                          </span>
+                          <span className="font-designer-16m text-gray-800">
+                            {faq.question}
+                          </span>
+                        </div>
+                        {expandedFaq === idx ? (
+                          <ChevronUp className="h-300 w-300 shrink-0 text-gray-800" />
+                        ) : (
+                          <ChevronDown className="h-300 w-300 shrink-0 text-gray-800" />
+                        )}
+                      </button>
+                      {expandedFaq === idx && (
+                        <div className="flex items-start gap-250 border-t border-border-default px-350 py-300">
+                          <span className="font-designer-16m text-gray-500">
+                            A
+                          </span>
+                          <span className="font-designer-16r text-gray-800">
+                            {faq.answer}
+                          </span>
+                        </div>
                       )}
-                    </button>
-                    {expandedFaq === idx && (
-                      <div className="flex items-start gap-250 border-t border-border-default px-350 py-300">
-                        <span className="font-designer-16m text-gray-500">
-                          A
-                        </span>
-                        <span className="font-designer-16r text-gray-800">
-                          {faq.answer}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  ),
+                )}
               </div>
             </section>
           </div>
@@ -799,7 +889,7 @@ export default function ClassDetailPage({
                   <p className="font-designer-14m text-gray-800">
                     지금{' '}
                     <span className="text-text-brand">
-                      {courseSummary?.participantCount}
+                      {courseSummary?.learnerCount}
                     </span>
                     명이 이 코스를 들었어요!
                   </p>
@@ -814,12 +904,16 @@ export default function ClassDetailPage({
                     공유하기
                   </button>
                   {isAuthenticated ? (
-                    <Link
-                      href="/class/vibe-intro/home"
+                    <button
+                      type="button"
+                      onClick={handleStartCourse}
+                      disabled={createCourseFreeEnrollment.isPending}
                       className="flex h-700 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
                     >
-                      무료 코스 시작하기
-                    </Link>
+                      {createCourseFreeEnrollment.isPending
+                        ? '등록 중...'
+                        : '무료 코스 시작하기'}
+                    </button>
                   ) : (
                     <LoginModal
                       openTrigger={
@@ -834,7 +928,6 @@ export default function ClassDetailPage({
                   )}
                 </div>
 
-                {/* Study With Me — TODO: API/CMS 연동 필요 (이벤트 날짜·내용 백엔드 제공) */}
                 <div className="mt-300 rounded-100 bg-gray-800 p-300">
                   <p className="font-designer-14m text-gray-0">
                     매주 월·화·수 오전 6시

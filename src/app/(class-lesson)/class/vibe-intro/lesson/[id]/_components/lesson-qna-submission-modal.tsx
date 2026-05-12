@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageIcon, Info, X } from 'lucide-react';
+import { ImagePlus, Info, X } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -31,11 +31,24 @@ export function LessonQnaSubmissionModal({
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<AttachedImage[]>([]);
-  const [noticeVisible, setNoticeVisible] = useState(true);
+  const [autoVisible, setAutoVisible] = useState(false);
+  const [hoverVisible, setHoverVisible] = useState(false);
+  const noticeVisible = autoVisible || hoverVisible;
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const showToast = useToastStore((s) => s.showToast);
   const createQna = useCreateLessonQna();
+
+  useEffect(() => {
+    if (!open) {
+      setAutoVisible(false);
+      setHoverVisible(false);
+      return;
+    }
+    setAutoVisible(true);
+    const timer = setTimeout(() => setAutoVisible(false), 2000);
+    return () => clearTimeout(timer);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -125,17 +138,18 @@ export function LessonQnaSubmissionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-gray-1000/40" onClick={onClose} />
-      <div className="relative z-10 mx-400 flex max-h-[90vh] w-full max-w-[800px] flex-col overflow-hidden rounded-200 bg-background-default shadow-3">
+      <div className="relative z-10 mx-400 flex max-h-modal w-full max-w-10000 flex-col overflow-hidden rounded-200 bg-background-default shadow-3">
         {/* Header */}
-        <div className="relative flex shrink-0 items-center px-750 py-500">
-          <div className="flex items-center gap-150">
-            <h2 className="font-designer-28b text-gray-800">
+        <div className="relative flex shrink-0 items-center px-750 pt-625 pb-160">
+          <div className="flex items-center gap-100">
+            <h2 className="font-designer-20b text-gray-800">
               궁금한 게 있어요!
             </h2>
             <button
               type="button"
               aria-label="유의사항 보기"
-              onClick={() => setNoticeVisible((v) => !v)}
+              onMouseEnter={() => setHoverVisible(true)}
+              onMouseLeave={() => setHoverVisible(false)}
               className="text-gray-400 hover:text-gray-600"
             >
               <Info className="h-250 w-250" />
@@ -149,39 +163,40 @@ export function LessonQnaSubmissionModal({
           >
             <X className="h-300 w-300" />
           </button>
-        </div>
-
-        {/* Body */}
-        <div className="flex flex-1 flex-col gap-300 overflow-y-auto px-750 pb-500">
-          {/* Notice box */}
           {noticeVisible && (
-            <div className="relative rounded-150 border border-border-subtle px-300 py-250 pr-500">
+            <div className="absolute left-2413 top-full z-20 h-1250 w-6750 overflow-hidden rounded-200 border border-border-subtle bg-background-default pl-275 pt-200 pr-500 pb-200">
               <button
                 type="button"
                 aria-label="유의사항 닫기"
-                onClick={() => setNoticeVisible(false)}
-                className="absolute right-200 top-200 text-gray-400 hover:text-gray-600"
+                onClick={() => {
+                  setAutoVisible(false);
+                  setHoverVisible(false);
+                }}
+                className="absolute right-250 top-175 text-gray-400 hover:text-gray-600"
               >
-                <X className="h-200 w-200" />
+                <X className="h-300 w-300" />
               </button>
-              <p className="mb-150 font-designer-14b text-gray-800">
-                질문시 유의사항
+              <p className="mb-75 font-designer-14b text-gray-500">
+                질문 시 유의사항
               </p>
-              <ul className="list-disc space-y-75 pl-300 font-designer-14r text-gray-600">
+              <ul className="list-disc space-y-75 pl-300 font-designer-13r text-gray-400">
                 <li>
                   질문 후 답변이 달리기 전까지는 수정 및 삭제가 자유롭습니다.
                 </li>
                 <li>
-                  답변이 달린 후에는 수정 및 삭제가 어려우니 유의해주시기
+                  답변을 받은 후에는 수정 및 삭제가 어려우니 유의해주시기
                   바랍니다.
                 </li>
               </ul>
             </div>
           )}
+        </div>
 
+        {/* Body */}
+        <div className="relative flex flex-1 flex-col gap-300 overflow-y-auto px-750 pt-100 pb-500">
           {/* Title */}
           <div>
-            <p className="mb-150 font-designer-16b text-gray-800">
+            <p className="mb-150 font-designer-18m text-gray-800">
               제목 <span className="text-rose-500">*</span>
             </p>
             <input
@@ -189,13 +204,13 @@ export function LessonQnaSubmissionModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="질문 제목을 입력해주세요."
-              className="w-full rounded-150 border border-border-default px-300 py-200 font-designer-16m text-gray-800 outline-none placeholder:text-gray-400 focus:border-rose-400"
+              className="w-full rounded-100 border border-border-default px-300 py-200 font-designer-16m text-gray-800 outline-none placeholder:text-gray-400 focus:border-rose-400"
             />
           </div>
 
           {/* Content */}
           <div>
-            <p className="mb-150 font-designer-16b text-gray-800">내용</p>
+            <p className="mb-150 font-designer-18m text-gray-800">내용</p>
             <MarkdownEditor
               value={content}
               onChange={setContent}
@@ -206,48 +221,50 @@ export function LessonQnaSubmissionModal({
 
           {/* Image attachment */}
           <div>
-            <div className="mb-150 flex items-center gap-150">
-              <p className="font-designer-16b text-gray-800">이미지 첨부</p>
-              <p className="font-designer-14r text-gray-400">
+            <div className="mb-250 flex flex-col items-start gap-75">
+              <p className="font-designer-18b text-gray-800">이미지 첨부</p>
+              <p className="font-designer-16r text-gray-800">
                 최대 10장 첨부 가능합니다.
               </p>
             </div>
-            <div className="flex items-center gap-200 overflow-x-auto">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingImage || images.length >= 10}
-                className={cn(
-                  'flex h-1250 w-1250 shrink-0 flex-col items-center justify-center gap-75 rounded-150 border border-dashed border-border-default font-designer-12r text-gray-400',
-                  isUploadingImage || images.length >= 10
-                    ? 'cursor-not-allowed opacity-50'
-                    : 'cursor-pointer hover:border-rose-400 hover:text-rose-400',
-                )}
-              >
-                <ImageIcon className="h-300 w-300" />
-                <span>{images.length}/10</span>
-              </button>
-              {images.map((img, i) => (
-                <div key={img.key} className="relative shrink-0">
-                  <Image
-                    src={img.previewUrl}
-                    alt={`첨부 이미지 ${i + 1}`}
-                    width={100}
-                    height={100}
-                    unoptimized
-                    className="h-1250 w-1250 rounded-150 object-cover"
-                  />
-                  <button
-                    type="button"
-                    aria-label={`이미지 ${i + 1} 삭제`}
-                    onClick={() => handleImageRemove(i)}
-                    className="absolute -right-75 -top-75 flex h-200 w-200 items-center justify-center rounded-full bg-gray-800 text-background-default"
-                  >
-                    <X className="h-125 w-125" />
-                  </button>
-                </div>
-              ))}
-            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploadingImage || images.length >= 10}
+              className={cn(
+                'flex h-550 w-2525 shrink-0 items-center justify-center gap-125 rounded-100 border border-border-default font-designer-16sb text-gray-800',
+                isUploadingImage || images.length >= 10
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer hover:border-rose-400 hover:text-rose-400',
+              )}
+            >
+              <ImagePlus className="h-250 w-250" />
+              <span>이미지 첨부</span>
+            </button>
+            {images.length > 0 && (
+              <div className="mt-300 flex gap-250 overflow-x-auto">
+                {images.map((img, i) => (
+                  <div key={img.key} className="relative shrink-0">
+                    <Image
+                      src={img.previewUrl}
+                      alt={`첨부 이미지 ${i + 1}`}
+                      width={202}
+                      height={202}
+                      unoptimized
+                      className="h-2525 w-2525 rounded-150 object-cover"
+                    />
+                    <button
+                      type="button"
+                      aria-label={`이미지 ${i + 1} 삭제`}
+                      onClick={() => handleImageRemove(i)}
+                      className="absolute -right-75 -top-75 flex h-200 w-200 items-center justify-center rounded-full bg-gray-800 text-background-default"
+                    >
+                      <X className="h-125 w-125" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -264,11 +281,11 @@ export function LessonQnaSubmissionModal({
         </div>
 
         {/* Footer */}
-        <div className="flex shrink-0 items-center justify-end gap-200 border-t border-border-subtle px-750 py-300">
+        <div className="flex shrink-0 items-center justify-center gap-200 px-750 py-300">
           <button
             type="button"
             onClick={handleDraftSave}
-            className="rounded-100 border border-rose-400 px-400 py-200 font-designer-16b text-rose-500 hover:opacity-80"
+            className="w-full rounded-100 border border-rose-400 px-400 py-200 font-designer-18b text-rose-500 hover:opacity-80"
           >
             임시저장
           </button>
@@ -277,7 +294,7 @@ export function LessonQnaSubmissionModal({
             onClick={handleSubmit}
             disabled={createQna.isPending}
             className={cn(
-              'rounded-100 px-400 py-200 font-designer-16b text-text-inverse transition-opacity',
+              'w-full rounded-100 px-400 py-200 font-designer-18b text-text-inverse transition-opacity',
               createQna.isPending
                 ? 'cursor-not-allowed bg-gray-300'
                 : 'bg-rose-500 hover:opacity-90',

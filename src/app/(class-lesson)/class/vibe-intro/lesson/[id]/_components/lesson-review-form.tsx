@@ -4,7 +4,6 @@ import { Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
-import { RatingBox } from './lesson-rating-box';
 
 export const POSITIVE_CHIPS = [
   '설명이 이해하기 쉬웠어요',
@@ -18,15 +17,17 @@ export const NEGATIVE_CHIPS = [
 ];
 
 interface Props {
-  rating: number;
-  reflection1: string;
+  highlightAnswer: string;
+  unexpectedAnswer: string;
   selectedChips: Set<string>;
   feedbackText: string;
   submitDisabled: boolean;
   submitting: boolean;
   alreadySubmitted: boolean;
-  onRatingChange: (n: number) => void;
-  onReflection1Change: (v: string) => void;
+  showArtifact: boolean;
+  retrospectivePrompt?: string;
+  onHighlightAnswerChange: (v: string) => void;
+  onUnexpectedAnswerChange: (v: string) => void;
   onToggleChip: (chip: string) => void;
   onFeedbackChange: (v: string) => void;
   onAttachScreenshot: () => void;
@@ -79,23 +80,25 @@ function QuestionBlock({
 
 function SectionTitle({ bold, suffix }: { bold: string; suffix: string }) {
   return (
-    <div className="flex items-center gap-100">
+    <div className="flex flex-col gap-75">
       <p className="font-designer-28b text-gray-800">{bold}</p>
-      <p className="font-designer-28r text-gray-800">{suffix}</p>
+      <p className="font-designer-16r text-gray-800">{suffix}</p>
     </div>
   );
 }
 
 export function LessonReviewForm({
-  rating,
-  reflection1,
+  highlightAnswer,
+  unexpectedAnswer,
   selectedChips,
   feedbackText,
   submitDisabled,
   submitting,
   alreadySubmitted,
-  onRatingChange,
-  onReflection1Change,
+  showArtifact,
+  retrospectivePrompt,
+  onHighlightAnswerChange,
+  onUnexpectedAnswerChange,
   onToggleChip,
   onFeedbackChange,
   onAttachScreenshot,
@@ -113,62 +116,62 @@ export function LessonReviewForm({
         </p>
       </div>
 
-      {/* Rating Q1 */}
-      <div className="flex flex-col gap-350">
-        <div className="flex flex-col gap-125">
-          <div className="flex items-start gap-30 font-designer-24m text-gray-800">
-            <span>Q.</span>
-            <span className="text-text-brand">*</span>
-            <span>오늘 코딩 바이브 내용이 얼마나 이해가 되었나요?</span>
-          </div>
-          <p className="font-designer-16r text-gray-800">
-            별점을 선택해 오늘 레슨 내용 이해도를 알려주세요.
-          </p>
-        </div>
-        <RatingBox rating={rating} onChange={onRatingChange} />
-      </div>
-
-      {/* Single reflection question */}
+      {/* Q1 — highlight */}
       <div className="flex flex-col gap-350">
         <QuestionBlock
-          question="이번 레슨, 어떤 기대로 시작했나요?"
+          question="오늘 가장 신기했던 코드 하나만 적어볼까요?"
           helper="어려웠던 점이나 뿌듯했던 순간을 기록해 보세요. 이 기록들은 모여서 당신만의 멋진 포트폴리오가 됩니다."
-          value={reflection1}
+          value={highlightAnswer}
           placeholder="예 : Cursor에서 Cmd+K를 누르면 Claude가 바로 나타나는 게 신기했다."
-          onChange={onReflection1Change}
+          onChange={onHighlightAnswerChange}
           tall
         />
       </div>
 
-      {/* Project completion */}
+      {/* Q2 — unexpected */}
       <div className="flex flex-col gap-350">
-        <SectionTitle
-          bold="오늘의 프로젝트 완성 알리기"
-          suffix="(두 가지중 한 가지만)"
+        <QuestionBlock
+          question={
+            retrospectivePrompt ?? '직접 해보니 생각과 달랐던 의외의 순간은?'
+          }
+          helper="예상과 다르게 잘 됐거나, 막혔던 순간을 솔직하게 적어주세요."
+          value={unexpectedAnswer}
+          placeholder="예 : 코드 한 줄만 바꿨는데 전체 디자인이 바뀌어서 놀랐다."
+          onChange={onUnexpectedAnswerChange}
         />
-        <div className="flex gap-250">
-          <button
-            type="button"
-            onClick={onAttachScreenshot}
-            className="flex h-800 flex-1 items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
-          >
-            <ImageIcon className="h-300 w-300" />
-            스크린샷 첨부
-          </button>
-          <button
-            type="button"
-            onClick={onAttachLink}
-            className="flex h-800 flex-1 items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
-          >
-            <LinkIcon className="h-300 w-300" />
-            링크 입력
-          </button>
-        </div>
       </div>
+
+      {/* Project completion — only for 실습 type (artifactSubmissionRequired) */}
+      {showArtifact && (
+        <div className="flex flex-col gap-350">
+          <SectionTitle
+            bold="오늘의 프로젝트 완성 알리기"
+            suffix="이미지는 필수로 등록해주세요(링크는 선택)"
+          />
+          <div className="flex gap-250">
+            <button
+              type="button"
+              onClick={onAttachScreenshot}
+              className="flex h-800 flex-1 items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
+            >
+              <ImageIcon className="h-300 w-300" />
+              스크린샷 첨부
+            </button>
+            <button
+              type="button"
+              onClick={onAttachLink}
+              className="flex h-800 flex-1 items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
+            >
+              <LinkIcon className="h-300 w-300" />
+              링크 입력
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Chips */}
       <div className="flex flex-col gap-350">
-        <SectionTitle bold="오늘 레슨은 어떠셨나요?" suffix="(최소 2개 이상)" />
+        <SectionTitle bold="오늘 레슨은 어떠셨나요?" suffix="최소 2개 이상" />
         <div className="flex flex-col gap-200">
           <div className="flex flex-wrap gap-125">
             {POSITIVE_CHIPS.map((chip) => (

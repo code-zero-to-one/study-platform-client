@@ -25,7 +25,7 @@ export default function MVPTeamCard({ team, className }: MVPTeamCardProps) {
       )}
     >
       <div className="absolute top-0 left-0 p-300 opacity-10">
-        <Trophy className="text-text-warning h-1500 w-1500" />
+        <Trophy className="text-text-warning h-[120px] w-[120px]" />
       </div>
       <div className="absolute top-400 right-400 z-20">
         <Tooltip

@@ -5,7 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { StudyPaymentDetailResponse, VirtualAccountInfo } from '@/api/openapi';
 import Button from '@/components/common/ui/button';
+import { useConfirmCourseTossPayment } from '@/hooks/queries/course/course-api';
 import { useConfirmTossPayment } from '@/hooks/queries/payment/payment-user-api';
+import type { CoursePaymentConfirmResponse } from '@/types/api/course.types';
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
@@ -16,8 +18,11 @@ function PaymentSuccessContent() {
   >('loading');
   const [paymentData, setPaymentData] =
     useState<StudyPaymentDetailResponse | null>(null);
+  const [coursePaymentData, setCoursePaymentData] =
+    useState<CoursePaymentConfirmResponse | null>(null);
 
   const { mutateAsync } = useConfirmTossPayment();
+  const { mutateAsync: confirmCoursePayment } = useConfirmCourseTossPayment();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -29,13 +34,23 @@ function PaymentSuccessContent() {
   const orderId = searchParams.get('orderId');
   const amount = searchParams.get('amount');
   const method = searchParams.get('method');
+  const type = searchParams.get('type');
+  const courseId = Number(searchParams.get('courseId'));
 
   const isVirtualAccount = method === 'VIRTUAL_ACCOUNT';
+  const isCoursePayment = type === 'course';
 
   useEffect(() => {
     if (!paymentKey || !orderId || !amount) {
       setStatus('error');
       setErrorMessage('결제 검증에 필요한 정보가 없습니다.');
+
+      return;
+    }
+
+    if (isCoursePayment && !Number.isFinite(courseId)) {
+      setStatus('error');
+      setErrorMessage('코스 결제 정보가 올바르지 않습니다.');
 
       return;
     }
@@ -46,19 +61,29 @@ function PaymentSuccessContent() {
       try {
         setStatus('loading');
 
-        const result = await mutateAsync({
+        const request = {
           paymentId,
           paymentKey,
           orderId,
           amount: Number(amount),
-        });
+        };
+        const result = isCoursePayment
+          ? await confirmCoursePayment({ courseId, request })
+          : await mutateAsync(request);
 
         if (isMounted) {
-          setPaymentData(result ?? null);
+          if (isCoursePayment) {
+            setCoursePaymentData(result as CoursePaymentConfirmResponse);
+            setStatus('success');
+            return;
+          }
+
+          const studyPaymentResult = result as StudyPaymentDetailResponse;
+          setPaymentData(studyPaymentResult ?? null);
 
           // 가상계좌 결제인 경우
-          if (isVirtualAccount && result?.virtualAccount) {
-            setVirtualAccount(result.virtualAccount);
+          if (isVirtualAccount && studyPaymentResult?.virtualAccount) {
+            setVirtualAccount(studyPaymentResult.virtualAccount);
             setStatus('waiting');
           } else {
             // 카드 / 간편결제 등 즉시 결제
@@ -78,7 +103,17 @@ function PaymentSuccessContent() {
     return () => {
       isMounted = false;
     };
-  }, [paymentKey, orderId, amount, mutateAsync, paymentId, isVirtualAccount]);
+  }, [
+    paymentKey,
+    orderId,
+    amount,
+    mutateAsync,
+    paymentId,
+    isVirtualAccount,
+    isCoursePayment,
+    confirmCoursePayment,
+    courseId,
+  ]);
 
   if (status === 'loading') {
     return (
@@ -123,6 +158,7 @@ function PaymentSuccessContent() {
       case 'CARD':
         return '카드결제';
       case 'VBANK':
+      case 'VIRTUAL_ACCOUNT':
         return '가상계좌';
       default:
         return method ?? '-';
@@ -169,7 +205,11 @@ function PaymentSuccessContent() {
           <div className="space-y-200">
             <InfoRow
               label="주문 정보"
-              value={paymentData?.groupStudyTitle ?? '-'}
+              value={
+                isCoursePayment
+                  ? (coursePaymentData?.planCode ?? '-')
+                  : (paymentData?.groupStudyTitle ?? '-')
+              }
               bold
             />
 
@@ -177,18 +217,20 @@ function PaymentSuccessContent() {
 
             <InfoRow
               label="상품 금액"
-              value={`${paymentData?.amount?.toLocaleString()}원`}
+              value={`${(isCoursePayment ? coursePaymentData?.amount : paymentData?.amount)?.toLocaleString()}원`}
             />
 
             <div className="border-border-default space-y-200 border-t pt-200">
               <InfoRow
                 label="결제 수단"
-                value={getMethodLabel(paymentData?.method)}
+                value={getMethodLabel(
+                  isCoursePayment ? (method ?? undefined) : paymentData?.method,
+                )}
                 bold
               />
               <InfoRow
                 label="총 결제 금액"
-                value={`${paymentData?.amount?.toLocaleString()}원`}
+                value={`${(isCoursePayment ? coursePaymentData?.amount : paymentData?.amount)?.toLocaleString()}원`}
                 bold
               />
             </div>
@@ -201,9 +243,13 @@ function PaymentSuccessContent() {
             className="w-full"
             color="primary"
             size="large"
-            onClick={() => router.push('/my-study')}
+            onClick={() =>
+              router.push(
+                isCoursePayment ? '/class/vibe-intro/home' : '/my-study',
+              )
+            }
           >
-            마이스터디로 이동
+            {isCoursePayment ? '코스 학습으로 이동' : '마이스터디로 이동'}
           </Button>
           <Button
             className="w-full"

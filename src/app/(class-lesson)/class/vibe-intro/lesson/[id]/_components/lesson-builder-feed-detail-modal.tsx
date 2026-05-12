@@ -28,7 +28,7 @@ export function LessonBuilderFeedDetailModal({ feedId, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-gray-1000/40" onClick={onClose} />
-      <div className="relative z-10 mx-400 flex max-h-modal w-full max-w-[800px] flex-col rounded-200 bg-background-default shadow-3">
+      <div className="relative z-10 mx-400 flex max-h-modal w-full max-w-10000 flex-col rounded-200 bg-background-default shadow-3">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border-subtle px-400 py-300">
           <p className="font-designer-16b text-gray-800">빌더 피드</p>

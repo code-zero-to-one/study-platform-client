@@ -19,15 +19,40 @@ export interface CourseDetailResponse {
   title: string;
   description: string | null;
   thumbnailUrl: string | null;
-  freeEnrollmentAvailable: boolean | null;
-  freeEnrolled: boolean | null;
+  learnerCount: number | null;
+  durationDays: number | null;
+  completionCount: number | null;
+  exploringCount: number | null;
+  plans: CoursePlanResponse[] | null;
+  earlyBirdEndsAt: string | null;
+  canFreeEnroll: boolean | null;
+  isFreeEnrolled: boolean | null;
   freeLessonCount: number | null;
-  journeyMapEnabled: boolean | null;
-  fullAccess: boolean | null;
-  isEnrolled: boolean | null;
-  purchaseAvailable: boolean | null;
+  journeyMapAvailable: boolean | null;
+  hasFullAccess: boolean | null;
+  isPaidEnrolled: boolean | null;
+  canPurchase: boolean | null;
   faqs?: CourseFaqItem[];
   instructors?: CourseInstructor[];
+}
+
+export type CoursePlanCode = 'ALL_IN_ONE' | 'LEARN_ONLY';
+
+export interface CoursePlanItemResponse {
+  code: string;
+  label: string;
+  valueAmount: number;
+}
+
+export interface CoursePlanResponse {
+  planCode: CoursePlanCode;
+  name: string;
+  subtitle: string;
+  items: CoursePlanItemResponse[];
+  totalPrice: number;
+  discountPrice: number;
+  regularPrice: number;
+  discountRate: number;
 }
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
@@ -48,13 +73,78 @@ export interface CourseSummaryResponse {
   headline: string;
   summary: string;
   thumbnailUrl: string | null;
-  status: string;
+  status: 'OPEN' | 'COMING_SOON';
   tags: string[];
-  participantCount: number;
-  participantLabel: string;
+  learnerCount: number;
+  learnerLabel: string;
   regularPrice: number | null;
   discountPrice: number | null;
   ctaType: string;
+}
+
+export interface CourseFreeEnrollmentResponse {
+  freeEnrollmentId: number;
+  courseId: number;
+  enrolledAt: string;
+  freeLessonCount: number;
+}
+
+export interface MyCourseFreeEnrollmentResponse {
+  isFreeEnrolled: boolean;
+  freeEnrollmentId: number | null;
+  courseId: number;
+  enrolledAt: string | null;
+  freeLessonCount: number;
+}
+
+export interface OpenAlertSubscriptionRequest {
+  email: string;
+  agreed: boolean;
+}
+
+export interface OpenAlertSubscriptionResponse {
+  subscriptionId: number;
+}
+
+export interface StudyWithMeSubscriptionRequest {
+  phone: string;
+  agreed: boolean;
+}
+
+export interface StudyWithMeSubscriptionResponse {
+  subscriptionId: number;
+  courseId: number;
+  subscribedAt: string;
+}
+
+export interface CoursePaymentPrepareRequest {
+  planCode: CoursePlanCode;
+}
+
+export interface CoursePaymentPrepareResponse {
+  paymentId: number;
+  courseId: number;
+  planCode: CoursePlanCode;
+  amount: number;
+  tossOrderId: string;
+  orderName: string;
+}
+
+export interface CoursePaymentConfirmResponse {
+  paymentId: number;
+  courseId: number;
+  planCode: CoursePlanCode;
+  amount: number;
+  status: string;
+  paidAt: string;
+  tossReceiptUrl: string | null;
+}
+
+export interface CourseTossPaymentConfirmRequest {
+  paymentId: number;
+  paymentKey: string;
+  orderId: string;
+  amount: number;
 }
 
 // ─── Course ───────────────────────────────────────────────────────────────────
@@ -72,7 +162,7 @@ export interface CourseJourneyMapLessonResponse {
   title: string;
   isFree: boolean;
   status: LessonProgressStatus;
-  accessible: boolean;
+  isAccessible: boolean;
 }
 
 export interface CourseProgressResponse {
@@ -103,25 +193,30 @@ export interface LessonDetailResponse {
   isFree: boolean;
   estimatedMinutes: number | null;
   videoUrl: string | null;
-  lessonViewCount: number;
+  learnerCount: number;
+  viewCount: number;
   retrospectivePurpose: string;
   retrospectivePrompt: string;
   artifactSubmissionRequired: boolean;
   contentMarkdown: string;
   progressStatus: LessonProgressStatus;
   retrospectiveSubmitted: boolean;
-  currentLearningMemberCount?: number;
 }
 
 export interface LessonRetrospectiveCreateRequest {
-  understandingScore: number;
-  content: string;
+  highlightAnswer: string;
+  unexpectedAnswer: string;
   artifactType: string | null;
   artifactValue: string | null;
-  feedback: {
-    checklistFlags: boolean[];
-    freeText: string;
-  };
+  feedback: { checklistFlags: boolean[]; freeText: string } | null;
+}
+
+export interface LessonRetrospectiveCreateResponse {
+  retrospectiveId: number;
+  feedId: number;
+  isLessonCompleted: boolean;
+  nextAccessibleLessonId: number | null;
+  isCourseCompleted: boolean;
 }
 
 export interface LessonRetrospectiveResponse {
@@ -220,6 +315,26 @@ export interface LessonQnaCreateRequest {
   title: string;
   content: string;
   imageKeys?: string[];
+}
+
+export type LessonQnaReactionType = 'USEFUL' | 'CURIOUS';
+export type LessonQnaAnswerReactionType = 'HELPFUL' | 'NOT_HELPFUL';
+
+export interface LessonQnaAnswerCreateRequest {
+  content: string;
+  imageKeys?: string[];
+}
+
+export interface LessonQnaReactionRequest {
+  reactionType: LessonQnaReactionType;
+}
+
+export interface LessonQnaAnswerReactionRequest {
+  reactionType: LessonQnaAnswerReactionType;
+}
+
+export interface LessonQnaReportRequest {
+  reason: string;
 }
 
 // ─── Q&A Detail ───────────────────────────────────────────────────────────────
@@ -364,6 +479,25 @@ export interface BuilderFeedPreviewItemResponse {
 export interface BuilderFeedPreviewResponse {
   feeds: BuilderFeedPreviewItemResponse[];
   totalCount: number;
+}
+
+// ─── Builder Feed Showcase (course detail) ───────────────────────────────────
+
+export interface BuilderFeedShowcaseItemResponse {
+  feedId: number;
+  lessonId: number;
+  content: string;
+  thumbnailUrl: string | null;
+  author: FeedAuthor;
+  likeCount: number;
+  commentCount: number;
+  isLiked: boolean;
+  createdAt: string;
+}
+
+export interface BuilderFeedShowcaseResponse {
+  courseId: number;
+  items: BuilderFeedShowcaseItemResponse[];
 }
 
 // ─── My Builder Feeds / Stats ─────────────────────────────────────────────────

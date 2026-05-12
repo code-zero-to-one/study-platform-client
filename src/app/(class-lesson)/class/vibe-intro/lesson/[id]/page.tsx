@@ -49,11 +49,17 @@ export default function LessonPage({
       });
     }
   }
-  const [rating, setRating] = useState(0);
-  const [reflection1, setReflection1] = useState('');
+  const [highlightAnswer, setHighlightAnswer] = useState('');
+  const [unexpectedAnswer, setUnexpectedAnswer] = useState('');
   const [selectedChips, setSelectedChips] = useState<Set<string>>(new Set());
   const [feedbackText, setFeedbackText] = useState('');
   const [curriculumOpen, setCurriculumOpen] = useState(false);
+
+  useEffect(() => {
+    setCurriculumOpen(true);
+    const timer = setTimeout(() => setCurriculumOpen(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set(),
   );
@@ -89,7 +95,9 @@ export default function LessonPage({
 
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
   const isFormValid =
-    rating > 0 && reflection1.trim().length > 0 && selectedChips.size >= 2;
+    highlightAnswer.trim().length > 0 &&
+    unexpectedAnswer.trim().length > 0 &&
+    selectedChips.size >= 2;
   const isSubmitDisabled =
     !isFormValid || submitRetrospective.isPending || alreadySubmitted;
 
@@ -121,17 +129,21 @@ export default function LessonPage({
       {
         lessonId,
         request: {
-          understandingScore: rating,
-          content: reflection1,
+          highlightAnswer: highlightAnswer.trim(),
+          unexpectedAnswer: unexpectedAnswer.trim(),
           artifactType: null,
           artifactValue: null,
           feedback: { checklistFlags, freeText: feedbackText },
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           showToast('제출이 완료되었어요!');
-          router.push('/class/vibe-intro/complete');
+          if (data.isCourseCompleted) {
+            router.push('/class/vibe-intro/complete');
+          } else {
+            router.push('/class/vibe-intro/home');
+          }
         },
         onError: () => showToast('제출에 실패했어요.', 'error'),
       },
@@ -152,6 +164,7 @@ export default function LessonPage({
 
       <LessonTopBar
         onToggleCurriculum={() => setCurriculumOpen((v) => !v)}
+        curriculumOpen={curriculumOpen}
         currentLesson={lessonId}
         totalLessons={totalLessons}
         courseTitle={courseTitle}
@@ -212,15 +225,17 @@ export default function LessonPage({
 
             {tab === 'review' || tab === 'follow' ? (
               <LessonReviewForm
-                rating={rating}
-                reflection1={reflection1}
+                highlightAnswer={highlightAnswer}
+                unexpectedAnswer={unexpectedAnswer}
                 selectedChips={selectedChips}
                 feedbackText={feedbackText}
                 submitDisabled={isSubmitDisabled}
                 submitting={submitRetrospective.isPending}
                 alreadySubmitted={alreadySubmitted}
-                onRatingChange={setRating}
-                onReflection1Change={setReflection1}
+                showArtifact={lesson?.artifactSubmissionRequired ?? false}
+                retrospectivePrompt={lesson?.retrospectivePrompt}
+                onHighlightAnswerChange={setHighlightAnswer}
+                onUnexpectedAnswerChange={setUnexpectedAnswer}
                 onToggleChip={toggleChip}
                 onFeedbackChange={setFeedbackText}
                 onAttachScreenshot={() =>

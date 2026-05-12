@@ -1,11 +1,15 @@
 'use client';
 
-import { ChevronDown, Users, X } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useGetCourseList } from '@/hooks/queries/course/course-api';
+import {
+  useCreateOpenAlertSubscription,
+  useGetCourseList,
+} from '@/hooks/queries/course/course-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import type { CourseSummaryResponse } from '@/types/api/course.types';
 
 type SortOption = '최신순' | '인기순' | '완주율순';
@@ -36,76 +40,96 @@ const SLUG_VARIANT: Record<string, 'basic' | 'work' | 'soon'> = {
   'vibe-intro': 'basic',
 };
 
-function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
+function CourseThumbnail({
+  variant,
+  course,
+}: {
+  variant: 'basic' | 'work' | 'soon';
+  course: CourseSummaryResponse;
+}) {
+  if (course.thumbnailUrl) {
+    return (
+      <div className="relative h-full w-full overflow-hidden">
+        <Image
+          src={course.thumbnailUrl}
+          alt={course.title}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        />
+      </div>
+    );
+  }
+
   if (variant === 'basic') {
     return (
       <div
         className="relative h-full w-full overflow-hidden"
         style={{
           background:
-            'linear-gradient(-57.92deg, #ffc4e1 0.43%, #ffefef 99.57%)',
+            'linear-gradient(-57.924deg, #ffc4e1 0.43%, #ffefef 99.57%)',
         }}
       >
-        <Image
-          src="/class/star-lg.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={42}
-          height={42}
-          style={{ left: 32, top: 17, width: 42, height: 42 }}
-        />
-
-        <Image
-          src="/class/star-sm.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={26}
-          height={26}
-          style={{ left: 19, top: 42, width: 26, height: 26 }}
-        />
-
-        <Image
-          src="/class/vector-basic.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={39}
-          height={39}
-          style={{ left: 388, top: 20, width: 39, height: 39 }}
-        />
+        {/* "Vibe Coding" — top center */}
         <p
-          className="absolute left-1/2 z-10 -translate-x-1/2 whitespace-nowrap text-center font-black leading-normal tracking-tight text-gray-1000 font-display-headings5"
-          style={{ top: 31 }}
+          className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[50px] font-extrabold leading-normal text-gray-1000"
+          style={{ top: '10.62%', letterSpacing: '-0.95px' }}
         >
           Vibe Coding
         </p>
-
-        <Image
-          src="/class/sphere.svg"
-          alt=""
-          className="absolute left-1/2 -translate-x-1/2"
-          width={214}
-          height={133}
-          style={{ top: 74, width: 214, height: 133 }}
-        />
+        {/* Sphere illustration */}
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            left: '24.27%',
+            top: '25.58%',
+            width: '47.46%',
+            height: '45.51%',
+          }}
+        >
+          <Image src="/class/sphere.svg" alt="" aria-hidden="true" fill />
+        </div>
+        {/* "Basic" — bottom center */}
         <p
-          className="absolute left-1/2 -translate-x-1/2 text-center font-black tracking-tight text-gray-1000 font-display-headings5"
-          style={{ top: 189 }}
+          className="absolute left-1/2 w-[49.34%] -translate-x-1/2 text-center text-[50px] font-extrabold leading-normal text-gray-1000"
+          style={{ top: '64.73%', letterSpacing: '-0.95px' }}
         >
           Basic
         </p>
-
-        <Image
-          src="/class/star-lg.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={42}
-          height={42}
-          style={{ left: 328, top: 179, width: 42, height: 42 }}
-        />
+        {/* Star lg #1 — top-left */}
+        <div
+          className="pointer-events-none absolute size-525"
+          style={{ left: '7.08%', top: '5.82%' }}
+        >
+          <div className="absolute inset-[17.53%]">
+            <Image src="/class/star-lg.svg" alt="" aria-hidden="true" fill />
+          </div>
+        </div>
+        {/* Star lg #2 — bottom-right */}
+        <div
+          className="pointer-events-none absolute size-525"
+          style={{ left: '72.57%', top: '61.30%' }}
+        >
+          <div className="absolute inset-[17.53%]">
+            <Image src="/class/star-lg.svg" alt="" aria-hidden="true" fill />
+          </div>
+        </div>
+        {/* Star sm — top-left */}
+        <div
+          className="pointer-events-none absolute size-[26px]"
+          style={{ left: '4.20%', top: '14.38%' }}
+        >
+          <div className="absolute inset-[28.32%]">
+            <Image src="/class/star-sm.svg" alt="" aria-hidden="true" fill />
+          </div>
+        </div>
+        {/* Lightning — top-right */}
+        <div
+          className="pointer-events-none absolute size-[38.529px]"
+          style={{ left: '85.84%', top: '6.85%' }}
+        >
+          <Image src="/class/vector-basic.svg" alt="" aria-hidden="true" fill />
+        </div>
       </div>
     );
   }
@@ -119,72 +143,90 @@ function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
             'linear-gradient(122.16deg, var(--color-rose-500) 8.5%, var(--color-rose-400) 92.47%)',
         }}
       >
-        {/* vector-work renders behind subtract — matches Figma z-order */}
-        <Image
-          src="/class/vector-work.svg"
-          alt=""
-          aria-hidden="true"
+        {/* Subtract wave cutout */}
+        <div
           className="pointer-events-none absolute"
-          width={39}
-          height={39}
-          style={{ left: 361, top: 227, width: 39, height: 39 }}
-        />
-        <Image
-          src="/class/subtract.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={405}
-          height={233}
-          style={{ left: 23, top: 30, width: 405, height: 233 }}
-        />
-        <Image
-          src="/class/bracket-left.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={42}
-          height={66}
-          style={{ left: 295, top: 30, width: 42, height: 66 }}
-        />
-        <Image
-          src="/class/slash.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={31}
-          height={74}
-          style={{ left: 346, top: 30, width: 31, height: 74 }}
-        />
-
-        <Image
-          src="/class/bracket-right.svg"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute"
-          width={42}
-          height={66}
           style={{
-            left: 385,
-            top: 30,
-            width: 42,
-            height: 66,
-            transform: 'scaleY(-1) rotate(180deg)',
+            left: '5.09%',
+            top: '10.27%',
+            width: '89.67%',
+            height: '79.79%',
           }}
-        />
+        >
+          <Image src="/class/subtract.svg" alt="" aria-hidden="true" fill />
+        </div>
+        {/* Code symbols — bracket left */}
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            left: '65.27%',
+            top: '10.27%',
+            width: '9.34%',
+            height: '22.71%',
+          }}
+        >
+          <div className="absolute" style={{ inset: '5.94% 0 5.91% 0' }}>
+            <Image
+              src="/class/bracket-left.svg"
+              alt=""
+              aria-hidden="true"
+              fill
+            />
+          </div>
+        </div>
+        {/* Code symbols — slash */}
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            left: '76.54%',
+            top: '10.27%',
+            width: '6.80%',
+            height: '25.28%',
+          }}
+        >
+          <div className="absolute" style={{ inset: '0 4.96% 0 4.94%' }}>
+            <Image src="/class/slash.svg" alt="" aria-hidden="true" fill />
+          </div>
+        </div>
+        {/* Code symbols — bracket right (mirrored) */}
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            left: '85.25%',
+            top: '10.27%',
+            width: '9.34%',
+            height: '22.71%',
+          }}
+        >
+          <div
+            className="-scale-y-100 rotate-180 absolute inset-0"
+            style={{ inset: '5.94% 0 5.91% 0' }}
+          >
+            <Image
+              src="/class/bracket-right.svg"
+              alt=""
+              aria-hidden="true"
+              fill
+            />
+          </div>
+        </div>
+        {/* Lightning vector */}
+        <div
+          className="pointer-events-none absolute size-[38.529px]"
+          style={{ left: '79.87%', top: '77.74%' }}
+        >
+          <Image src="/class/vector-work.svg" alt="" aria-hidden="true" fill />
+        </div>
+        {/* Text overlays */}
         <p
-          className="absolute whitespace-nowrap font-bold leading-normal tracking-tight text-rose-500 font-display-headings6"
-          style={{
-            left: 154,
-            top: 146,
-            transform: 'translateX(-50%)',
-          }}
+          className="absolute -translate-x-1/2 whitespace-nowrap font-display-headings6 text-rose-500"
+          style={{ left: '34.07%', top: '50%', letterSpacing: '-0.76px' }}
         >
           Vibe Coding
         </p>
         <p
-          className="absolute whitespace-nowrap font-bold tracking-tight text-rose-500 font-display-headings6"
-          style={{ left: 42, top: 197 }}
+          className="absolute whitespace-nowrap font-display-headings6 text-rose-500"
+          style={{ left: '9.29%', top: '67.47%', letterSpacing: '-0.76px' }}
         >
           for Work
         </p>
@@ -194,13 +236,16 @@ function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
 
   return (
     <div
-      className="relative h-full w-full overflow-hidden"
+      className="relative flex h-full w-full items-center justify-center overflow-hidden"
       style={{
         background:
-          'linear-gradient(-57.92deg, var(--color-gray-300) 0.43%, var(--color-gray-50) 99.57%)',
+          'linear-gradient(-57.924deg, #bfbfbf 0.43%, #fafafa 99.57%)',
       }}
     >
-      <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-center font-black tracking-tight text-gray-500 font-display-headings5">
+      <p
+        className="whitespace-nowrap text-[50px] font-extrabold leading-normal text-gray-500"
+        style={{ letterSpacing: '-0.95px' }}
+      >
         Coming soon
       </p>
     </div>
@@ -210,26 +255,49 @@ function CourseThumbnail({ variant }: { variant: 'basic' | 'work' | 'soon' }) {
 function NotifyModal({
   open,
   onClose,
+  courseId,
 }: {
   open: boolean;
   onClose: () => void;
+  courseId?: number;
 }) {
   const [email, setEmail] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [emailError, setEmailError] = useState(false);
+  const [agreedError, setAgreedError] = useState(false);
+  const showToast = useToastStore((state) => state.showToast);
+  const createAlertSubscription = useCreateOpenAlertSubscription();
 
   if (!open) return null;
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!email.trim()) {
       setEmailError(true);
       return;
     }
-    // TODO: API not found - open notification signup endpoint
-    setEmail('');
-    setAgreed(false);
-    setEmailError(false);
-    onClose();
+    if (!agreed) {
+      setAgreedError(true);
+      return;
+    }
+    if (!courseId) {
+      showToast('코스 정보를 찾을 수 없어요.', 'error');
+      return;
+    }
+
+    try {
+      await createAlertSubscription.mutateAsync({
+        courseId,
+        request: { email: email.trim(), agreed },
+      });
+      showToast('오픈 알림 신청이 완료되었어요.');
+      setEmail('');
+      setAgreed(false);
+      setEmailError(false);
+      setAgreedError(false);
+      onClose();
+    } catch {
+      showToast('오픈 알림 신청 중 오류가 발생했어요.', 'error');
+    }
   }
 
   return (
@@ -239,7 +307,7 @@ function NotifyModal({
       style={{ background: 'rgba(0,0,0,0.4)' }}
     >
       <div
-        className="relative w-[560px] overflow-hidden rounded-200 bg-background-default"
+        className="relative w-7000 overflow-hidden rounded-200 bg-background-default"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -302,7 +370,10 @@ function NotifyModal({
               <input
                 type="checkbox"
                 checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
+                onChange={(e) => {
+                  setAgreed(e.target.checked);
+                  setAgreedError(false);
+                }}
                 className="mt-25 h-300 w-300 shrink-0 rounded-50 accent-rose-500"
               />
               <span className="font-designer-14b">
@@ -315,14 +386,20 @@ function NotifyModal({
             <p className="pl-[34px] font-designer-12r text-gray-800">
               수집 항목: 전화번호·이메일 / 보유 기간: 오픈 안내 발송 후 30일
             </p>
+            {agreedError && (
+              <p className="pl-[34px] font-designer-12r text-text-error">
+                개인정보 수집·이용에 동의해주세요.
+              </p>
+            )}
           </div>
 
           <button
             type="button"
             onClick={handleSubmit}
+            disabled={createAlertSubscription.isPending}
             className="h-700 w-full rounded-100 bg-background-brand-default font-designer-18b text-text-inverse"
           >
-            입력 완료
+            {createAlertSubscription.isPending ? '신청 중...' : '입력 완료'}
           </button>
         </div>
       </div>
@@ -345,20 +422,48 @@ function CourseCard({
   return (
     <div className="flex flex-col overflow-hidden rounded-200 border border-border-default">
       <div className="h-[292px] shrink-0">
-        <CourseThumbnail variant={thumbnailVariant} />
+        <CourseThumbnail variant={thumbnailVariant} course={course} />
       </div>
-      <div className="flex flex-1 flex-col bg-background-default p-350 pt-300">
+      <div className="flex flex-1 flex-col bg-background-default p-375 pt-300">
         <div className="mb-300 flex items-center gap-75">
-          <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
+          <div className="relative size-300 shrink-0">
+            {course.status === 'OPEN' ? (
+              <div
+                className="absolute"
+                style={{
+                  left: '13.83%',
+                  top: '6.375%',
+                  width: '71.96%',
+                  height: '87.46%',
+                }}
+              >
+                <Image
+                  src="/class/icon-learner-open.svg"
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                />
+              </div>
+            ) : (
+              <div className="absolute inset-[7.7%]">
+                <Image
+                  src="/class/icon-learner-soon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                />
+              </div>
+            )}
+          </div>
           <p className="font-designer-16m text-text-default">
             <span className="font-designer-16b text-text-brand">
-              {course.participantCount}
+              {course.learnerCount}
             </span>
-            {course.participantLabel}
+            {course.learnerLabel}
           </p>
         </div>
 
-        <div className="mb-300 flex flex-col gap-75">
+        <div className="mb-225 flex flex-col gap-75">
           <p className="font-designer-28b leading-normal text-gray-1000">
             {course.title}
           </p>
@@ -419,6 +524,7 @@ export default function ClassPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>('최신순');
   const [notifyModalOpen, setNotifyModalOpen] = useState(false);
+  const [notifyCourseId, setNotifyCourseId] = useState<number>();
 
   const { data: courses } = useGetCourseList();
 
@@ -426,6 +532,7 @@ export default function ClassPage() {
     <div className="w-full">
       <NotifyModal
         open={notifyModalOpen}
+        courseId={notifyCourseId}
         onClose={() => setNotifyModalOpen(false)}
       />
       {/* Banner */}
@@ -446,24 +553,19 @@ export default function ClassPage() {
             aria-hidden="true"
             width={32}
             height={32}
-            className="absolute"
+            className="absolute top-125 h-1625"
             style={{
               left: '34.3%',
-              top: '10px',
               width: '31.4%',
-              height: '130px',
               transform: 'rotate(-9.38deg)',
             }}
           />
 
           {/* Code card */}
           <div
-            className="absolute flex flex-col items-center justify-center gap-75 rounded-250 border border-rose-300"
+            className="absolute top-625 flex h-[180px] w-[180px] flex-col items-center justify-center gap-75 rounded-250 border border-rose-300"
             style={{
               left: '39.1%',
-              top: '51px',
-              width: 180,
-              height: 180,
               background:
                 'radial-gradient(circle at center, var(--color-rose-100) 52%, var(--color-rose-200) 76%, var(--color-rose-300) 100%)',
               opacity: 0.85,
@@ -478,7 +580,6 @@ export default function ClassPage() {
                 aria-hidden="true"
                 width={32}
                 height={50}
-                style={{ height: 50, width: 32 }}
               />
 
               <Image
@@ -487,7 +588,6 @@ export default function ClassPage() {
                 aria-hidden="true"
                 width={23}
                 height={56}
-                style={{ height: 56, width: 23 }}
               />
 
               <Image
@@ -497,8 +597,6 @@ export default function ClassPage() {
                 width={32}
                 height={50}
                 style={{
-                  height: 50,
-                  width: 32,
                   transform: 'scaleY(-1) rotate(180deg)',
                 }}
               />
@@ -507,12 +605,9 @@ export default function ClassPage() {
 
           {/* Community card */}
           <div
-            className="absolute rounded-250 border border-rose-300"
+            className="absolute top-1250 h-2325 w-2325 rounded-250 border border-rose-300"
             style={{
               left: '50.3%',
-              top: '100px',
-              width: 185,
-              height: 185,
               background:
                 'radial-gradient(circle at center, var(--color-rose-100) 52%, var(--color-rose-200) 76%, var(--color-rose-300) 100%)',
               opacity: 0.85,
@@ -700,8 +795,8 @@ export default function ClassPage() {
 
         {/* Hero heading */}
         <div
-          className="relative z-10 flex flex-col items-center justify-end pb-500"
-          style={{ minHeight: 'clamp(260px, 30.2vw, 580px)' }}
+          className="relative z-10 flex flex-col items-center justify-center"
+          style={{ minHeight: 'var(--min-h-hero-section)' }}
         >
           <h1 className="font-designer-62b text-center text-gray-1000">
             따라만 하면 완성되는
@@ -763,12 +858,15 @@ export default function ClassPage() {
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 gap-300 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-300 md:gap-525 md:grid-cols-2 lg:grid-cols-3">
           {courses?.map((course) => (
             <CourseCard
               key={course.courseId}
               course={course}
-              onNotify={() => setNotifyModalOpen(true)}
+              onNotify={() => {
+                setNotifyCourseId(course.courseId);
+                setNotifyModalOpen(true);
+              }}
             />
           ))}
         </div>

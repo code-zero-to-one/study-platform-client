@@ -4,6 +4,7 @@ import Image from 'next/image';
 
 interface Props {
   onToggleCurriculum: () => void;
+  curriculumOpen: boolean;
   currentLesson: number;
   totalLessons: number;
   courseTitle: string;
@@ -12,6 +13,7 @@ interface Props {
 
 export function LessonTopBar({
   onToggleCurriculum,
+  curriculumOpen,
   currentLesson,
   totalLessons,
   courseTitle,
@@ -25,7 +27,7 @@ export function LessonTopBar({
       <button
         type="button"
         onClick={onToggleCurriculum}
-        className="flex h-800 w-800 shrink-0 flex-col items-center justify-center gap-25 bg-background-brand-default text-text-inverse"
+        className="group flex h-800 w-800 shrink-0 flex-col items-center justify-center gap-25 bg-background-brand-default text-text-inverse"
       >
         <Image
           src="/class/vibe-intro/checklist.svg"
@@ -34,7 +36,12 @@ export function LessonTopBar({
           width={32}
           height={32}
         />
-        <span className="font-designer-14m text-text-inverse">커리큘럼</span>
+        <span className="font-designer-14m text-text-inverse group-hover:hidden">
+          커리큘럼
+        </span>
+        <span className="hidden font-designer-14m text-text-inverse group-hover:inline">
+          {curriculumOpen ? '닫기' : '열기'}
+        </span>
       </button>
 
       <div className="flex items-center gap-350 px-350">
