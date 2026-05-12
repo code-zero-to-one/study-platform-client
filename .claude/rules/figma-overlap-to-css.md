@@ -70,6 +70,28 @@ This works because the SVG container bottom aligns with the anchor point (`botto
 
 ---
 
+## Rule 3: CSS `top`/`left` Measures from Containing Block, NOT from Sibling
+
+`position: absolute`에서 `top`은 **nearest positioned ancestor(containing block)의 상단 edge**부터의 거리다. 이전 sibling의 하단이 기준이 아니다.
+
+```
+Figma: 유의사항 카드가 헤더 row 하단으로부터 0px 아래에 위치
+→ 실수: top-[13px]  ← containing block 상단 + 13px → 헤더 내부에 그려짐
+→ 정답: top-full   ← = containing block 높이 = 헤더 div 하단에 딱 붙음
+```
+
+**판단 방법:**
+
+| 질문 | 답 | CSS |
+|------|-----|-----|
+| "헤더 div 하단에 붙이고 싶다" | containing block = 헤더 div | `top-full` |
+| "헤더 하단에서 N px 아래" | containing block 기준 offset | `top-full mt-N` 또는 `translate-y-N` |
+| "sibling 하단 기준 N px" | sibling에 `bottom-0` 마킹 후 offset | sibling 구조 변경 또는 `top-full + translate` |
+
+코딩 전 반드시 확인: **`top`의 기준점(containing block)이 어느 DOM 엘리먼트인가?** 시각적으로 "바로 아래"처럼 보여도, `top` 기준점이 grandparent인 경우 크게 틀린 위치가 렌더링된다.
+
+---
+
 ## Pre-Code Checklist for Figma Overlap Layouts
 
 Before writing any CSS for a Figma layout where a child overlaps a parent boundary:
