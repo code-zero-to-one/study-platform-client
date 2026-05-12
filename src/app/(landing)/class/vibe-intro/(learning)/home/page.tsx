@@ -189,7 +189,7 @@ function mergeLessons(
       title: l.title,
       isFree: l.isFree,
       status: journeyLesson?.status ?? (l.locked ? 'LOCKED' : 'IN_PROGRESS'),
-      accessible: journeyLesson?.accessible ?? !l.locked,
+      accessible: journeyLesson?.isAccessible ?? !l.locked,
       estimatedMinutes: l.estimatedMinutes,
     };
   });
@@ -569,7 +569,7 @@ export default function JourneyMapPage() {
             {chapters.flatMap((chapter) =>
               chapter.lessons.map((l) => {
                 const journeyLesson = lessonStatusMap.get(l.lessonId);
-                const isAccessible = journeyLesson?.accessible ?? !l.locked;
+                const isAccessible = journeyLesson?.isAccessible ?? !l.locked;
                 const isCompleted = journeyLesson?.status === 'COMPLETED';
 
                 const card = (
