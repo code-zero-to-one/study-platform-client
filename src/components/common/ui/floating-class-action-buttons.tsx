@@ -1,31 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const KAKAO_CHANNEL_URL = 'https://pf.kakao.com/_xoGxaAG';
 
 export default function FloatingClassActionButtons() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setVisible(window.scrollY > 200);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <div
-      aria-hidden={!visible}
-      className={cn(
-        'fixed bottom-600 right-1375 z-50 flex flex-col items-center gap-400 transition-opacity duration-300',
-        visible ? 'opacity-100' : 'pointer-events-none opacity-0',
-      )}
-    >
+    <div className="fixed bottom-600 right-1375 z-50 flex flex-col items-center gap-400">
       <a
         href={KAKAO_CHANNEL_URL}
         target="_blank"

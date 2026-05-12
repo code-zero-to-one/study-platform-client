@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   Dialog,
@@ -328,10 +328,12 @@ function LessonStamp({
   lesson,
   isAuthenticated,
   onSelect,
+  shouldBlink = false,
 }: {
   lesson: LessonDisplayInfo;
   isAuthenticated: boolean;
   onSelect: (lesson: LessonDisplayInfo) => void;
+  shouldBlink?: boolean;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCompleted = lesson.status === 'COMPLETED';
@@ -353,7 +355,8 @@ function LessonStamp({
         className={cn(
           'absolute inset-0',
           isCompleted && 'brightness-110 saturate-150',
-          isCurrent && 'animate-[pulse_1.6s_ease-in-out_infinite]',
+          (isCurrent || shouldBlink) &&
+            'animate-[pulse_1.6s_ease-in-out_infinite]',
         )}
       />
       <div className="relative z-10 flex flex-col items-center">
@@ -445,6 +448,16 @@ export default function JourneyMapPage() {
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
   const router = useRouter();
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+
+  useEffect(() => {
+    const key = 'vibe-intro-journey-visited';
+    if (!localStorage.getItem(key)) {
+      setIsFirstVisit(true);
+      localStorage.setItem(key, '1');
+    }
+  }, []);
+
   const [visibleChapterCount, setVisibleChapterCount] = useState(2);
   const [visibleLessonCount, setVisibleLessonCount] = useState(5);
   const [selectedLesson, setSelectedLesson] = useState<{
@@ -689,6 +702,12 @@ export default function JourneyMapPage() {
                                   lesson: l,
                                   chapter,
                                 })
+                              }
+                              shouldBlink={
+                                isFirstVisit &&
+                                index === 0 &&
+                                ri === 0 &&
+                                li === 0
                               }
                             />
                           </div>
