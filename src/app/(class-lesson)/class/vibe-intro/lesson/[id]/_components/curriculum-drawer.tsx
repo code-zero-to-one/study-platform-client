@@ -58,8 +58,8 @@ function LessonBadge({ lesson }: { lesson: CourseDrawerLessonResponse }) {
       <Image
         src={`${ASSET}/${accessible ? 'lock-open.svg' : 'lesson-lock-icon.svg'}`}
         alt={accessible ? '잠금 해제' : '잠금'}
-        width={14}
-        height={14}
+        width={20}
+        height={20}
       />
     </div>
   );
@@ -83,14 +83,26 @@ function ChapterHeader({
       className="flex w-full items-center justify-between border-b border-gray-200 bg-gray-100 px-375 py-250"
     >
       <div className="flex items-center gap-150">
-        <Image
-          src={`${ASSET}/${allCompleted ? 'edit-note.svg' : 'chapter-lock.svg'}`}
-          alt=""
-          aria-hidden="true"
-          width={42}
-          height={42}
-          className="shrink-0"
-        />
+        {allCompleted ? (
+          <div className="flex shrink-0 size-525 items-center justify-center overflow-hidden rounded-50 bg-rose-300">
+            <Image
+              src={`${ASSET}/edit-note.svg`}
+              alt=""
+              aria-hidden="true"
+              width={32}
+              height={26}
+            />
+          </div>
+        ) : (
+          <Image
+            src={`${ASSET}/chapter-lock.svg`}
+            alt=""
+            aria-hidden="true"
+            width={42}
+            height={42}
+            className="shrink-0"
+          />
+        )}
         <div className="flex flex-col items-start gap-25">
           <p className="font-designer-14b text-text-brand">
             Chapter {String(chapter.order).padStart(2, '0')}
@@ -172,7 +184,7 @@ export function CurriculumDrawer({
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      <div className="flex h-full w-5000 flex-col bg-background-default shadow-2">
+      <div className="flex h-full w-5250 flex-col bg-background-default shadow-2">
         <div className="relative px-375 pb-300 pt-375">
           <p className="font-designer-24b text-gray-800">커리큘럼</p>
           <p className="mt-300 font-designer-20b text-gray-800">
@@ -193,15 +205,13 @@ export function CurriculumDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {chapters.map((chapter) => {
-            const allCompleted = chapter.lessons.every(
-              (l) => l.status === 'COMPLETED',
-            );
+            const isAccessible = chapter.lessons.some((l) => !l.isLocked);
             const expanded = expandedChapters.has(chapter.chapterId);
             return (
               <div key={chapter.chapterId}>
                 <ChapterHeader
                   chapter={chapter}
-                  allCompleted={allCompleted}
+                  allCompleted={isAccessible}
                   expanded={expanded}
                   onToggle={() => onToggleChapter(chapter.chapterId)}
                 />

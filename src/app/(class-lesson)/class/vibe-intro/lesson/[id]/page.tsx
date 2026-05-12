@@ -54,6 +54,12 @@ export default function LessonPage({
   const [selectedChips, setSelectedChips] = useState<Set<string>>(new Set());
   const [feedbackText, setFeedbackText] = useState('');
   const [curriculumOpen, setCurriculumOpen] = useState(false);
+
+  useEffect(() => {
+    setCurriculumOpen(true);
+    const timer = setTimeout(() => setCurriculumOpen(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set(),
   );
@@ -158,6 +164,7 @@ export default function LessonPage({
 
       <LessonTopBar
         onToggleCurriculum={() => setCurriculumOpen((v) => !v)}
+        curriculumOpen={curriculumOpen}
         currentLesson={lessonId}
         totalLessons={totalLessons}
         courseTitle={courseTitle}

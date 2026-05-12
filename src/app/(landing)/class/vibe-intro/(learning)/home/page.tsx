@@ -411,7 +411,7 @@ export default function JourneyMapPage() {
                 key={chapter.order}
                 className="flex w-full flex-col items-center"
               >
-                <div className="mt-400 w-full">
+                <div className="relative z-10 mt-400 w-full">
                   <ChapterHeader
                     chapterNumber={chapter.chapterNumber}
                     title={chapter.title}
@@ -423,7 +423,11 @@ export default function JourneyMapPage() {
                     <div
                       className={cn(
                         'relative flex items-center justify-center',
-                        index === 0 && ri === 0 ? 'mt-800' : 'mt-300',
+                        index === 0 && ri === 0
+                          ? 'mt-800'
+                          : ri === 0
+                            ? 'mt-300'
+                            : '',
                       )}
                     >
                       {index === 0 && ri === 0 && (
@@ -490,42 +494,33 @@ export default function JourneyMapPage() {
                           </div>
                         ))}
                       </div>
+                      {ri === rows.length - 1 &&
+                        index < visibleChapters.length - 1 && (
+                          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2">
+                            <Image
+                              src="/class/vibe-intro/journey-load.svg"
+                              alt=""
+                              aria-hidden="true"
+                              width={906}
+                              height={388}
+                            />
+                          </div>
+                        )}
                     </div>
                     {ri < rows.length - 1 && (
-                      <div className="flex justify-center">
-                        {ri % 2 === 0 ? (
-                          <Image
-                            src="/class/vibe-intro/journey-load.svg"
-                            alt=""
-                            aria-hidden="true"
-                            width={906}
-                            height={388}
-                          />
-                        ) : (
-                          <Image
-                            src="/class/vibe-intro/journey-load-reverse.svg"
-                            alt=""
-                            aria-hidden="true"
-                            width={906}
-                            height={319}
-                          />
-                        )}
+                      <div className="-mt-825 -mb-825 flex justify-center">
+                        <Image
+                          src="/class/vibe-intro/journey-load-reverse.svg"
+                          alt=""
+                          aria-hidden="true"
+                          width={906}
+                          height={319}
+                          className={cn(ri % 2 === 0 && '-scale-x-100')}
+                        />
                       </div>
                     )}
                   </div>
                 ))}
-
-                {index < visibleChapters.length - 1 && (
-                  <div className="flex justify-center">
-                    <Image
-                      src="/class/vibe-intro/journey-load.svg"
-                      alt=""
-                      aria-hidden="true"
-                      width={906}
-                      height={388}
-                    />
-                  </div>
-                )}
               </div>
             );
           })}

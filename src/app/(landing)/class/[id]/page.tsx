@@ -344,7 +344,7 @@ export default function ClassDetailPage({
               {/* Curriculum preview carousel */}
               <div className="mt-400">
                 <div className="relative">
-                  {/* Image card — mx-[10.35%] matches Figma 89px/860px side margin */}
+                  {/* TODO: h-[354px] uses a banned px arbitrary value — add --spacing-4425 token */}
                   <div className="mx-[10.35%] flex h-[354px] items-center justify-center overflow-hidden rounded-100 bg-gray-300">
                     <p className="font-designer-18r text-black">
                       커리큘럼 미리보기 이미지
@@ -353,14 +353,14 @@ export default function ClassDetailPage({
                   <button
                     type="button"
                     aria-label="이전"
-                    className="absolute left-0 top-[41.53%] flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
                   >
                     <ChevronLeft className="h-250 w-250" />
                   </button>
                   <button
                     type="button"
                     aria-label="다음"
-                    className="absolute right-0 top-[41.53%] flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
                   >
                     <ChevronRight className="h-250 w-250" />
                   </button>
