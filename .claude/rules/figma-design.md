@@ -51,6 +51,14 @@ Why: rotations and mirrors are the most common silently-omitted properties. Miss
 - Mask layers
 - Component instances vs detached copies (instances signal reusable design tokens)
 
+**Sibling spatial relationship (critical for layout):**
+`get_metadata` reports **absolute page coordinates**, not relative to the parent frame. To get true in-frame position:
+```
+child_x_relative = child_x_absolute - frame_x_absolute
+child_y_relative = child_y_absolute - frame_y_absolute
+```
+After converting, check: are siblings **inside** each other's bounds, or **outside**? A button at frame-relative x=0 and a card at frame-relative x=89 means the button is *outside* the card — completely different layout from a button at x=0 inside a full-width card. This check must be explicit, not assumed from the screenshot.
+
 ### 6. Variables & Tokens
 
 - Bound design tokens (color variables, spacing variables, radius variables)
@@ -92,8 +100,11 @@ When summarizing a Figma inspection, produce:
 - Do not skim the design context output and write code from the screenshot alone.
 - Do not collapse `-scale-y-100 rotate(165deg)` into `rotate(-15deg)` without verifying the SVG path is symmetric.
 - Do not "round" rotations (`+18.03°` → `+18°`). Sub-degree precision is designer intent.
-- Do not omit decorative nodes (sparkles, dots, orbit rings) — they are part of the composition.
+- Do not omit decorative nodes (sparkles, dots, orbit rings, indicator dots) — they are part of the composition.
 - Do not assume default values. Always read the explicit value from the Figma response.
+- **Do not treat `get_metadata` coordinates as relative to the parent frame.** They are absolute page coordinates. Always subtract the parent frame's (x, y) before reasoning about layout.
+- **Do not assume siblings are nested inside each other.** A button at frame-relative x=0 next to a card at x=89 means the button is *outside* the card. Check sibling bounds explicitly.
+- **Do not use `w-full` for a child when Figma shows it constrained.** If the child's width < frame width, the code container must reflect that — use percentage margins, max-width, or explicit sizing.
 
 ## Spec Re-Verification
 
@@ -147,6 +158,25 @@ If the design contains Tooltip / Dropdown / Modal / Popover:
 1. Identify the parent layout's `overflow` value
 2. Check if any ancestor has `transform`, `filter`, or `will-change` (each creates a new stacking context)
 3. If yes → plan for Portal rendering before coding
+
+### E. Node Coverage & Container Width Audit
+
+Before writing any code, produce a two-column table from `get_metadata`:
+
+| Figma node (id · name) | Present in current code? |
+|---|---|
+| 42:2451 · pagination item (left) | ✅ / ❌ |
+| 42:2463 · 인디케이터 | ✅ / ❌ |
+
+Any ❌ row = must implement. Do not skip nodes because they "seem minor" (dots, dividers, labels).
+
+**Container width mismatch check:**
+If a child node's width < parent frame width AND x > 0, the child is **constrained and offset** — the parent container in code must NOT use a full-width child. Check:
+- Child width / frame width = what percentage?
+- Child x (relative) = left margin?
+- Is the current code using `w-full` where the Figma uses a constrained width?
+
+Example: image card 682/860px wide at x=89 → code needs `mx-[10.35%]` or equivalent, not `w-full`.
 
 ### D. Figma Asset URL Lifetime
 

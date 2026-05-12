@@ -343,26 +343,41 @@ export default function ClassDetailPage({
               </p>
 
               {/* Curriculum preview carousel */}
-              <div className="relative mt-400">
-                <div className="flex h-[354px] items-center justify-center overflow-hidden rounded-100 bg-gray-300">
-                  <p className="font-designer-18r text-black">
-                    커리큘럼 미리보기 이미지
-                  </p>
+              <div className="mt-400">
+                <div className="relative">
+                  {/* Image card — mx-[10.35%] matches Figma 89px/860px side margin */}
+                  <div className="mx-[10.35%] flex h-[354px] items-center justify-center overflow-hidden rounded-100 bg-gray-300">
+                    <p className="font-designer-18r text-black">
+                      커리큘럼 미리보기 이미지
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="이전"
+                    className="absolute left-0 top-[41.53%] flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                  >
+                    <ChevronLeft className="h-250 w-250" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="다음"
+                    className="absolute right-0 top-[41.53%] flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+                  >
+                    <ChevronRight className="h-250 w-250" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  aria-label="이전"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
-                >
-                  <ChevronLeft className="h-250 w-250" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="다음"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
-                >
-                  <ChevronRight className="h-250 w-250" />
-                </button>
+                {/* Indicator dots — 4 dots, 10px each, 10px gap, centered */}
+                <div className="mt-200 flex items-center justify-center gap-125">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        'size-125 rounded-full',
+                        i === 0 ? 'bg-rose-500' : 'bg-gray-300',
+                      )}
+                    />
+                  ))}
+                </div>
               </div>
 
               {/* Target audience */}

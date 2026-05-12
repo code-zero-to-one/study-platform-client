@@ -7,73 +7,71 @@ Class utilities: `clsx`, `tailwind-merge`, `class-variance-authority` (CVA).
 
 ## Token System
 
-`@theme inline` in `src/app/global.css` resets all base tokens (`--color-*`, `--radius-*`, `--spacing-*`, `--shadow-*`).
+`@theme inline` in `src/app/global.css` resets all base tokens. Base unit = **8px** (from Figma design system).
 
-**Base Tailwind scale classes are prohibited** — they resolve to `undefined` after the reset:
+Token formula: `px × 12.5 = token_number` (equivalent: `px ÷ 8 × 100`).
 
+| Figma token | px   | Project class      |
+|-------------|------|--------------------|
+| space 50    | 4px  | `gap-50`, `p-50`   |
+| space 100   | 8px  | `gap-100`, `p-100` |
+| space 200   | 16px | `gap-200`, `p-200` |
+| space 300   | 24px | `gap-300`, `p-300` |
+| space 400   | 32px | `gap-400`, `p-400` |
+| space 600   | 48px | `gap-600`, `p-600` |
+
+For values beyond space 600 (layout-level sizes), add a `--spacing-N` entry to `global.css` using the same formula.
+
+## Spacing/Sizing Arbitrary Values — Banned
+
+Spacing and sizing utilities must use project tokens. Arbitrary px values silently render as `undefined` after the `@theme inline` reset.
+
+**Banned (spacing/sizing utilities):**
 ```
-❌ p-4, m-2, rounded-lg, shadow-md, text-sm, gap-4
-✅ p-200, m-100, rounded-150, shadow-2, font-designer-body, gap-150
+❌ p-[4px], w-[320px], h-[100px], gap-[10px], top-[20px]
+✅ p-50, w-4000, h-1250, gap-125, top-250
 ```
 
-Use only project custom tokens:
+Target utilities: `p/px/py/pt/pb/pl/pr`, `m/mx/my/mt/mb/ml/mr`, `w/h/min-w/max-w/min-h/max-h/size`, `gap`, `top/right/bottom/left`, `rounded`
 
-- Spacing: `p-200`, `m-100`, `gap-150`, etc.
-- Radius: `rounded-150`, `rounded-200`, etc.
-- Shadow: `shadow-2`, `shadow-3`, etc.
-- Typography: `font-designer-*`, `text-text-*`
-- Colors: `@theme inline` variables from `global.css` only — no hardcoded hex values
+**Allowed — no token equivalent exists:**
+```
+✅ grid-cols-[200px_1fr], grid-rows-[auto_1fr]
+✅ bg-[url('/image.png')], bg-[image:url('/icon.svg')]
+✅ text-[#hexcolor]
+✅ aspect-[16/9], delay-[200ms], duration-[300ms]
+```
 
 ## Responsive Layout
 
-Use breakpoint prefixes with fluid-first approach — never fixed widths:
+Fluid-first approach — never fixed widths:
 
 ```
 ❌ w-[400px]
 ✅ w-full max-w-container
-
-❌ grid-cols-3 (fixed)
 ✅ grid-cols-1 md:grid-cols-2 lg:grid-cols-3
 ```
 
 Standard breakpoints: `sm:` (640px) · `md:` (768px) · `lg:` (1024px)
 
-## Pre-Commit Verification
+## Pre-Commit Check
 
-`yarn lint:fix && yarn prettier:fix && yarn typecheck` catch syntax and type errors but have structural blind spots for convention violations. These patterns pass all three checks yet violate project conventions:
-
-| Pattern | Why automated checks miss it |
-|---------|------------------------------|
-| `style={{ prop: value }}` | ESLint `no-arbitrary-values` inspects `className` strings only — the `style` prop is invisible to it |
-| `className="... [14px] ..."` | Only caught if `no-arbitrary-values` ESLint rule is explicitly configured |
-| `bg-white`, `text-white`, `bg-black` | Valid Tailwind class names; the underlying CSS variable is simply absent → renders transparent/invisible with no error |
-| `p-4`, `m-2`, `gap-4` (base scale) | Valid class names; `@theme inline` resets the variable → undefined, same silent failure |
-
-### Required checks before committing modified files
+Run on modified files only:
 
 ```bash
-# 1. Inline styles (style prop bypasses token system)
+# 1. Inline style props with px values on spacing properties
 grep -n 'style={{' <file>
+# Skip: transform, %, vh/vw, linear-gradient with CSS vars
 
-# 2. Tailwind arbitrary values (exclude TypeScript generics and comments)
-grep -n 'className.*\[' <file> | grep -v '^\s*//'
-
-# 3. Base color classes (undefined after @theme inline reset)
-grep -n 'bg-white\|text-white\|bg-black\|text-black' <file>
-
-# 4. Base numeric scale classes (spot-check)
-grep -nP '(?<!\w)(p|m|gap|px|py|pt|pb|pl|pr)-[0-9]\b' <file>
+# 2. Spacing/sizing arbitrary px values — must be zero
+grep -nP 'className.*\b(p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|w|h|min-w|max-w|min-h|max-h|size|gap|top|right|bottom|left|rounded)-\[[0-9]' <file>
 ```
-
-All results must be zero. If a needed token is missing from `global.css`, add it first — never use `style={}` or `[value]` as a temporary workaround.
 
 ### Adding missing tokens
 
-Spacing scale formula: `px_value × 12.5 = token_number`
-
 ```css
-/* Example: need 30px spacing */
-/* 30 × 12.5 = 375 → add to global.css: */
+/* Formula: px × 12.5 = token_number */
+/* Example: need 30px → 30 × 12.5 = 375 */
 --spacing-375: 30px;
-/* then use: p-375, gap-375, etc. */
+/* Usage: p-375, gap-375 */
 ```

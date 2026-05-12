@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Users, X } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -67,18 +67,69 @@ function CourseThumbnail({
         className="relative h-full w-full overflow-hidden"
         style={{
           background:
-            'linear-gradient(-57.92deg, #ffc4e1 0.43%, #ffefef 99.57%)',
+            'linear-gradient(-57.924deg, #ffc4e1 0.43%, #ffefef 99.57%)',
         }}
       >
-        <Image
-          src="/class/star-lg.svg"
-          alt=""
-          aria-hidden="true"
+        {/* "Vibe Coding" — top center */}
+        <p
+          className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[50px] font-extrabold leading-normal text-gray-1000"
+          style={{ top: '10.62%', letterSpacing: '-0.95px' }}
+        >
+          Vibe Coding
+        </p>
+        {/* Sphere illustration */}
+        <div
           className="pointer-events-none absolute"
-          width={42}
-          height={42}
-          style={{ left: 32, top: 17, width: 42, height: 42 }}
-        />
+          style={{
+            left: '24.27%',
+            top: '25.58%',
+            width: '47.46%',
+            height: '45.51%',
+          }}
+        >
+          <Image src="/class/sphere.svg" alt="" aria-hidden="true" fill />
+        </div>
+        {/* "Basic" — bottom center */}
+        <p
+          className="absolute left-1/2 w-[49.34%] -translate-x-1/2 text-center text-[50px] font-extrabold leading-normal text-gray-1000"
+          style={{ top: '64.73%', letterSpacing: '-0.95px' }}
+        >
+          Basic
+        </p>
+        {/* Star lg #1 — top-left */}
+        <div
+          className="pointer-events-none absolute size-525"
+          style={{ left: '7.08%', top: '5.82%' }}
+        >
+          <div className="absolute inset-[17.53%]">
+            <Image src="/class/star-lg.svg" alt="" aria-hidden="true" fill />
+          </div>
+        </div>
+        {/* Star lg #2 — bottom-right */}
+        <div
+          className="pointer-events-none absolute size-525"
+          style={{ left: '72.57%', top: '61.30%' }}
+        >
+          <div className="absolute inset-[17.53%]">
+            <Image src="/class/star-lg.svg" alt="" aria-hidden="true" fill />
+          </div>
+        </div>
+        {/* Star sm — top-left */}
+        <div
+          className="pointer-events-none absolute size-[26px]"
+          style={{ left: '4.20%', top: '14.38%' }}
+        >
+          <div className="absolute inset-[28.32%]">
+            <Image src="/class/star-sm.svg" alt="" aria-hidden="true" fill />
+          </div>
+        </div>
+        {/* Lightning — top-right */}
+        <div
+          className="pointer-events-none absolute size-[38.529px]"
+          style={{ left: '85.84%', top: '6.85%' }}
+        >
+          <Image src="/class/vector-basic.svg" alt="" aria-hidden="true" fill />
+        </div>
       </div>
     );
   }
@@ -92,26 +143,91 @@ function CourseThumbnail({
             'linear-gradient(122.16deg, var(--color-rose-500) 8.5%, var(--color-rose-400) 92.47%)',
         }}
       >
-        {/* vector-work renders behind subtract — matches Figma z-order */}
-        <Image
-          src="/class/vector-work.svg"
-          alt=""
-          aria-hidden="true"
+        {/* Subtract wave cutout */}
+        <div
           className="pointer-events-none absolute"
-          width={39}
-          height={39}
-          style={{ left: 361, top: 227, width: 39, height: 39 }}
-        />
-
-        <p
-          className="absolute left-[154px] top-[146px] whitespace-nowrap font-bold leading-normal tracking-tight text-rose-500 font-display-headings6"
           style={{
-            transform: 'translateX(-50%)',
+            left: '5.09%',
+            top: '10.27%',
+            width: '89.67%',
+            height: '79.79%',
           }}
+        >
+          <Image src="/class/subtract.svg" alt="" aria-hidden="true" fill />
+        </div>
+        {/* Code symbols — bracket left */}
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            left: '65.27%',
+            top: '10.27%',
+            width: '9.34%',
+            height: '22.71%',
+          }}
+        >
+          <div className="absolute" style={{ inset: '5.94% 0 5.91% 0' }}>
+            <Image
+              src="/class/bracket-left.svg"
+              alt=""
+              aria-hidden="true"
+              fill
+            />
+          </div>
+        </div>
+        {/* Code symbols — slash */}
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            left: '76.54%',
+            top: '10.27%',
+            width: '6.80%',
+            height: '25.28%',
+          }}
+        >
+          <div className="absolute" style={{ inset: '0 4.96% 0 4.94%' }}>
+            <Image src="/class/slash.svg" alt="" aria-hidden="true" fill />
+          </div>
+        </div>
+        {/* Code symbols — bracket right (mirrored) */}
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            left: '85.25%',
+            top: '10.27%',
+            width: '9.34%',
+            height: '22.71%',
+          }}
+        >
+          <div
+            className="-scale-y-100 rotate-180 absolute inset-0"
+            style={{ inset: '5.94% 0 5.91% 0' }}
+          >
+            <Image
+              src="/class/bracket-right.svg"
+              alt=""
+              aria-hidden="true"
+              fill
+            />
+          </div>
+        </div>
+        {/* Lightning vector */}
+        <div
+          className="pointer-events-none absolute size-[38.529px]"
+          style={{ left: '79.87%', top: '77.74%' }}
+        >
+          <Image src="/class/vector-work.svg" alt="" aria-hidden="true" fill />
+        </div>
+        {/* Text overlays */}
+        <p
+          className="absolute -translate-x-1/2 whitespace-nowrap font-display-headings6 text-rose-500"
+          style={{ left: '34.07%', top: '50%', letterSpacing: '-0.76px' }}
         >
           Vibe Coding
         </p>
-        <p className="absolute left-[42px] top-[197px] whitespace-nowrap font-bold tracking-tight text-rose-500 font-display-headings6">
+        <p
+          className="absolute whitespace-nowrap font-display-headings6 text-rose-500"
+          style={{ left: '9.29%', top: '67.47%', letterSpacing: '-0.76px' }}
+        >
           for Work
         </p>
       </div>
@@ -120,20 +236,18 @@ function CourseThumbnail({
 
   return (
     <div
-      className="relative h-full w-full overflow-hidden"
+      className="relative flex h-full w-full items-center justify-center overflow-hidden"
       style={{
         background:
-          'linear-gradient(-57.92deg, var(--color-gray-300) 0.43%, var(--color-gray-50) 99.57%)',
+          'linear-gradient(-57.924deg, #bfbfbf 0.43%, #fafafa 99.57%)',
       }}
     >
-      <Image
-        src="/class/vector-work.svg"
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute"
-        width={39}
-        height={39}
-      />
+      <p
+        className="whitespace-nowrap text-[50px] font-extrabold leading-normal text-gray-500"
+        style={{ letterSpacing: '-0.95px' }}
+      >
+        Coming soon
+      </p>
     </div>
   );
 }
@@ -310,9 +424,37 @@ function CourseCard({
       <div className="h-[292px] shrink-0">
         <CourseThumbnail variant={thumbnailVariant} course={course} />
       </div>
-      <div className="flex flex-1 flex-col bg-background-default p-350 pt-300">
+      <div className="flex flex-1 flex-col bg-background-default p-375 pt-300">
         <div className="mb-300 flex items-center gap-75">
-          <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
+          <div className="relative size-300 shrink-0">
+            {course.status === 'OPEN' ? (
+              <div
+                className="absolute"
+                style={{
+                  left: '13.83%',
+                  top: '6.375%',
+                  width: '71.96%',
+                  height: '87.46%',
+                }}
+              >
+                <Image
+                  src="/class/icon-learner-open.svg"
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                />
+              </div>
+            ) : (
+              <div className="absolute inset-[7.7%]">
+                <Image
+                  src="/class/icon-learner-soon.svg"
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                />
+              </div>
+            )}
+          </div>
           <p className="font-designer-16m text-text-default">
             <span className="font-designer-16b text-text-brand">
               {course.learnerCount}
@@ -653,7 +795,7 @@ export default function ClassPage() {
 
         {/* Hero heading */}
         <div
-          className="relative z-10 flex flex-col items-center justify-end pb-500"
+          className="relative z-10 flex flex-col items-center justify-center"
           style={{ minHeight: 'var(--min-h-hero-section)' }}
         >
           <h1 className="font-designer-62b text-center text-gray-1000">
@@ -716,7 +858,7 @@ export default function ClassPage() {
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 gap-300 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-300 md:gap-525 md:grid-cols-2 lg:grid-cols-3">
           {courses?.map((course) => (
             <CourseCard
               key={course.courseId}
