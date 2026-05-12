@@ -11,6 +11,7 @@ export default function FloatingClassActionButtons() {
 
   useEffect(() => {
     const handleScroll = () => setVisible(window.scrollY > 200);
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -19,6 +20,7 @@ export default function FloatingClassActionButtons() {
 
   return (
     <div
+      aria-hidden={!visible}
       className={cn(
         'fixed bottom-600 right-1375 z-50 flex flex-col items-center gap-400 transition-opacity duration-300',
         visible ? 'opacity-100' : 'pointer-events-none opacity-0',

@@ -200,6 +200,7 @@ export const usePrepareCoursePaymentQuery = ({
       return data.content;
     },
     enabled: enabled && !!courseId,
+    retry: false,
     refetchOnWindowFocus: false,
     staleTime: Infinity,
   });

@@ -48,6 +48,13 @@ function PaymentSuccessContent() {
       return;
     }
 
+    if (isCoursePayment && !Number.isFinite(courseId)) {
+      setStatus('error');
+      setErrorMessage('코스 결제 정보가 올바르지 않습니다.');
+
+      return;
+    }
+
     let isMounted = true;
 
     const verifyPaymentWithBackend = async () => {
@@ -151,6 +158,7 @@ function PaymentSuccessContent() {
       case 'CARD':
         return '카드결제';
       case 'VBANK':
+      case 'VIRTUAL_ACCOUNT':
         return '가상계좌';
       default:
         return method ?? '-';

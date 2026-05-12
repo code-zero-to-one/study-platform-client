@@ -155,7 +155,7 @@ export const usePreparePaymentQuery = (
         };
       }
     },
-    enabled,
+    enabled: enabled && !!groupStudyId,
   });
 };
 

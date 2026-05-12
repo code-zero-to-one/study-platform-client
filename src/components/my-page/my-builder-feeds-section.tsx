@@ -54,9 +54,9 @@ export default function MyBuilderFeedsSection() {
         </p>
       ) : (
         <div className="flex flex-col gap-200">
-          {feeds.map((feed) => (
+          {feeds.map((feed, index) => (
             <div
-              key={feed.feedId}
+              key={feed.feedId ?? index}
               className="flex flex-col gap-100 rounded-100 border border-border-subtle px-250 py-200"
             >
               <p className="line-clamp-2 font-designer-14r text-gray-800">
