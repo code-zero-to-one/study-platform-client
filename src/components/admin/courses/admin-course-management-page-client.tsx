@@ -923,7 +923,7 @@ export default function AdminCourseManagementPageClient() {
           chapterNumber: payload.chapterNumber || undefined,
           lessonNumber: payload.lessonNumber || undefined,
           title: payload.title,
-          description: '',
+          description: payload.description,
           content: payload.content,
           estimatedMinutes: payload.estimatedMinutes || undefined,
           retrospectivePurpose: payload.retrospectivePurpose,

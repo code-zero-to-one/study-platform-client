@@ -114,7 +114,7 @@ export default function AdminLessonDetailPageClient({
       chapterNumber: lessonDetailQuery.data.chapterNumber,
       lessonNumber: lessonDetailQuery.data.lessonNumber,
       title: lessonDetailQuery.data.title,
-      description: '',
+      description: lessonDetailQuery.data.description ?? '',
       content: normalizeAdminCourseMarkdownContent(
         lessonDetailQuery.data.content,
       ),
@@ -257,7 +257,7 @@ export default function AdminLessonDetailPageClient({
           chapterNumber: payload.chapterNumber || undefined,
           lessonNumber: payload.lessonNumber || undefined,
           title: payload.title,
-          description: '',
+          description: payload.description,
           content: payload.content,
           estimatedMinutes: payload.estimatedMinutes || undefined,
           retrospectivePurpose: payload.retrospectivePurpose,

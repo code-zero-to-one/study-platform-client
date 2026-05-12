@@ -709,7 +709,7 @@ export default function AdminLessonManagementPageClient({
                     description: event.target.value,
                   }))
                 }
-                className="border-border-default focus:border-border-brand-default font-designer-14r text-text-default min-h-[64px] w-full rounded-100 border bg-background-default px-150 py-100 outline-none disabled:bg-background-disabled"
+                className="border-border-default focus:border-border-brand-default font-designer-14r text-text-default min-h-800 w-full rounded-100 border bg-background-default px-150 py-100 outline-none disabled:bg-background-disabled"
                 rows={2}
               />
             </AdminCourseField>

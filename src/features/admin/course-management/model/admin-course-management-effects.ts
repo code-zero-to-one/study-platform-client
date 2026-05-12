@@ -332,7 +332,7 @@ export const useAdminLessonHydrationSync = ({
       chapterNumber: lessonDetail.chapterNumber,
       lessonNumber: lessonDetail.lessonNumber,
       title: lessonDetail.title,
-      description: '',
+      description: lessonDetail.description ?? '',
       content: normalizeAdminCourseMarkdownContent(lessonDetail.content),
       estimatedMinutes: lessonDetail.estimatedMinutes,
       retrospectivePurpose: lessonDetail.retrospectivePurpose,
