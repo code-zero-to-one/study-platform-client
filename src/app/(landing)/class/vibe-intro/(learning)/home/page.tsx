@@ -472,7 +472,7 @@ export default function JourneyMapPage() {
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
   const router = useRouter();
-  const [visibleChapterCount, setVisibleChapterCount] = useState(2);
+  const [visibleChapterCount, setVisibleChapterCount] = useState(1);
   const [visibleLessonCount, setVisibleLessonCount] = useState(5);
   const [selectedLesson, setSelectedLesson] = useState<{
     lesson: LessonDisplayInfo;

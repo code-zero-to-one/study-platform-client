@@ -50,7 +50,7 @@ export default function VibeIntroLearningLayout({
       </div>
 
       {/* Tab nav */}
-      <div className="flex w-full">
+      <div className="flex w-full justify-center">
         {TABS.map((tab) => {
           const isActive =
             pathname === tab.href ||
