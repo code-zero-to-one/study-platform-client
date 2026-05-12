@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   Dialog,
@@ -189,6 +189,7 @@ interface LessonDisplayInfo {
   status: LessonProgressStatus;
   accessible: boolean;
   estimatedMinutes: number;
+  isCurrent: boolean;
 }
 
 function buildLessonMap(
@@ -213,6 +214,10 @@ function mergeLessons(
       status: journeyLesson?.status ?? (l.locked ? 'LOCKED' : 'IN_PROGRESS'),
       accessible: journeyLesson?.isAccessible ?? !l.locked,
       estimatedMinutes: l.estimatedMinutes,
+      isCurrent:
+        journeyLesson !== undefined &&
+        journeyLesson.status === 'IN_PROGRESS' &&
+        journeyLesson.isAccessible,
     };
   });
 }
@@ -337,8 +342,8 @@ function LessonStamp({
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCompleted = lesson.status === 'COMPLETED';
-  const isLocked = lesson.status === 'LOCKED';
-  const isCurrent = lesson.status === 'IN_PROGRESS' && lesson.accessible;
+  const isLocked = lesson.status === 'LOCKED' && !lesson.accessible;
+  const isActive = lesson.isCurrent || shouldBlink;
 
   const stampContent = (
     <div
@@ -347,7 +352,11 @@ function LessonStamp({
       onMouseLeave={() => setShowTooltip(false)}
     >
       <Image
-        src="/class/vibe-intro/lesson-stamp.svg"
+        src={
+          isActive
+            ? '/class/vibe-intro/lesson-stamp-active.svg'
+            : '/class/vibe-intro/lesson-stamp.svg'
+        }
         alt=""
         aria-hidden="true"
         width={132}
@@ -355,13 +364,20 @@ function LessonStamp({
         className={cn(
           'absolute inset-0',
           isCompleted && 'brightness-110 saturate-150',
-          (isCurrent || shouldBlink) &&
-            'animate-[pulse_1.6s_ease-in-out_infinite]',
+          isActive &&
+            'animate-[pulse_1.6s_ease-in-out_infinite] drop-shadow-[0px_3.07px_11.512px_#fecdd6]',
         )}
       />
       <div className="relative z-10 flex flex-col items-center">
         {lesson.isFree && !isCompleted && !isLocked && (
-          <p className="mb-25 font-designer-16m text-gray-500">무료 온보딩</p>
+          <p
+            className={cn(
+              'mb-25 font-designer-16m',
+              isActive ? 'text-rose-50' : 'text-gray-500',
+            )}
+          >
+            무료 온보딩
+          </p>
         )}
         {isLocked && <Lock className="mb-25 size-300 text-gray-500" />}
         {isCompleted && (
@@ -370,7 +386,11 @@ function LessonStamp({
         <p
           className={cn(
             'font-designer-18b',
-            isCompleted ? 'text-text-brand' : 'text-gray-500',
+            isCompleted
+              ? 'text-text-brand'
+              : isActive
+                ? 'text-gray-0'
+                : 'text-gray-500',
           )}
         >
           Lesson
@@ -378,7 +398,11 @@ function LessonStamp({
         <p
           className={cn(
             'font-designer-18b',
-            isCompleted ? 'text-text-brand' : 'text-gray-500',
+            isCompleted
+              ? 'text-text-brand'
+              : isActive
+                ? 'text-gray-0'
+                : 'text-gray-500',
           )}
         >
           {String(lesson.order).padStart(2, '0')}
@@ -448,16 +472,6 @@ export default function JourneyMapPage() {
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
   const router = useRouter();
-  const [isFirstVisit, setIsFirstVisit] = useState(false);
-
-  useEffect(() => {
-    const key = 'vibe-intro-journey-visited';
-    if (!localStorage.getItem(key)) {
-      setIsFirstVisit(true);
-      localStorage.setItem(key, '1');
-    }
-  }, []);
-
   const [visibleChapterCount, setVisibleChapterCount] = useState(2);
   const [visibleLessonCount, setVisibleLessonCount] = useState(5);
   const [selectedLesson, setSelectedLesson] = useState<{
@@ -704,7 +718,7 @@ export default function JourneyMapPage() {
                                 })
                               }
                               shouldBlink={
-                                isFirstVisit &&
+                                completedLessons === 0 &&
                                 index === 0 &&
                                 ri === 0 &&
                                 li === 0
