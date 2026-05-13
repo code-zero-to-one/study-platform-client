@@ -11,6 +11,10 @@ interface Props {
   onSelectQna: (qnaId: number) => void;
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
   return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
@@ -58,7 +62,7 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
             className="flex w-full items-center gap-125 rounded-100 border border-border-subtle bg-gray-100 p-150 text-left hover:border-border-brand"
           >
             <p className="flex-1 truncate font-designer-14b text-gray-800">
-              {current.title}
+              {stripHtml(current.title)}
             </p>
             <div className="flex shrink-0 items-center gap-50 font-designer-13m text-gray-400">
               <MessageSquare className="h-225 w-225" />

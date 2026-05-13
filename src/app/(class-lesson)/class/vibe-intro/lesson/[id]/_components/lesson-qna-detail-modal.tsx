@@ -52,12 +52,18 @@ function formatDate(dateStr: string) {
     .replace(/\.$/, '');
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
 function HtmlContent({ html }: { html: string }) {
   return (
-    <div
-      className="font-designer-16r leading-relaxed text-gray-800"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <div className="tiptap-editor">
+      <div
+        className="tiptap font-designer-16r leading-relaxed text-gray-800"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    </div>
   );
 }
 
@@ -114,7 +120,19 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
       else next.add(type);
       return next;
     });
-    reactQna.mutate({ qnaId: qna.qnaId, request: { reactionType: type } });
+    reactQna.mutate(
+      { qnaId: qna.qnaId, request: { reactionType: type } },
+      {
+        onSuccess: (result) => {
+          setQReactions((prev) => {
+            const next = new Set(prev);
+            if (result.isActive) next.add(result.reactionType);
+            else next.delete(result.reactionType);
+            return next;
+          });
+        },
+      },
+    );
   }
 
   function toggleAReaction(
@@ -357,7 +375,7 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
 
                 {/* Question title */}
                 <h3 className="mb-200 font-designer-20b text-gray-800">
-                  Q. {qna.title}
+                  Q. {stripHtml(qna.title)}
                 </h3>
 
                 {/* Content: edit mode or view mode */}
