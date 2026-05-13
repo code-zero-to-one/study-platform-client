@@ -1,12 +1,13 @@
 'use client';
 
 import { motion, useInView } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
-import LandingForm from '@/components/common/ui/form/landing-form';
+import { useState, useRef, type ReactNode } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
-/* ─── Animation Wrappers ──────────────────────────── */
+/* ─── Animation helper ──────────────────────────────── */
 
 function FadeIn({
   children,
@@ -19,17 +20,12 @@ function FadeIn({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
-
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.7,
-        delay,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      }}
+      transition={{ duration: 0.7, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={className}
     >
       {children}
@@ -37,888 +33,697 @@ function FadeIn({
   );
 }
 
-function Stagger({
-  children,
-  className = '',
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-40px' });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
-      variants={{
-        visible: { transition: { staggerChildren: 0.1 } },
-        hidden: {},
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function StaggerChild({
-  children,
-  className = '',
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 24 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: {
-            duration: 0.5,
-            ease: [0.25, 0.46, 0.45, 0.94],
-          },
-        },
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/* ─── Animated Counter ────────────────────────────── */
-
-function AnimatedCounter({
-  target,
-  suffix = '',
-}: {
-  target: number;
-  suffix?: string;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!isInView) return;
-    const duration = 1500;
-    const startTime = Date.now();
-    let raf: number;
-
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) {
-        raf = requestAnimationFrame(animate);
-      }
-    };
-
-    raf = requestAnimationFrame(animate);
-
-    return () => cancelAnimationFrame(raf);
-  }, [isInView, target]);
-
-  return (
-    <span ref={ref}>
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
-
-/* ─── Data ────────────────────────────────────────── */
-
-const STATS = [
-  { value: 300, suffix: '+', label: '참여자' },
-  { value: 2000, suffix: '+', label: '스터디 진행' },
-  { value: 12, suffix: '개월+', label: '커뮤니티 운영' },
-];
-
-const FEATURES = [
-  {
-    title: '1:1 스터디 · 멘토링',
-    description: '막힌 지점을 실전 맥락으로 빠르게 해결하는 고밀도 세션',
-    color: '#f63d68',
-  },
-  {
-    title: '그룹스터디',
-    description: '함께 검증하고 기록하며 완주율을 끌어올리는 협업 학습',
-    color: '#6172f3',
-  },
-  {
-    title: '유료스터디',
-    description: '결과와 과정이 남는 구조로 집중도 높은 트랙 제공',
-    color: '#9e77ed',
-  },
-  {
-    title: '인사이트 · 지식 컨텐츠',
-    description: '바이브코딩 트렌드와 IT 실전 지식을 빠르게 흡수',
-    color: '#2e90fa',
-  },
-  {
-    title: '커뮤니티',
-    description: '질문 · 자랑 · 해결사례가 쌓이며 문제 해결이 빨라지는 공간',
-    color: '#12b76a',
-    badge: '오픈 예정',
-  },
-];
-
-const VIBE_CODER_POINTS = [
-  'GPT로 방향은 잡지만, 막히는 지점에서 실제 해결이 필요한 사람',
-  '실행하고 기록하며 빠르게 피드백을 받고 싶은 사람',
-  '혼자서 공부하다 멈추는 루프를 끊고 싶은 사람',
-];
-
-const DEVELOPER_POINTS = [
-  '현업끼리 함께 학습하며 기술 감각을 유지하고 싶은 사람',
-  '커뮤니티에서 지식 제공으로 신뢰와 브랜드를 쌓고 싶은 사람',
-  '회사 밖에서도 전문성을 증명하고 싶은 사람',
-];
-
-const VIBE_CODER_JOURNEY = [
-  {
-    step: '01',
-    title: '인사이트에서 IT 지식 흡수',
-    desc: '막연한 검색 대신 지금 필요한 지식부터 빠르게.',
-  },
-  {
-    step: '02',
-    title: '커뮤니티에서 질문 · 공유',
-    desc: '해결사례 중심으로 밀도 있게 소통합니다.',
-  },
-  {
-    step: '03',
-    title: '스터디로 뭉쳐서 성장',
-    desc: '혼자 멈추는 구간을 팀 학습으로 돌파.',
-  },
-  {
-    step: '04',
-    title: '1:1 멘토링으로 해결',
-    desc: '실무자의 시선으로 의사결정을 정리합니다.',
-  },
-];
-
-const DEV_JOURNEY = [
-  {
-    title: '커뮤니티에서 가치 제공',
-    desc: '답변과 해결사례가 곧 브랜딩 자산.',
-  },
-  {
-    title: '멘토링으로 전문성 확장',
-    desc: '경험을 구조화해 역량과 소득을 동시에.',
-  },
-  {
-    title: '스터디로 실무 감각 유지',
-    desc: '팀 학습으로 최신 기술 변화에 대응.',
-  },
-];
-
-const CORE_VALUES = [
-  '실제 삶을 바꾸는 학습이 가장 가치 있다',
-  '기본과 본질에 집중한다',
-  '끝까지 완수하는 실행력을 가진다',
-  '나눔과 공유로 더 크게 성장한다',
-];
-
-const DESIRED_PEOPLE = [
-  '질문을 숨기지 않고 꺼내는 사람',
-  '답을 받기만 하지 않고 다시 나누는 사람',
-  '기록으로 실력을 증명하고 싶은 사람',
-  '혼자보다 함께가 빠르다는 걸 아는 사람',
-];
-
-/* ─── Shared Layout ───────────────────────────────── */
+/* ─── Layout constant ───────────────────────────────── */
 
 const SECTION_INNER =
-  'mx-auto w-full max-w-[1160px] px-[20px] md:px-[40px] lg:px-0';
+  'mx-auto w-full max-w-[1400px] px-250 md:px-500 lg:px-1000';
 
-/* ─── Main Component ──────────────────────────────── */
+/* ─── Data ──────────────────────────────────────────── */
+
+interface CheckCardLine {
+  text: string;
+  red: boolean;
+}
+
+const CHECK_CARDS: { tag: string; lines: CheckCardLine[] }[] = [
+  {
+    tag: '#피그마_감옥',
+    lines: [
+      { text: 'FIgma 파일까진 완벽한데...', red: false },
+      { text: '거기서 끝이에요.', red: false },
+      { text: '살아있는 웹사이트로 만들어내지 못하고', red: false },
+      { text: '피그마 안에만 갇혀있어요.', red: true },
+    ],
+  },
+  {
+    tag: '#눈치_개발자',
+    lines: [
+      { text: '"이거 구현 가능해요?" 물어보는 게 매번', red: false },
+      { text: '눈치보여요. 안된다고 하면', red: false },
+      { text: '"아...네..."', red: true },
+      { text: '할 수 밖에 없는 내가 싫어요.', red: false },
+    ],
+  },
+  {
+    tag: '#터미널_엔딩',
+    lines: [
+      { text: 'Claudef로 뭔가 만들다가 오류 딱 하나가', red: false },
+      { text: '해결이 안되요.', red: false },
+      { text: '구글링도 해보고 별짓 다하다가', red: false },
+      { text: '결국 터미널 닫고 유튜브 켜요.', red: true },
+    ],
+  },
+  {
+    tag: '#AI시대_막막',
+    lines: [
+      { text: 'AI 시대에 디자이너로서 뭘 해야할지', red: false },
+      { text: '모르겠어요...', red: false },
+      { text: '다들 뭔가 하는 것 같은데', red: true },
+      { text: '나만 가만히 있는 느낌?', red: true },
+    ],
+  },
+  {
+    tag: '#유튜브_미아',
+    lines: [
+      { text: '바이브코딩 유튜브 이것저것', red: false },
+      { text: '전진했는데, 정작 뭐부터 해야 하는지', red: false },
+      { text: '감이 안잡혀요.', red: false },
+      { text: '영상은 많은데 방향이 없어요.', red: true },
+    ],
+  },
+  {
+    tag: '#노션_무덤',
+    lines: [
+      { text: '사이드 프로젝트 아이디어는', red: false },
+      { text: '넘쳐나는데 항상 노션에만 쌓여요.', red: false },
+      { text: '실행이 안 되니까 아이디어가', red: true },
+      { text: '무덤이 되어가요', red: true },
+    ],
+  },
+];
+
+const RESULT_CARDS = [
+  { job: '디자이너', days: '3일', title: '내 포트폴리오 사이트' },
+  { job: '마케터', days: '4일', title: '사이드 프로젝트 랜딩' },
+  { job: '대학생', days: '5일', title: '감성 카페 큐레이션' },
+  { job: '기획자', days: '5일', title: '팀 프로필 모음 사이트' },
+];
+
+const CURRICULUM_ITEMS = [
+  {
+    num: '01',
+    title: '영상, 강의보다 학습지처럼 매일 1시간씩',
+    subtitle: '레슨 미리보기',
+    body: '학습 여정 지도에서 도장찍듯이 하나씩 레슨을\n통과해보세요! 혼자가 아닌 다양한 수강생들도 함께\n달리고 있습니다. 혼자 공부가 아닌 소통하며 공부를 해보세요!\n확실한 동기부여로 20일간 함께 하겠습니다.',
+  },
+  {
+    num: '02',
+    title: '실시간 질문과 운영진 피드백',
+    subtitle: '질문하기',
+    body: 'AI로 해결이 안 되는 부분은 운영진이 직접 답변해 드립니다.\n막히는 지점을 빠르게 돌파하고 학습 흐름을 유지하세요.\n혼자 막히지 말고 함께 해결하세요.',
+  },
+  {
+    num: '03',
+    title: '함께 만들어가는 빌더 커뮤니티',
+    subtitle: '결과물 피드',
+    body: '수강생들의 실제 결과물을 피드에서 확인하세요.\n서로의 작업물을 보며 영감을 얻고, 내 작업물도 공유해보세요.\n동기부여와 소통이 함께합니다.',
+  },
+  {
+    num: '04',
+    title: '실전 배포까지 완성',
+    subtitle: '웹사이트 배포',
+    body: '코드 작성부터 실제 URL 발급까지.\n20일 후엔 당신만의 웹사이트 링크를 세상에 공개합니다.\n결과물이 있는 공부를 경험하세요.',
+  },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: '코딩 한 번도 안 해봤는데 따라갈 수 있나요?',
+    a: '네, 완전 비전공자도 따라올 수 있도록 설계되어 있습니다. Claude와 AI 도구를 활용해 코드를 직접 작성하지 않아도 웹사이트를 만들 수 있습니다.',
+  },
+  {
+    q: '어떤 준비물이 필요한가요?',
+    a: 'PC 또는 맥북과 인터넷 환경만 있으면 됩니다. Claude Pro 구독($20/월)이 필요하며, 기타 설치 프로그램은 안내에 따라 진행됩니다.',
+  },
+  {
+    q: '하루에 얼마나 시간을 써야 하나요?',
+    a: '하루 1~2시간을 권장합니다. 총 20일 과정이며, 레슨별로 무리 없이 따라올 수 있는 분량으로 설계되어 있습니다.',
+  },
+  {
+    q: 'Claude Pro를 이미 구독 중이에요!',
+    a: '별도 추가 비용 없이 기존 구독을 그대로 활용하실 수 있습니다. 코스 수강료와 Claude Pro 구독은 별개입니다.',
+  },
+  {
+    q: '환불이 가능한가요?',
+    a: '수강 시작 후 3일 이내에는 전액 환불이 가능합니다. 이후에는 환불이 어렵습니다. 자세한 내용은 이용약관을 참고해 주세요.',
+  },
+];
+
+/* ─── Speech bubble positions (desktop only) ────────── */
+
+const SPEECH_BUBBLES = [
+  {
+    src: '/landing/speech-bubble-1.png',
+    rotate: '0deg',
+    scaleY: false,
+    posClass: 'left-[1%] top-[16%]',
+    text: ['디자인은 완성인데', '그 다음이 없다'],
+    width: 207,
+    height: 168,
+  },
+  {
+    src: '/landing/speech-bubble-2.png',
+    rotate: '-5.97deg',
+    scaleY: false,
+    posClass: 'left-[49%] top-[17%]',
+    text: ['개발자 앞에서', '항상 을이 되는 느낌'],
+    width: 197,
+    height: 163,
+  },
+  {
+    src: '/landing/speech-bubble-3.png',
+    rotate: '-20.56deg',
+    scaleY: false,
+    posClass: 'right-[1%] top-[12%]',
+    text: ['오류 하나에', '모든 의지가 증발'],
+    width: 244,
+    height: 246,
+  },
+  {
+    src: '/landing/speech-bubble-4.png',
+    rotate: '22.8deg',
+    scaleY: false,
+    posClass: 'left-[0%] bottom-[26%]',
+    text: ['뭔가 해야 하는건 아는데', '뭘 해야 할지...'],
+    width: 255,
+    height: 234,
+  },
+  {
+    src: '/landing/speech-bubble-5.png',
+    rotate: '-159.44deg',
+    scaleY: true,
+    posClass: 'left-[38%] bottom-[30%]',
+    text: ['강의는 100개', '봤는데 결과물은 0개'],
+    width: 244,
+    height: 246,
+  },
+  {
+    src: '/landing/speech-bubble-6.png',
+    rotate: '180deg',
+    scaleY: true,
+    posClass: 'right-[4%] bottom-[28%]',
+    text: ['아이디어만 쌓이고', '실행력은 0'],
+    width: 207,
+    height: 168,
+  },
+];
+
+/* ─── Main ──────────────────────────────────────────── */
 
 export default function LandingContent() {
   return (
-    <div>
+    <div className="relative w-full">
       <HeroSection />
-      <SocialProofSection />
-      <EcosystemSection />
-      <FeaturesSection />
-      <JourneySection />
-      <ValuesSection />
-      <CTASection />
-      <FooterSection />
+      <CheckSection />
+      <ResultsSection />
+      <CurriculumSection />
+      <BenefitsSection />
+      <FAQSection />
+      <FloatingCTABar />
     </div>
   );
 }
 
-/* ─── Hero Section ────────────────────────────────── */
+/* ─── 1. Hero Section ───────────────────────────────── */
 
 function HeroSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-gray-1000 pb-[80px] pt-[60px] md:pb-[140px] md:pt-[80px]">
-      {/* Animated gradient orbs */}
-      <motion.div
-        className="pointer-events-none absolute left-[8%] top-[-5%] h-[400px] w-[400px] rounded-full md:h-[600px] md:w-[600px]"
-        style={{
-          background:
-            'radial-gradient(circle, rgba(246,61,104,0.4), transparent 70%)',
-          filter: 'blur(80px)',
-          opacity: 0.3,
-        }}
-        animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="pointer-events-none absolute right-[5%] top-[15%] h-[300px] w-[300px] rounded-full md:h-[500px] md:w-[500px]"
-        style={{
-          background:
-            'radial-gradient(circle, rgba(97,114,243,0.45), transparent 70%)',
-          filter: 'blur(80px)',
-          opacity: 0.2,
-        }}
-        animate={{ x: [0, -35, 0], y: [0, 30, 0] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="pointer-events-none absolute bottom-[15%] left-[35%] hidden h-[400px] w-[400px] rounded-full md:block"
-        style={{
-          background:
-            'radial-gradient(circle, rgba(158,119,237,0.3), transparent 70%)',
-          filter: 'blur(100px)',
-          opacity: 0.15,
-        }}
-        animate={{ x: [0, 20, 0], y: [0, 25, 0] }}
-        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-      />
-
-      {/* Grid overlay */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-          opacity: 0.4,
-        }}
-      />
-
-      <div
-        className={`${SECTION_INNER} relative z-10 flex flex-col items-center`}
-      >
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <span className="inline-flex items-center gap-[8px] rounded-full border border-gray-700 bg-gray-900/80 px-[14px] py-[6px] font-designer-13b text-gray-400 backdrop-blur md:px-[16px] md:py-[7px]">
-            <span className="h-[6px] w-[6px] animate-pulse rounded-full bg-rose-500" />
-            AI 시대의 성장 파트너
-          </span>
-        </motion.div>
-
+    <section className="relative w-full overflow-hidden bg-gray-100 pb-1000 pt-1000 md:pb-1250 md:pt-1625">
+      <div className={cn(SECTION_INNER, 'flex flex-col items-center')}>
         {/* Headline */}
-        <motion.h1
-          className="mt-[28px] flex flex-col items-center text-center md:mt-[36px]"
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        >
-          <span className="text-[28px] font-bold leading-[40px] text-gray-0 md:text-[40px] md:leading-[60px] lg:text-[52px] lg:leading-[78px]">
-            누구나 개발자가 되는 시대이지만,
-          </span>
-          <span
-            className="text-[28px] font-bold leading-[40px] md:text-[40px] md:leading-[60px] lg:text-[52px] lg:leading-[78px]"
-            style={{
-              background:
-                'linear-gradient(135deg, #f63d68 0%, #b692f6 50%, #6172f3 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            아무나 개발자가 될 수는 없습니다.
-          </span>
-        </motion.h1>
+        <FadeIn className="text-center">
+          <h1 className="text-[32px] font-bold leading-[1.5] tracking-[-0.76px] text-gray-800 md:text-[50px]">
+            <span className="text-rose-600">바이브 코딩</span>
+            <br />
+            뭐부터 해야 할지 모르겠죠?
+            <br />
+            그래서 만들었습니다.
+          </h1>
+        </FadeIn>
 
         {/* Subtitle */}
-        <motion.div
-          className="mt-[20px] flex flex-col items-center gap-[4px] text-center font-designer-16m text-gray-400 md:mt-[24px] lg:font-designer-20m"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
+        <FadeIn
+          delay={0.2}
+          className="mt-300 text-center text-[15px] leading-[1.5] text-gray-800 md:text-[26px]"
         >
-          <p>바이브코더는 AI로 해결되지 않는 문제를 가져오고,</p>
-          <p>개발자는 그 문제를 해결하며 전문성과 기회를 함께 키웁니다.</p>
-          <p className="mt-[8px] text-gray-300">
-            ZERO-ONE은 이 상생을 스터디와 멘토링으로 구조화합니다.
+          막막할 이유 없습니다.{' '}
+          <span className="font-bold">방향을 몰랐을 뿐</span>
+          입니다.
+          <br />
+          20일 후, 당신의 첫 웹사이트가 세상에 공개됩니다
+        </FadeIn>
+
+        {/* Instructor card */}
+        <FadeIn delay={0.4} className="mt-1000 flex justify-center">
+          <div className="relative h-[300px] w-[230px] overflow-visible rounded-[40px] bg-rose-500 md:h-[460px] md:w-[330px] lg:h-[575px] lg:w-[395px]">
+            {/* 성윤님의 */}
+            <p className="absolute left-1/2 top-300 -translate-x-1/2 whitespace-nowrap text-[20px] font-bold leading-[1.5] text-white md:top-400 md:text-[30px] lg:text-[40px]">
+              성윤님의
+            </p>
+
+            {/* Bottom label */}
+            <p className="absolute bottom-300 left-1/2 -translate-x-1/2 whitespace-nowrap text-[16px] font-bold leading-[1.5] text-white md:text-[24px] lg:text-[40px]">
+              사이드 프로젝트 랜딩
+            </p>
+
+            {/* 사이드 프로젝트 랜딩 badge */}
+            <div className="absolute bottom-1250 left-250 flex items-center gap-125 rounded-[60px] bg-rose-100 px-250 py-125">
+              <span className="whitespace-nowrap text-[11px] font-bold leading-[1.5] text-gray-800 md:text-[14px] lg:text-[16px]">
+                사이드 프로젝트 랜딩
+              </span>
+            </div>
+
+            {/* #바이브코딩 신기 badge */}
+            <div className="absolute right-250 top-500 flex items-center gap-100 rounded-[60px] bg-rose-100 px-250 py-125">
+              <span className="font-bold text-black">#</span>
+              <span className="whitespace-nowrap text-[11px] font-bold leading-[1.5] text-gray-800 md:text-[14px] lg:text-[16px]">
+                바이브코딩 신기
+              </span>
+            </div>
+
+            {/* Website preview box (desktop only) */}
+            <div className="absolute hidden right-0 top-[42%] h-[140px] w-[200px] translate-x-[60%] rounded-[20px] border border-rose-400 bg-rose-100 lg:block lg:h-[237px] lg:w-[300px]" />
+
+            {/* Instructor photo */}
+            <div className="absolute bottom-0 left-1/2 h-[72%] w-[78%] -translate-x-1/2 overflow-hidden">
+              <Image
+                src="/landing/instructor-full.png"
+                alt="강사 이미지"
+                fill
+                className="object-cover object-top"
+                priority
+                sizes="(max-width: 768px) 180px, (max-width: 1024px) 260px, 310px"
+              />
+            </div>
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+/* ─── 2. Check Section ──────────────────────────────── */
+
+function CheckCard({ card }: { card: (typeof CHECK_CARDS)[0] }) {
+  return (
+    <div className="group relative">
+      {/* Shadow layer — appears on hover */}
+      <div className="absolute inset-0 translate-x-100 translate-y-100 bg-gray-700 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+      {/* Card */}
+      <div className="relative overflow-hidden border-2 border-gray-800 bg-white">
+        {/* Tag */}
+        <div className="flex items-center justify-center px-100 pb-100 pt-400">
+          <p className="text-center text-[18px] font-bold leading-[1.5] text-black md:text-[20px]">
+            {card.tag}
           </p>
-        </motion.div>
+        </div>
 
-        {/* CTA Buttons */}
-        <motion.div
-          className="mt-[36px] flex flex-col items-center gap-[12px] md:mt-[48px] md:flex-row md:gap-[16px]"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-        >
-          <a
-            href="#open-form"
-            className="inline-flex h-[48px] w-full items-center justify-center rounded-[12px] px-[32px] font-designer-16b text-gray-0 transition-all duration-300 hover:shadow-[0_0_24px_rgba(246,61,104,0.4)] md:h-[52px] md:w-auto"
-            style={{
-              background: 'linear-gradient(135deg, #f63d68, #e31b54)',
-            }}
-          >
-            맞춤 스터디 · 멘토 알림 받기
-          </a>
-          <Link
-            href="/login"
-            className="inline-flex h-[48px] w-full items-center justify-center rounded-[12px] border border-gray-700 bg-gray-800/50 px-[32px] font-designer-16b text-gray-200 backdrop-blur transition-all duration-300 hover:border-gray-500 hover:bg-gray-700/50 md:h-[52px] md:w-auto"
-          >
-            로그인 / 회원가입
-          </Link>
-        </motion.div>
+        {/* Description */}
+        <div className="flex items-center justify-center px-100 pb-300">
+          <div className="text-center text-[14px] leading-[1.5] text-gray-800 md:text-[16px]">
+            {card.lines.map((line, i) => (
+              <p
+                key={i}
+                className={cn(
+                  'whitespace-pre',
+                  line.red && 'font-bold text-rose-500',
+                )}
+              >
+                {line.text}
+              </p>
+            ))}
+          </div>
+        </div>
 
-        {/* Product Screenshot */}
-        <motion.div
-          className="relative mt-[48px] w-full md:mt-[80px]"
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 1,
-            delay: 0.9,
-            ease: [0.25, 0.46, 0.45, 0.94],
+        {/* Illustration placeholder */}
+        <div className="h-[120px] w-full bg-gray-100 md:h-[160px]" />
+      </div>
+    </div>
+  );
+}
+
+function CheckSection() {
+  return (
+    <section className="relative w-full overflow-hidden bg-white pb-1000 pt-1000 md:pb-1250 md:pt-1625">
+      {/* Speech bubbles — desktop only */}
+      {SPEECH_BUBBLES.map((bubble, i) => (
+        <div
+          key={i}
+          className={cn(
+            'pointer-events-none absolute hidden xl:block',
+            bubble.posClass,
+          )}
+          style={{
+            transform: `rotate(${bubble.rotate})${bubble.scaleY ? ' scaleY(-1)' : ''}`,
+            zIndex: 0,
           }}
         >
-          <div
-            className="rounded-[16px] p-[1px] md:rounded-[20px]"
-            style={{
-              background:
-                'linear-gradient(135deg, rgba(246,61,104,0.4), rgba(97,114,243,0.3), rgba(246,61,104,0.15))',
-            }}
-          >
-            <div className="overflow-hidden rounded-[15px] bg-gray-900/80 backdrop-blur md:rounded-[19px]">
-              <Image
-                src="/images/one-by-one-study.png"
-                alt="ZERO-ONE 플랫폼"
-                className="object-cover"
-                width={1160}
-                height={640}
-                priority
-              />
+          <div className="relative">
+            <Image
+              src={bubble.src}
+              alt=""
+              width={bubble.width}
+              height={bubble.height}
+              unoptimized
+            />
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center text-center text-[16px] font-semibold leading-[1.5] text-black"
+              style={{
+                transform: `rotate(${bubble.scaleY ? String(-Number(bubble.rotate.replace('deg', '')) + 180) : `-${bubble.rotate}`})`,
+              }}
+            >
+              {bubble.text.map((t, j) => (
+                <p key={j}>{t}</p>
+              ))}
             </div>
           </div>
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-[120px] md:h-[180px]"
-            style={{
-              background:
-                'linear-gradient(to top, var(--color-gray-1000), transparent)',
-            }}
-          />
-        </motion.div>
-      </div>
-    </section>
-  );
-}
+        </div>
+      ))}
 
-/* ─── Social Proof Section ────────────────────────── */
+      <div className={cn(SECTION_INNER, 'relative z-10')}>
+        {/* Badge */}
+        <FadeIn className="flex justify-center">
+          <span className="rounded-[40px] bg-rose-300 px-250 py-125 text-[20px] font-medium leading-[1.5] text-white md:text-[24px]">
+            Check
+          </span>
+        </FadeIn>
 
-function SocialProofSection() {
-  return (
-    <section className="relative w-full border-t border-gray-800 bg-gray-1000 pb-[80px] pt-[48px] md:pb-[100px] md:pt-[64px]">
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[60px]"
-        style={{
-          background:
-            'linear-gradient(to bottom, transparent, var(--color-gray-0))',
-        }}
-      />
+        {/* Title */}
+        <FadeIn delay={0.1} className="mt-100 text-center">
+          <h2 className="text-[24px] font-bold leading-[1.5] tracking-[-0.57px] text-gray-800 md:text-[30px]">
+            혹시 이런 분 아니신가요?
+          </h2>
+        </FadeIn>
 
-      <FadeIn
-        className={`${SECTION_INNER} relative z-10 grid grid-cols-3 gap-[16px] text-center md:gap-[24px]`}
-      >
-        {STATS.map((stat) => (
-          <div key={stat.label}>
-            <div className="text-[28px] font-bold leading-[40px] text-gray-0 md:text-[40px] md:leading-[60px] lg:text-[48px] lg:leading-[72px]">
-              <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+        {/* Subtitle */}
+        <FadeIn delay={0.15} className="mt-75 text-center">
+          <p className="text-[14px] leading-[1.5] text-gray-800 md:text-[16px]">
+            카드 위 마우스를 올려보세요
+          </p>
+        </FadeIn>
+
+        {/* Cards grid */}
+        <FadeIn delay={0.2} className="mt-500">
+          <div className="grid grid-cols-1 gap-500 sm:grid-cols-2 lg:grid-cols-3">
+            {CHECK_CARDS.map((card) => (
+              <CheckCard key={card.tag} card={card} />
+            ))}
+          </div>
+        </FadeIn>
+
+        {/* CTA highlight box */}
+        <FadeIn delay={0.3} className="mt-1000">
+          <div className="flex items-center justify-center gap-200 rounded-200 border-[3px] border-rose-500 bg-rose-50 px-750 py-500">
+            <div className="relative shrink-0 size-[26px] md:size-[30px]">
+              <Image
+                src="/landing/check-icon.png"
+                alt=""
+                fill
+                className="object-contain"
+                unoptimized
+              />
             </div>
-            <p className="mt-[4px] font-designer-14m text-gray-400 md:mt-[8px]">
-              {stat.label}
+            <p className="text-[18px] font-bold leading-[1.5] text-rose-500 md:text-[24px] lg:text-[28px]">
+              3개 이상 해당된다면, 이 코스는 당신을 위해 설계됐습니다.
             </p>
           </div>
-        ))}
-      </FadeIn>
+        </FadeIn>
+      </div>
     </section>
   );
 }
 
-/* ─── Ecosystem Section ───────────────────────────── */
+/* ─── 3. Results Section ────────────────────────────── */
 
-function PersonaCard({
-  title,
-  subtitle,
-  points,
-  accentColor,
+function ResultsSection() {
+  return (
+    <section className="w-full overflow-hidden bg-gray-100 pb-1000 pt-1000 md:pb-1250 md:pt-1625">
+      <div className={SECTION_INNER}>
+        {/* Badge */}
+        <FadeIn className="flex justify-center">
+          <span className="rounded-[40px] bg-rose-300 px-250 py-125 text-[20px] font-medium leading-[1.5] text-white md:text-[24px]">
+            베타 수강생 결과물
+          </span>
+        </FadeIn>
+
+        {/* Title */}
+        <FadeIn delay={0.1} className="mt-100 text-center">
+          <h2 className="text-[22px] font-bold leading-[1.5] tracking-[-0.57px] text-gray-800 md:text-[30px]">
+            개발 경험 Zero, 20일 만에 웹사이트 배포
+          </h2>
+        </FadeIn>
+
+        {/* Subtitle */}
+        <FadeIn delay={0.15} className="mt-75 text-center">
+          <p className="text-[14px] leading-[1.5] text-gray-800 md:text-[20px]">
+            모두 개발 경험이 전무했습니다. 20일 후, 전부 각자의 URL을 가지게
+            되었어요.
+          </p>
+        </FadeIn>
+
+        {/* Cards */}
+        <FadeIn delay={0.2} className="mt-500">
+          <div className="grid grid-cols-1 gap-375 sm:grid-cols-2 lg:grid-cols-4">
+            {RESULT_CARDS.map((card) => (
+              <div
+                key={card.title}
+                className="overflow-hidden rounded-150 bg-white"
+              >
+                {/* Image placeholder */}
+                <div className="flex h-[140px] items-center justify-center bg-gray-200 md:h-[182px]">
+                  <p className="text-[28px] font-bold text-white md:text-[40px]">
+                    결과물
+                  </p>
+                </div>
+
+                {/* Meta */}
+                <div className="px-300 pb-400 pt-300">
+                  <div className="flex items-center justify-center gap-50 text-[16px] font-medium leading-[1.5] text-rose-500 md:text-[20px]">
+                    <span>{card.job}</span>
+                    <span>·</span>
+                    <span>{card.days}</span>
+                  </div>
+                  <p className="mt-50 text-center text-[18px] font-bold leading-[1.5] text-gray-800 md:text-[24px]">
+                    {card.title}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+/* ─── 4. Curriculum Section ─────────────────────────── */
+
+function CurriculumRow({
+  item,
+  index,
 }: {
-  title: string;
-  subtitle: string;
-  points: string[];
-  accentColor: string;
+  item: (typeof CURRICULUM_ITEMS)[0];
+  index: number;
 }) {
   return (
-    <div
-      className="group relative overflow-hidden rounded-[16px] border border-gray-200 bg-gray-0 p-[24px] transition-all duration-300 hover:shadow-2 md:rounded-[20px] md:p-[40px]"
-      style={{ borderTop: `3px solid ${accentColor}` }}
-    >
-      <div
-        className="pointer-events-none absolute right-[-40px] top-[-40px] h-[160px] w-[160px] rounded-full transition-opacity duration-300 group-hover:opacity-[0.18]"
-        style={{
-          background: `radial-gradient(circle, ${accentColor}, transparent 70%)`,
-          opacity: 0.08,
-        }}
-      />
-      <h3 className="text-[24px] font-bold leading-[36px] text-text-strong md:font-bold-h2">
-        {title}
-      </h3>
-      <p className="mt-[8px] font-designer-14m text-text-subtle md:mt-[12px]">
-        {subtitle}
-      </p>
-      <ul className="mt-[20px] flex flex-col gap-[10px] md:mt-[24px] md:gap-[12px]">
-        {points.map((point) => (
-          <li
-            key={point}
-            className="flex items-start gap-[10px] font-designer-14m text-text-default"
-          >
-            <span
-              className="mt-[6px] h-[8px] w-[8px] shrink-0 rounded-full"
-              style={{ background: accentColor }}
-            />
-            {point}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function EcosystemSection() {
-  return (
-    <section className="w-full bg-gray-0 py-[80px] md:py-[120px]">
-      <div className={`${SECTION_INNER} flex flex-col items-center`}>
-        <FadeIn className="flex flex-col items-center gap-[12px] text-center">
-          <span className="font-designer-14b uppercase tracking-[2px] text-text-brand">
-            Ecosystem
+    <FadeIn delay={index * 0.1}>
+      <div className="relative border-t border-gray-800 pt-1000">
+        {/* Number badge */}
+        <div className="mb-500 inline-flex items-center justify-center rounded-100 border border-gray-800 px-175 py-50">
+          <span className="text-[16px] font-medium leading-[1.5] text-gray-800 md:text-[20px]">
+            {item.num}
           </span>
-          <h2 className="text-[24px] font-bold leading-[36px] text-text-strong md:font-bold-h2 lg:font-bold-h1">
-            두 개의 여정이 만나는 곳
-          </h2>
-          <p className="mt-[4px] font-designer-16m text-text-subtle md:mt-[8px]">
-            필요한 사람이 정확히 만나야 생태계가 완성됩니다
-          </p>
-        </FadeIn>
-
-        <div className="mt-[40px] grid w-full grid-cols-1 gap-[20px] md:mt-[64px] md:grid-cols-2 md:gap-[24px]">
-          <FadeIn delay={0.1}>
-            <PersonaCard
-              title="바이브코더"
-              subtitle="입문자 · 비전공자 · 전환 준비자 · 사이드프로젝트 실전이 필요한 사람"
-              points={VIBE_CODER_POINTS}
-              accentColor="#f63d68"
-            />
-          </FadeIn>
-          <FadeIn delay={0.2}>
-            <PersonaCard
-              title="개발자"
-              subtitle="주니어~시니어 현업 개발자 · 멘토링과 스터디로 영향력 확장"
-              points={DEVELOPER_POINTS}
-              accentColor="#6172f3"
-            />
-          </FadeIn>
         </div>
-      </div>
-    </section>
-  );
-}
 
-/* ─── Features Section ────────────────────────────── */
+        <div className="flex flex-col gap-500 lg:flex-row lg:items-start lg:gap-1000">
+          {/* Image placeholder */}
+          <div className="flex h-[200px] w-full shrink-0 items-center justify-center rounded-200 bg-gray-200 md:h-[280px] lg:h-[340px] lg:w-[500px]">
+            <p className="text-[20px] font-bold text-white">
+              움직이는 인터랙션
+            </p>
+          </div>
 
-function FeatureCard({
-  title,
-  description,
-  color,
-  badge,
-}: {
-  title: string;
-  description: string;
-  color: string;
-  badge?: string;
-}) {
-  return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-[14px] border border-gray-200 bg-gray-0 p-[24px] transition-all duration-300 hover:-translate-y-[2px] hover:shadow-2 md:rounded-[16px] md:p-[32px]">
-      <div
-        className="mb-[16px] h-[8px] w-[36px] rounded-full md:mb-[20px] md:h-[10px] md:w-[40px]"
-        style={{ background: color }}
-      />
-      <h3 className="text-[18px] font-bold leading-[28px] text-text-strong md:font-bold-h5">
-        {title}
-      </h3>
-      <p className="mt-[8px] flex-1 font-designer-14m text-text-subtle md:mt-[10px]">
-        {description}
-      </p>
-      {badge && (
-        <span
-          className="mt-[12px] inline-flex w-fit rounded-full px-[12px] py-[4px] font-designer-13b md:mt-[16px]"
-          style={{ background: `${color}18`, color }}
-        >
-          {badge}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function FeaturesSection() {
-  return (
-    <section className="w-full bg-gray-50 py-[80px] md:py-[120px]">
-      <div className={`${SECTION_INNER} flex flex-col items-center`}>
-        <FadeIn className="flex flex-col items-center gap-[12px] text-center">
-          <span className="font-designer-14b uppercase tracking-[2px] text-text-brand">
-            Products
-          </span>
-          <h2 className="text-[24px] font-bold leading-[36px] text-text-strong md:font-bold-h2 lg:font-bold-h1">
-            하나의 플랫폼, 다섯 가지 경험
-          </h2>
-          <p className="mt-[4px] font-designer-16m text-text-subtle md:mt-[8px]">
-            바이브코더의 질문과 개발자의 해결이 순환하는 제품 구조입니다
-          </p>
-        </FadeIn>
-
-        <div className="mt-[40px] flex w-full flex-col gap-[16px] md:mt-[64px] md:gap-[20px]">
-          <Stagger className="grid grid-cols-1 gap-[16px] md:grid-cols-2 md:gap-[20px] lg:grid-cols-3">
-            {FEATURES.slice(0, 3).map((feature) => (
-              <StaggerChild key={feature.title}>
-                <FeatureCard {...feature} />
-              </StaggerChild>
-            ))}
-          </Stagger>
-          <Stagger className="grid grid-cols-1 gap-[16px] md:mx-auto md:flex md:w-full md:max-w-[calc(66.67%+7px)] md:gap-[20px]">
-            {FEATURES.slice(3).map((feature) => (
-              <StaggerChild key={feature.title} className="md:flex-1">
-                <FeatureCard {...feature} />
-              </StaggerChild>
-            ))}
-          </Stagger>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─── Journey Section ─────────────────────────────── */
-
-function JourneySection() {
-  return (
-    <section className="w-full bg-gray-0 py-[80px] md:py-[120px]">
-      <div className={`${SECTION_INNER} flex flex-col items-center`}>
-        <FadeIn className="flex flex-col items-center gap-[12px] text-center">
-          <span className="font-designer-14b uppercase tracking-[2px] text-text-brand">
-            Journey
-          </span>
-          <h2 className="text-[24px] font-bold leading-[36px] text-text-strong md:font-bold-h2 lg:font-bold-h1">
-            연결되는 성장 여정
-          </h2>
-          <p className="mt-[4px] font-designer-16m text-text-subtle md:mt-[8px]">
-            인사이트에서 커뮤니티, 스터디, 멘토링으로 이어지는 흐름
-          </p>
-        </FadeIn>
-
-        <div className="mt-[40px] mx-auto grid w-full max-w-[860px] grid-cols-1 gap-[40px] md:mt-[64px] md:grid-cols-2 md:gap-[48px]">
-          {/* Vibe Coder Journey */}
-          <FadeIn delay={0.1}>
+          {/* Text */}
+          <div className="flex flex-col gap-350">
             <div>
-              <div className="flex items-center gap-[10px]">
-                <span className="h-[8px] w-[8px] rounded-full bg-rose-500" />
-                <h3 className="text-[20px] font-bold leading-[30px] text-text-strong md:font-bold-h3">
-                  바이브코더
-                </h3>
-              </div>
-              <div className="ml-[4px] mt-[24px] border-l-[2px] border-rose-200 md:mt-[28px]">
-                {VIBE_CODER_JOURNEY.map((item) => (
-                  <div
-                    key={item.step}
-                    className="relative pb-[28px] pl-[24px] last:pb-0 md:pb-[32px] md:pl-[28px]"
-                  >
-                    <span className="absolute left-[-7px] top-[2px] flex h-[12px] w-[12px] items-center justify-center rounded-full bg-rose-500">
-                      <span className="h-[4px] w-[4px] rounded-full bg-gray-0" />
-                    </span>
-                    <span className="font-designer-13b text-rose-500">
-                      STEP {item.step}
-                    </span>
-                    <h4 className="mt-[4px] text-[18px] font-bold leading-[28px] text-text-strong md:font-bold-h5">
-                      {item.title}
-                    </h4>
-                    <p className="mt-[4px] font-designer-14m text-text-subtle">
-                      {item.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              <h3 className="text-[20px] font-semibold leading-[1.5] text-gray-800 md:text-[26px]">
+                {item.title}
+              </h3>
+              <p className="text-[18px] font-semibold leading-[1.5] text-gray-400 md:text-[26px]">
+                {item.subtitle}
+              </p>
             </div>
-          </FadeIn>
-
-          {/* Developer Journey */}
-          <FadeIn delay={0.2}>
-            <div>
-              <div className="flex items-center gap-[10px]">
-                <span className="h-[8px] w-[8px] rounded-full bg-indigo-500" />
-                <h3 className="text-[20px] font-bold leading-[30px] text-text-strong md:font-bold-h3">
-                  개발자
-                </h3>
-              </div>
-              <div className="ml-[4px] mt-[24px] border-l-[2px] border-indigo-200 md:mt-[28px]">
-                {DEV_JOURNEY.map((item) => (
-                  <div
-                    key={item.title}
-                    className="relative pb-[28px] pl-[24px] last:pb-0 md:pb-[32px] md:pl-[28px]"
-                  >
-                    <span className="absolute left-[-7px] top-[2px] flex h-[12px] w-[12px] items-center justify-center rounded-full bg-indigo-500">
-                      <span className="h-[4px] w-[4px] rounded-full bg-gray-0" />
-                    </span>
-                    <h4 className="text-[18px] font-bold leading-[28px] text-text-strong md:font-bold-h5">
-                      {item.title}
-                    </h4>
-                    <p className="mt-[4px] font-designer-14m text-text-subtle">
-                      {item.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </FadeIn>
+            <p className="whitespace-pre-line text-[14px] font-semibold leading-[1.5] text-gray-800 md:text-[16px]">
+              {item.body}
+            </p>
+          </div>
         </div>
       </div>
-    </section>
+    </FadeIn>
   );
 }
 
-/* ─── Values Section ──────────────────────────────── */
-
-function ValuesSection() {
+function CurriculumSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-gray-1000 py-[80px] md:py-[120px]">
-      <div
-        className="pointer-events-none absolute left-[20%] top-[30%] h-[300px] w-[300px] rounded-full md:h-[400px] md:w-[400px]"
-        style={{
-          background:
-            'radial-gradient(circle, rgba(246,61,104,0.3), transparent 70%)',
-          filter: 'blur(80px)',
-          opacity: 0.15,
-        }}
-      />
-      <div
-        className="pointer-events-none absolute bottom-[20%] right-[15%] hidden h-[350px] w-[350px] rounded-full md:block"
-        style={{
-          background:
-            'radial-gradient(circle, rgba(97,114,243,0.3), transparent 70%)',
-          filter: 'blur(80px)',
-          opacity: 0.12,
-        }}
-      />
-
-      <div
-        className={`${SECTION_INNER} relative z-10 flex flex-col items-center`}
-      >
-        <FadeIn className="flex flex-col items-center gap-[12px] text-center md:gap-[16px]">
-          <span className="font-designer-14b uppercase tracking-[2px] text-rose-400">
-            Values
-          </span>
-          <h2 className="text-[24px] font-bold leading-[36px] text-gray-0 md:font-bold-h2 lg:font-bold-h1">
-            우리가 기다리는 사람
+    <section className="w-full bg-white pb-1000 pt-1000 md:pb-1250 md:pt-1625">
+      <div className={SECTION_INNER}>
+        {/* Title */}
+        <FadeIn className="text-center">
+          <h2 className="text-[24px] font-bold leading-[1.5] tracking-[-0.76px] text-gray-800 md:text-[40px]">
+            미리보기형식으로 컨텐츠 보여주기
           </h2>
         </FadeIn>
 
-        <Stagger className="mt-[36px] grid w-full grid-cols-1 gap-[12px] md:mt-[48px] md:grid-cols-2 md:gap-[16px]">
-          {DESIRED_PEOPLE.map((item) => (
-            <StaggerChild key={item}>
-              <div className="flex items-center gap-[12px] rounded-[12px] border border-gray-800 bg-gray-900/60 px-[20px] py-[16px] backdrop-blur md:px-[24px] md:py-[20px]">
-                <span className="h-[6px] w-[6px] shrink-0 rounded-full bg-rose-500" />
-                <span className="font-designer-14m text-gray-200 md:font-designer-16m">
-                  {item}
-                </span>
-              </div>
-            </StaggerChild>
+        {/* Description */}
+        <FadeIn delay={0.1} className="mt-75 text-center">
+          <p className="text-[14px] leading-[1.5] text-gray-800 md:text-[20px]">
+            컨텐츠, 질문하기, 빌더들과의 소통, 결과물 피드로 공유 등 사용자의
+            다양한 학습을 듣고 끝이 아닌 소통 서비스로 다가갑니다.
+          </p>
+        </FadeIn>
+
+        {/* Rows */}
+        <div className="mt-1000 flex flex-col gap-1250">
+          {CURRICULUM_ITEMS.map((item, i) => (
+            <CurriculumRow key={item.num} item={item} index={i} />
           ))}
-        </Stagger>
-
-        {/* Mission & Vision */}
-        <div className="mt-[56px] grid w-full grid-cols-1 gap-[16px] md:mt-[80px] md:grid-cols-2 md:gap-[24px]">
-          <FadeIn delay={0.1}>
-            <div className="rounded-[14px] border border-gray-800 bg-gray-900/60 p-[24px] backdrop-blur md:rounded-[16px] md:p-[36px]">
-              <span className="font-designer-14b uppercase tracking-[2px] text-rose-400">
-                Mission
-              </span>
-              <p className="mt-[12px] font-designer-16m text-gray-200 md:mt-[16px] md:font-designer-20m">
-                책 · 강의 · GPT 검색만으로 얻기 어려운 살아있는 실전 인사이트를
-                사람 간 학습으로 전파하고, 개인의 잠재력을 극대화합니다.
-              </p>
-            </div>
-          </FadeIn>
-          <FadeIn delay={0.2}>
-            <div className="rounded-[14px] border border-gray-800 bg-gray-900/60 p-[24px] backdrop-blur md:rounded-[16px] md:p-[36px]">
-              <span className="font-designer-14b uppercase tracking-[2px] text-indigo-400">
-                Vision
-              </span>
-              <p className="mt-[12px] font-designer-16m text-gray-200 md:mt-[16px] md:font-designer-20m">
-                IT 스터디와 커뮤니티의 새로운 표준이 되어 학습, 증명, 커리어
-                기회를 한 곳에서 연결하는 통합 생태계를 만듭니다.
-              </p>
-            </div>
-          </FadeIn>
         </div>
+      </div>
+    </section>
+  );
+}
 
+/* ─── 5. Benefits Section ───────────────────────────── */
+
+function BenefitsSection() {
+  return (
+    <section className="relative w-full overflow-hidden bg-gradient-to-l from-gray-700 to-gray-800 pb-1000 pt-1000 md:pb-1250 md:pt-1625">
+      <div className={cn(SECTION_INNER, 'relative z-10')}>
+        {/* Title */}
+        <FadeIn className="text-center">
+          <h2 className="text-[24px] font-bold leading-[1.5] tracking-[-0.95px] text-white md:text-[40px] lg:text-[50px]">
+            AI로 풀리지 않는 것
+            <br />
+            직접 운영진이 답변을 해드립니다.
+          </h2>
+        </FadeIn>
+
+        {/* App icons + illustration */}
         <FadeIn
-          delay={0.3}
-          className="mt-[36px] flex flex-wrap justify-center gap-[10px] md:mt-[48px] md:gap-[12px]"
+          delay={0.2}
+          className="mt-1000 flex flex-col items-center gap-500 md:flex-row md:justify-center md:gap-1000"
         >
-          {CORE_VALUES.map((value) => (
-            <span
-              key={value}
-              className="rounded-full border border-gray-700 px-[16px] py-[8px] font-designer-14m text-gray-400 md:px-[20px] md:py-[10px]"
-            >
-              {value}
-            </span>
-          ))}
+          {/* Discord */}
+          <div
+            className="overflow-hidden rounded-[30px]"
+            style={{ transform: 'rotate(12.72deg)' }}
+          >
+            <Image
+              src="/landing/discord-app.png"
+              alt="Discord 커뮤니티"
+              width={140}
+              height={140}
+              className="md:h-[180px] md:w-[180px]"
+            />
+          </div>
+
+          {/* Toast illustration */}
+          <div className="relative h-[200px] w-[280px] md:h-[280px] md:w-[400px]">
+            <Image
+              src="/landing/toast-illustration.png"
+              alt="운영 방식"
+              fill
+              className="object-contain"
+              unoptimized
+            />
+          </div>
+
+          {/* KakaoTalk */}
+          <div
+            className="overflow-hidden rounded-[30px]"
+            style={{ transform: 'rotate(-20.93deg)' }}
+          >
+            <Image
+              src="/landing/kakao-app.png"
+              alt="KakaoTalk 오픈채팅"
+              width={140}
+              height={140}
+              className="md:h-[180px] md:w-[180px]"
+            />
+          </div>
         </FadeIn>
       </div>
     </section>
   );
 }
 
-/* ─── CTA + Form Section ──────────────────────────── */
+/* ─── 6. FAQ Section ────────────────────────────────── */
 
-function CTASection() {
+function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   return (
-    <section
-      id="open-form"
-      className="w-full bg-gray-0 py-[80px] md:py-[120px]"
-    >
-      <div
-        className={`${SECTION_INNER} flex flex-col items-center gap-[40px] lg:flex-row lg:items-start lg:gap-[64px]`}
-      >
-        <FadeIn className="w-full flex-1 text-center lg:pt-[48px] lg:text-left">
-          <span className="font-designer-14b uppercase tracking-[2px] text-text-brand">
-            Matching
-          </span>
-          <h2 className="mt-[12px] text-[24px] font-bold leading-[36px] text-text-strong md:mt-[16px] md:font-bold-h2 lg:font-bold-h1">
-            내 상황에 딱 맞는
+    <section className="w-full bg-gray-100 pb-1000 pt-1000 md:pb-1250 md:pt-1625">
+      <div className={SECTION_INNER}>
+        {/* Title */}
+        <FadeIn className="text-center">
+          <h2 className="text-[24px] font-bold leading-[1.5] tracking-[-0.76px] text-gray-800 md:text-[40px]">
+            자주하는 질문 답변
           </h2>
-          <p className="text-[24px] font-bold leading-[36px] text-text-strong md:font-bold-h2 lg:font-bold-h1">
-            스터디와 멘토, 놓치지 마세요.
-          </p>
-          <p className="mt-[12px] font-designer-16m text-text-subtle md:mt-[16px]">
-            관심 분야와 현재 상황을 알려주시면, 관련 스터디가 개설되거나 꼭 맞는
-            개발자 멘토가 등록될 때 가장 먼저 알려드려요.
-          </p>
-
-          <div className="mt-[28px] inline-flex flex-col gap-[14px] md:mt-[40px] md:gap-[16px]">
-            {[
-              '관심 분야와 현재 고민을 알려주세요',
-              '관련 스터디 개설 시 우선 안내',
-              '내 상황에 맞는 멘토 등록 시 알림',
-            ].map((text, i) => (
-              <div key={text} className="flex items-center gap-[12px]">
-                <span className="flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-full bg-rose-50 font-designer-13b text-rose-500 md:h-[32px] md:w-[32px] md:font-designer-14b">
-                  {i + 1}
-                </span>
-                <span className="font-designer-14m text-text-default md:font-designer-16m">
-                  {text}
-                </span>
-              </div>
-            ))}
-          </div>
         </FadeIn>
 
-        <FadeIn delay={0.2} className="w-full lg:w-[560px]">
-          <LandingForm />
+        {/* Accordion */}
+        <FadeIn delay={0.1} className="mx-auto mt-1000 max-w-[820px]">
+          <div className="flex flex-col gap-125">
+            {FAQ_ITEMS.map((item, i) => {
+              const isOpen = openIndex === i;
+              return (
+                <div
+                  key={i}
+                  className="overflow-hidden rounded-200 border border-gray-300 bg-white"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenIndex(isOpen ? null : i)}
+                    className="flex w-full items-center gap-125 px-375 py-250"
+                  >
+                    <span className="shrink-0 text-[14px] font-medium leading-[1.5] text-rose-500 md:text-[16px]">
+                      Q
+                    </span>
+                    <span className="flex-1 text-left text-[14px] font-medium leading-[1.5] text-gray-800 md:text-[16px]">
+                      {item.q}
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        'shrink-0 text-gray-400 transition-transform duration-200',
+                        isOpen && 'rotate-180',
+                      )}
+                      size={24}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="border-t border-gray-300 px-375 py-300">
+                      <p className="text-[14px] leading-[1.5] text-gray-800 md:text-[16px]">
+                        {item.a}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </FadeIn>
       </div>
     </section>
   );
 }
 
-/* ─── Footer ──────────────────────────────────────── */
+/* ─── 7. Floating CTA Bar ───────────────────────────── */
 
-function FooterSection() {
+function FloatingCTABar() {
   return (
-    <footer className="w-full bg-gray-1000 px-[20px] py-[48px] md:px-[40px] md:py-[64px]">
-      <div className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-[32px] md:gap-[40px]">
-        <div className="flex flex-col items-center gap-[4px] text-center md:gap-[8px]">
-          <p className="text-[20px] font-bold leading-[30px] text-gray-0 md:font-bold-h3">
-            더 좋은 답과 더 빠른 성장을 만들기 위해
-          </p>
-          <p className="text-[20px] font-bold leading-[30px] text-gray-0 md:font-bold-h3">
-            계속 달립니다.
-          </p>
-        </div>
-
-        <div className="flex gap-[12px] md:gap-[16px]">
-          {[
-            {
-              href: 'https://www.threads.net/@code_zero_to_one',
-              icon: '/icons/thread.svg',
-              alt: 'Threads',
-            },
-            {
-              href: 'https://www.instagram.com/code_zero_to_one/',
-              icon: '/icons/instagram.svg',
-              alt: 'Instagram',
-            },
-            {
-              href: 'https://www.youtube.com/@코드제로투원',
-              icon: '/icons/youtube.svg',
-              alt: 'YouTube',
-            },
-          ].map((social) => (
-            <Link
-              key={social.alt}
-              href={social.href}
-              target="_blank"
-              rel="noreferrer"
-              className="flex h-[40px] w-[40px] items-center justify-center rounded-full border border-gray-700 transition-all duration-300 hover:border-gray-500 hover:bg-gray-800 md:h-[44px] md:w-[44px]"
-            >
-              <Image
-                src={social.icon}
-                alt={social.alt}
-                width={20}
-                height={20}
-                className="invert md:h-[22px] md:w-[22px]"
-              />
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex w-full flex-col items-center gap-[6px] border-t border-gray-800 pt-[24px] font-designer-12m text-gray-500 md:gap-[8px] md:pt-[32px]">
-          <div className="flex flex-col items-center gap-[4px] md:flex-row md:gap-[16px]">
-            <span>상호명: 정성컴퍼니</span>
-            <span className="hidden text-gray-700 md:inline">|</span>
-            <span>대표자명: 조성진</span>
-            <span className="hidden text-gray-700 md:inline">|</span>
-            <span>전화번호: 010-6856-6609</span>
-          </div>
-          <div className="flex flex-col items-center gap-[4px] md:flex-row md:gap-[16px]">
-            <span>사업자번호: 798-31-01774</span>
-            <span className="hidden text-gray-700 md:inline">|</span>
-            <span>사업장 주소: 서울시 강남구 역삼동 620-17 203호</span>
-          </div>
-          <div className="mt-[4px] text-gray-600 md:mt-[8px]">
-            &copy; 2024 ZERO-ONE. All rights reserved.
-          </div>
-        </div>
+    <div className="fixed bottom-1250 left-1/2 z-50 -translate-x-1/2 w-[calc(100vw-2rem)] max-w-9250 overflow-hidden rounded-2000 bg-gray-200 px-500 py-300 md:px-750">
+      <div className="flex items-center justify-between gap-300">
+        <p className="text-[14px] font-semibold leading-[1.5] text-gray-800 md:text-[20px] lg:text-[24px]">
+          얼리버드 혜택가로 바로 만나보세요!
+        </p>
+        <Link
+          href="/class/vibe-intro/home"
+          className="shrink-0 rounded-100 bg-rose-500 px-200 py-100 text-[13px] font-semibold leading-[1.5] text-white transition-opacity hover:opacity-90 md:px-300 md:py-200 md:text-[18px] lg:text-[20px]"
+        >
+          바로 시작하기
+        </Link>
       </div>
-    </footer>
+    </div>
   );
 }
