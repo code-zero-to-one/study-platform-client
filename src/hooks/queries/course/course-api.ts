@@ -32,6 +32,8 @@ import type {
   LessonQnaDeleteResponse,
   LessonQnaDetailResponse,
   LessonQnaListResponse,
+  LessonQnaAnswerReactionToggleResponse,
+  LessonQnaQuestionReactionToggleResponse,
   LessonQnaReactionRequest,
   LessonQnaReportRequest,
   LessonQnaSidebarResponse,
@@ -449,14 +451,22 @@ export const useReactLessonQna = () => {
       request: LessonQnaReactionRequest;
     }) => {
       const { data } = await axiosInstanceV5.post<{
-        content: unknown;
+        content: LessonQnaQuestionReactionToggleResponse;
       }>(`qnas/${qnaId}/reactions`, request);
-      return data.content;
+      return { ...data.content, qnaId };
     },
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: ['lessonQnaDetail', variables.qnaId],
-      });
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        ['lessonQnaDetail', result.qnaId],
+        (old: LessonQnaDetailResponse | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            usefulCount: result.usefulCount,
+            curiousCount: result.curiousCount,
+          };
+        },
+      );
     },
   });
 };
@@ -475,14 +485,29 @@ export const useReactLessonQnaAnswer = () => {
       request: LessonQnaAnswerReactionRequest;
     }) => {
       const { data } = await axiosInstanceV5.post<{
-        content: unknown;
+        content: LessonQnaAnswerReactionToggleResponse;
       }>(`qna-answers/${answerId}/reactions`, request);
-      return { content: data.content, qnaId };
+      return { ...data.content, answerId, qnaId };
     },
-    onSuccess: async (result) => {
-      await queryClient.invalidateQueries({
-        queryKey: ['lessonQnaDetail', result.qnaId],
-      });
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        ['lessonQnaDetail', result.qnaId],
+        (old: LessonQnaDetailResponse | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            answers: old.answers.map((a) =>
+              a.answerId === result.answerId
+                ? {
+                    ...a,
+                    helpfulCount: result.helpfulCount,
+                    notHelpfulCount: result.notHelpfulCount,
+                  }
+                : a,
+            ),
+          };
+        },
+      );
     },
   });
 };
