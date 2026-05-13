@@ -251,7 +251,7 @@ export interface LessonRetrospectiveCreateResponse {
 
 export interface LessonRetrospectiveResponse {
   lessonId: number;
-  understandingScore: number;
+  starRating: number | null;
   content: string;
   artifactType: string | null;
   artifactValue: string | null;
