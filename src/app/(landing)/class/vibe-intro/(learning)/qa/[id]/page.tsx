@@ -5,17 +5,20 @@ import {
   Heart,
   HelpCircle,
   MoreVertical,
+  Plus,
   ThumbsDown,
   ThumbsUp,
+  X,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use, useState } from 'react';
+import { use, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import {
+  useCreateLessonQnaAnswer,
   useDeleteLessonQna,
   useDeleteLessonQnaAnswer,
   useGetLessonQnaDetail,
@@ -85,6 +88,13 @@ export default function QnaDetailPage({
   const [aReactions, setAReactions] = useState<
     Map<number, Set<'HELPFUL' | 'NOT_HELPFUL'>>
   >(new Map());
+  const [showAnswerForm, setShowAnswerForm] = useState(false);
+  const [newAnswer, setNewAnswer] = useState('');
+  const [answerImages, setAnswerImages] = useState<
+    { previewUrl: string; key: string }[]
+  >([]);
+  const [isUploadingAnswerImage, setIsUploadingAnswerImage] = useState(false);
+  const answerImageInputRef = useRef<HTMLInputElement>(null);
 
   const reactQna = useReactLessonQna();
   const reactAnswer = useReactLessonQnaAnswer();
@@ -93,6 +103,7 @@ export default function QnaDetailPage({
   const updateAnswer = useUpdateLessonQnaAnswer();
   const deleteAnswer = useDeleteLessonQnaAnswer();
   const reportQna = useReportLessonQna();
+  const createAnswer = useCreateLessonQnaAnswer();
 
   function toggleQReaction(type: 'USEFUL' | 'CURIOUS') {
     if (!qna) return;
@@ -226,6 +237,63 @@ export default function QnaDetailPage({
           setReportMode(false);
           setReportReason('');
           showToast('신고가 접수되었습니다.');
+        },
+        onError: (error) => {
+          const { userMessage } = analyzeError(error);
+          showToast(userMessage, 'error');
+        },
+      },
+    );
+  }
+
+  async function handleAnswerImageAdd(file: File) {
+    if (answerImages.length >= 10) {
+      showToast('최대 10장까지 첨부 가능합니다.', 'error');
+      return;
+    }
+    setIsUploadingAnswerImage(true);
+    try {
+      const publicUrl = await uploadCommunityMarkdownImage(file);
+      const key = new URL(publicUrl).pathname.slice(1);
+      const previewUrl = URL.createObjectURL(file);
+      setAnswerImages((prev) => [...prev, { previewUrl, key }]);
+    } catch {
+      showToast('이미지 업로드에 실패했습니다.', 'error');
+    } finally {
+      setIsUploadingAnswerImage(false);
+    }
+  }
+
+  function handleAnswerImageRemove(index: number) {
+    setAnswerImages((prev) => {
+      const next = [...prev];
+      URL.revokeObjectURL(next[index].previewUrl);
+      next.splice(index, 1);
+      return next;
+    });
+  }
+
+  function handleSubmitAnswer() {
+    if (!qna) return;
+    if (!newAnswer.replace(/<[^>]*>/g, '').trim()) {
+      showToast('답변 내용을 입력해주세요.', 'error');
+      return;
+    }
+    createAnswer.mutate(
+      {
+        qnaId: qna.qnaId,
+        request: {
+          content: newAnswer,
+          imageKeys: answerImages.map((img) => img.key),
+        },
+      },
+      {
+        onSuccess: () => {
+          showToast('답변이 등록되었어요!');
+          setShowAnswerForm(false);
+          setNewAnswer('');
+          answerImages.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+          setAnswerImages([]);
         },
         onError: (error) => {
           const { userMessage } = analyzeError(error);
@@ -724,8 +792,121 @@ export default function QnaDetailPage({
                 </div>
               )}
             </div>
+
+            {/* Answer creation form — shown when 답변하기 button clicked */}
+            {showAnswerForm && (
+              <div className="border-t border-border-subtle pt-500">
+                <p className="mb-400 font-designer-16b text-gray-800">
+                  답변하기
+                </p>
+                <div className="space-y-400">
+                  <MarkdownEditor
+                    value={newAnswer}
+                    onChange={setNewAnswer}
+                    placeholder="답변을 기다리고 있습니다."
+                    uploadImage={uploadCommunityMarkdownImage}
+                  />
+                  <div className="space-y-250">
+                    <p className="font-designer-16b text-gray-800">
+                      이미지 첨부하기
+                    </p>
+                    <div className="flex flex-wrap gap-150">
+                      {answerImages.map((img, i) => (
+                        <div
+                          key={img.key}
+                          className="relative h-1625 w-1625 shrink-0"
+                        >
+                          <Image
+                            src={img.previewUrl}
+                            alt={`첨부 이미지 ${i + 1}`}
+                            fill
+                            unoptimized
+                            className="rounded-150 object-cover"
+                          />
+                          <button
+                            type="button"
+                            aria-label={`이미지 ${i + 1} 삭제`}
+                            onClick={() => handleAnswerImageRemove(i)}
+                            className="absolute -right-75 -top-75 flex h-200 w-200 items-center justify-center rounded-full bg-gray-800 text-background-default"
+                          >
+                            <X className="h-125 w-125" />
+                          </button>
+                        </div>
+                      ))}
+                      {answerImages.length < 10 && (
+                        <button
+                          type="button"
+                          disabled={isUploadingAnswerImage}
+                          onClick={() => answerImageInputRef.current?.click()}
+                          className={cn(
+                            'flex h-1625 w-1625 shrink-0 flex-col items-center justify-center rounded-150 border border-border-default bg-gray-200',
+                            isUploadingAnswerImage
+                              ? 'cursor-not-allowed opacity-50'
+                              : 'hover:border-rose-400',
+                          )}
+                        >
+                          <Plus className="h-300 w-300 text-gray-400" />
+                        </button>
+                      )}
+                    </div>
+                    <p className="font-designer-14r text-gray-500">
+                      * 최대 10개의 사진을 등록할 수 있어요. / 10MB 이하의
+                      파일만 등록할 수 있어요.
+                    </p>
+                    <input
+                      ref={answerImageInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const target = e.target;
+                        const file = target.files?.[0];
+                        if (file) await handleAnswerImageAdd(file);
+                        target.value = '';
+                      }}
+                    />
+                  </div>
+                  <div className="border-t border-border-subtle" />
+                  <div className="flex gap-200">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAnswerForm(false);
+                        setNewAnswer('');
+                        answerImages.forEach((img) =>
+                          URL.revokeObjectURL(img.previewUrl),
+                        );
+                        setAnswerImages([]);
+                      }}
+                      className="flex h-700 flex-1 items-center justify-center rounded-100 border border-background-brand-default font-designer-16b text-text-brand"
+                    >
+                      임시저장
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSubmitAnswer}
+                      disabled={createAnswer.isPending}
+                      className="flex h-700 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-16b text-text-inverse disabled:opacity-50"
+                    >
+                      {createAnswer.isPending ? '등록 중...' : '등록하기'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
+      </div>
+
+      {/* Floating 답변하기 button — always visible regardless of answer count */}
+      <div className="fixed bottom-400 left-1/2 z-50 -translate-x-1/2">
+        <button
+          type="button"
+          onClick={() => setShowAnswerForm((prev) => !prev)}
+          className="flex h-875 w-4500 items-center justify-center rounded-full bg-background-brand-default font-designer-24m text-text-inverse shadow-3"
+        >
+          답변하기
+        </button>
       </div>
     </div>
   );
