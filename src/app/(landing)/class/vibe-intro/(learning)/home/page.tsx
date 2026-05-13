@@ -943,8 +943,7 @@ export default function JourneyMapPage() {
           }}
           onSkip={() => {
             const nextAccessible = journeyMap?.lessons.find(
-              (l) =>
-                l.lessonId !== selectedLesson.lesson.lessonId && l.isAccessible,
+              (l) => l.order > selectedLesson.lesson.order && l.isAccessible,
             );
             if (nextAccessible) {
               router.push(

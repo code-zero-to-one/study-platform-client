@@ -1,16 +1,23 @@
 'use client';
 
-import { ArrowLeft, ChevronDown, Plus } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Plus, X } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import {
   useCreateBuilderFeed,
   useGetCourseCurriculum,
   useGetCourseDetail,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
+
+interface AttachedImage {
+  previewUrl: string;
+  key: string;
+}
 
 export default function FeedWritePage() {
   const router = useRouter();
@@ -21,6 +28,9 @@ export default function FeedWritePage() {
   const [lessonOpen, setLessonOpen] = useState(false);
   const [text, setText] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [images, setImages] = useState<AttachedImage[]>([]);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: courseData } = useGetCourseDetail('vibe-intro');
   const courseId = courseData?.courseId ?? 0;
@@ -39,6 +49,32 @@ export default function FeedWritePage() {
     allLessons.find((l) => l.lessonId === selectedLessonId)?.label ??
     'Lesson 선택';
 
+  async function handleImageAdd(file: File) {
+    if (images.length >= 10) {
+      showToast('최대 10장까지 첨부 가능합니다.', 'error');
+      return;
+    }
+    setIsUploadingImage(true);
+    try {
+      const key = await uploadCommunityMarkdownImage(file);
+      const previewUrl = URL.createObjectURL(file);
+      setImages((prev) => [...prev, { previewUrl, key }]);
+    } catch {
+      showToast('이미지 업로드에 실패했습니다.', 'error');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }
+
+  function handleImageRemove(index: number) {
+    setImages((prev) => {
+      const next = [...prev];
+      URL.revokeObjectURL(next[index].previewUrl);
+      next.splice(index, 1);
+      return next;
+    });
+  }
+
   function handleSubmit() {
     if (!selectedLessonId) {
       showToast('레슨을 선택해주세요.', 'error');
@@ -51,7 +87,11 @@ export default function FeedWritePage() {
     createFeed.mutate(
       {
         courseId,
-        request: { lessonId: selectedLessonId, content: text },
+        request: {
+          lessonId: selectedLessonId,
+          content: text,
+          imageKeys: images.map((img) => img.key),
+        },
       },
       {
         onSuccess: () => {
@@ -186,24 +226,60 @@ export default function FeedWritePage() {
               <p className="mb-50 font-designer-14r text-gray-500">
                 * 최대 10개의 사진을 등록할 수 있어요.
               </p>
-              <div className="flex gap-150">
-                <button
-                  type="button"
-                  className="flex h-1625 w-1625 flex-col items-center justify-center gap-75 rounded-150 border border-border-default bg-background-default"
-                >
-                  <Plus className="h-300 w-300 text-gray-400" />
-                  <span className="font-designer-14m text-gray-400">
-                    이미지 첨부
-                  </span>
-                </button>
-                {/* Placeholder upload slots */}
-                {[0, 1, 2].map((i) => (
+              <div className="flex flex-wrap gap-150">
+                {images.map((img, i) => (
                   <div
-                    key={i}
-                    className="relative h-1625 w-1625 rounded-150 bg-gray-200"
-                  />
+                    key={img.key}
+                    className="relative h-1625 w-1625 shrink-0"
+                  >
+                    <Image
+                      src={img.previewUrl}
+                      alt={`첨부 이미지 ${i + 1}`}
+                      fill
+                      unoptimized
+                      className="rounded-150 object-cover"
+                    />
+                    <button
+                      type="button"
+                      aria-label={`이미지 ${i + 1} 삭제`}
+                      onClick={() => handleImageRemove(i)}
+                      className="absolute -right-75 -top-75 flex h-200 w-200 items-center justify-center rounded-full bg-gray-800 text-background-default"
+                    >
+                      <X className="h-125 w-125" />
+                    </button>
+                  </div>
                 ))}
+                {images.length < 10 && (
+                  <button
+                    type="button"
+                    disabled={isUploadingImage}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={cn(
+                      'flex h-1625 w-1625 shrink-0 flex-col items-center justify-center gap-75 rounded-150 border border-border-default bg-background-default',
+                      isUploadingImage
+                        ? 'cursor-not-allowed opacity-50'
+                        : 'hover:border-rose-400',
+                    )}
+                  >
+                    <Plus className="h-300 w-300 text-gray-400" />
+                    <span className="font-designer-14m text-gray-400">
+                      이미지 첨부
+                    </span>
+                  </button>
+                )}
               </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const target = e.target;
+                  const file = target.files?.[0];
+                  if (file) await handleImageAdd(file);
+                  target.value = '';
+                }}
+              />
             </div>
 
             {/* Text content */}
