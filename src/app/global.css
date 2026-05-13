@@ -392,6 +392,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-150: 12px;
   --spacing-160: 13px;
   --spacing-175: 14px;
+  --spacing-188: 15px;
   --spacing-200: 16px;
   --spacing-225: 18px;
   --spacing-250: 20px;
@@ -901,6 +902,13 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 @utility font-designer-14m {
   font-size: 14px;
   font-weight: var(--font-weight-medium);
+  line-height: 22px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-14sb {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
   line-height: 22px;
   letter-spacing: 0;
 }
