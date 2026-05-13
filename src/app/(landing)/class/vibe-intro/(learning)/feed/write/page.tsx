@@ -177,7 +177,7 @@ export default function FeedWritePage() {
                           setCourse(c);
                           setCourseOpen(false);
                         }}
-                        className="flex w-full items-center px-250 py-175 font-designer-16r text-gray-800 hover:bg-gray-100"
+                        className="flex w-full items-center px-250 py-175 font-designer-16r text-gray-800 bg-gray-50 hover:bg-gray-100"
                       >
                         {c}
                       </button>
@@ -212,7 +212,7 @@ export default function FeedWritePage() {
                         setSelectedLessonId(l.lessonId);
                         setLessonOpen(false);
                       }}
-                      className="flex w-full items-center px-250 py-175 font-designer-16r text-gray-800 hover:bg-gray-100"
+                      className="flex w-full items-center px-250 py-175 font-designer-16r text-gray-800 bg-gray-50 hover:bg-gray-100"
                     >
                       {l.label}
                     </button>
@@ -255,16 +255,13 @@ export default function FeedWritePage() {
                     disabled={isUploadingImage}
                     onClick={() => fileInputRef.current?.click()}
                     className={cn(
-                      'flex h-1625 w-1625 shrink-0 flex-col items-center justify-center gap-75 rounded-150 border border-border-default bg-background-default',
+                      'flex h-1625 w-1625 shrink-0 flex-col items-center justify-center gap-75 rounded-150 border border-border-default bg-gray-200',
                       isUploadingImage
                         ? 'cursor-not-allowed opacity-50'
                         : 'hover:border-rose-400',
                     )}
                   >
                     <Plus className="h-300 w-300 text-gray-400" />
-                    <span className="font-designer-14m text-gray-400">
-                      이미지 첨부
-                    </span>
                   </button>
                 )}
               </div>
