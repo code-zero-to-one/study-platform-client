@@ -1,7 +1,8 @@
 'use client';
 
-import { Heart, MessageCircle, Share2, ChevronDown } from 'lucide-react';
+import { Heart, MessageSquareMore, Forward, ChevronDown } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -11,6 +12,12 @@ import {
   useGetCourseCurriculum,
   useGetCourseDetail,
 } from '@/hooks/queries/course/course-api';
+import {
+  AuthorAvatar,
+  BuilderBadge,
+  formatRelativeTime,
+  ROLE_LABELS,
+} from '../../_components/builder-feed-utils';
 
 const LoginModal = dynamic(
   () => import('@/components/auth/modals/login-modal'),
@@ -37,6 +44,8 @@ const FILTER_API_MAP: Record<FeedFilter, 'ALL' | 'OPERATOR_PICK' | 'MY'> = {
 interface FeedCardData {
   id: number;
   author: string;
+  role: string;
+  thumbnailUrl: string | null;
   date: string;
   text: string;
   likes: number;
@@ -49,34 +58,54 @@ function FeedCard({ feed }: { feed: FeedCardData }) {
       {/* Profile */}
       <div className="flex items-center justify-between px-250 pt-250">
         <div className="flex items-center gap-125">
-          <div className="h-400 w-400 rounded-full bg-gray-200" />
-          <div>
-            <p className="font-designer-14b text-gray-800">{feed.author}</p>
+          <AuthorAvatar nickname={feed.author} />
+          <div className="flex flex-col">
+            <div className="flex items-center gap-50">
+              <p className="font-designer-14b text-gray-800">{feed.author}</p>
+              {feed.role === 'BUILDER' && <BuilderBadge />}
+            </div>
+            {ROLE_LABELS[feed.role] && (
+              <p className="font-designer-12m text-gray-400">
+                {ROLE_LABELS[feed.role]}
+              </p>
+            )}
           </div>
         </div>
-        <p className="font-designer-16m text-gray-400">{feed.date}</p>
+        <p className="font-designer-16m text-gray-400">
+          {formatRelativeTime(feed.date)}
+        </p>
       </div>
 
-      {/* Image placeholder */}
-      <div className="mx-250 mt-150 h-3000 rounded-150 bg-gray-300" />
+      {/* Feed image — 1:1 square */}
+      <div className="relative mx-250 mt-200 aspect-square overflow-hidden rounded-150 bg-gray-200">
+        {feed.thumbnailUrl && (
+          <Image
+            src={feed.thumbnailUrl}
+            alt=""
+            fill
+            unoptimized
+            className="object-cover"
+          />
+        )}
+      </div>
 
-      {/* Caption */}
-      <p className="mt-150 line-clamp-2 px-250 font-designer-14r text-gray-800">
-        {feed.text}
-      </p>
-
-      {/* Actions */}
-      <div className="flex items-center gap-150 px-250 py-200">
+      {/* Actions — per Figma: above caption */}
+      <div className="flex items-center gap-200 px-250 pt-200">
         <div className="flex items-center gap-50">
-          <Heart className="h-250 w-250 text-gray-1000" />
+          <Heart className="h-300 w-300 text-icon-brand" />
           <p className="font-designer-16r text-gray-1000">{feed.likes}</p>
         </div>
         <div className="flex items-center gap-50">
-          <MessageCircle className="h-250 w-250 text-gray-1000" />
+          <MessageSquareMore className="h-300 w-300 text-gray-1000" />
           <p className="font-designer-16r text-gray-1000">{feed.comments}</p>
         </div>
-        <Share2 className="h-250 w-250 text-gray-1000" />
+        <Forward className="h-300 w-300 text-gray-1000" />
       </div>
+
+      {/* Caption */}
+      <p className="mt-100 line-clamp-2 px-250 pb-250 font-designer-14r text-gray-800">
+        {feed.text}
+      </p>
     </div>
   );
 }
@@ -117,6 +146,15 @@ export default function BuilderFeedPage() {
     feedData?.totalCountLabel ??
     `지금까지 ${feedData?.totalCount ?? 0}개의 피드가 완성되었어요!`;
   const weeklyTopBuilder = feedData?.weeklyTopBuilder;
+
+  const emptyMessage =
+    filter === '내 피드'
+      ? '아직 작성한 피드가 없어요. 첫 피드를 올려보세요!'
+      : filter === '운영자 PICK'
+        ? '운영자가 선택한 피드가 아직 없어요.'
+        : lessonId !== null
+          ? '해당 레슨의 피드가 아직 없어요.'
+          : '아직 등록된 피드가 없어요.';
 
   return (
     <div className="w-full pb-800">
@@ -264,6 +302,10 @@ export default function BuilderFeedPage() {
           <div className="mt-400 flex justify-center py-800">
             <p className="font-designer-16r text-gray-500">로딩 중...</p>
           </div>
+        ) : (feedData?.feeds ?? []).length === 0 ? (
+          <div className="mt-400 flex justify-center py-800">
+            <p className="font-designer-16r text-gray-500">{emptyMessage}</p>
+          </div>
         ) : (
           <div className="mt-400 grid grid-cols-3 gap-500">
             {(feedData?.feeds ?? []).map((feed) => (
@@ -275,10 +317,9 @@ export default function BuilderFeedPage() {
                   feed={{
                     id: feed.feedId,
                     author: feed.author.nickname,
-                    date: new Date(feed.createdAt).toLocaleDateString('ko-KR', {
-                      month: '2-digit',
-                      day: '2-digit',
-                    }),
+                    role: feed.author.role,
+                    thumbnailUrl: feed.thumbnailUrl,
+                    date: feed.createdAt,
                     text: feed.content,
                     likes: feed.likeCount,
                     comments: feed.commentCount,
