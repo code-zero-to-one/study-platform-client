@@ -163,7 +163,7 @@ const FAQ_ITEMS = [
 
 const SPEECH_BUBBLES = [
   {
-    src: '/landing/speech-bubble-1.png',
+    src: '/landing/speech-bubble-1.svg',
     rotate: '0deg',
     scaleY: false,
     posClass: 'left-[1%] top-[16%]',
@@ -172,7 +172,7 @@ const SPEECH_BUBBLES = [
     height: 168,
   },
   {
-    src: '/landing/speech-bubble-2.png',
+    src: '/landing/speech-bubble-2.svg',
     rotate: '-5.97deg',
     scaleY: false,
     posClass: 'left-[49%] top-[17%]',
@@ -181,7 +181,7 @@ const SPEECH_BUBBLES = [
     height: 163,
   },
   {
-    src: '/landing/speech-bubble-3.png',
+    src: '/landing/speech-bubble-3.svg',
     rotate: '-20.56deg',
     scaleY: false,
     posClass: 'right-[1%] top-[12%]',
@@ -190,7 +190,7 @@ const SPEECH_BUBBLES = [
     height: 246,
   },
   {
-    src: '/landing/speech-bubble-4.png',
+    src: '/landing/speech-bubble-4.svg',
     rotate: '22.8deg',
     scaleY: false,
     posClass: 'left-[0%] bottom-[26%]',
@@ -199,7 +199,7 @@ const SPEECH_BUBBLES = [
     height: 234,
   },
   {
-    src: '/landing/speech-bubble-5.png',
+    src: '/landing/speech-bubble-5.svg',
     rotate: '-159.44deg',
     scaleY: true,
     posClass: 'left-[38%] bottom-[30%]',
@@ -208,7 +208,7 @@ const SPEECH_BUBBLES = [
     height: 246,
   },
   {
-    src: '/landing/speech-bubble-6.png',
+    src: '/landing/speech-bubble-6.svg',
     rotate: '180deg',
     scaleY: true,
     posClass: 'right-[4%] bottom-[28%]',
@@ -424,15 +424,24 @@ function CheckSection() {
         {/* CTA highlight box */}
         <FadeIn delay={0.3} className="mt-1000">
           <div className="flex items-center justify-center gap-200 rounded-200 border-[3px] border-rose-500 bg-rose-50 px-750 py-500">
-            <div className="relative shrink-0 size-[26px] md:size-[30px]">
-              <Image
-                src="/landing/check-icon.png"
-                alt=""
-                fill
-                className="object-contain"
-                unoptimized
+            <svg
+              viewBox="0 0 30 30"
+              className="size-325 shrink-0 md:size-375"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 0.5H26C27.933 0.5 29.5 2.067 29.5 4V26C29.5 27.933 27.933 29.5 26 29.5H4C2.067 29.5 0.5 27.933 0.5 26V4L0.504883 3.82031C0.595411 2.03035 2.03035 0.595411 3.82031 0.504883L4 0.5Z"
+                fill="white"
+                stroke="#F63D68"
               />
-            </div>
+              <path
+                d="M7 13.5L14.5 21.5L22 8"
+                stroke="#F63D68"
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+            </svg>
             <p className="text-[18px] font-bold leading-[1.5] text-rose-500 md:text-[24px] lg:text-[28px]">
               3개 이상 해당된다면, 이 코스는 당신을 위해 설계됐습니다.
             </p>
@@ -604,23 +613,21 @@ function BenefitsSection() {
           className="mt-1000 flex flex-col items-center gap-500 md:flex-row md:justify-center md:gap-1000"
         >
           {/* Discord */}
-          <div
-            className="overflow-hidden rounded-[30px]"
-            style={{ transform: 'rotate(12.72deg)' }}
-          >
-            <Image
-              src="/landing/discord-app.png"
-              alt="Discord 커뮤니티"
-              width={140}
-              height={140}
-              className="md:h-[180px] md:w-[180px]"
-            />
+          <div style={{ transform: 'rotate(12.72deg)' }}>
+            <div className="relative size-1750 overflow-hidden rounded-[30px] md:size-2250">
+              <Image
+                src="/landing/discord-app.png"
+                alt="Discord 커뮤니티"
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
 
           {/* Toast illustration */}
-          <div className="relative h-[200px] w-[280px] md:h-[280px] md:w-[400px]">
+          <div className="relative h-2500 w-3500 md:h-3500 md:w-5000">
             <Image
-              src="/landing/toast-illustration.png"
+              src="/landing/toast-illustration.svg"
               alt="운영 방식"
               fill
               className="object-contain"
@@ -629,17 +636,15 @@ function BenefitsSection() {
           </div>
 
           {/* KakaoTalk */}
-          <div
-            className="overflow-hidden rounded-[30px]"
-            style={{ transform: 'rotate(-20.93deg)' }}
-          >
-            <Image
-              src="/landing/kakao-app.png"
-              alt="KakaoTalk 오픈채팅"
-              width={140}
-              height={140}
-              className="md:h-[180px] md:w-[180px]"
-            />
+          <div style={{ transform: 'rotate(-20.93deg)' }}>
+            <div className="relative size-1750 overflow-hidden rounded-[30px] md:size-2250">
+              <Image
+                src="/landing/kakao-app.png"
+                alt="KakaoTalk 오픈채팅"
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
         </FadeIn>
       </div>
