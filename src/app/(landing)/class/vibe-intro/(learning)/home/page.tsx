@@ -750,7 +750,7 @@ export default function JourneyMapPage() {
                       </div>
                       {ri === rows.length - 1 &&
                         index < visibleChapters.length - 1 && (
-                          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2">
+                          <div className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2">
                             <Image
                               src="/class/vibe-intro/journey-load.svg"
                               alt=""
@@ -765,14 +765,14 @@ export default function JourneyMapPage() {
                         )}
                     </div>
                     {ri < rows.length - 1 && (
-                      <div className="-mt-825 -mb-825 flex justify-center">
+                      <div className="-mt-825 -mb-825 w-full">
                         <Image
                           src="/class/vibe-intro/journey-load-reverse.svg"
                           alt=""
                           aria-hidden="true"
                           width={906}
                           height={319}
-                          className={cn(ri % 2 === 0 && '-scale-x-100')}
+                          className={cn(ri % 2 === 1 && '-scale-x-100')}
                         />
                       </div>
                     )}
