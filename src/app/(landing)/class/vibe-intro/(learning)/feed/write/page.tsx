@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import {
   useCreateBuilderFeed,
@@ -56,7 +57,8 @@ export default function FeedWritePage() {
     }
     setIsUploadingImage(true);
     try {
-      const key = await uploadCommunityMarkdownImage(file);
+      const publicUrl = await uploadCommunityMarkdownImage(file);
+      const key = new URL(publicUrl).pathname.slice(1);
       const previewUrl = URL.createObjectURL(file);
       setImages((prev) => [...prev, { previewUrl, key }]);
     } catch {
@@ -80,7 +82,7 @@ export default function FeedWritePage() {
       showToast('레슨을 선택해주세요.', 'error');
       return;
     }
-    if (!text.trim()) {
+    if (!text.replace(/<[^>]*>/g, '').trim()) {
       showToast('내용을 입력해주세요.', 'error');
       return;
     }
@@ -280,11 +282,10 @@ export default function FeedWritePage() {
             </div>
 
             {/* Text content */}
-            <textarea
+            <MarkdownEditor
               value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder={`코딩을 하며 다양한 순간을 글로 작성해보세요!\n\n"이번 레슨, 어떤 기대로 시작했나요?"\n예) 내 포트폴리오에 넣을 사이트를 만들어보고 싶었어요 / AI가 진짜 코드를 짜주는지 궁금했어요\n\n"오늘 새롭게 알게 된 것을 적어주세요."\n예) AI에게 시킬 때 구체적으로 말해야 원하는 결과가 나온다 / 터미널이 생각보다 안 무섭다`}
-              className="h-[350px] w-full resize-none rounded-200 border border-border-default p-300 font-designer-16r text-gray-800 outline-none placeholder:whitespace-pre-line placeholder:text-gray-400 focus:border-border-brand"
+              onChange={setText}
+              placeholder="코딩을 하며 다양한 순간을 글로 작성해보세요! 이번 레슨에서 배운 것, 새롭게 알게 된 것을 자유롭게 작성해보세요."
             />
 
             {/* CTAs */}

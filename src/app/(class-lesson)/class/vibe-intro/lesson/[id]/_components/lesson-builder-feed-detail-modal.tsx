@@ -8,6 +8,7 @@ import {
   formatRelativeTime,
   ROLE_LABELS,
 } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
+import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import { useGetBuilderFeedDetail } from '@/hooks/queries/course/course-api';
 
 interface Props {
@@ -74,9 +75,7 @@ export function LessonBuilderFeedDetailModal({ feedId, onClose }: Props) {
               </div>
 
               {/* Content */}
-              <p className="whitespace-pre-wrap font-designer-16r leading-relaxed text-gray-800">
-                {feed.content}
-              </p>
+              <MarkdownContentCore content={feed.content} />
 
               {/* Images */}
               {feed.imageUrls.length > 0 && (

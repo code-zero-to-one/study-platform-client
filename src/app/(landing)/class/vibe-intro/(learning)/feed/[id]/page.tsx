@@ -12,6 +12,7 @@ import {
 import Link from 'next/link';
 import { use, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import {
   useCreateFeedComment,
   useGetBuilderFeedDetail,
@@ -142,9 +143,10 @@ export default function FeedDetailPage({
             <div className="mt-250 relative h-[380px] overflow-hidden rounded-150 bg-gray-300" />
 
             {/* Caption */}
-            <p className="mt-250 whitespace-pre-line font-designer-14r text-gray-800 leading-relaxed">
-              {feed?.content ?? ''}
-            </p>
+            <MarkdownContentCore
+              className="mt-250"
+              content={feed?.content ?? ''}
+            />
 
             {/* Actions */}
             <div className="mt-300 flex items-center gap-200">
