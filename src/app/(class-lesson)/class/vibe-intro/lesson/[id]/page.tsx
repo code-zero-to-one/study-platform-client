@@ -78,13 +78,15 @@ export default function LessonPage({
   const drawerChapters = useMemo(() => drawer?.chapters ?? [], [drawer]);
   const courseTitle = drawer?.courseTitle ?? lesson?.courseTitle ?? '';
 
-  // Initialize expanded chapters from drawer.defaultExpanded
+  // Initialize expanded chapters from drawer.isDefaultExpanded
   useEffect(() => {
     if (drawerChapters.length === 0) return;
     setExpandedChapters((prev) => {
       if (prev.size > 0) return prev;
       return new Set(
-        drawerChapters.filter((c) => c.defaultExpanded).map((c) => c.chapterId),
+        drawerChapters
+          .filter((c) => c.isDefaultExpanded)
+          .map((c) => c.chapterId),
       );
     });
   }, [drawerChapters]);

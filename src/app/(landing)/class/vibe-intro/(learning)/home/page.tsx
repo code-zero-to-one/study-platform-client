@@ -47,7 +47,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 01',
         description: null,
         isFree: true,
-        locked: false,
+        isLocked: false,
         estimatedMinutes: 18,
       },
       {
@@ -56,7 +56,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 02',
         description: null,
         isFree: true,
-        locked: false,
+        isLocked: false,
         estimatedMinutes: 18,
       },
       {
@@ -65,7 +65,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 03',
         description: null,
         isFree: true,
-        locked: false,
+        isLocked: false,
         estimatedMinutes: 18,
       },
     ],
@@ -84,7 +84,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 04',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
       {
@@ -93,7 +93,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 05',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
       {
@@ -102,7 +102,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 06',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
       {
@@ -111,7 +111,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 07',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
       {
@@ -120,7 +120,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 08',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
     ],
@@ -139,7 +139,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 09',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
       {
@@ -148,7 +148,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 10',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
       {
@@ -157,7 +157,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 11',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
       {
@@ -166,7 +166,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 12',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
       {
@@ -175,7 +175,7 @@ const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
         title: 'Lesson 13',
         description: null,
         isFree: false,
-        locked: true,
+        isLocked: true,
         estimatedMinutes: 18,
       },
     ],
@@ -214,8 +214,8 @@ function mergeLessons(
       title: l.title,
       description: l.description,
       isFree: l.isFree,
-      status: journeyLesson?.status ?? (l.locked ? 'LOCKED' : 'IN_PROGRESS'),
-      accessible: journeyLesson?.isAccessible ?? !l.locked,
+      status: journeyLesson?.status ?? (l.isLocked ? 'LOCKED' : 'IN_PROGRESS'),
+      accessible: journeyLesson?.isAccessible ?? !l.isLocked,
       estimatedMinutes: l.estimatedMinutes,
       isCurrent:
         journeyLesson !== undefined &&
@@ -850,7 +850,8 @@ export default function JourneyMapPage() {
               <div className="mt-400 flex flex-col gap-200">
                 {visibleLessons.map((l) => {
                   const journeyLesson = lessonStatusMap.get(l.lessonId);
-                  const isAccessible = journeyLesson?.isAccessible ?? !l.locked;
+                  const isAccessible =
+                    journeyLesson?.isAccessible ?? !l.isLocked;
                   const isCompleted = journeyLesson?.status === 'COMPLETED';
 
                   const card = (

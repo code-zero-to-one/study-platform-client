@@ -108,7 +108,7 @@ function makeCurriculum(): { content: CourseCurriculumResponse } {
               title: LESSON_FREE_TITLE,
               description: null,
               isFree: true,
-              locked: false,
+              isLocked: false,
               estimatedMinutes: 18,
             },
             {
@@ -117,7 +117,7 @@ function makeCurriculum(): { content: CourseCurriculumResponse } {
               title: '심화 레슨',
               description: null,
               isFree: false,
-              locked: true,
+              isLocked: true,
               estimatedMinutes: 18,
             },
             {
@@ -126,7 +126,7 @@ function makeCurriculum(): { content: CourseCurriculumResponse } {
               title: LESSON_OPTION_TITLE,
               description: null,
               isFree: true,
-              locked: false,
+              isLocked: false,
               estimatedMinutes: 18,
             },
           ],
@@ -158,7 +158,7 @@ function makeCurriculumWithBadges(): { content: CourseCurriculumResponse } {
               title: LESSON_FREE_TITLE,
               description: null,
               isFree: true,
-              locked: false,
+              isLocked: false,
               estimatedMinutes: 18,
             },
             {
@@ -167,7 +167,7 @@ function makeCurriculumWithBadges(): { content: CourseCurriculumResponse } {
               title: '심화 레슨',
               description: null,
               isFree: false,
-              locked: true,
+              isLocked: true,
               estimatedMinutes: 18,
             },
             {
@@ -176,7 +176,7 @@ function makeCurriculumWithBadges(): { content: CourseCurriculumResponse } {
               title: '결제 완료 레슨',
               description: null,
               isFree: false,
-              locked: false,
+              isLocked: false,
               estimatedMinutes: 18,
             },
           ],

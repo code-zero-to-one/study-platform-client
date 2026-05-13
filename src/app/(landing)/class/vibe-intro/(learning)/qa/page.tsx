@@ -8,7 +8,6 @@ import {
   useGetCourseDetail,
   useGetCourseQnas,
 } from '@/hooks/queries/course/course-api';
-import { useToastStore } from '@/stores/use-toast-store';
 
 const SORT_OPTIONS = [
   { label: '최신순', value: 'LATEST' },
@@ -41,7 +40,6 @@ function getEmptyMessage(filter: string) {
 
 export default function ClassQnaPage() {
   const router = useRouter();
-  const showToast = useToastStore((s) => s.showToast);
 
   const [filter, setFilter] = useState('');
   const [sort, setSort] = useState('LATEST');
@@ -151,7 +149,7 @@ export default function ClassQnaPage() {
           {/* 질문하기 button */}
           <button
             type="button"
-            onClick={() => showToast('레슨 페이지에서 질문해주세요.', 'info')}
+            onClick={() => router.push('/class/vibe-intro/qa/write')}
             className="rounded-full bg-rose-500 px-325 py-150 font-designer-14m text-white hover:bg-rose-600"
           >
             질문하기

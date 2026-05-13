@@ -4,7 +4,7 @@ import { Heart, MessageSquareMore, Forward, ChevronDown } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
@@ -12,6 +12,7 @@ import {
   useGetCourseCurriculum,
   useGetCourseDetail,
 } from '@/hooks/queries/course/course-api';
+import type { BuilderFeedListItemResponse } from '@/types/api/course.types';
 import {
   AuthorAvatar,
   BuilderBadge,
@@ -117,6 +118,8 @@ export default function BuilderFeedPage() {
   const [lessonId, setLessonId] = useState<number | null>(null);
   const [sortOpen, setSortOpen] = useState(false);
   const [lessonOpen, setLessonOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [allFeeds, setAllFeeds] = useState<BuilderFeedListItemResponse[]>([]);
 
   const { data: course } = useGetCourseDetail('vibe-intro');
   const courseId = course?.courseId ?? 0;
@@ -126,7 +129,22 @@ export default function BuilderFeedPage() {
     sort: SORT_API_MAP[sort],
     filter: FILTER_API_MAP[filter],
     lessonId: lessonId ?? undefined,
+    page,
   });
+
+  // Reset page and feeds when filters change
+  useEffect(() => {
+    setPage(0);
+    setAllFeeds([]);
+  }, [filter, sort, lessonId]);
+
+  // Accumulate feeds: replace on page 0, append on subsequent pages
+  useEffect(() => {
+    if (!feedData?.feeds) return;
+    setAllFeeds((prev) =>
+      page === 0 ? feedData.feeds : [...prev, ...feedData.feeds],
+    );
+  }, [feedData, page]);
 
   const lessonOptions = useMemo(
     () =>
@@ -143,7 +161,7 @@ export default function BuilderFeedPage() {
     lessonOptions.find((l) => l.lessonId === lessonId)?.label ?? '전체';
 
   const totalCountLabel =
-    feedData?.totalCountLabel ??
+    feedData?.feedCountLabel ??
     `지금까지 ${feedData?.totalCount ?? 0}개의 피드가 완성되었어요!`;
   const weeklyTopBuilder = feedData?.weeklyTopBuilder;
 
@@ -298,17 +316,17 @@ export default function BuilderFeedPage() {
         </div>
 
         {/* Feed grid */}
-        {isLoading ? (
+        {isLoading && allFeeds.length === 0 ? (
           <div className="mt-400 flex justify-center py-800">
             <p className="font-designer-16r text-gray-500">로딩 중...</p>
           </div>
-        ) : (feedData?.feeds ?? []).length === 0 ? (
+        ) : allFeeds.length === 0 ? (
           <div className="mt-400 flex justify-center py-800">
             <p className="font-designer-16r text-gray-500">{emptyMessage}</p>
           </div>
         ) : (
           <div className="mt-400 grid grid-cols-3 gap-500">
-            {(feedData?.feeds ?? []).map((feed) => (
+            {allFeeds.map((feed) => (
               <Link
                 key={feed.feedId}
                 href={`/class/vibe-intro/feed/${feed.feedId}`}
@@ -331,14 +349,18 @@ export default function BuilderFeedPage() {
         )}
 
         {/* Load more */}
-        <div className="mt-500 flex justify-center">
-          <button
-            type="button"
-            className="flex h-750 w-[570px] items-center justify-center rounded-100 border border-border-default font-designer-16r text-gray-800"
-          >
-            피드 더보기
-          </button>
-        </div>
+        {feedData?.hasNext && (
+          <div className="mt-500 flex justify-center">
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => setPage((p) => p + 1)}
+              className="flex h-750 w-[570px] items-center justify-center rounded-100 border border-border-default font-designer-16r text-gray-800 disabled:opacity-50"
+            >
+              {isLoading ? '로딩 중...' : '피드 더보기'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
