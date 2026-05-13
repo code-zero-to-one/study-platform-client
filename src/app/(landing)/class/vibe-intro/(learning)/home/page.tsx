@@ -750,13 +750,13 @@ export default function JourneyMapPage() {
                       </div>
                       {ri === rows.length - 1 &&
                         index < visibleChapters.length - 1 && (
-                          <div className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2">
+                          <div className="pointer-events-none absolute right-0 top-1/2">
                             <Image
                               src="/class/vibe-intro/journey-load.svg"
                               alt=""
                               aria-hidden="true"
                               width={906}
-                              height={388}
+                              height={343}
                               className={cn(
                                 rows.length % 2 === 0 && '-scale-x-100',
                               )}
