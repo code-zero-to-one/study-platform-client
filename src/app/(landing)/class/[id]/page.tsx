@@ -30,6 +30,9 @@ import {
   useGetCourseCurriculum,
   useGetCourseDetail,
   useGetCourseList,
+  useGetMyCourseFreeEnrollment,
+  useGetMyGiftEmail,
+  useRegisterGiftEmail,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
@@ -154,6 +157,7 @@ export default function ClassDetailPage({
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [studyWithMePhone, setStudyWithMePhone] = useState('');
   const [studyWithMeAgreed, setStudyWithMeAgreed] = useState(false);
+  const [giftEmail, setGiftEmail] = useState('');
   const showToast = useToastStore((state) => state.showToast);
   const { isAuthenticated } = useAuth();
 
@@ -164,6 +168,14 @@ export default function ClassDetailPage({
   const { data: builderFeedShowcase } = useGetBuilderFeedShowcase(courseId);
   const createCourseFreeEnrollment = useCreateCourseFreeEnrollment();
   const createStudyWithMeSubscription = useCreateStudyWithMeSubscription();
+  const { data: myFreeEnrollment } = useGetMyCourseFreeEnrollment(
+    isAuthenticated ? courseId : 0,
+  );
+  const isAlreadyFreeEnrolled = myFreeEnrollment?.isFreeEnrolled ?? false;
+  const { data: myGiftEmail } = useGetMyGiftEmail({
+    enabled: isAuthenticated && !!courseDetail?.isPaidEnrolled,
+  });
+  const registerGiftEmailMutation = useRegisterGiftEmail();
 
   const { data: allCourses } = useGetCourseList();
   const courseSummary = allCourses?.find((c) => c.slug === slug);
@@ -263,6 +275,23 @@ export default function ClassDetailPage({
     } catch {
       showToast('Study with Me 알림 신청 중 오류가 발생했어요.', 'error');
     }
+  }
+
+  function handleRegisterGiftEmail() {
+    if (!giftEmail.trim()) {
+      showToast('이메일을 입력해주세요.', 'error');
+      return;
+    }
+    registerGiftEmailMutation.mutate(
+      { email: giftEmail.trim() },
+      {
+        onSuccess: () => {
+          setGiftEmail('');
+          showToast('Gift 이메일이 등록되었어요.');
+        },
+        onError: () => showToast('이메일 등록에 실패했어요.', 'error'),
+      },
+    );
   }
 
   function toggleChapter(index: number) {
@@ -997,7 +1026,9 @@ export default function ClassDetailPage({
                     >
                       {createCourseFreeEnrollment.isPending
                         ? '등록 중...'
-                        : '무료 코스 시작하기'}
+                        : isAlreadyFreeEnrolled
+                          ? '학습 계속하기'
+                          : '무료 코스 시작하기'}
                     </button>
                   ) : (
                     <LoginModal
@@ -1012,6 +1043,42 @@ export default function ClassDetailPage({
                     />
                   )}
                 </div>
+
+                {isAuthenticated && courseDetail?.isPaidEnrolled && (
+                  <div className="mt-300 rounded-100 border border-border-default p-300">
+                    <p className="font-designer-14b text-gray-800">
+                      Claude Pro Gift 이메일
+                    </p>
+                    {myGiftEmail?.isRegistered ? (
+                      <p className="mt-125 break-all font-designer-14r text-gray-600">
+                        {myGiftEmail.email}
+                      </p>
+                    ) : (
+                      <div className="mt-150 flex flex-col gap-150">
+                        <input
+                          type="email"
+                          value={giftEmail}
+                          onChange={(e) => setGiftEmail(e.target.value)}
+                          placeholder="이메일 주소를 입력하세요"
+                          className="h-500 w-full rounded-100 border border-border-default px-200 font-designer-14r text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRegisterGiftEmail}
+                          disabled={
+                            registerGiftEmailMutation.isPending ||
+                            !giftEmail.trim()
+                          }
+                          className="flex h-500 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse disabled:opacity-50"
+                        >
+                          {registerGiftEmailMutation.isPending
+                            ? '등록 중...'
+                            : '등록하기'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="mt-300 rounded-100 bg-gray-800 p-300">
                   <p className="font-designer-14m text-gray-0">
