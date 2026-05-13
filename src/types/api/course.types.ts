@@ -523,6 +523,12 @@ export interface BuilderFeedCreateRequest {
   imageKeys?: string[];
 }
 
+export interface BuilderFeedUpdateRequest {
+  lessonId?: number;
+  content?: string;
+  imageKeys?: string[];
+}
+
 export interface BuilderFeedCommentCreateRequest {
   content: string;
   parentCommentId?: number | null;
