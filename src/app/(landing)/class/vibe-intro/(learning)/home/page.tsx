@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Lock, LockOpen, Timer, Users } from 'lucide-react';
+import { BookOpen, Lock, Timer, Users } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -757,7 +757,7 @@ export default function JourneyMapPage() {
                               alt=""
                               aria-hidden="true"
                               width={906}
-                              height={388}
+                              height={398}
                               className={cn(
                                 '!max-w-none',
                                 rows.length % 2 === 0 && '-scale-x-100',
@@ -765,19 +765,23 @@ export default function JourneyMapPage() {
                             />
                           </div>
                         )}
+                      {ri < rows.length - 1 && (
+                        <div className="pointer-events-none absolute right-0 top-1/2">
+                          <Image
+                            src="/class/vibe-intro/journey-load-reverse.svg"
+                            alt=""
+                            aria-hidden="true"
+                            width={906}
+                            height={319}
+                            className={cn(
+                              '!max-w-none',
+                              ri % 2 === 1 && '-scale-x-100',
+                            )}
+                          />
+                        </div>
+                      )}
                     </div>
-                    {ri < rows.length - 1 && (
-                      <div className="-mt-825 -mb-825 w-full">
-                        <Image
-                          src="/class/vibe-intro/journey-load-reverse.svg"
-                          alt=""
-                          aria-hidden="true"
-                          width={906}
-                          height={319}
-                          className={cn(ri % 2 === 1 && '-scale-x-100')}
-                        />
-                      </div>
-                    )}
+                    {ri < rows.length - 1 && <div className="h-2337" />}
                   </div>
                 ))}
               </div>
@@ -852,50 +856,47 @@ export default function JourneyMapPage() {
                   const card = (
                     <div
                       className={cn(
-                        'flex h-1250 items-center gap-300 rounded-200 border px-500 transition-colors',
+                        'flex h-1250 items-center justify-between rounded-200 border px-500 transition-colors',
                         isAccessible
                           ? 'cursor-pointer border-gray-300 bg-gray-50 hover:border-border-brand'
                           : 'cursor-not-allowed border-gray-300 bg-gray-50 opacity-60',
                       )}
                     >
-                      <div
-                        className={cn(
-                          'flex size-550 shrink-0 items-center justify-center rounded-50 font-designer-16b text-gray-0',
-                          isCompleted
-                            ? 'bg-background-brand-default'
-                            : 'bg-gray-400',
-                        )}
-                      >
-                        {String(l.order).padStart(2, '0')}
-                      </div>
-                      <div className="flex flex-1 flex-col gap-50">
-                        <p
+                      <div className="flex items-center gap-300">
+                        <div
                           className={cn(
-                            'font-designer-16b',
-                            isCompleted ? 'text-text-brand' : 'text-gray-800',
+                            'flex size-550 shrink-0 items-center justify-center rounded-50 font-designer-16b text-gray-0',
+                            isCompleted
+                              ? 'bg-background-brand-default'
+                              : 'bg-gray-400',
                           )}
                         >
-                          {l.title}
-                        </p>
-                        <div className="flex items-center gap-150">
-                          {l.isFree && (
-                            <span className="rounded-50 bg-rose-100 px-150 py-25 font-designer-12b text-text-brand">
-                              무료
-                            </span>
-                          )}
-                          <span className="flex items-center gap-50 font-designer-12r text-gray-500">
-                            <Timer className="size-200" />
-                            {l.estimatedMinutes}분
-                          </span>
+                          {String(l.order).padStart(2, '0')}
+                        </div>
+                        <div className="flex flex-col gap-50">
+                          <p
+                            className={cn(
+                              'font-designer-16b',
+                              isCompleted ? 'text-text-brand' : 'text-gray-800',
+                            )}
+                          >
+                            {l.title}
+                          </p>
+                          <div className="flex items-center gap-150">
+                            {l.isFree && (
+                              <span className="rounded-50 bg-rose-100 px-150 py-25 font-designer-12b text-text-brand">
+                                무료
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      {isCompleted ? (
-                        <LockOpen className="size-300 shrink-0 text-text-brand" />
-                      ) : isAccessible ? (
-                        <LockOpen className="size-300 shrink-0 text-gray-400" />
-                      ) : (
-                        <Lock className="size-300 shrink-0 text-gray-400" />
-                      )}
+                      <div className="flex shrink-0 items-center gap-25 text-gray-400">
+                        <Timer className="size-300" />
+                        <span className="font-designer-14r">
+                          약 {l.estimatedMinutes}분 소요
+                        </span>
+                      </div>
                     </div>
                   );
 
