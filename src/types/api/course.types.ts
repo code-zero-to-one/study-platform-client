@@ -320,24 +320,30 @@ export interface CourseDrawerResponse {
 
 // ─── Q&A ──────────────────────────────────────────────────────────────────────
 
-export interface LessonQnaListResponse {
-  myQnas: LessonQnaMyItem[];
-  qnas: LessonQnaItem[];
-  totalCount: number;
-}
+export type LessonQnaAnswerStatus = 'ANSWER_WAITING' | 'ANSWERED';
 
-export interface LessonQnaMyItem {
-  qnaId: number;
-  title: string;
-  answerCount: number;
-  createdAt: string;
+export interface LessonQnaItemAuthor {
+  memberId: number;
+  nickname: string;
+  role: string;
 }
 
 export interface LessonQnaItem {
   qnaId: number;
+  lessonId: number;
+  lessonTitle: string;
   title: string;
-  answerCount: number;
+  previewText: string;
+  answerStatus: LessonQnaAnswerStatus;
+  curiousCount: number;
+  usefulCount: number;
+  author: LessonQnaItemAuthor;
   createdAt: string;
+}
+
+export interface LessonQnaListResponse {
+  qnas: LessonQnaItem[];
+  totalCount: number;
 }
 
 export interface LessonQnaCreateRequest {

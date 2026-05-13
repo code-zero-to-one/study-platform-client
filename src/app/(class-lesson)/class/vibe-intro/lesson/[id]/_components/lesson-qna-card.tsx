@@ -3,10 +3,10 @@
 import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import type { LessonQnaMyItem } from '@/types/api/course.types';
+import type { LessonQnaSidebarItem } from '@/types/api/course.types';
 
 interface Props {
-  myQnas: LessonQnaMyItem[];
+  myQnas: LessonQnaSidebarItem[];
   onAskClick: () => void;
   onSelectQna: (qnaId: number) => void;
 }
