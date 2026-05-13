@@ -4,11 +4,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
-  MessageCircle,
-  Share2,
+  MessageSquareMore,
+  Forward,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import {
+  AuthorAvatar,
+  BuilderBadge,
+  ROLE_LABELS,
+} from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type { BuilderFeedPreviewItemResponse } from '@/types/api/course.types';
 
@@ -72,32 +77,38 @@ export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
       {current && (
         <div className="flex flex-col gap-150">
           <div className="flex items-center gap-125">
-            <div className="flex h-300 w-300 shrink-0 items-center justify-center rounded-full bg-gray-200">
-              <span className="font-designer-12b text-gray-600">
-                {current.author.nickname.charAt(0)}
-              </span>
+            <AuthorAvatar nickname={current.author.nickname} />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-50">
+                <p className="font-designer-14b text-gray-800">
+                  {current.author.nickname}
+                </p>
+                {current.author.role === 'BUILDER' && <BuilderBadge />}
+              </div>
+              {ROLE_LABELS[current.author.role] && (
+                <p className="font-designer-12m text-gray-400">
+                  {ROLE_LABELS[current.author.role]}
+                </p>
+              )}
             </div>
-            <p className="font-designer-14b text-gray-800">
-              {current.author.nickname}
-            </p>
           </div>
           <p className="line-clamp-2 font-designer-14r text-gray-1000">
             {current.content}
           </p>
           <div className="flex items-center gap-200">
             <div className="flex items-center gap-50">
-              <Heart className="h-250 w-250 text-gray-1000" />
+              <Heart className="h-250 w-250 text-icon-brand" />
               <p className="font-designer-14r text-gray-1000">
                 {current.likeCount}
               </p>
             </div>
             <div className="flex items-center gap-50">
-              <MessageCircle className="h-250 w-250 text-gray-1000" />
+              <MessageSquareMore className="h-250 w-250 text-gray-1000" />
               <p className="font-designer-14r text-gray-1000">
                 {current.commentCount}
               </p>
             </div>
-            <Share2 className="h-250 w-250 text-gray-1000" />
+            <Forward className="h-250 w-250 text-gray-1000" />
           </div>
         </div>
       )}

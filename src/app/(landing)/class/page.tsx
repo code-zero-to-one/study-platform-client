@@ -220,13 +220,21 @@ function CourseThumbnail({
         {/* Text overlays */}
         <p
           className="absolute -translate-x-1/2 whitespace-nowrap font-display-headings6 text-rose-500"
-          style={{ left: '34.07%', top: '50%', letterSpacing: '-0.76px' }}
+          style={{
+            left: '34.07%',
+            top: '50%',
+            letterSpacing: '-0.76px',
+          }}
         >
           Vibe Coding
         </p>
         <p
           className="absolute whitespace-nowrap font-display-headings6 text-rose-500"
-          style={{ left: '9.29%', top: '67.47%', letterSpacing: '-0.76px' }}
+          style={{
+            left: '9.29%',
+            top: '67.47%',
+            letterSpacing: '-0.76px',
+          }}
         >
           for Work
         </p>
@@ -489,7 +497,7 @@ function CourseCard({
             <div className="mt-300 flex flex-col">
               {course.regularPrice !== null &&
                 course.regularPrice !== undefined && (
-                  <p className="font-designer-16r text-gray-400 line-through">
+                  <p className="font-designer-16r text-gray-300 line-through">
                     정가 {course.regularPrice.toLocaleString()}원
                   </p>
                 )}

@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
 } from '@/components/common/ui/(shadcn)/ui/dialog';
+import UserAvatar from '@/components/common/ui/avatar';
 import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
@@ -185,6 +186,7 @@ interface LessonDisplayInfo {
   lessonId: number;
   order: number;
   title: string;
+  description: string | null;
   isFree: boolean;
   status: LessonProgressStatus;
   accessible: boolean;
@@ -210,6 +212,7 @@ function mergeLessons(
       lessonId: l.lessonId,
       order: l.order,
       title: l.title,
+      description: l.description,
       isFree: l.isFree,
       status: journeyLesson?.status ?? (l.locked ? 'LOCKED' : 'IN_PROGRESS'),
       accessible: journeyLesson?.isAccessible ?? !l.locked,
@@ -275,13 +278,15 @@ function LessonPreviewModal({
               {lesson.title}
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-50 rounded-full border border-gray-200 bg-white px-375 py-150">
+          <div className="flex shrink-0 items-center gap-50 rounded-full border border-gray-200 text-gray-0 px-375 py-150">
             <div className="flex items-center">
               {[0, 1, 2].map((i) => (
-                <div
+                <UserAvatar
                   key={i}
+                  image={undefined}
+                  size={24}
                   className={cn(
-                    'size-300 rounded-full border border-background-brand-default bg-white',
+                    'border border-background-brand-default',
                     i > 0 && '-ml-75',
                   )}
                 />
@@ -302,7 +307,8 @@ function LessonPreviewModal({
         <div className="flex flex-col gap-75 px-875 pt-375">
           <p className="font-designer-18b text-gray-800">학습 목표</p>
           <p className="font-designer-15r text-gray-800">
-            이 레슨에서 무엇을 배우는지 확인하고 시작해요.
+            {lesson.description ??
+              '이 레슨에서 무엇을 배우는지 확인하고 시작해요.'}
           </p>
         </div>
         {/* CTAs */}
@@ -334,11 +340,13 @@ function LessonStamp({
   isAuthenticated,
   onSelect,
   shouldBlink = false,
+  learnerCount,
 }: {
   lesson: LessonDisplayInfo;
   isAuthenticated: boolean;
   onSelect: (lesson: LessonDisplayInfo) => void;
   shouldBlink?: boolean;
+  learnerCount: number;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCompleted = lesson.status === 'COMPLETED';
@@ -411,7 +419,9 @@ function LessonStamp({
       {showTooltip && (
         <div className="absolute -top-400 left-1/2 flex -translate-x-1/2 items-center gap-75 whitespace-nowrap rounded-100 bg-gray-900 px-150 py-75">
           <Users className="size-200 text-gray-0" />
-          <span className="font-designer-12r text-gray-0">학습 중</span>
+          <span className="font-designer-12r text-gray-0">
+            {learnerCount}명이 함께 달리는 중
+          </span>
         </div>
       )}
     </div>
@@ -492,6 +502,12 @@ export default function JourneyMapPage() {
   const nextAccessibleLesson = journeyMap?.lessons.find(
     (l) => l.status !== 'COMPLETED' && l.isAccessible,
   );
+
+  const nextLessonDescription =
+    chapters
+      .flatMap((c) => c.lessons)
+      .find((l) => l.lessonId === nextAccessibleLesson?.lessonId)
+      ?.description ?? null;
 
   const visibleChapters = chapters.slice(0, visibleChapterCount);
   const hasMoreChapters = visibleChapterCount < chapters.length;
@@ -598,7 +614,7 @@ export default function JourneyMapPage() {
               completedLessons > 0 &&
               completedLessons < (course.freeLessonCount ?? 0))) ? (
           <div className="mt-300 flex items-center gap-300 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
-            <div className="flex shrink-0 flex-col items-center justify-center rounded-100 bg-background-brand-default px-150 py-75 text-white">
+            <div className="flex shrink-0 flex-col items-center justify-center rounded-100 bg-background-brand-default px-150 py-75 text-gray-0">
               <span className="font-designer-12b">Lesson</span>
               <span className="font-designer-12b">
                 {String(nextAccessibleLesson.order).padStart(2, '0')}
@@ -611,7 +627,7 @@ export default function JourneyMapPage() {
                 {nextAccessibleLesson.title}
               </p>
               <p className="font-designer-16m text-gray-800">
-                다음 레슨을 이어서 학습해보세요.
+                {nextLessonDescription ?? '다음 레슨을 이어서 학습해보세요.'}
               </p>
             </div>
           </div>
@@ -632,7 +648,12 @@ export default function JourneyMapPage() {
                 key={chapter.order}
                 className="flex w-full flex-col items-center"
               >
-                <div className="relative z-10 mt-400 w-full">
+                <div
+                  className={cn(
+                    'relative z-10 w-full',
+                    index === 0 ? 'mt-400' : 'mt-1125',
+                  )}
+                >
                   <ChapterHeader
                     chapterNumber={chapter.chapterNumber}
                     title={chapter.title}
@@ -644,11 +665,7 @@ export default function JourneyMapPage() {
                     <div
                       className={cn(
                         'relative flex items-center justify-center',
-                        index === 0 && ri === 0
-                          ? 'mt-800'
-                          : ri === 0
-                            ? 'mt-300'
-                            : '',
+                        ri === 0 ? 'mt-800' : '',
                       )}
                     >
                       {index === 0 && ri === 0 && (
@@ -723,35 +740,48 @@ export default function JourneyMapPage() {
                                 ri === 0 &&
                                 li === 0
                               }
+                              learnerCount={
+                                journeyMap?.learnerCount ??
+                                course?.learnerCount ??
+                                0
+                              }
                             />
                           </div>
                         ))}
                       </div>
                       {ri === rows.length - 1 &&
                         index < visibleChapters.length - 1 && (
-                          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2">
+                          <div className="pointer-events-none absolute right-0 top-1/2">
                             <Image
                               src="/class/vibe-intro/journey-load.svg"
                               alt=""
                               aria-hidden="true"
                               width={906}
-                              height={388}
+                              height={398}
+                              className={cn(
+                                '!max-w-none',
+                                rows.length % 2 === 0 && '-scale-x-100',
+                              )}
                             />
                           </div>
                         )}
+                      {ri < rows.length - 1 && (
+                        <div className="pointer-events-none absolute right-0 top-1/2">
+                          <Image
+                            src="/class/vibe-intro/journey-load-reverse.svg"
+                            alt=""
+                            aria-hidden="true"
+                            width={906}
+                            height={319}
+                            className={cn(
+                              '!max-w-none',
+                              ri % 2 === 1 && '-scale-x-100',
+                            )}
+                          />
+                        </div>
+                      )}
                     </div>
-                    {ri < rows.length - 1 && (
-                      <div className="-mt-825 -mb-825 flex justify-center">
-                        <Image
-                          src="/class/vibe-intro/journey-load-reverse.svg"
-                          alt=""
-                          aria-hidden="true"
-                          width={906}
-                          height={319}
-                          className={cn(ri % 2 === 0 && '-scale-x-100')}
-                        />
-                      </div>
-                    )}
+                    {ri < rows.length - 1 && <div className="h-2337" />}
                   </div>
                 ))}
               </div>
@@ -795,7 +825,7 @@ export default function JourneyMapPage() {
                   type="button"
                   disabled={!progress?.isCourseCompleted}
                   className={cn(
-                    'flex h-550 w-1250 items-center justify-center rounded-100 font-designer-20b text-white',
+                    'flex h-550 w-1250 items-center justify-center rounded-100 font-designer-20b text-gray-0',
                     progress?.isCourseCompleted
                       ? 'bg-background-brand-default'
                       : 'cursor-not-allowed bg-gray-300',
@@ -826,50 +856,65 @@ export default function JourneyMapPage() {
                   const card = (
                     <div
                       className={cn(
-                        'flex h-1250 items-center gap-300 rounded-200 border px-500 transition-colors',
+                        'flex h-1250 items-center justify-between rounded-200 border px-500 transition-colors',
                         isAccessible
                           ? 'cursor-pointer border-gray-300 bg-gray-50 hover:border-border-brand'
                           : 'cursor-not-allowed border-gray-300 bg-gray-50 opacity-60',
                       )}
                     >
-                      <div
-                        className={cn(
-                          'flex size-550 shrink-0 items-center justify-center rounded-50 font-designer-16b text-gray-0',
-                          isCompleted
-                            ? 'bg-background-brand-default'
-                            : 'bg-gray-400',
-                        )}
-                      >
-                        {String(l.order).padStart(2, '0')}
-                      </div>
-                      <div className="flex flex-1 flex-col gap-50">
-                        <p
+                      <div className="flex items-center gap-300">
+                        <div
                           className={cn(
-                            'font-designer-16b',
-                            isCompleted ? 'text-text-brand' : 'text-gray-800',
+                            'flex size-550 shrink-0 items-center justify-center rounded-50 font-designer-16b text-gray-0',
+                            isCompleted
+                              ? 'bg-background-brand-default'
+                              : 'bg-gray-400',
                           )}
                         >
-                          {l.title}
-                        </p>
-                        <div className="flex items-center gap-150">
-                          {l.isFree && (
-                            <span className="rounded-50 bg-rose-100 px-150 py-25 font-designer-12b text-text-brand">
-                              무료
-                            </span>
-                          )}
-                          <span className="flex items-center gap-50 font-designer-12r text-gray-500">
-                            <Timer className="size-200" />
-                            {l.estimatedMinutes}분
-                          </span>
+                          {String(l.order).padStart(2, '0')}
+                        </div>
+                        <div className="flex flex-col gap-50">
+                          <p
+                            className={cn(
+                              'font-designer-16b',
+                              isCompleted ? 'text-text-brand' : 'text-gray-800',
+                            )}
+                          >
+                            {l.title}
+                          </p>
+                          <div className="flex items-center gap-75">
+                            {l.isFree && (
+                              <span className="flex h-250 w-525 items-center justify-center rounded-50 bg-rose-400 font-designer-12r text-gray-0">
+                                무료
+                              </span>
+                            )}
+                            {!l.isFree && !isAccessible && (
+                              <span
+                                role="img"
+                                aria-label="잠금"
+                                className="flex h-250 w-525 items-center justify-center rounded-50 bg-gray-400"
+                              >
+                                <Lock className="size-200 text-gray-0" />
+                              </span>
+                            )}
+                            {!l.isFree && isAccessible && (
+                              <span
+                                role="img"
+                                aria-label="잠금 해제"
+                                className="flex h-250 w-525 items-center justify-center rounded-50 border border-gray-300 bg-gray-0"
+                              >
+                                <LockOpen className="size-200 text-gray-400" />
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      {isCompleted ? (
-                        <LockOpen className="size-300 shrink-0 text-text-brand" />
-                      ) : isAccessible ? (
-                        <LockOpen className="size-300 shrink-0 text-gray-400" />
-                      ) : (
-                        <Lock className="size-300 shrink-0 text-gray-400" />
-                      )}
+                      <div className="flex shrink-0 items-center gap-25 text-gray-400">
+                        <Timer className="size-300" />
+                        <span className="font-designer-14r">
+                          약 {l.estimatedMinutes}분 소요
+                        </span>
+                      </div>
                     </div>
                   );
 
@@ -922,8 +967,7 @@ export default function JourneyMapPage() {
           }}
           onSkip={() => {
             const nextAccessible = journeyMap?.lessons.find(
-              (l) =>
-                l.lessonId !== selectedLesson.lesson.lessonId && l.isAccessible,
+              (l) => l.order > selectedLesson.lesson.order && l.isAccessible,
             );
             if (nextAccessible) {
               router.push(

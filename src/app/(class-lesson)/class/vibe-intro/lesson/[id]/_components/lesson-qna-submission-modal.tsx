@@ -28,7 +28,6 @@ export function LessonQnaSubmissionModal({
   open,
   onClose,
 }: Props) {
-  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<AttachedImage[]>([]);
   const [autoVisible, setAutoVisible] = useState(false);
@@ -55,8 +54,7 @@ export function LessonQnaSubmissionModal({
     const draft = localStorage.getItem(`lesson-qna-draft-${lessonId}`);
     if (!draft) return;
     try {
-      const { title: t, content: c } = JSON.parse(draft);
-      setTitle(t ?? '');
+      const { content: c } = JSON.parse(draft);
       setContent(c ?? '');
     } catch {
       // malformed draft — ignore
@@ -94,16 +92,12 @@ export function LessonQnaSubmissionModal({
   function handleDraftSave() {
     localStorage.setItem(
       `lesson-qna-draft-${lessonId}`,
-      JSON.stringify({ title, content }),
+      JSON.stringify({ content }),
     );
     showToast('임시저장되었습니다.');
   }
 
   function handleSubmit() {
-    if (!title.trim()) {
-      showToast('제목을 입력해주세요.', 'error');
-      return;
-    }
     if (!content.trim() || content.trim() === '<p></p>') {
       showToast('내용을 입력해주세요.', 'error');
       return;
@@ -113,7 +107,6 @@ export function LessonQnaSubmissionModal({
         courseId,
         request: {
           lessonId,
-          title: title.trim(),
           content: content.trim(),
           imageKeys: images.map((img) => img.key),
         },
@@ -122,7 +115,6 @@ export function LessonQnaSubmissionModal({
         onSuccess: () => {
           showToast('질문이 등록되었어요!');
           localStorage.removeItem(`lesson-qna-draft-${lessonId}`);
-          setTitle('');
           setContent('');
           setImages([]);
           onClose();
@@ -194,20 +186,6 @@ export function LessonQnaSubmissionModal({
 
         {/* Body */}
         <div className="relative flex flex-1 flex-col gap-300 overflow-y-auto px-750 pt-100 pb-500">
-          {/* Title */}
-          <div>
-            <p className="mb-150 font-designer-18m text-gray-800">
-              제목 <span className="text-rose-500">*</span>
-            </p>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="질문 제목을 입력해주세요."
-              className="w-full rounded-100 border border-border-default px-300 py-200 font-designer-16m text-gray-800 outline-none placeholder:text-gray-400 focus:border-rose-400"
-            />
-          </div>
-
           {/* Content */}
           <div>
             <p className="mb-150 font-designer-18m text-gray-800">내용</p>

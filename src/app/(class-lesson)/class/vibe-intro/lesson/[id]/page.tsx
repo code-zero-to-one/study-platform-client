@@ -49,6 +49,7 @@ export default function LessonPage({
       });
     }
   }
+  const [starRating, setStarRating] = useState(0);
   const [highlightAnswer, setHighlightAnswer] = useState('');
   const [unexpectedAnswer, setUnexpectedAnswer] = useState('');
   const [selectedChips, setSelectedChips] = useState<Set<string>>(new Set());
@@ -95,6 +96,7 @@ export default function LessonPage({
 
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
   const isFormValid =
+    starRating > 0 &&
     highlightAnswer.trim().length > 0 &&
     unexpectedAnswer.trim().length > 0 &&
     selectedChips.size >= 2;
@@ -129,6 +131,7 @@ export default function LessonPage({
       {
         lessonId,
         request: {
+          starRating: starRating || null,
           highlightAnswer: highlightAnswer.trim(),
           unexpectedAnswer: unexpectedAnswer.trim(),
           artifactType: null,
@@ -225,6 +228,8 @@ export default function LessonPage({
 
             {tab === 'review' || tab === 'follow' ? (
               <LessonReviewForm
+                starRating={starRating}
+                onStarRatingChange={setStarRating}
                 highlightAnswer={highlightAnswer}
                 unexpectedAnswer={unexpectedAnswer}
                 selectedChips={selectedChips}

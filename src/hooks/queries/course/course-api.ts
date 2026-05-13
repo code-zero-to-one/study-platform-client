@@ -4,6 +4,7 @@ import type {
   BuilderFeedCommentCreateRequest,
   BuilderFeedCommentsResponse,
   BuilderFeedCreateRequest,
+  BuilderFeedUpdateRequest,
   BuilderFeedDetailResponse,
   BuilderFeedListResponse,
   BuilderFeedPreviewResponse,
@@ -24,13 +25,21 @@ import type {
   CourseSummaryResponse,
   LessonDetailResponse,
   LessonQnaAnswerCreateRequest,
+  LessonQnaAnswerDeleteResponse,
   LessonQnaAnswerReactionRequest,
+  LessonQnaAnswerUpdateRequest,
+  LessonQnaAnswerUpdateResponse,
   LessonQnaCreateRequest,
+  LessonQnaDeleteResponse,
   LessonQnaDetailResponse,
   LessonQnaListResponse,
+  LessonQnaAnswerReactionToggleResponse,
+  LessonQnaQuestionReactionToggleResponse,
   LessonQnaReactionRequest,
   LessonQnaReportRequest,
   LessonQnaSidebarResponse,
+  LessonQnaUpdateRequest,
+  LessonQnaUpdateResponse,
   LessonRetrospectiveCreateRequest,
   LessonRetrospectiveCreateResponse,
   LessonRetrospectiveResponse,
@@ -443,14 +452,22 @@ export const useReactLessonQna = () => {
       request: LessonQnaReactionRequest;
     }) => {
       const { data } = await axiosInstanceV5.post<{
-        content: unknown;
+        content: LessonQnaQuestionReactionToggleResponse;
       }>(`qnas/${qnaId}/reactions`, request);
-      return data.content;
+      return { ...data.content, qnaId };
     },
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: ['lessonQnaDetail', variables.qnaId],
-      });
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        ['lessonQnaDetail', result.qnaId],
+        (old: LessonQnaDetailResponse | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            usefulCount: result.usefulCount,
+            curiousCount: result.curiousCount,
+          };
+        },
+      );
     },
   });
 };
@@ -469,14 +486,29 @@ export const useReactLessonQnaAnswer = () => {
       request: LessonQnaAnswerReactionRequest;
     }) => {
       const { data } = await axiosInstanceV5.post<{
-        content: unknown;
+        content: LessonQnaAnswerReactionToggleResponse;
       }>(`qna-answers/${answerId}/reactions`, request);
-      return { content: data.content, qnaId };
+      return { ...data.content, answerId, qnaId };
     },
-    onSuccess: async (result) => {
-      await queryClient.invalidateQueries({
-        queryKey: ['lessonQnaDetail', result.qnaId],
-      });
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        ['lessonQnaDetail', result.qnaId],
+        (old: LessonQnaDetailResponse | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            answers: old.answers.map((a) =>
+              a.answerId === result.answerId
+                ? {
+                    ...a,
+                    helpfulCount: result.helpfulCount,
+                    notHelpfulCount: result.notHelpfulCount,
+                  }
+                : a,
+            ),
+          };
+        },
+      );
     },
   });
 };
@@ -494,6 +526,92 @@ export const useReportLessonQna = () => {
         content: unknown;
       }>(`qnas/${qnaId}/report`, request);
       return data.content;
+    },
+  });
+};
+
+export const useUpdateLessonQna = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      qnaId,
+      request,
+    }: {
+      qnaId: number;
+      request: LessonQnaUpdateRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.patch<{
+        content: LessonQnaUpdateResponse;
+      }>(`qnas/${qnaId}`, request);
+      return data.content;
+    },
+    onSuccess: async (_, { qnaId }) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', qnaId],
+      });
+    },
+  });
+};
+
+export const useDeleteLessonQna = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ qnaId }: { qnaId: number }) => {
+      const { data } = await axiosInstanceV5.delete<{
+        content: LessonQnaDeleteResponse;
+      }>(`qnas/${qnaId}`);
+      return data.content;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['courseQnas'] });
+    },
+  });
+};
+
+export const useUpdateLessonQnaAnswer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      answerId,
+      qnaId: _qnaId,
+      request,
+    }: {
+      answerId: number;
+      qnaId: number;
+      request: LessonQnaAnswerUpdateRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.patch<{
+        content: LessonQnaAnswerUpdateResponse;
+      }>(`qna-answers/${answerId}`, request);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', variables.qnaId],
+      });
+    },
+  });
+};
+
+export const useDeleteLessonQnaAnswer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      answerId,
+      qnaId: _qnaId,
+    }: {
+      answerId: number;
+      qnaId: number;
+    }) => {
+      const { data } = await axiosInstanceV5.delete<{
+        content: LessonQnaAnswerDeleteResponse;
+      }>(`qna-answers/${answerId}`);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', variables.qnaId],
+      });
     },
   });
 };
@@ -642,6 +760,42 @@ export const useReportBuilderFeed = () => {
         content: { reportId: number };
       }>(`builder-feeds/${feedId}/report`, request);
       return data.content;
+    },
+  });
+};
+
+export const useDeleteBuilderFeed = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (feedId: number) => {
+      await axiosInstanceV5.delete(`builder-feeds/${feedId}`);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
+    },
+  });
+};
+
+export const useUpdateBuilderFeed = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      feedId,
+      request,
+    }: {
+      feedId: number;
+      request: BuilderFeedUpdateRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.patch<{
+        content: { feedId: number };
+      }>(`builder-feeds/${feedId}`, request);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['builderFeedDetail', variables.feedId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
     },
   });
 };

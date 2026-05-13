@@ -392,6 +392,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-150: 12px;
   --spacing-160: 13px;
   --spacing-175: 14px;
+  --spacing-188: 15px;
   --spacing-200: 16px;
   --spacing-225: 18px;
   --spacing-250: 20px;
@@ -414,21 +415,29 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-825: 66px;
   --spacing-800: 64px;
   --spacing-1000: 80px;
+  --spacing-1125: 90px;
+  --spacing-1200: 96px;
   --spacing-1250: 100px;
   --spacing-1375: 110px;
   --spacing-1400: 112px;
   --spacing-1625: 130px;
   --spacing-1650: 132px;
+  --spacing-1750: 140px;
   --spacing-2125: 170px;
+  --spacing-2250: 180px;
   --spacing-2325: 186px;
+  --spacing-2337: 187px;
   --spacing-2413: 193px;
   --spacing-2500: 200px;
   --spacing-2525: 202px;
   --spacing-6750: 540px;
+  --spacing-9250: 740px;
   --spacing-7125: 570px;
   --spacing-10500: 840px;
+  --spacing-3500: 280px;
   --spacing-3875: 310px;
   --spacing-3888: 311px;
+  --spacing-4500: 360px;
   --spacing-5000: 400px;
   --spacing-5250: 420px;
   --spacing-5600: 448px;
@@ -744,13 +753,6 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   letter-spacing: 0;
 }
 
-@utility font-designer-26r {
-  font-size: 26px;
-  font-weight: var(--font-weight-regular);
-  line-height: 39px;
-  letter-spacing: -0.494px;
-}
-
 @utility font-designer-26m {
   font-size: 26px;
   font-weight: var(--font-weight-medium);
@@ -901,6 +903,13 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 @utility font-designer-14m {
   font-size: 14px;
   font-weight: var(--font-weight-medium);
+  line-height: 22px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-14sb {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
   line-height: 22px;
   letter-spacing: 0;
 }

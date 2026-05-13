@@ -149,20 +149,49 @@ export interface CourseTossPaymentConfirmRequest {
 
 // ─── Course ───────────────────────────────────────────────────────────────────
 
+export interface CourseJourneyMapLessonResponse {
+  lessonId: number;
+  chapterId: number;
+  chapterNumber: number;
+  order: number;
+  title: string;
+  isFree: boolean;
+  estimatedMinutes: number;
+  status: LessonProgressStatus;
+  isAccessible: boolean;
+}
+
+export interface CourseJourneyMapChapterResponse {
+  chapterId: number;
+  order: number;
+  chapterNumber: number;
+  title: string;
+  lessons: CourseJourneyMapLessonResponse[];
+}
+
 export interface CourseJourneyMapResponse {
   courseId: number;
   courseTitle: string;
   viewerStatus: ViewerStatus;
+  totalLessons: number;
+  completedLessons: number;
+  progressRate: number;
+  isCourseCompleted: boolean;
+  learnerCount: number;
+  latestCompletedLesson: {
+    lessonId: number;
+    order: number;
+    title: string;
+  } | null;
+  nextAccessibleLesson: {
+    lessonId: number;
+    order: number;
+    title: string;
+    isFree: boolean;
+    isAccessible: boolean;
+  } | null;
+  chapters: CourseJourneyMapChapterResponse[];
   lessons: CourseJourneyMapLessonResponse[];
-}
-
-export interface CourseJourneyMapLessonResponse {
-  lessonId: number;
-  order: number;
-  title: string;
-  isFree: boolean;
-  status: LessonProgressStatus;
-  isAccessible: boolean;
 }
 
 export interface CourseProgressResponse {
@@ -204,6 +233,7 @@ export interface LessonDetailResponse {
 }
 
 export interface LessonRetrospectiveCreateRequest {
+  starRating?: number | null;
   highlightAnswer: string;
   unexpectedAnswer: string;
   artifactType: string | null;
@@ -221,7 +251,7 @@ export interface LessonRetrospectiveCreateResponse {
 
 export interface LessonRetrospectiveResponse {
   lessonId: number;
-  understandingScore: number;
+  starRating: number | null;
   content: string;
   artifactType: string | null;
   artifactValue: string | null;
@@ -290,29 +320,39 @@ export interface CourseDrawerResponse {
 
 // ─── Q&A ──────────────────────────────────────────────────────────────────────
 
-export interface LessonQnaListResponse {
-  myQnas: LessonQnaMyItem[];
-  qnas: LessonQnaItem[];
-  totalCount: number;
-}
+export type LessonQnaAnswerStatus = 'ANSWER_WAITING' | 'ANSWERED';
 
-export interface LessonQnaMyItem {
-  qnaId: number;
-  title: string;
-  answerCount: number;
-  createdAt: string;
+export interface LessonQnaItemAuthor {
+  memberId: number;
+  nickname: string;
+  role: string;
 }
 
 export interface LessonQnaItem {
   qnaId: number;
+  lessonId: number;
+  lessonTitle: string;
   title: string;
-  answerCount: number;
+  previewText: string;
+  answerStatus: LessonQnaAnswerStatus;
+  curiousCount: number;
+  usefulCount: number;
+  author: LessonQnaItemAuthor;
   createdAt: string;
+}
+
+export interface LessonQnaListResponse {
+  qnas: LessonQnaItem[];
+  totalCount: number;
 }
 
 export interface LessonQnaCreateRequest {
   lessonId: number;
-  title: string;
+  content: string;
+  imageKeys?: string[];
+}
+
+export interface LessonQnaUpdateRequest {
   content: string;
   imageKeys?: string[];
 }
@@ -321,6 +361,11 @@ export type LessonQnaReactionType = 'USEFUL' | 'CURIOUS';
 export type LessonQnaAnswerReactionType = 'HELPFUL' | 'NOT_HELPFUL';
 
 export interface LessonQnaAnswerCreateRequest {
+  content: string;
+  imageKeys?: string[];
+}
+
+export interface LessonQnaAnswerUpdateRequest {
   content: string;
   imageKeys?: string[];
 }
@@ -335,6 +380,36 @@ export interface LessonQnaAnswerReactionRequest {
 
 export interface LessonQnaReportRequest {
   reason: string;
+}
+
+export interface LessonQnaUpdateResponse {
+  qnaId: number;
+}
+
+export interface LessonQnaDeleteResponse {
+  isDeleted: boolean;
+}
+
+export interface LessonQnaAnswerUpdateResponse {
+  answerId: number;
+}
+
+export interface LessonQnaAnswerDeleteResponse {
+  isDeleted: boolean;
+}
+
+export interface LessonQnaQuestionReactionToggleResponse {
+  isActive: boolean;
+  reactionType: LessonQnaReactionType;
+  usefulCount: number;
+  curiousCount: number;
+}
+
+export interface LessonQnaAnswerReactionToggleResponse {
+  isActive: boolean;
+  reactionType: LessonQnaAnswerReactionType;
+  helpfulCount: number;
+  notHelpfulCount: number;
 }
 
 // ─── Q&A Detail ───────────────────────────────────────────────────────────────
@@ -451,6 +526,12 @@ export interface BuilderFeedCommentsResponse {
 export interface BuilderFeedCreateRequest {
   lessonId: number;
   content: string;
+  imageKeys?: string[];
+}
+
+export interface BuilderFeedUpdateRequest {
+  lessonId?: number;
+  content?: string;
   imageKeys?: string[];
 }
 

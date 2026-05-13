@@ -2,7 +2,9 @@
 
 import {
   Users,
-  Clock,
+  Flame,
+  History,
+  ThumbsUp,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
@@ -10,14 +12,16 @@ import {
   Heart,
   MessageSquare,
   Share2,
+  UserRound,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use, useMemo, useState } from 'react';
+import { Fragment, use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { BenefitScrollCharacter } from '@/components/pages/class/benefit-scroll-character';
+import { CurriculumLessonCard } from '@/components/pages/class/curriculum-lesson-card';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useCreateCourseFreeEnrollment,
@@ -163,6 +167,7 @@ export default function ClassDetailPage({
 
   const { data: allCourses } = useGetCourseList();
   const courseSummary = allCourses?.find((c) => c.slug === slug);
+
   const learningHomeHref =
     slug === 'vibe-intro' ? '/class/vibe-intro/home' : `/class/${slug}`;
   const chaptersForRoadmap = useMemo(() => {
@@ -175,6 +180,8 @@ export default function ClassDetailPage({
           order: lesson.order,
           title: lesson.title,
           lessonId: lesson.lessonId,
+          estimatedMinutes: lesson.estimatedMinutes,
+          isFree: lesson.isFree,
         })),
       }));
     }
@@ -184,6 +191,8 @@ export default function ClassDetailPage({
         order: index + 1,
         title,
         lessonId: undefined as number | undefined,
+        estimatedMinutes: 0,
+        isFree: false,
       })),
     }));
   }, [curriculum]);
@@ -274,7 +283,7 @@ export default function ClassDetailPage({
         </h1>
         <div className="mt-300 flex flex-wrap gap-400">
           <div className="flex items-center gap-75">
-            <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
+            <Flame className="h-300 w-300 shrink-0 text-text-subtlest" />
             <p className="font-designer-16m text-gray-800">
               <span className="font-designer-16b text-text-brand">
                 {courseSummary?.learnerCount ?? 0}
@@ -284,7 +293,7 @@ export default function ClassDetailPage({
           </div>
           {curriculum?.durationDays && (
             <div className="flex items-center gap-75">
-              <Clock className="h-300 w-300 shrink-0 text-text-subtlest" />
+              <History className="h-300 w-300 shrink-0 text-text-subtlest" />
               <p className="font-designer-16m text-gray-800">
                 평균 {curriculum.durationDays}일 소요
               </p>
@@ -501,32 +510,115 @@ export default function ClassDetailPage({
               </div>
             </section>
 
-            {/* Team intro */}
+            {/* SECTION: 강사진 */}
             <section>
               <h2 className="font-designer-24b text-gray-800">
                 가장 많이 좌절하시는 지점, 저희가 잘 알고 있어요.
               </h2>
-              <p className="mt-300 font-designer-14r text-gray-800">
+              <p className="mt-100 font-designer-14r text-gray-800">
                 학습은 같이 할 때 가장 즐겁습니다.
                 <br />
                 서로의 아이디어를 나누고 함께 성장하세요.
               </p>
-              <div className="mt-400 space-y-300">
-                {TEAM_MESSAGES.map((msg) => (
-                  <div
-                    key={msg.team}
-                    className="rounded-200 border border-rose-200 bg-background-default p-400 shadow-1"
-                  >
-                    <p className="font-designer-20b text-text-brand">
-                      {msg.heading}
-                    </p>
-                    <p className="mt-150 whitespace-pre-line font-designer-18r text-gray-800">
-                      {msg.body}
-                    </p>
-                    <p className="mt-200 text-right font-designer-18r text-gray-800">
-                      - {msg.team}
-                    </p>
-                  </div>
+              <div className="mt-500 flex flex-col">
+                {TEAM_MESSAGES.map((msg, i) => (
+                  <Fragment key={msg.team}>
+                    {/* Gap div between cards — contains vertical line + diagonal connector */}
+                    {i === 1 && (
+                      <div className="relative h-400 md:h-1375">
+                        <svg
+                          className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
+                          aria-hidden="true"
+                        >
+                          <line
+                            x1="11.5%"
+                            y1="0"
+                            x2="11.5%"
+                            y2="100%"
+                            stroke="#fecdd6"
+                            strokeWidth="1.5"
+                            strokeDasharray="6 4"
+                          />
+                          <line
+                            x1="45.8%"
+                            y1="0"
+                            x2="56%"
+                            y2="100%"
+                            stroke="#fecdd6"
+                            strokeWidth="1.5"
+                            strokeDasharray="6 4"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                    {i === 2 && (
+                      <div className="relative h-400 md:h-1375">
+                        <svg
+                          className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
+                          aria-hidden="true"
+                        >
+                          <line
+                            x1="11.5%"
+                            y1="0"
+                            x2="11.5%"
+                            y2="100%"
+                            stroke="#fecdd6"
+                            strokeWidth="1.5"
+                            strokeDasharray="6 4"
+                          />
+                          <line
+                            x1="67.3%"
+                            y1="0"
+                            x2="57%"
+                            y2="100%"
+                            stroke="#fecdd6"
+                            strokeWidth="1.5"
+                            strokeDasharray="6 4"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                    {/* Card wrapper — card 2 needs relative wrapper for vertical line in left margin */}
+                    <div className={i === 1 ? 'relative' : undefined}>
+                      {i === 1 && (
+                        <svg
+                          className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
+                          aria-hidden="true"
+                        >
+                          <line
+                            x1="11.5%"
+                            y1="0"
+                            x2="11.5%"
+                            y2="100%"
+                            stroke="#fecdd6"
+                            strokeWidth="1.5"
+                            strokeDasharray="6 4"
+                          />
+                        </svg>
+                      )}
+                      <div
+                        className={cn(
+                          'rounded-200 border border-rose-200 bg-gray-0 p-500 shadow-[0_4px_17px_3px_#f9e9ed]',
+                          i === 1 && 'md:ml-[25%]',
+                        )}
+                      >
+                        <p className="font-designer-20b text-text-brand">
+                          {msg.heading}
+                        </p>
+                        <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-800">
+                          {msg.body}
+                        </p>
+                        <div className="mt-300 flex items-end justify-end gap-200">
+                          <p className="font-designer-16r text-gray-800">
+                            - {msg.team}
+                          </p>
+                          <div className="flex size-750 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                            <UserRound className="size-400 text-gray-400" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Fragment>
                 ))}
               </div>
             </section>
@@ -575,26 +667,15 @@ export default function ClassDetailPage({
                       </button>
                     </div>
                     {expandedChapters.has(i) && chapter.lessons.length > 0 && (
-                      <div>
+                      <div className="flex flex-col gap-250 border-t border-border-default bg-background-default p-250">
                         {chapter.lessons.map((lesson) => (
-                          <div
+                          <CurriculumLessonCard
                             key={`${chapter.num}-${lesson.order}`}
-                            className="flex flex-col justify-center gap-75 border-t border-border-default bg-background-default px-250 py-200"
-                          >
-                            <div className="flex gap-125">
-                              <span className="shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
-                                온보딩
-                              </span>
-                              <p className="font-designer-16r text-gray-800">
-                                Lesson {String(lesson.order).padStart(2, '0')}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-designer-18b text-gray-800">
-                                {lesson.title}
-                              </p>
-                            </div>
-                          </div>
+                            order={lesson.order}
+                            title={lesson.title}
+                            estimatedMinutes={lesson.estimatedMinutes ?? 0}
+                            isFree={lesson.isFree}
+                          />
                         ))}
                       </div>
                     )}
@@ -750,49 +831,6 @@ export default function ClassDetailPage({
               </div>
             </section>
 
-            {/* SECTION: 강사진 */}
-            {courseDetail?.instructors &&
-              courseDetail.instructors.length > 0 && (
-                <section>
-                  <h2 className="font-designer-24b text-gray-800">
-                    강사진 소개
-                  </h2>
-                  <div className="mt-400 space-y-300">
-                    {courseDetail.instructors.map((instructor) => (
-                      <div
-                        key={instructor.name}
-                        className="flex items-start gap-300 rounded-200 border border-border-default bg-gray-100 p-350"
-                      >
-                        {instructor.profileImageUrl && (
-                          <Image
-                            src={instructor.profileImageUrl}
-                            alt={instructor.name}
-                            width={64}
-                            height={64}
-                            className="shrink-0 rounded-full object-cover"
-                          />
-                        )}
-                        <div>
-                          <p className="font-designer-20b text-gray-800">
-                            {instructor.name}
-                          </p>
-                          {instructor.role && (
-                            <p className="mt-75 font-designer-16m text-text-brand">
-                              {instructor.role}
-                            </p>
-                          )}
-                          {instructor.bio && (
-                            <p className="mt-150 font-designer-16r text-gray-800">
-                              {instructor.bio}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
             {/* SECTION: FAQ */}
             <section id="faq">
               <h2 className="font-designer-24b text-gray-800">
@@ -847,7 +885,17 @@ export default function ClassDetailPage({
           <div className="sticky top-550">
             <div className="overflow-hidden rounded-150 border border-border-subtle">
               <div className="p-300">
-                <h3 className="font-designer-28b text-gray-800">
+                {courseDetail?.earlyBirdEndsAt && (
+                  <span className="inline-block rounded-50 bg-background-brand-default px-75 py-25 font-designer-12r text-text-inverse">
+                    얼리버드 특가
+                  </span>
+                )}
+                <h3
+                  className={cn(
+                    'font-designer-28b text-gray-800',
+                    courseDetail?.earlyBirdEndsAt && 'mt-75',
+                  )}
+                >
                   {courseDetail?.title ?? '바이브 코딩 입문자 코스'}
                 </h3>
                 <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-800">
@@ -868,7 +916,34 @@ export default function ClassDetailPage({
                   + 실습 가이드
                 </p>
 
-                {courseSummary?.discountPrice && (
+                {courseDetail?.plans && courseDetail.plans.length > 0 ? (
+                  <div className="mt-300">
+                    <p className="font-designer-14b text-gray-800">
+                      무료 온보딩 이후 코스 금액가
+                    </p>
+                    {courseDetail.plans.map((plan, idx) => (
+                      <Fragment key={plan.planCode}>
+                        {idx > 0 && (
+                          <hr className="my-300 border-border-subtle" />
+                        )}
+                        <p className="mt-75 font-designer-14sb text-gray-800">
+                          {plan.name}
+                        </p>
+                        <div className="flex items-center gap-50">
+                          <p className="font-designer-16r text-gray-500">
+                            정가
+                          </p>
+                          <p className="font-designer-16r text-gray-500 line-through">
+                            {plan.regularPrice.toLocaleString()}원
+                          </p>
+                        </div>
+                        <p className="mt-75 font-designer-30b text-gray-800">
+                          {plan.discountPrice.toLocaleString()}원
+                        </p>
+                      </Fragment>
+                    ))}
+                  </div>
+                ) : courseSummary?.discountPrice ? (
                   <div className="mt-300">
                     <p className="font-designer-14b text-gray-800">
                       무료 온보딩 이후 코스 금액가
@@ -882,16 +957,26 @@ export default function ClassDetailPage({
                       </p>
                     )}
                   </div>
-                )}
+                ) : null}
 
                 <div className="mt-300 flex items-center gap-50">
-                  <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
+                  <svg
+                    viewBox="0 0 20.3025 20.3025"
+                    className="size-300 shrink-0 text-gray-800"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M20.01 2.3525L18.6 1.7025L17.95 0.2925C17.77 -0.0975 17.22 -0.0975 17.04 0.2925L16.4 1.7025L14.99 2.3525C14.6 2.5325 14.6 3.0825 14.99 3.2625L16.4 3.9025L17.05 5.3125C17.23 5.7025 17.78 5.7025 17.96 5.3125L18.6 3.9025L20.01 3.2525C20.4 3.0825 20.4 2.5225 20.01 2.3525Z" />
+                    <path d="M7 12.5525C7.69036 12.5525 8.25 11.9929 8.25 11.3025C8.25 10.6121 7.69036 10.0525 7 10.0525C6.30964 10.0525 5.75 10.6121 5.75 11.3025C5.75 11.9929 6.30964 12.5525 7 12.5525Z" />
+                    <path d="M13 12.5525C13.6904 12.5525 14.25 11.9929 14.25 11.3025C14.25 10.6121 13.6904 10.0525 13 10.0525C12.3096 10.0525 11.75 10.6121 11.75 11.3025C11.75 11.9929 12.3096 12.5525 13 12.5525Z" />
+                    <path d="M17.5 7.1025C16.72 7.1025 16.01 6.6425 15.68 5.9325L15.27 5.0325L14.37 4.6225C13.66 4.2925 13.2 3.5825 13.2 2.8025C13.2 2.1425 13.54 1.5425 14.07 1.1725C12.83 0.6225 11.45 0.3025 10 0.3025C4.48 0.3025 0 4.7825 0 10.3025C0 15.8225 4.48 20.3025 10 20.3025C15.52 20.3025 20 15.8225 20 10.3025C20 8.8525 19.68 7.4725 19.13 6.2325C18.76 6.7625 18.16 7.1025 17.5 7.1025ZM10 18.3025C5.59 18.3025 2 14.7125 2 10.3025C2 10.2525 2.01 10.2025 2 10.1625C4.6 9.1825 6.69 7.1725 7.74 4.6125C9.58 6.8625 12.37 8.3025 15.5 8.3025C16.25 8.3025 16.97 8.2125 17.67 8.0625C17.88 8.7725 18 9.5225 18 10.3025C18 14.7125 14.41 18.3025 10 18.3025Z" />
+                  </svg>
                   <p className="font-designer-14m text-gray-800">
                     지금{' '}
                     <span className="text-text-brand">
-                      {courseSummary?.learnerCount}
+                      {courseDetail?.exploringCount ?? 0}
                     </span>
-                    명이 이 코스를 들었어요!
+                    명이 이 코스를 탐색하고 있어요!
                   </p>
                 </div>
 
@@ -899,7 +984,7 @@ export default function ClassDetailPage({
                   <button
                     type="button"
                     onClick={handleShare}
-                    className="h-700 w-full rounded-100 border border-border-brand bg-rose-50 font-designer-14m text-text-brand"
+                    className="h-550 w-full rounded-100 border border-border-brand bg-rose-50 font-designer-14m text-text-brand"
                   >
                     공유하기
                   </button>
@@ -908,7 +993,7 @@ export default function ClassDetailPage({
                       type="button"
                       onClick={handleStartCourse}
                       disabled={createCourseFreeEnrollment.isPending}
-                      className="flex h-700 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                      className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
                     >
                       {createCourseFreeEnrollment.isPending
                         ? '등록 중...'
@@ -919,7 +1004,7 @@ export default function ClassDetailPage({
                       openTrigger={
                         <button
                           type="button"
-                          className="flex h-700 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                          className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
                         >
                           무료 코스 시작하기
                         </button>

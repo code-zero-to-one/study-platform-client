@@ -2,22 +2,18 @@
 
 import { Heart, MessageCircle, X } from 'lucide-react';
 import Image from 'next/image';
+import {
+  AuthorAvatar,
+  BuilderBadge,
+  formatRelativeTime,
+  ROLE_LABELS,
+} from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
+import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import { useGetBuilderFeedDetail } from '@/hooks/queries/course/course-api';
 
 interface Props {
   feedId: number | null;
   onClose: () => void;
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr)
-    .toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-    .replace(/\. /g, '.')
-    .replace(/\.$/, '');
 }
 
 export function LessonBuilderFeedDetailModal({ feedId, onClose }: Props) {
@@ -58,24 +54,28 @@ export function LessonBuilderFeedDetailModal({ feedId, onClose }: Props) {
               {/* Author row */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-150">
-                  <div className="flex h-400 w-400 shrink-0 items-center justify-center rounded-full bg-gray-200">
-                    <p className="font-designer-14b text-gray-600">
-                      {feed.author.nickname.charAt(0)}
-                    </p>
+                  <AuthorAvatar nickname={feed.author.nickname} />
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-50">
+                      <p className="font-designer-14b text-gray-800">
+                        {feed.author.nickname}
+                      </p>
+                      {feed.author.role === 'BUILDER' && <BuilderBadge />}
+                    </div>
+                    {ROLE_LABELS[feed.author.role] && (
+                      <p className="font-designer-12m text-gray-400">
+                        {ROLE_LABELS[feed.author.role]}
+                      </p>
+                    )}
                   </div>
-                  <p className="font-designer-14b text-gray-800">
-                    {feed.author.nickname}
-                  </p>
                 </div>
                 <p className="font-designer-13m text-gray-400">
-                  {formatDate(feed.createdAt)}
+                  {formatRelativeTime(feed.createdAt)}
                 </p>
               </div>
 
               {/* Content */}
-              <p className="whitespace-pre-wrap font-designer-16r leading-relaxed text-gray-800">
-                {feed.content}
-              </p>
+              <MarkdownContentCore content={feed.content} />
 
               {/* Images */}
               {feed.imageUrls.length > 0 && (
