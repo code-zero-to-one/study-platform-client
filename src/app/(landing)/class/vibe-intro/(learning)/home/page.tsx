@@ -648,7 +648,12 @@ export default function JourneyMapPage() {
                 key={chapter.order}
                 className="flex w-full flex-col items-center"
               >
-                <div className="relative z-10 mt-400 w-full">
+                <div
+                  className={cn(
+                    'relative z-10 w-full',
+                    index === 0 ? 'mt-400' : 'mt-1125',
+                  )}
+                >
                   <ChapterHeader
                     chapterNumber={chapter.chapterNumber}
                     title={chapter.title}
@@ -660,11 +665,7 @@ export default function JourneyMapPage() {
                     <div
                       className={cn(
                         'relative flex items-center justify-center',
-                        index === 0 && ri === 0
-                          ? 'mt-800'
-                          : ri === 0
-                            ? 'mt-300'
-                            : '',
+                        ri === 0 ? 'mt-800' : '',
                       )}
                     >
                       {index === 0 && ri === 0 && (
@@ -756,8 +757,9 @@ export default function JourneyMapPage() {
                               alt=""
                               aria-hidden="true"
                               width={906}
-                              height={343}
+                              height={388}
                               className={cn(
+                                '!max-w-none',
                                 rows.length % 2 === 0 && '-scale-x-100',
                               )}
                             />
