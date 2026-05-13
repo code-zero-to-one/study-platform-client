@@ -269,7 +269,7 @@ export interface CourseCurriculumLessonResponse {
   title: string;
   description: string | null;
   isFree: boolean;
-  locked: boolean;
+  isLocked: boolean;
   estimatedMinutes: number;
 }
 
@@ -308,7 +308,7 @@ export interface CourseDrawerChapterResponse {
   order: number;
   title: string;
   description: string | null;
-  defaultExpanded: boolean;
+  isDefaultExpanded: boolean;
   lessons: CourseDrawerLessonResponse[];
 }
 
@@ -481,14 +481,22 @@ export interface BuilderFeedWeeklyTopBuilder {
   highlight: string | null;
 }
 
+export interface BuilderFeedPaywall {
+  previewLimit: number | null;
+  title: string;
+  description: string;
+  ctaLabel: string;
+}
+
 export interface BuilderFeedListResponse {
   courseId: number | null;
   courseTitle: string | null;
-  totalCountLabel: string | null;
+  feedCountLabel: string | null;
   weeklyTopBuilder: BuilderFeedWeeklyTopBuilder | null;
   feeds: BuilderFeedListItemResponse[];
   totalCount: number;
   hasNext: boolean;
+  paywall: BuilderFeedPaywall | null;
 }
 
 export interface BuilderFeedDetailResponse {
@@ -526,12 +534,6 @@ export interface BuilderFeedCommentsResponse {
 export interface BuilderFeedCreateRequest {
   lessonId: number;
   content: string;
-  imageKeys?: string[];
-}
-
-export interface BuilderFeedUpdateRequest {
-  lessonId?: number;
-  content?: string;
   imageKeys?: string[];
 }
 

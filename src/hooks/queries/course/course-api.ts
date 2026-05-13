@@ -4,7 +4,6 @@ import type {
   BuilderFeedCommentCreateRequest,
   BuilderFeedCommentsResponse,
   BuilderFeedCreateRequest,
-  BuilderFeedUpdateRequest,
   BuilderFeedDetailResponse,
   BuilderFeedListResponse,
   BuilderFeedPreviewResponse,
@@ -760,42 +759,6 @@ export const useReportBuilderFeed = () => {
         content: { reportId: number };
       }>(`builder-feeds/${feedId}/report`, request);
       return data.content;
-    },
-  });
-};
-
-export const useDeleteBuilderFeed = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (feedId: number) => {
-      await axiosInstanceV5.delete(`builder-feeds/${feedId}`);
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
-    },
-  });
-};
-
-export const useUpdateBuilderFeed = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      feedId,
-      request,
-    }: {
-      feedId: number;
-      request: BuilderFeedUpdateRequest;
-    }) => {
-      const { data } = await axiosInstanceV5.patch<{
-        content: { feedId: number };
-      }>(`builder-feeds/${feedId}`, request);
-      return data.content;
-    },
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: ['builderFeedDetail', variables.feedId],
-      });
-      await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
     },
   });
 };
