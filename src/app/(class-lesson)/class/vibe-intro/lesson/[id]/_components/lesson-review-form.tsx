@@ -4,6 +4,7 @@ import { Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
+import { RatingBox } from './lesson-rating-box';
 
 export const POSITIVE_CHIPS = [
   '설명이 이해하기 쉬웠어요',
@@ -17,6 +18,8 @@ export const NEGATIVE_CHIPS = [
 ];
 
 interface Props {
+  starRating: number;
+  onStarRatingChange: (v: number) => void;
   highlightAnswer: string;
   unexpectedAnswer: string;
   selectedChips: Set<string>;
@@ -88,6 +91,8 @@ function SectionTitle({ bold, suffix }: { bold: string; suffix: string }) {
 }
 
 export function LessonReviewForm({
+  starRating,
+  onStarRatingChange,
   highlightAnswer,
   unexpectedAnswer,
   selectedChips,
@@ -114,6 +119,21 @@ export function LessonReviewForm({
           오늘 만든 결과물과 배운점을 가볍게 적어주세요. 기록을 제출하면 다음
           레슨이 자동으로 열려요.
         </p>
+      </div>
+
+      {/* Star Rating */}
+      <div className="flex flex-col gap-350">
+        <div className="flex flex-col gap-125">
+          <div className="flex items-start gap-30 font-designer-24m text-gray-800">
+            <span>Q.</span>
+            <span className="text-text-brand">*</span>
+            <span>오늘 코딩 바이브 내용이 얼마나 이해가 되었나요?</span>
+          </div>
+          <p className="font-designer-16r text-gray-800">
+            별점을 선택해 오늘 레슨 내용 이해도를 알려주세요.
+          </p>
+        </div>
+        <RatingBox rating={starRating} onChange={onStarRatingChange} />
       </div>
 
       {/* Q1 — highlight */}

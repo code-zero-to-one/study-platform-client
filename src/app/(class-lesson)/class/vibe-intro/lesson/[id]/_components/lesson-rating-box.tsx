@@ -23,7 +23,7 @@ export function RatingBox({ rating, onChange }: Props) {
 
   return (
     <div className="flex h-[120px] w-full flex-col items-center justify-center gap-100 rounded-200 border border-gray-300 bg-background-default">
-      <div className="flex items-center justify-center gap-75">
+      <div className="flex items-center justify-center gap-200">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
@@ -48,7 +48,7 @@ export function RatingBox({ rating, onChange }: Props) {
           </button>
         ))}
       </div>
-      <p className="text-center font-designer-14sb text-gray-400">
+      <p className="text-center font-designer-14sb text-gray-400 mt-200">
         {HINTS[display]}
       </p>
     </div>
