@@ -24,13 +24,19 @@ import type {
   CourseSummaryResponse,
   LessonDetailResponse,
   LessonQnaAnswerCreateRequest,
+  LessonQnaAnswerDeleteResponse,
   LessonQnaAnswerReactionRequest,
+  LessonQnaAnswerUpdateRequest,
+  LessonQnaAnswerUpdateResponse,
   LessonQnaCreateRequest,
+  LessonQnaDeleteResponse,
   LessonQnaDetailResponse,
   LessonQnaListResponse,
   LessonQnaReactionRequest,
   LessonQnaReportRequest,
   LessonQnaSidebarResponse,
+  LessonQnaUpdateRequest,
+  LessonQnaUpdateResponse,
   LessonRetrospectiveCreateRequest,
   LessonRetrospectiveCreateResponse,
   LessonRetrospectiveResponse,
@@ -494,6 +500,92 @@ export const useReportLessonQna = () => {
         content: unknown;
       }>(`qnas/${qnaId}/report`, request);
       return data.content;
+    },
+  });
+};
+
+export const useUpdateLessonQna = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      qnaId,
+      request,
+    }: {
+      qnaId: number;
+      request: LessonQnaUpdateRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.patch<{
+        content: LessonQnaUpdateResponse;
+      }>(`qnas/${qnaId}`, request);
+      return data.content;
+    },
+    onSuccess: async (_, { qnaId }) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', qnaId],
+      });
+    },
+  });
+};
+
+export const useDeleteLessonQna = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ qnaId }: { qnaId: number }) => {
+      const { data } = await axiosInstanceV5.delete<{
+        content: LessonQnaDeleteResponse;
+      }>(`qnas/${qnaId}`);
+      return data.content;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['courseQnas'] });
+    },
+  });
+};
+
+export const useUpdateLessonQnaAnswer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      answerId,
+      qnaId: _qnaId,
+      request,
+    }: {
+      answerId: number;
+      qnaId: number;
+      request: LessonQnaAnswerUpdateRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.patch<{
+        content: LessonQnaAnswerUpdateResponse;
+      }>(`qna-answers/${answerId}`, request);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', variables.qnaId],
+      });
+    },
+  });
+};
+
+export const useDeleteLessonQnaAnswer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      answerId,
+      qnaId: _qnaId,
+    }: {
+      answerId: number;
+      qnaId: number;
+    }) => {
+      const { data } = await axiosInstanceV5.delete<{
+        content: LessonQnaAnswerDeleteResponse;
+      }>(`qna-answers/${answerId}`);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['lessonQnaDetail', variables.qnaId],
+      });
     },
   });
 };
