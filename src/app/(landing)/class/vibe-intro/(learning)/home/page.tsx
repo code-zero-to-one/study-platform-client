@@ -757,6 +757,9 @@ export default function JourneyMapPage() {
                               aria-hidden="true"
                               width={906}
                               height={388}
+                              className={cn(
+                                rows.length % 2 === 0 && '-scale-x-100',
+                              )}
                             />
                           </div>
                         )}

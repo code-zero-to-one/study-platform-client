@@ -235,13 +235,15 @@ export function LessonReviewForm({
             : 'bg-background-brand-default hover:opacity-90',
         )}
       >
-        <Image
-          src="/class/vibe-intro/lesson-lock.svg"
-          alt=""
-          aria-hidden="true"
-          width={24}
-          height={24}
-        />
+        {submitDisabled && (
+          <Image
+            src="/class/vibe-intro/lesson-lock.svg"
+            alt=""
+            aria-hidden="true"
+            width={24}
+            height={24}
+          />
+        )}
         {alreadySubmitted
           ? '이미 제출했어요'
           : submitting
