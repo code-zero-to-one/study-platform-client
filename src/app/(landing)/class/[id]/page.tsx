@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { Fragment, use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { BenefitScrollCharacter } from '@/components/pages/class/benefit-scroll-character';
+import { CurriculumLessonCard } from '@/components/pages/class/curriculum-lesson-card';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useCreateCourseFreeEnrollment,
@@ -176,6 +177,8 @@ export default function ClassDetailPage({
           order: lesson.order,
           title: lesson.title,
           lessonId: lesson.lessonId,
+          estimatedMinutes: lesson.estimatedMinutes,
+          isFree: lesson.isFree,
         })),
       }));
     }
@@ -185,6 +188,8 @@ export default function ClassDetailPage({
         order: index + 1,
         title,
         lessonId: undefined as number | undefined,
+        estimatedMinutes: 0,
+        isFree: false,
       })),
     }));
   }, [curriculum]);
@@ -659,26 +664,15 @@ export default function ClassDetailPage({
                       </button>
                     </div>
                     {expandedChapters.has(i) && chapter.lessons.length > 0 && (
-                      <div>
+                      <div className="flex flex-col gap-250 border-t border-border-default bg-background-default p-250">
                         {chapter.lessons.map((lesson) => (
-                          <div
+                          <CurriculumLessonCard
                             key={`${chapter.num}-${lesson.order}`}
-                            className="flex flex-col justify-center gap-75 border-t border-border-default bg-background-default px-250 py-200"
-                          >
-                            <div className="flex gap-125">
-                              <span className="shrink-0 rounded-50 bg-rose-400 px-125 py-25 font-designer-16m text-text-inverse">
-                                온보딩
-                              </span>
-                              <p className="font-designer-16r text-gray-800">
-                                Lesson {String(lesson.order).padStart(2, '0')}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-designer-18b text-gray-800">
-                                {lesson.title}
-                              </p>
-                            </div>
-                          </div>
+                            order={lesson.order}
+                            title={lesson.title}
+                            estimatedMinutes={lesson.estimatedMinutes ?? 0}
+                            isFree={lesson.isFree}
+                          />
                         ))}
                       </div>
                     )}
