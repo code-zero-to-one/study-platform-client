@@ -342,7 +342,11 @@ export interface LessonQnaItem {
 
 export interface LessonQnaCreateRequest {
   lessonId: number;
-  title: string;
+  content: string;
+  imageKeys?: string[];
+}
+
+export interface LessonQnaUpdateRequest {
   content: string;
   imageKeys?: string[];
 }
@@ -351,6 +355,11 @@ export type LessonQnaReactionType = 'USEFUL' | 'CURIOUS';
 export type LessonQnaAnswerReactionType = 'HELPFUL' | 'NOT_HELPFUL';
 
 export interface LessonQnaAnswerCreateRequest {
+  content: string;
+  imageKeys?: string[];
+}
+
+export interface LessonQnaAnswerUpdateRequest {
   content: string;
   imageKeys?: string[];
 }
@@ -365,6 +374,36 @@ export interface LessonQnaAnswerReactionRequest {
 
 export interface LessonQnaReportRequest {
   reason: string;
+}
+
+export interface LessonQnaUpdateResponse {
+  qnaId: number;
+}
+
+export interface LessonQnaDeleteResponse {
+  isDeleted: boolean;
+}
+
+export interface LessonQnaAnswerUpdateResponse {
+  answerId: number;
+}
+
+export interface LessonQnaAnswerDeleteResponse {
+  isDeleted: boolean;
+}
+
+export interface LessonQnaQuestionReactionToggleResponse {
+  isActive: boolean;
+  reactionType: LessonQnaReactionType;
+  usefulCount: number;
+  curiousCount: number;
+}
+
+export interface LessonQnaAnswerReactionToggleResponse {
+  isActive: boolean;
+  reactionType: LessonQnaAnswerReactionType;
+  helpfulCount: number;
+  notHelpfulCount: number;
 }
 
 // ─── Q&A Detail ───────────────────────────────────────────────────────────────
