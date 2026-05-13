@@ -2,7 +2,9 @@
 
 import {
   Users,
-  Clock,
+  Flame,
+  History,
+  ThumbsUp,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
@@ -165,6 +167,7 @@ export default function ClassDetailPage({
 
   const { data: allCourses } = useGetCourseList();
   const courseSummary = allCourses?.find((c) => c.slug === slug);
+
   const learningHomeHref =
     slug === 'vibe-intro' ? '/class/vibe-intro/home' : `/class/${slug}`;
   const chaptersForRoadmap = useMemo(() => {
@@ -280,7 +283,7 @@ export default function ClassDetailPage({
         </h1>
         <div className="mt-300 flex flex-wrap gap-400">
           <div className="flex items-center gap-75">
-            <Users className="h-300 w-300 shrink-0 text-text-subtlest" />
+            <Flame className="h-300 w-300 shrink-0 text-text-subtlest" />
             <p className="font-designer-16m text-gray-800">
               <span className="font-designer-16b text-text-brand">
                 {courseSummary?.learnerCount ?? 0}
@@ -290,7 +293,7 @@ export default function ClassDetailPage({
           </div>
           {curriculum?.durationDays && (
             <div className="flex items-center gap-75">
-              <Clock className="h-300 w-300 shrink-0 text-text-subtlest" />
+              <History className="h-300 w-300 shrink-0 text-text-subtlest" />
               <p className="font-designer-16m text-gray-800">
                 평균 {curriculum.durationDays}일 소요
               </p>
