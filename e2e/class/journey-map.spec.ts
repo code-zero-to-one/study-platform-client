@@ -13,6 +13,7 @@ const COURSE_ID = 1;
 const LESSON_FREE_ID = 101;
 const LESSON_LOCKED_ID = 102;
 const LESSON_OPTION_ID = 103;
+const LESSON_UNLOCKED_ID = 104;
 const LESSON_FREE_TITLE = '기초 세팅';
 const LESSON_OPTION_TITLE = 'Option 보너스';
 const PAGE_PATH = '/class/vibe-intro/home';
@@ -125,6 +126,56 @@ function makeCurriculum(): { content: CourseCurriculumResponse } {
               title: LESSON_OPTION_TITLE,
               description: null,
               isFree: true,
+              locked: false,
+              estimatedMinutes: 18,
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
+
+function makeCurriculumWithBadges(): { content: CourseCurriculumResponse } {
+  return {
+    content: {
+      courseId: COURSE_ID,
+      durationDays: 30,
+      totalChapters: 1,
+      totalLessons: 3,
+      chapters: [
+        {
+          chapterId: 10,
+          order: 1,
+          chapterNumber: 1,
+          title: '시작하기',
+          description: null,
+          estimatedMinutes: 54,
+          lessons: [
+            {
+              lessonId: LESSON_FREE_ID,
+              order: 1,
+              title: LESSON_FREE_TITLE,
+              description: null,
+              isFree: true,
+              locked: false,
+              estimatedMinutes: 18,
+            },
+            {
+              lessonId: LESSON_LOCKED_ID,
+              order: 2,
+              title: '심화 레슨',
+              description: null,
+              isFree: false,
+              locked: true,
+              estimatedMinutes: 18,
+            },
+            {
+              lessonId: LESSON_UNLOCKED_ID,
+              order: 3,
+              title: '결제 완료 레슨',
+              description: null,
+              isFree: false,
               locked: false,
               estimatedMinutes: 18,
             },
@@ -486,6 +537,77 @@ test.describe('시작하기 내비게이션 @auth', () => {
     await page.getByRole('button', { name: '시작하기' }).click();
     await page.waitForURL(`**/class/vibe-intro/lesson/${LESSON_FREE_ID}`);
     expect(page.url()).toContain(`/class/vibe-intro/lesson/${LESSON_FREE_ID}`);
+  });
+});
+
+// ─── Chunk 4: 커리큘럼 레슨 카드 배지 렌더링 ──────────────────────────────────
+
+test.describe('커리큘럼 레슨 카드 배지 렌더링 @auth', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route(/\/courses\//, async (route) => {
+      const url = route.request().url();
+      if (url.includes('/courses/vibe-intro/curriculum')) {
+        await route.fulfill({ json: makeCurriculumWithBadges() });
+      } else if (/\/courses\/\d+\/journey-map/.test(url)) {
+        await route.fulfill({
+          json: makeJourneyMap([
+            {
+              lessonId: LESSON_FREE_ID,
+              order: 1,
+              title: LESSON_FREE_TITLE,
+              isFree: true,
+              status: 'IN_PROGRESS',
+              isAccessible: true,
+            },
+            {
+              lessonId: LESSON_LOCKED_ID,
+              order: 2,
+              title: '심화 레슨',
+              isFree: false,
+              status: 'LOCKED',
+              isAccessible: false,
+            },
+            {
+              lessonId: LESSON_UNLOCKED_ID,
+              order: 3,
+              title: '결제 완료 레슨',
+              isFree: false,
+              status: 'IN_PROGRESS',
+              isAccessible: true,
+            },
+          ]),
+        });
+      } else if (/\/courses\/\d+\/progress/.test(url)) {
+        await route.fulfill({ json: makeProgress(0) });
+      } else if (url.includes('/courses/vibe-intro')) {
+        await route.fulfill({ json: makeCourseDetail() });
+      } else {
+        await route.continue();
+      }
+    });
+    await gotoAndWaitForData(page);
+  });
+
+  test('isFree=true → 무료 배지 표시', async ({ page }) => {
+    await expect(page.getByText('무료').first()).toBeVisible();
+  });
+
+  test('isFree=false, isAccessible=false → 잠금 배지 표시', async ({
+    page,
+  }) => {
+    await expect(page.getByRole('img', { name: '잠금' })).toBeVisible();
+  });
+
+  test('isFree=false, isAccessible=true → 잠금 해제 배지 표시', async ({
+    page,
+  }) => {
+    await expect(page.getByRole('img', { name: '잠금 해제' })).toBeVisible();
+  });
+
+  test('세 배지 동시 렌더링 — 상호 배타적', async ({ page }) => {
+    await expect(page.getByText('무료').first()).toBeVisible();
+    await expect(page.getByRole('img', { name: '잠금' })).toBeVisible();
+    await expect(page.getByRole('img', { name: '잠금 해제' })).toBeVisible();
   });
 });
 

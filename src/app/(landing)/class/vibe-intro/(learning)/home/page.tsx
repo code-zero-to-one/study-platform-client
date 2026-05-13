@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, Lock, Timer, Users } from 'lucide-react';
+import { BookOpen, Lock, LockOpen, Timer, Users } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -614,7 +614,7 @@ export default function JourneyMapPage() {
               completedLessons > 0 &&
               completedLessons < (course.freeLessonCount ?? 0))) ? (
           <div className="mt-300 flex items-center gap-300 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
-            <div className="flex shrink-0 flex-col items-center justify-center rounded-100 bg-background-brand-default px-150 py-75 text-white">
+            <div className="flex shrink-0 flex-col items-center justify-center rounded-100 bg-background-brand-default px-150 py-75 text-gray-0">
               <span className="font-designer-12b">Lesson</span>
               <span className="font-designer-12b">
                 {String(nextAccessibleLesson.order).padStart(2, '0')}
@@ -825,7 +825,7 @@ export default function JourneyMapPage() {
                   type="button"
                   disabled={!progress?.isCourseCompleted}
                   className={cn(
-                    'flex h-550 w-1250 items-center justify-center rounded-100 font-designer-20b text-white',
+                    'flex h-550 w-1250 items-center justify-center rounded-100 font-designer-20b text-gray-0',
                     progress?.isCourseCompleted
                       ? 'bg-background-brand-default'
                       : 'cursor-not-allowed bg-gray-300',
@@ -882,10 +882,28 @@ export default function JourneyMapPage() {
                           >
                             {l.title}
                           </p>
-                          <div className="flex items-center gap-150">
+                          <div className="flex items-center gap-75">
                             {l.isFree && (
-                              <span className="rounded-50 bg-rose-100 px-150 py-25 font-designer-12b text-text-brand">
+                              <span className="flex h-250 w-525 items-center justify-center rounded-50 bg-rose-400 font-designer-12r text-gray-0">
                                 무료
+                              </span>
+                            )}
+                            {!l.isFree && !isAccessible && (
+                              <span
+                                role="img"
+                                aria-label="잠금"
+                                className="flex h-250 w-525 items-center justify-center rounded-50 bg-gray-400"
+                              >
+                                <Lock className="size-200 text-gray-0" />
+                              </span>
+                            )}
+                            {!l.isFree && isAccessible && (
+                              <span
+                                role="img"
+                                aria-label="잠금 해제"
+                                className="flex h-250 w-525 items-center justify-center rounded-50 border border-gray-300 bg-gray-0"
+                              >
+                                <LockOpen className="size-200 text-gray-400" />
                               </span>
                             )}
                           </div>
