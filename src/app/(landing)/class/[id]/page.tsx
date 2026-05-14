@@ -336,7 +336,8 @@ export default function ClassDetailPage({
               명이 함께 배우고 있어요!
             </p>
           </div>
-          {courseDetail?.completionCount !== null ? (
+          {courseDetail !== undefined &&
+          courseDetail.completionCount !== null ? (
             <div className="flex items-center gap-75">
               <ThumbsUp className="h-300 w-300 shrink-0 text-text-subtlest" />
               <p className="font-designer-16m text-gray-800">
@@ -347,7 +348,7 @@ export default function ClassDetailPage({
               </p>
             </div>
           ) : null}
-          {courseDetail?.durationDays !== null ? (
+          {courseDetail !== undefined && courseDetail.durationDays !== null ? (
             <div className="flex items-center gap-75">
               <History className="h-300 w-300 shrink-0 text-text-subtlest" />
               <p className="font-designer-16m text-gray-800">

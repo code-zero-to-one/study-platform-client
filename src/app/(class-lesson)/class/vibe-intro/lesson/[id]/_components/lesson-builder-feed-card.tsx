@@ -75,7 +75,12 @@ export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
       </div>
 
       {current && (
-        <div className="flex flex-col gap-150">
+        <button
+          type="button"
+          onClick={() => onSelectFeed?.(current.feedId)}
+          disabled={!onSelectFeed}
+          className="flex flex-col gap-150 text-left disabled:cursor-default"
+        >
           <div className="flex items-center gap-125">
             <AuthorAvatar nickname={current.author.nickname} />
             <div className="flex flex-col">
@@ -110,7 +115,7 @@ export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
             </div>
             <Forward className="h-250 w-250 text-gray-1000" />
           </div>
-        </div>
+        </button>
       )}
 
       {hasFeed && total > 1 && (
