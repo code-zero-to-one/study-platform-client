@@ -448,6 +448,59 @@ test.describe('안내창 상태 렌더링 @auth', () => {
       page.getByRole('link', { name: '결제하기' }),
     ).not.toBeVisible();
   });
+
+  test('canPurchase=false, FREE_ENROLLED, 무료 완료 → 결제 CTA 숨김', async ({
+    page,
+  }) => {
+    await mockApis(page, {
+      detail: makeCourseDetail({
+        viewerStatus: 'FREE_ENROLLED',
+        freeLessonCount: 2,
+        canPurchase: false,
+      }),
+      progress: makeProgress(2, 2),
+    });
+    await gotoAndWaitForData(page);
+
+    await expect(
+      page.getByRole('link', { name: '결제하기' }),
+    ).not.toBeVisible();
+  });
+
+  test('LOGIN_ONLY → 결제 CTA 숨김', async ({ page }) => {
+    await mockApis(page, {
+      detail: makeCourseDetail({
+        viewerStatus: 'LOGIN_ONLY',
+        canPurchase: true,
+        freeLessonCount: 0,
+      }),
+      progress: makeProgress(0),
+    });
+    await gotoAndWaitForData(page);
+
+    await expect(
+      page.getByRole('link', { name: '결제하기' }),
+    ).not.toBeVisible();
+  });
+
+  test('freeLessonCount=0, completedLessons=0, canPurchase=true → 결제 CTA 즉시 표시', async ({
+    page,
+  }) => {
+    await mockApis(page, {
+      detail: makeCourseDetail({
+        viewerStatus: 'FREE_ENROLLED',
+        freeLessonCount: 0,
+        canPurchase: true,
+      }),
+      progress: makeProgress(0),
+    });
+    await gotoAndWaitForData(page);
+
+    // Sticky payment CTA shows when canPurchase=true regardless of freeLessonCount
+    await expect(
+      page.getByRole('link', { name: '결제하기' }).first(),
+    ).toBeVisible();
+  });
 });
 
 // ─── Chunk 2: 레슨 스탬프 인터랙션 ───────────────────────────────────────────
@@ -595,24 +648,32 @@ test.describe('커리큘럼 레슨 카드 배지 렌더링 @auth', () => {
   test('isFree=false, isAccessible=false → 잠금 배지 표시', async ({
     page,
   }) => {
-    await expect(page.getByRole('img', { name: '잠금' })).toBeVisible();
+    await expect(
+      page.getByRole('img', { name: '잠금', exact: true }),
+    ).toBeVisible();
   });
 
   test('isFree=false, isAccessible=true → 잠금 해제 배지 표시', async ({
     page,
   }) => {
-    await expect(page.getByRole('img', { name: '잠금 해제' })).toBeVisible();
+    await expect(
+      page.getByRole('img', { name: '잠금 해제', exact: true }),
+    ).toBeVisible();
   });
 
   test('세 배지 동시 렌더링 — 상호 배타적', async ({ page }) => {
     await expect(page.getByText('무료').first()).toBeVisible();
-    await expect(page.getByRole('img', { name: '잠금' })).toBeVisible();
-    await expect(page.getByRole('img', { name: '잠금 해제' })).toBeVisible();
+    await expect(
+      page.getByRole('img', { name: '잠금', exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('img', { name: '잠금 해제', exact: true }),
+    ).toBeVisible();
   });
 });
 
 test.describe('건너뛰기 내비게이션 @auth', () => {
-  test('Option bonus 건너뛰기 → 다른 accessible 레슨으로 이동', async ({
+  test('Option bonus 건너뛰기 → 맵 유지, 다음 필수 레슨 펄스, 토스트 표시', async ({
     page,
   }) => {
     await mockApis(page, {
@@ -656,8 +717,10 @@ test.describe('건너뛰기 내비게이션 @auth', () => {
 
     await page.getByRole('button', { name: '건너뛰기' }).click();
 
-    // onSkip navigates to the first OTHER accessible lesson (LESSON_FREE_ID)
-    await page.waitForURL(`**/class/vibe-intro/lesson/${LESSON_FREE_ID}`);
-    expect(page.url()).toContain(`/class/vibe-intro/lesson/${LESSON_FREE_ID}`);
+    // Modal closes, URL stays on journey map
+    await expect(page.getByRole('dialog')).not.toBeVisible();
+    expect(page.url()).toContain(PAGE_PATH);
+    // Toast confirms next lesson prompt
+    await expect(page.getByText('다음 레슨으로 이어가세요')).toBeVisible();
   });
 });

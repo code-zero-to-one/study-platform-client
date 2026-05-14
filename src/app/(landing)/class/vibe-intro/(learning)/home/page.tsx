@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   Dialog,
@@ -20,6 +20,7 @@ import {
   useGetCourseJourneyMap,
   useGetCourseProgress,
 } from '@/hooks/queries/course/course-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import type {
   CourseCurriculumChapterResponse,
   CourseJourneyMapLessonResponse,
@@ -482,7 +483,15 @@ export default function JourneyMapPage() {
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
   const router = useRouter();
+  const showToast = useToastStore((s) => s.showToast);
+  const [blinkLessonId, setBlinkLessonId] = useState<number | null>(null);
   const [visibleChapterCount, setVisibleChapterCount] = useState(1);
+
+  useEffect(() => {
+    if (!blinkLessonId) return;
+    const t = setTimeout(() => setBlinkLessonId(null), 5000);
+    return () => clearTimeout(t);
+  }, [blinkLessonId]);
   const [visibleLessonCount, setVisibleLessonCount] = useState(5);
   const [selectedLesson, setSelectedLesson] = useState<{
     lesson: LessonDisplayInfo;
@@ -735,10 +744,11 @@ export default function JourneyMapPage() {
                                 })
                               }
                               shouldBlink={
-                                completedLessons === 0 &&
-                                index === 0 &&
-                                ri === 0 &&
-                                li === 0
+                                (completedLessons === 0 &&
+                                  index === 0 &&
+                                  ri === 0 &&
+                                  li === 0) ||
+                                lesson.lessonId === blinkLessonId
                               }
                               learnerCount={
                                 journeyMap?.learnerCount ??
@@ -967,14 +977,13 @@ export default function JourneyMapPage() {
             setSelectedLesson(null);
           }}
           onSkip={() => {
-            const nextAccessible = journeyMap?.lessons.find(
-              (l) => l.order > selectedLesson.lesson.order && l.isAccessible,
+            const nextRequired = journeyMap?.lessons.find(
+              (l) =>
+                l.order > selectedLesson.lesson.order &&
+                !l.title.toLowerCase().includes('option'),
             );
-            if (nextAccessible) {
-              router.push(
-                `/class/vibe-intro/lesson/${nextAccessible.lessonId}`,
-              );
-            }
+            setBlinkLessonId(nextRequired?.lessonId ?? null);
+            showToast('다음 레슨으로 이어가세요');
             setSelectedLesson(null);
           }}
         />
