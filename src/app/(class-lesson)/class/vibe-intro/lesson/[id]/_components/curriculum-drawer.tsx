@@ -203,7 +203,7 @@ export function CurriculumDrawer({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
           {chapters.map((chapter) => {
             const isAccessible = chapter.lessons.some((l) => !l.isLocked);
             const expanded = expandedChapters.has(chapter.chapterId);
