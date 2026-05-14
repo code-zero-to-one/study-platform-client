@@ -1,8 +1,15 @@
+import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 export const ROLE_LABELS: Record<string, string> = {
   BUILDER: '빌더',
+  MANAGER: '매니저',
   ADMIN: '운영자',
+};
+
+const ROLE_BADGE_SRC: Record<string, string> = {
+  BUILDER: '/class/builder.png',
+  MANAGER: '/class/manager.png',
 };
 
 export function formatRelativeTime(dateStr: string): string {
@@ -37,12 +44,38 @@ export function AuthorAvatar({
   );
 }
 
+export function RoleBadge({
+  role,
+  width = 28,
+  height = 28,
+  className,
+}: {
+  role: string;
+  width?: number;
+  height?: number;
+  className?: string;
+}) {
+  const src = ROLE_BADGE_SRC[role];
+  if (!src) return null;
+  return (
+    <Image
+      src={src}
+      width={width}
+      height={height}
+      alt={ROLE_LABELS[role] ?? role}
+      className={cn('shrink-0', className)}
+    />
+  );
+}
+
 export function BuilderBadge() {
   return (
-    <div className="flex h-188 w-188 shrink-0 items-center justify-center rounded-full bg-[#6938ef]">
-      <span className="text-[10px] font-semibold leading-none text-white">
-        B
-      </span>
-    </div>
+    <Image
+      src="/class/builder.png"
+      width={16}
+      height={16}
+      alt="빌더"
+      className="h-188 w-188 shrink-0"
+    />
   );
 }

@@ -10,6 +10,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { use, useState } from 'react';
+import { RoleBadge } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import { useAuth } from '@/features/auth/model/use-auth';
@@ -153,9 +154,14 @@ export default function FeedDetailPage({
                   <p className="font-designer-14b text-gray-800">
                     {feed?.author.nickname ?? ''}
                   </p>
-                  <p className="font-designer-12r text-gray-400">
-                    {feed?.author.role ?? ''}
-                  </p>
+                  {feed?.author.role && (
+                    <RoleBadge
+                      role={feed.author.role}
+                      width={15}
+                      height={15}
+                      className="h-188 w-188"
+                    />
+                  )}
                 </div>
               </div>
 

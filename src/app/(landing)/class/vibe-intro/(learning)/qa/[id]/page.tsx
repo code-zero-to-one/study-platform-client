@@ -14,6 +14,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useRef, useState } from 'react';
+import { RoleBadge } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
@@ -30,15 +31,6 @@ import {
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { analyzeError } from '@/utils/error-handler';
-
-function GradeBadge({ role }: { role: string }) {
-  const letter = role.charAt(0).toUpperCase();
-  return (
-    <div className="flex h-350 w-350 shrink-0 items-center justify-center rounded-full bg-rose-100 font-designer-14b text-rose-500">
-      {letter}
-    </div>
-  );
-}
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
@@ -412,7 +404,12 @@ export default function QnaDetailPage({
                   <p className="font-designer-14b text-gray-800">
                     {qna.author.nickname}
                   </p>
-                  <GradeBadge role={qna.author.role} />
+                  <RoleBadge
+                    role={qna.author.role}
+                    width={14}
+                    height={14}
+                    className="h-175 w-175"
+                  />
                 </div>
                 <p className="font-designer-14r text-gray-400">
                   {formatDate(qna.createdAt)} 작성
@@ -599,7 +596,12 @@ export default function QnaDetailPage({
                               {answer.author.nickname.charAt(0)}
                             </p>
                           </div>
-                          <GradeBadge role={answer.author.role} />
+                          <RoleBadge
+                            role={answer.author.role}
+                            width={14}
+                            height={14}
+                            className="h-175 w-175"
+                          />
                           <div className="flex-1">
                             <p className="font-designer-14b text-gray-800">
                               {answer.author.nickname}

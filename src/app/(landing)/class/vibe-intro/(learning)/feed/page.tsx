@@ -73,9 +73,6 @@ export default function BuilderFeedPage() {
     [curriculum],
   );
 
-  const getLessonLabel = (id: number) =>
-    lessonOptions.find((l) => l.lessonId === id)?.label ?? '레슨';
-
   const lessonLabel =
     lessonOptions.find((l) => l.lessonId === lessonId)?.label ?? '전체';
 
@@ -262,13 +259,9 @@ export default function BuilderFeedPage() {
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col">
+              <div className="grid grid-cols-1 gap-300 sm:grid-cols-2 xl:grid-cols-3">
                 {feeds.map((feed) => (
-                  <FeedListCard
-                    key={feed.feedId}
-                    feed={feed}
-                    lessonLabel={getLessonLabel(feed.lessonId)}
-                  />
+                  <FeedListCard key={feed.feedId} feed={feed} />
                 ))}
               </div>
             )}
