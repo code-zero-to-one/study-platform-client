@@ -41,7 +41,7 @@ export function PaginationBar({
       {windowEnd < totalPages && (
         <button
           type="button"
-          onClick={() => onPageChange(windowEnd)}
+          onClick={() => onPageChange(totalPages - 1)}
           className="flex h-500 w-500 items-center justify-center rounded-100 font-designer-16r text-gray-700 hover:bg-gray-100"
         >
           LAST

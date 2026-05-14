@@ -673,9 +673,7 @@ test.describe('커리큘럼 레슨 카드 배지 렌더링 @auth', () => {
 });
 
 test.describe('건너뛰기 내비게이션 @auth', () => {
-  test('Option bonus 건너뛰기 → 맵 유지, 다음 필수 레슨 펄스, 토스트 표시', async ({
-    page,
-  }) => {
+  test('Option bonus 건너뛰기 → 맵 유지 및 토스트 표시', async ({ page }) => {
     await mockApis(page, {
       journey: makeJourneyMap([
         {

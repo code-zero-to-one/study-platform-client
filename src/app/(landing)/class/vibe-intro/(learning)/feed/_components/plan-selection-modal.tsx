@@ -29,6 +29,7 @@ export function PlanSelectionModal({
         <button
           type="button"
           onClick={onClose}
+          aria-label="플랜 선택 모달 닫기"
           className="absolute right-350 top-350 flex items-center justify-center"
         >
           <X className="h-400 w-400 text-gray-800" />

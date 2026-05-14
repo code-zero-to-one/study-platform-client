@@ -977,13 +977,18 @@ export default function JourneyMapPage() {
             setSelectedLesson(null);
           }}
           onSkip={() => {
-            const nextRequired = journeyMap?.lessons.find(
+            const lessons = journeyMap?.lessons
+              ? [...journeyMap.lessons].sort((a, b) => a.order - b.order)
+              : [];
+            const nextRequired = lessons.find(
               (l) =>
                 l.order > selectedLesson.lesson.order &&
                 !l.title.toLowerCase().includes('option'),
             );
             setBlinkLessonId(nextRequired?.lessonId ?? null);
-            showToast('다음 레슨으로 이어가세요');
+            if (nextRequired) {
+              showToast('다음 레슨으로 이어가세요');
+            }
             setSelectedLesson(null);
           }}
         />

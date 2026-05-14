@@ -1,10 +1,10 @@
 import { Heart, MessageSquareMore } from 'lucide-react';
 import Link from 'next/link';
-import type { BuilderFeedListItemResponse } from '@/types/api/course.types';
 import {
   AuthorAvatar,
   formatRelativeTime,
-} from '../../../_components/builder-feed-utils';
+} from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
+import type { BuilderFeedListItemResponse } from '@/types/api/course.types';
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').trim();

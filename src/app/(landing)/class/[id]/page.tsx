@@ -209,7 +209,7 @@ export default function ClassDetailPage({
       return courseDetail.instructors.map((inst) => ({
         team: inst.name,
         heading: inst.bio ?? inst.name,
-        body: '',
+        body: inst.bio ?? undefined,
         profileImageUrl: inst.profileImageUrl,
       }));
     }
@@ -294,6 +294,10 @@ export default function ClassDetailPage({
       showToast('이메일을 입력해주세요.', 'error');
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(giftEmail.trim())) {
+      showToast('올바른 이메일 형식을 입력해주세요.', 'error');
+      return;
+    }
     registerGiftEmailMutation.mutate(
       { email: giftEmail.trim() },
       {
@@ -332,7 +336,7 @@ export default function ClassDetailPage({
               명이 함께 배우고 있어요!
             </p>
           </div>
-          {courseDetail?.completionCount ? (
+          {courseDetail?.completionCount !== null ? (
             <div className="flex items-center gap-75">
               <ThumbsUp className="h-300 w-300 shrink-0 text-text-subtlest" />
               <p className="font-designer-16m text-gray-800">
@@ -343,7 +347,7 @@ export default function ClassDetailPage({
               </p>
             </div>
           ) : null}
-          {courseDetail?.durationDays ? (
+          {courseDetail?.durationDays !== null ? (
             <div className="flex items-center gap-75">
               <History className="h-300 w-300 shrink-0 text-text-subtlest" />
               <p className="font-designer-16m text-gray-800">
@@ -576,7 +580,7 @@ export default function ClassDetailPage({
                 {instructorCards.map((msg, i) => (
                   <Fragment key={msg.team}>
                     {/* Gap div between cards — contains vertical line + diagonal connector */}
-                    {i === 1 && (
+                    {i > 0 && (
                       <div className="relative h-400 md:h-1375">
                         <svg
                           className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
@@ -591,48 +595,33 @@ export default function ClassDetailPage({
                             strokeWidth="1.5"
                             strokeDasharray="6 4"
                           />
-                          <line
-                            x1="45.8%"
-                            y1="0"
-                            x2="56%"
-                            y2="100%"
-                            stroke="#fecdd6"
-                            strokeWidth="1.5"
-                            strokeDasharray="6 4"
-                          />
+                          {i % 2 === 1 ? (
+                            <line
+                              x1="45.8%"
+                              y1="0"
+                              x2="56%"
+                              y2="100%"
+                              stroke="#fecdd6"
+                              strokeWidth="1.5"
+                              strokeDasharray="6 4"
+                            />
+                          ) : (
+                            <line
+                              x1="67.3%"
+                              y1="0"
+                              x2="57%"
+                              y2="100%"
+                              stroke="#fecdd6"
+                              strokeWidth="1.5"
+                              strokeDasharray="6 4"
+                            />
+                          )}
                         </svg>
                       </div>
                     )}
-                    {i === 2 && (
-                      <div className="relative h-400 md:h-1375">
-                        <svg
-                          className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
-                          aria-hidden="true"
-                        >
-                          <line
-                            x1="11.5%"
-                            y1="0"
-                            x2="11.5%"
-                            y2="100%"
-                            stroke="#fecdd6"
-                            strokeWidth="1.5"
-                            strokeDasharray="6 4"
-                          />
-                          <line
-                            x1="67.3%"
-                            y1="0"
-                            x2="57%"
-                            y2="100%"
-                            stroke="#fecdd6"
-                            strokeWidth="1.5"
-                            strokeDasharray="6 4"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                    {/* Card wrapper — card 2 needs relative wrapper for vertical line in left margin */}
-                    <div className={i === 1 ? 'relative' : undefined}>
-                      {i === 1 && (
+                    {/* Card wrapper — odd-index cards need relative wrapper for vertical line in left margin */}
+                    <div className={i % 2 === 1 ? 'relative' : undefined}>
+                      {i % 2 === 1 && (
                         <svg
                           className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
                           aria-hidden="true"
@@ -651,15 +640,17 @@ export default function ClassDetailPage({
                       <div
                         className={cn(
                           'rounded-200 border border-rose-200 bg-gray-0 p-500 shadow-[0_4px_17px_3px_#f9e9ed]',
-                          i === 1 && 'md:ml-[25%]',
+                          i % 2 === 1 && 'md:ml-[25%]',
                         )}
                       >
                         <p className="font-designer-20b text-text-brand">
                           {msg.heading}
                         </p>
-                        <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-800">
-                          {msg.body}
-                        </p>
+                        {msg.body && (
+                          <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-800">
+                            {msg.body}
+                          </p>
+                        )}
                         <div className="mt-300 flex items-end justify-end gap-200">
                           <p className="font-designer-16r text-gray-800">
                             - {msg.team}
@@ -675,7 +666,7 @@ export default function ClassDetailPage({
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center">
-                                <UserAvatar image={msg.profileImageUrl} />
+                                <UserAvatar image={undefined} />
                               </div>
                             )}
                           </div>
