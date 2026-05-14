@@ -249,6 +249,7 @@ export default function QnaWritePage() {
               value={text}
               onChange={setText}
               placeholder="질문 내용을 자유롭게 작성해보세요. 막히는 부분, 이해가 안 되는 개념, 에러 상황 등을 구체적으로 적어주시면 더 좋은 답변을 받을 수 있어요."
+              uploadImage={uploadCommunityMarkdownImage}
             />
 
             {/* CTAs */}

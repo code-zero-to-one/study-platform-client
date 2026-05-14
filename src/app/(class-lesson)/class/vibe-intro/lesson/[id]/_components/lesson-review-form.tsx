@@ -4,6 +4,7 @@ import { Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
+import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import { RatingBox } from './lesson-rating-box';
 
 export const POSITIVE_CHIPS = [
@@ -68,6 +69,7 @@ function QuestionBlock({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
+          uploadImage={uploadCommunityMarkdownImage}
         />
       ) : (
         <textarea
