@@ -113,174 +113,165 @@ export default function BuilderFeedPage() {
   return (
     <div className="w-full pb-800">
       <div className="mx-auto w-full max-w-1496 px-600 pt-500">
-        <div className="flex gap-500">
-          {/* Sidebar */}
-          <aside className="w-4275 shrink-0 pt-500">
-            <p className="font-designer-24b text-gray-1000">
-              {totalCountLabel}
+        {/* Header */}
+        <div className="mb-400">
+          <p className="font-designer-24b text-gray-1000">{totalCountLabel}</p>
+          {weeklyTopBuilder && (
+            <p className="mt-125 font-designer-16r text-gray-800">
+              이번 주 최다 좋아요 빌더 : {weeklyTopBuilder.nickname} 님 👋
             </p>
-            {weeklyTopBuilder && (
-              <p className="mt-125 font-designer-16r text-gray-800">
-                이번 주 최다 좋아요 빌더 : {weeklyTopBuilder.nickname} 님 👋
-              </p>
-            )}
-          </aside>
+          )}
+        </div>
 
-          {/* Content */}
-          <main className="min-w-0 flex-1">
-            {/* Controls */}
-            <div className="mb-400 flex items-center justify-between">
-              {/* Filter chips */}
-              <div className="flex gap-125">
-                {FILTER_OPTIONS.map((f) => (
+        {/* Controls */}
+        <div className="mb-400 flex items-center justify-between">
+          {/* Filter chips */}
+          <div className="flex gap-225">
+            {FILTER_OPTIONS.map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => handleFilterChange(f)}
+                className={cn(
+                  'rounded-875 px-325 py-125 font-designer-20b transition-colors',
+                  filter === f
+                    ? 'border border-background-brand-default text-background-brand-default'
+                    : 'border border-gray-400 text-gray-400',
+                )}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-150">
+            {/* Sort dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setSortOpen((p) => !p);
+                  setFilterOpen(false);
+                }}
+                className="flex items-center gap-75 rounded-full border border-gray-800 px-250 py-125 font-designer-16m text-gray-800"
+              >
+                {sort}
+                <ChevronDown className="h-250 w-250" />
+              </button>
+              {sortOpen && (
+                <div className="absolute right-0 top-full z-10 mt-75 flex flex-col rounded-150 border border-border-default bg-background-default p-125 shadow-1">
+                  {SORT_OPTIONS.map((o) => (
+                    <button
+                      key={o}
+                      type="button"
+                      onClick={() => handleSortChange(o)}
+                      className={cn(
+                        'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
+                        o === sort && 'font-designer-16b',
+                      )}
+                    >
+                      {o}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Lesson filter dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterOpen((p) => !p);
+                  setSortOpen(false);
+                }}
+                className="flex items-center gap-75 rounded-full border border-gray-800 px-250 py-125 font-designer-16m text-gray-800"
+              >
+                {lessonLabel}
+                <ChevronDown className="h-250 w-250" />
+              </button>
+              {filterOpen && (
+                <div className="absolute right-0 top-full z-10 mt-75 flex max-h-4000 min-w-2000 flex-col overflow-y-auto rounded-150 border border-border-default bg-background-default p-125 shadow-1">
                   <button
-                    key={f}
                     type="button"
-                    onClick={() => handleFilterChange(f)}
+                    onClick={() => handleLessonChange(null)}
                     className={cn(
-                      'rounded-full px-250 py-125 font-designer-16r transition-colors',
-                      filter === f
-                        ? 'bg-background-brand-default text-text-inverse'
-                        : 'border border-border-default text-gray-800',
+                      'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
+                      lessonId === null && 'font-designer-16b',
                     )}
                   >
-                    {f}
+                    전체
                   </button>
-                ))}
-              </div>
+                  {lessonOptions.map((o) => (
+                    <button
+                      key={o.lessonId}
+                      type="button"
+                      onClick={() => handleLessonChange(o.lessonId)}
+                      className={cn(
+                        'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
+                        o.lessonId === lessonId && 'font-designer-16b',
+                      )}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-              <div className="flex items-center gap-150">
-                {/* Sort dropdown */}
-                <div className="relative">
+            {/* Write CTA */}
+            {isAuthenticated ? (
+              <Link
+                href="/class/vibe-intro/feed/write"
+                className="rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
+              >
+                피드 올리기
+              </Link>
+            ) : (
+              <LoginModal
+                openTrigger={
                   <button
                     type="button"
-                    onClick={() => {
-                      setSortOpen((p) => !p);
-                      setFilterOpen(false);
-                    }}
-                    className="flex items-center gap-75 rounded-100 border border-border-default px-200 py-125 font-designer-16m text-gray-800"
-                  >
-                    {sort}
-                    <ChevronDown className="h-250 w-250" />
-                  </button>
-                  {sortOpen && (
-                    <div className="absolute right-0 top-full z-10 mt-75 flex flex-col rounded-150 border border-border-default bg-background-default p-125 shadow-1">
-                      {SORT_OPTIONS.map((o) => (
-                        <button
-                          key={o}
-                          type="button"
-                          onClick={() => handleSortChange(o)}
-                          className={cn(
-                            'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
-                            o === sort && 'font-designer-16b',
-                          )}
-                        >
-                          {o}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Lesson filter dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFilterOpen((p) => !p);
-                      setSortOpen(false);
-                    }}
-                    className="flex items-center gap-75 rounded-100 border border-border-default px-200 py-125 font-designer-16m text-gray-800"
-                  >
-                    {lessonLabel}
-                    <ChevronDown className="h-250 w-250" />
-                  </button>
-                  {filterOpen && (
-                    <div className="absolute right-0 top-full z-10 mt-75 flex max-h-4000 min-w-2000 flex-col overflow-y-auto rounded-150 border border-border-default bg-background-default p-125 shadow-1">
-                      <button
-                        type="button"
-                        onClick={() => handleLessonChange(null)}
-                        className={cn(
-                          'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
-                          lessonId === null && 'font-designer-16b',
-                        )}
-                      >
-                        전체
-                      </button>
-                      {lessonOptions.map((o) => (
-                        <button
-                          key={o.lessonId}
-                          type="button"
-                          onClick={() => handleLessonChange(o.lessonId)}
-                          className={cn(
-                            'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
-                            o.lessonId === lessonId && 'font-designer-16b',
-                          )}
-                        >
-                          {o.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Write CTA */}
-                {isAuthenticated ? (
-                  <Link
-                    href="/class/vibe-intro/feed/write"
                     className="rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
                   >
                     피드 올리기
-                  </Link>
-                ) : (
-                  <LoginModal
-                    openTrigger={
-                      <button
-                        type="button"
-                        className="rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
-                      >
-                        피드 올리기
-                      </button>
-                    }
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Feed list */}
-            {isLoading ? (
-              <div className="flex justify-center py-800">
-                <p className="font-designer-16r text-gray-500">로딩 중...</p>
-              </div>
-            ) : feeds.length === 0 ? (
-              <div className="flex justify-center py-800">
-                <p className="font-designer-16r text-gray-500">
-                  {emptyMessage}
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-300 sm:grid-cols-2 xl:grid-cols-3">
-                {feeds.map((feed) => (
-                  <FeedListCard key={feed.feedId} feed={feed} />
-                ))}
-              </div>
-            )}
-
-            {paywall ? (
-              <PaywallSection
-                paywall={paywall}
-                onCtaClick={() => setShowPlanModal(true)}
-              />
-            ) : (
-              <PaginationBar
-                currentPage={currentPage}
-                totalCount={totalCount}
-                pageSize={PAGE_SIZE}
-                onPageChange={setCurrentPage}
+                  </button>
+                }
               />
             )}
-          </main>
+          </div>
         </div>
+
+        {/* Feed list */}
+        {isLoading ? (
+          <div className="flex justify-center py-800">
+            <p className="font-designer-16r text-gray-500">로딩 중...</p>
+          </div>
+        ) : feeds.length === 0 ? (
+          <div className="flex justify-center py-800">
+            <p className="font-designer-16r text-gray-500">{emptyMessage}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-300 sm:grid-cols-2 xl:grid-cols-3">
+            {feeds.map((feed) => (
+              <FeedListCard key={feed.feedId} feed={feed} />
+            ))}
+          </div>
+        )}
+
+        {paywall ? (
+          <PaywallSection
+            paywall={paywall}
+            onCtaClick={() => setShowPlanModal(true)}
+          />
+        ) : (
+          <PaginationBar
+            currentPage={currentPage}
+            totalCount={totalCount}
+            pageSize={PAGE_SIZE}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
       {showPlanModal && course?.plans?.[0] && (
         <PlanSelectionModal
