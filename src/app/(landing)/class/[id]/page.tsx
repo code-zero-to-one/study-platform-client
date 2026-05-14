@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
 import { BenefitScrollCharacter } from '@/components/pages/class/benefit-scroll-character';
 import { CurriculumLessonCard } from '@/components/pages/class/curriculum-lesson-card';
 import { useAuth } from '@/features/auth/model/use-auth';
@@ -29,7 +30,6 @@ import {
   useGetBuilderFeedShowcase,
   useGetCourseCurriculum,
   useGetCourseDetail,
-  useGetCourseList,
   useGetMyCourseFreeEnrollment,
   useGetMyGiftEmail,
   useRegisterGiftEmail,
@@ -177,9 +177,6 @@ export default function ClassDetailPage({
   });
   const registerGiftEmailMutation = useRegisterGiftEmail();
 
-  const { data: allCourses } = useGetCourseList();
-  const courseSummary = allCourses?.find((c) => c.slug === slug);
-
   const learningHomeHref =
     slug === 'vibe-intro' ? '/class/vibe-intro/home' : `/class/${slug}`;
   const chaptersForRoadmap = useMemo(() => {
@@ -208,6 +205,23 @@ export default function ClassDetailPage({
       })),
     }));
   }, [curriculum]);
+
+  const instructorCards = useMemo(() => {
+    if (courseDetail?.instructors?.length) {
+      return courseDetail.instructors.map((inst) => ({
+        team: inst.name,
+        heading: inst.bio ?? inst.name,
+        body: '',
+        profileImageUrl: inst.profileImageUrl,
+      }));
+    }
+    return TEAM_MESSAGES.map((msg) => ({
+      team: msg.team,
+      heading: msg.heading,
+      body: msg.body,
+      profileImageUrl: undefined as string | undefined,
+    }));
+  }, [courseDetail?.instructors]);
 
   function handleTabClick(tab: Tab) {
     setActiveTab(tab);
@@ -315,19 +329,30 @@ export default function ClassDetailPage({
             <Flame className="h-300 w-300 shrink-0 text-text-subtlest" />
             <p className="font-designer-16m text-gray-800">
               <span className="font-designer-16b text-text-brand">
-                {courseSummary?.learnerCount ?? 0}
+                {(courseDetail?.learnerCount ?? 0).toLocaleString()}
               </span>
-              {courseSummary?.learnerLabel ?? '명이 함께 배우고 있어요!'}
+              명이 함께 배우고 있어요!
             </p>
           </div>
-          {curriculum?.durationDays && (
+          {courseDetail?.completionCount ? (
+            <div className="flex items-center gap-75">
+              <ThumbsUp className="h-300 w-300 shrink-0 text-text-subtlest" />
+              <p className="font-designer-16m text-gray-800">
+                <span className="font-designer-16b">
+                  {courseDetail.completionCount.toLocaleString()}
+                </span>
+                명 배출
+              </p>
+            </div>
+          ) : null}
+          {courseDetail?.durationDays ? (
             <div className="flex items-center gap-75">
               <History className="h-300 w-300 shrink-0 text-text-subtlest" />
               <p className="font-designer-16m text-gray-800">
-                평균 {curriculum.durationDays}일 소요
+                평균 {courseDetail.durationDays}일 소요
               </p>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -550,7 +575,7 @@ export default function ClassDetailPage({
                 서로의 아이디어를 나누고 함께 성장하세요.
               </p>
               <div className="mt-500 flex flex-col">
-                {TEAM_MESSAGES.map((msg, i) => (
+                {instructorCards.map((msg, i) => (
                   <Fragment key={msg.team}>
                     {/* Gap div between cards — contains vertical line + diagonal connector */}
                     {i === 1 && (
@@ -641,8 +666,20 @@ export default function ClassDetailPage({
                           <p className="font-designer-16r text-gray-800">
                             - {msg.team}
                           </p>
-                          <div className="flex size-750 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                            <UserRound className="size-400 text-gray-400" />
+                          <div className="relative flex size-750 shrink-0 overflow-hidden rounded-full bg-gray-100">
+                            {msg.profileImageUrl ? (
+                              <Image
+                                src={msg.profileImageUrl}
+                                alt={msg.team}
+                                fill
+                                unoptimized
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <UserAvatar image={msg.profileImageUrl} />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -971,20 +1008,6 @@ export default function ClassDetailPage({
                         </p>
                       </Fragment>
                     ))}
-                  </div>
-                ) : courseSummary?.discountPrice ? (
-                  <div className="mt-300">
-                    <p className="font-designer-14b text-gray-800">
-                      무료 온보딩 이후 코스 금액가
-                    </p>
-                    <p className="mt-75 font-designer-30b text-gray-800">
-                      {courseSummary.discountPrice.toLocaleString()}원
-                    </p>
-                    {courseSummary.regularPrice && (
-                      <p className="font-designer-16r text-gray-500 line-through">
-                        {courseSummary.regularPrice.toLocaleString()}원
-                      </p>
-                    )}
                   </div>
                 ) : null}
 
