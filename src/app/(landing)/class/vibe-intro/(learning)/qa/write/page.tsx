@@ -109,7 +109,7 @@ export default function QnaWritePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="flex w-5000 flex-col items-center gap-300 rounded-200 bg-background-default p-500">
             <div className="text-center font-designer-24b">
-              <p className="b text-gray-800">질문 등록을 취소하시겠습니까?</p>
+              <p className="text-gray-800">질문 등록을 취소하시겠습니까?</p>
               <p>작성된 내용은 저장되지 않습니다.</p>
             </div>
             <div className="flex w-full gap-200">

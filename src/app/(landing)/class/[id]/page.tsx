@@ -12,14 +12,13 @@ import {
   Heart,
   MessageSquare,
   Share2,
-  UserRound,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
 import { BenefitScrollCharacter } from '@/components/pages/class/benefit-scroll-character';
 import { CurriculumLessonCard } from '@/components/pages/class/curriculum-lesson-card';
 import { useAuth } from '@/features/auth/model/use-auth';
@@ -29,7 +28,9 @@ import {
   useGetBuilderFeedShowcase,
   useGetCourseCurriculum,
   useGetCourseDetail,
-  useGetCourseList,
+  useGetMyCourseFreeEnrollment,
+  useGetMyGiftEmail,
+  useRegisterGiftEmail,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
@@ -154,6 +155,7 @@ export default function ClassDetailPage({
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [studyWithMePhone, setStudyWithMePhone] = useState('');
   const [studyWithMeAgreed, setStudyWithMeAgreed] = useState(false);
+  const [giftEmail, setGiftEmail] = useState('');
   const showToast = useToastStore((state) => state.showToast);
   const { isAuthenticated } = useAuth();
 
@@ -164,9 +166,14 @@ export default function ClassDetailPage({
   const { data: builderFeedShowcase } = useGetBuilderFeedShowcase(courseId);
   const createCourseFreeEnrollment = useCreateCourseFreeEnrollment();
   const createStudyWithMeSubscription = useCreateStudyWithMeSubscription();
-
-  const { data: allCourses } = useGetCourseList();
-  const courseSummary = allCourses?.find((c) => c.slug === slug);
+  const { data: myFreeEnrollment } = useGetMyCourseFreeEnrollment(
+    isAuthenticated ? courseId : 0,
+  );
+  const isAlreadyFreeEnrolled = myFreeEnrollment?.isFreeEnrolled ?? false;
+  const { data: myGiftEmail } = useGetMyGiftEmail({
+    enabled: isAuthenticated && !!courseDetail?.isPaidEnrolled,
+  });
+  const registerGiftEmailMutation = useRegisterGiftEmail();
 
   const learningHomeHref =
     slug === 'vibe-intro' ? '/class/vibe-intro/home' : `/class/${slug}`;
@@ -196,6 +203,23 @@ export default function ClassDetailPage({
       })),
     }));
   }, [curriculum]);
+
+  const instructorCards = useMemo(() => {
+    if (courseDetail?.instructors?.length) {
+      return courseDetail.instructors.map((inst) => ({
+        team: inst.name,
+        heading: inst.bio ?? inst.name,
+        body: inst.bio ?? undefined,
+        profileImageUrl: inst.profileImageUrl,
+      }));
+    }
+    return TEAM_MESSAGES.map((msg) => ({
+      team: msg.team,
+      heading: msg.heading,
+      body: msg.body,
+      profileImageUrl: undefined as string | undefined,
+    }));
+  }, [courseDetail?.instructors]);
 
   function handleTabClick(tab: Tab) {
     setActiveTab(tab);
@@ -265,6 +289,27 @@ export default function ClassDetailPage({
     }
   }
 
+  function handleRegisterGiftEmail() {
+    if (!giftEmail.trim()) {
+      showToast('이메일을 입력해주세요.', 'error');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(giftEmail.trim())) {
+      showToast('올바른 이메일 형식을 입력해주세요.', 'error');
+      return;
+    }
+    registerGiftEmailMutation.mutate(
+      { email: giftEmail.trim() },
+      {
+        onSuccess: () => {
+          setGiftEmail('');
+          showToast('Gift 이메일이 등록되었어요.');
+        },
+        onError: () => showToast('이메일 등록에 실패했어요.', 'error'),
+      },
+    );
+  }
+
   function toggleChapter(index: number) {
     setExpandedChapters((prev) => {
       const next = new Set(prev);
@@ -286,19 +331,30 @@ export default function ClassDetailPage({
             <Flame className="h-300 w-300 shrink-0 text-text-subtlest" />
             <p className="font-designer-16m text-gray-800">
               <span className="font-designer-16b text-text-brand">
-                {courseSummary?.learnerCount ?? 0}
+                {(courseDetail?.learnerCount ?? 0).toLocaleString()}
               </span>
-              {courseSummary?.learnerLabel ?? '명이 함께 배우고 있어요!'}
+              명이 함께 배우고 있어요!
             </p>
           </div>
-          {curriculum?.durationDays && (
+          {courseDetail?.completionCount !== null ? (
+            <div className="flex items-center gap-75">
+              <ThumbsUp className="h-300 w-300 shrink-0 text-text-subtlest" />
+              <p className="font-designer-16m text-gray-800">
+                <span className="font-designer-16b">
+                  {courseDetail.completionCount.toLocaleString()}
+                </span>
+                명 배출
+              </p>
+            </div>
+          ) : null}
+          {courseDetail?.durationDays !== null ? (
             <div className="flex items-center gap-75">
               <History className="h-300 w-300 shrink-0 text-text-subtlest" />
               <p className="font-designer-16m text-gray-800">
-                평균 {curriculum.durationDays}일 소요
+                평균 {courseDetail.durationDays}일 소요
               </p>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -521,10 +577,10 @@ export default function ClassDetailPage({
                 서로의 아이디어를 나누고 함께 성장하세요.
               </p>
               <div className="mt-500 flex flex-col">
-                {TEAM_MESSAGES.map((msg, i) => (
+                {instructorCards.map((msg, i) => (
                   <Fragment key={msg.team}>
                     {/* Gap div between cards — contains vertical line + diagonal connector */}
-                    {i === 1 && (
+                    {i > 0 && (
                       <div className="relative h-400 md:h-1375">
                         <svg
                           className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
@@ -539,48 +595,33 @@ export default function ClassDetailPage({
                             strokeWidth="1.5"
                             strokeDasharray="6 4"
                           />
-                          <line
-                            x1="45.8%"
-                            y1="0"
-                            x2="56%"
-                            y2="100%"
-                            stroke="#fecdd6"
-                            strokeWidth="1.5"
-                            strokeDasharray="6 4"
-                          />
+                          {i % 2 === 1 ? (
+                            <line
+                              x1="45.8%"
+                              y1="0"
+                              x2="56%"
+                              y2="100%"
+                              stroke="#fecdd6"
+                              strokeWidth="1.5"
+                              strokeDasharray="6 4"
+                            />
+                          ) : (
+                            <line
+                              x1="67.3%"
+                              y1="0"
+                              x2="57%"
+                              y2="100%"
+                              stroke="#fecdd6"
+                              strokeWidth="1.5"
+                              strokeDasharray="6 4"
+                            />
+                          )}
                         </svg>
                       </div>
                     )}
-                    {i === 2 && (
-                      <div className="relative h-400 md:h-1375">
-                        <svg
-                          className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
-                          aria-hidden="true"
-                        >
-                          <line
-                            x1="11.5%"
-                            y1="0"
-                            x2="11.5%"
-                            y2="100%"
-                            stroke="#fecdd6"
-                            strokeWidth="1.5"
-                            strokeDasharray="6 4"
-                          />
-                          <line
-                            x1="67.3%"
-                            y1="0"
-                            x2="57%"
-                            y2="100%"
-                            stroke="#fecdd6"
-                            strokeWidth="1.5"
-                            strokeDasharray="6 4"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                    {/* Card wrapper — card 2 needs relative wrapper for vertical line in left margin */}
-                    <div className={i === 1 ? 'relative' : undefined}>
-                      {i === 1 && (
+                    {/* Card wrapper — odd-index cards need relative wrapper for vertical line in left margin */}
+                    <div className={i % 2 === 1 ? 'relative' : undefined}>
+                      {i % 2 === 1 && (
                         <svg
                           className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
                           aria-hidden="true"
@@ -599,21 +640,35 @@ export default function ClassDetailPage({
                       <div
                         className={cn(
                           'rounded-200 border border-rose-200 bg-gray-0 p-500 shadow-[0_4px_17px_3px_#f9e9ed]',
-                          i === 1 && 'md:ml-[25%]',
+                          i % 2 === 1 && 'md:ml-[25%]',
                         )}
                       >
                         <p className="font-designer-20b text-text-brand">
                           {msg.heading}
                         </p>
-                        <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-800">
-                          {msg.body}
-                        </p>
+                        {msg.body && (
+                          <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-800">
+                            {msg.body}
+                          </p>
+                        )}
                         <div className="mt-300 flex items-end justify-end gap-200">
                           <p className="font-designer-16r text-gray-800">
                             - {msg.team}
                           </p>
-                          <div className="flex size-750 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                            <UserRound className="size-400 text-gray-400" />
+                          <div className="relative flex size-750 shrink-0 overflow-hidden rounded-full bg-gray-100">
+                            {msg.profileImageUrl ? (
+                              <Image
+                                src={msg.profileImageUrl}
+                                alt={msg.team}
+                                fill
+                                unoptimized
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <UserAvatar image={undefined} />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -943,20 +998,6 @@ export default function ClassDetailPage({
                       </Fragment>
                     ))}
                   </div>
-                ) : courseSummary?.discountPrice ? (
-                  <div className="mt-300">
-                    <p className="font-designer-14b text-gray-800">
-                      무료 온보딩 이후 코스 금액가
-                    </p>
-                    <p className="mt-75 font-designer-30b text-gray-800">
-                      {courseSummary.discountPrice.toLocaleString()}원
-                    </p>
-                    {courseSummary.regularPrice && (
-                      <p className="font-designer-16r text-gray-500 line-through">
-                        {courseSummary.regularPrice.toLocaleString()}원
-                      </p>
-                    )}
-                  </div>
                 ) : null}
 
                 <div className="mt-300 flex items-center gap-50">
@@ -997,7 +1038,9 @@ export default function ClassDetailPage({
                     >
                       {createCourseFreeEnrollment.isPending
                         ? '등록 중...'
-                        : '무료 코스 시작하기'}
+                        : isAlreadyFreeEnrolled
+                          ? '학습 계속하기'
+                          : '무료 코스 시작하기'}
                     </button>
                   ) : (
                     <LoginModal
@@ -1012,6 +1055,42 @@ export default function ClassDetailPage({
                     />
                   )}
                 </div>
+
+                {isAuthenticated && courseDetail?.isPaidEnrolled && (
+                  <div className="mt-300 rounded-100 border border-border-default p-300">
+                    <p className="font-designer-14b text-gray-800">
+                      Claude Pro Gift 이메일
+                    </p>
+                    {myGiftEmail?.isRegistered ? (
+                      <p className="mt-125 break-all font-designer-14r text-gray-600">
+                        {myGiftEmail.email}
+                      </p>
+                    ) : (
+                      <div className="mt-150 flex flex-col gap-150">
+                        <input
+                          type="email"
+                          value={giftEmail}
+                          onChange={(e) => setGiftEmail(e.target.value)}
+                          placeholder="이메일 주소를 입력하세요"
+                          className="h-500 w-full rounded-100 border border-border-default px-200 font-designer-14r text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRegisterGiftEmail}
+                          disabled={
+                            registerGiftEmailMutation.isPending ||
+                            !giftEmail.trim()
+                          }
+                          className="flex h-500 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse disabled:opacity-50"
+                        >
+                          {registerGiftEmailMutation.isPending
+                            ? '등록 중...'
+                            : '등록하기'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="mt-300 rounded-100 bg-gray-800 p-300">
                   <p className="font-designer-14m text-gray-0">

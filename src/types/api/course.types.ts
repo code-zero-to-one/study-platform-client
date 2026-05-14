@@ -619,3 +619,14 @@ export interface LessonQnaSidebarItem {
 export interface LessonQnaSidebarResponse {
   qnas: LessonQnaSidebarItem[];
 }
+
+// ─── Gift Email ───────────────────────────────────────────────────────────────
+
+export interface GiftEmailResponse {
+  isRegistered: boolean;
+  email?: string;
+}
+
+export interface GiftEmailCreateRequest {
+  email: string;
+}

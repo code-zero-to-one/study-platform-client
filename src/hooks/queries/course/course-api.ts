@@ -44,6 +44,8 @@ import type {
   LessonRetrospectiveResponse,
   MyCourseFreeEnrollmentResponse,
   MyBuilderFeedsResponse,
+  GiftEmailResponse,
+  GiftEmailCreateRequest,
   OpenAlertSubscriptionRequest,
   OpenAlertSubscriptionResponse,
   StudyWithMeSubscriptionRequest,
@@ -829,5 +831,35 @@ export const useGetLessonQnaSidebar = (lessonId: number) => {
       return data.content;
     },
     enabled: !!lessonId,
+  });
+};
+
+// ─── Gift Email ───────────────────────────────────────────────────────────────
+
+export const useGetMyGiftEmail = (options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: ['myGiftEmail'],
+    queryFn: async () => {
+      const { data } = await axiosInstanceV5.get<{
+        content: GiftEmailResponse;
+      }>('members/me/gift-email');
+      return data.content;
+    },
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export const useRegisterGiftEmail = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (request: GiftEmailCreateRequest) => {
+      const { data } = await axiosInstanceV5.post<{
+        content: GiftEmailResponse;
+      }>('members/me/gift-email', request);
+      return data.content;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['myGiftEmail'] });
+    },
   });
 };
