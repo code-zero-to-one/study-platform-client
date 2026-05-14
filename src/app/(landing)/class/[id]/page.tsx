@@ -12,11 +12,9 @@ import {
   Heart,
   MessageSquare,
   Share2,
-  UserRound,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, use, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';

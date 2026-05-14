@@ -858,8 +858,8 @@ export const useRegisterGiftEmail = () => {
       }>('members/me/gift-email', request);
       return data.content;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['myGiftEmail'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['myGiftEmail'] });
     },
   });
 };
