@@ -16,7 +16,6 @@ interface Props {
   chapters: CourseDrawerChapterResponse[];
   expandedChapters: Set<number>;
   onToggleChapter: (chapterId: number) => void;
-  currentLessonId: number;
 }
 
 const ASSET = '/class/vibe-intro/curriculum';
@@ -82,9 +81,9 @@ function ChapterHeader({
       onClick={onToggle}
       className="flex w-full items-center justify-between border-b border-gray-200 bg-gray-100 px-375 py-250"
     >
-      <div className="flex items-center gap-150">
+      <div className="flex min-w-0 items-center gap-150">
         {allCompleted ? (
-          <div className="flex shrink-0 size-525 items-center justify-center overflow-hidden rounded-50 bg-rose-300">
+          <div className="flex shrink-0 size-525 items-center justify-center overflow-hidden rounded-100 bg-rose-300">
             <Image
               src={`${ASSET}/edit-note.svg`}
               alt=""
@@ -103,11 +102,13 @@ function ChapterHeader({
             className="shrink-0"
           />
         )}
-        <div className="flex flex-col items-start gap-25">
+        <div className="flex min-w-0 flex-col items-start gap-25">
           <p className="font-designer-14b text-text-brand">
             Chapter {String(chapter.order).padStart(2, '0')}
           </p>
-          <p className="font-designer-18b text-gray-800">{chapter.title}</p>
+          <p className="break-words font-designer-18b text-gray-800">
+            {chapter.title}
+          </p>
         </div>
       </div>
       <ChevronUp
@@ -123,24 +124,22 @@ function ChapterHeader({
 
 function ChapterLessons({
   lessons,
-  currentLessonId,
 }: {
   lessons: CourseDrawerLessonResponse[];
-  currentLessonId: number;
 }) {
   return (
     <div className="relative bg-background-default pb-250 pt-375">
-      <div className="absolute bottom-250 left-625 top-125 w-px bg-gray-300" />
+      <div className="absolute bottom-250 left-625 top-0 w-px bg-gray-300" />
       <ul className="flex flex-col">
         {lessons.map((lesson) => {
-          const isCurrent = lesson.lessonId === currentLessonId;
+          const isCurrent = lesson.isCurrentLesson;
           const lessonNumber = `Lesson ${String(lesson.order).padStart(2, '0')}`;
           const titleText = lesson.title.replace(/^Lesson\s*0?\d+\.?\s*/i, '');
           return (
             <li key={lesson.lessonId}>
               <Link
                 href={`/class/vibe-intro/lesson/${lesson.lessonId}`}
-                className="relative flex items-center gap-125 py-175 pl-550"
+                className="relative flex min-w-0 items-center gap-200 py-175 pl-550"
               >
                 <Image
                   src={`${ASSET}/${isCurrent ? 'marker-active.svg' : 'marker-default.svg'}`}
@@ -153,14 +152,14 @@ function ChapterLessons({
                 <LessonBadge lesson={lesson} />
                 <div
                   className={cn(
-                    'flex items-center gap-100 whitespace-nowrap',
+                    'min-w-0 flex-1',
                     isCurrent
                       ? 'font-designer-14b text-text-brand'
                       : 'font-designer-14r text-gray-400',
                   )}
                 >
-                  <span>{lessonNumber}</span>
-                  <span>{titleText}</span>
+                  <span className="mr-100">{lessonNumber}</span>
+                  <span className="break-words">{titleText}</span>
                 </div>
               </Link>
             </li>
@@ -178,7 +177,6 @@ export function CurriculumDrawer({
   chapters,
   expandedChapters,
   onToggleChapter,
-  currentLessonId,
 }: Props) {
   if (!open) return null;
 
@@ -187,10 +185,10 @@ export function CurriculumDrawer({
       <div className="flex h-full w-5250 flex-col bg-background-default shadow-2">
         <div className="relative px-375 pb-300 pt-375">
           <p className="font-designer-24b text-gray-800">커리큘럼</p>
-          <p className="mt-300 font-designer-20b text-gray-800">
+          <p className="mt-400 font-designer-20b text-gray-800">
             {courseTitle}
           </p>
-          <p className="mt-75 font-designer-14r text-gray-800">
+          <p className="mt-50 font-designer-14r text-gray-800">
             수강기한 무제한
           </p>
           <button
@@ -205,22 +203,19 @@ export function CurriculumDrawer({
 
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
           {chapters.map((chapter) => {
-            const isAccessible = chapter.lessons.some((l) => !l.isLocked);
+            const isCompleted = chapter.lessons.every(
+              (l) => l.status === 'COMPLETED',
+            );
             const expanded = expandedChapters.has(chapter.chapterId);
             return (
               <div key={chapter.chapterId}>
                 <ChapterHeader
                   chapter={chapter}
-                  allCompleted={isAccessible}
+                  allCompleted={isCompleted}
                   expanded={expanded}
                   onToggle={() => onToggleChapter(chapter.chapterId)}
                 />
-                {expanded && (
-                  <ChapterLessons
-                    lessons={chapter.lessons}
-                    currentLessonId={currentLessonId}
-                  />
-                )}
+                {expanded && <ChapterLessons lessons={chapter.lessons} />}
               </div>
             );
           })}
