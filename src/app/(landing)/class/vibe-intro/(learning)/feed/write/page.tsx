@@ -98,7 +98,7 @@ export default function FeedWritePage() {
       {
         onSuccess: () => {
           showToast('피드가 등록되었어요!');
-          router.push('/class/vibe-intro/feed');
+          router.push('/class/vibe-intro/home?tab=feed');
         },
         onError: () => showToast('등록에 실패했어요.', 'error'),
       },
@@ -128,7 +128,7 @@ export default function FeedWritePage() {
                 계속 작성
               </button>
               <Link
-                href="/class/vibe-intro/feed"
+                href="/class/vibe-intro/home?tab=feed"
                 className="flex h-700 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-16m text-text-inverse"
               >
                 확인
@@ -142,7 +142,7 @@ export default function FeedWritePage() {
         <div className="mx-auto max-w-page px-600 pt-500">
           {/* Back link */}
           <Link
-            href="/class/vibe-intro/feed"
+            href="/class/vibe-intro/home?tab=feed"
             className="inline-flex items-center gap-125 font-designer-14m text-gray-800"
           >
             <ArrowLeft className="h-300 w-300" />

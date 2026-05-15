@@ -185,7 +185,7 @@ export default function CourseCompletePage() {
           {/* Final CTAs */}
           <div className="mt-400 flex gap-200">
             <Link
-              href="/class/vibe-intro/feed"
+              href="/class/vibe-intro/home?tab=feed"
               onClick={() => {
                 if (feedback.trim()) handleNextPlanSubmit();
               }}

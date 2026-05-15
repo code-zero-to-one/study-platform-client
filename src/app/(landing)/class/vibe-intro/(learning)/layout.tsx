@@ -2,22 +2,77 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const TABS = [
-  { label: '학습 여정 맵', href: '/class/vibe-intro/home' },
-  { label: '빌더 피드', href: '/class/vibe-intro/feed' },
-  { label: '질문답변', href: '/class/vibe-intro/qa' },
+  {
+    label: '학습 여정 맵',
+    href: '/class/vibe-intro/home?tab=roadmap',
+    tabParam: 'roadmap',
+    pathPrefix: null as string | null,
+  },
+  {
+    label: '빌더 피드',
+    href: '/class/vibe-intro/home?tab=feed',
+    tabParam: 'feed',
+    pathPrefix: '/class/vibe-intro/feed',
+  },
+  {
+    label: '질문답변',
+    href: '/class/vibe-intro/home?tab=qna',
+    tabParam: 'qna',
+    pathPrefix: '/class/vibe-intro/qa',
+  },
 ];
+
+function TabNavigation() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('tab') ?? 'roadmap';
+
+  return (
+    <div className="flex w-full justify-center">
+      {TABS.map((t) => {
+        let isActive = false;
+        if (pathname === '/class/vibe-intro/home') {
+          isActive = tab === t.tabParam;
+        } else if (t.pathPrefix) {
+          isActive = pathname.startsWith(t.pathPrefix);
+        }
+        return (
+          <Link
+            key={t.tabParam}
+            href={t.href}
+            className={cn(
+              'flex h-875 w-6000 flex-col items-center justify-center gap-125',
+              isActive
+                ? 'font-designer-18b text-text-brand'
+                : 'font-designer-18r text-gray-400',
+            )}
+          >
+            {t.label}
+            <div
+              className={cn(
+                'w-full',
+                isActive
+                  ? 'h-25 bg-background-brand-default'
+                  : 'h-px bg-border-default',
+              )}
+            />
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function VibeIntroLearningLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
   return (
     <>
       {/* Banner */}
@@ -50,36 +105,9 @@ export default function VibeIntroLearningLayout({
       </div>
 
       {/* Tab nav */}
-      <div className="flex w-full justify-center">
-        {TABS.map((tab) => {
-          const isActive =
-            pathname === tab.href ||
-            (tab.href !== '/class/vibe-intro/home' &&
-              pathname.startsWith(tab.href));
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={cn(
-                'flex h-875 w-6000 flex-col items-center justify-center gap-125',
-                isActive
-                  ? 'font-designer-18b text-text-brand'
-                  : 'font-designer-18r text-gray-400',
-              )}
-            >
-              {tab.label}
-              <div
-                className={cn(
-                  'w-full',
-                  isActive
-                    ? 'h-25 bg-background-brand-default'
-                    : 'h-px bg-border-default',
-                )}
-              />
-            </Link>
-          );
-        })}
-      </div>
+      <Suspense>
+        <TabNavigation />
+      </Suspense>
 
       {children}
     </>

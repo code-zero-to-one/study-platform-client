@@ -96,7 +96,7 @@ export default function QnaWritePage() {
       {
         onSuccess: () => {
           showToast('질문이 등록되었어요!');
-          router.push('/class/vibe-intro/qa');
+          router.push('/class/vibe-intro/home?tab=qna');
         },
         onError: () => showToast('등록에 실패했어요.', 'error'),
       },
@@ -121,7 +121,7 @@ export default function QnaWritePage() {
                 계속 작성
               </button>
               <Link
-                href="/class/vibe-intro/qa"
+                href="/class/vibe-intro/home?tab=qna"
                 className="flex h-700 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-18b text-text-inverse"
               >
                 확인
@@ -134,7 +134,7 @@ export default function QnaWritePage() {
       <div className="w-full pb-800">
         <div className="mx-auto max-w-page px-600 pt-500">
           <Link
-            href="/class/vibe-intro/qa"
+            href="/class/vibe-intro/home?tab=qna"
             className="inline-flex items-center gap-125 font-designer-14m text-gray-800"
           >
             <ArrowLeft className="h-300 w-300" />

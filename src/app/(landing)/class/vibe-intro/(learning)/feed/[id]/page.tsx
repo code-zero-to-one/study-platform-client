@@ -138,7 +138,7 @@ export default function FeedDetailPage({
       <div className="w-full pb-800">
         <div className="mx-auto max-w-page px-600 pt-500">
           <Link
-            href="/class/vibe-intro/feed"
+            href="/class/vibe-intro/home?tab=feed"
             className="inline-flex items-center gap-125 font-designer-14m text-gray-800"
           >
             <ArrowLeft className="h-300 w-300" />

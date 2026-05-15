@@ -168,7 +168,7 @@ export default function QnaDetailPage({
       {
         onSuccess: () => {
           showToast('삭제되었습니다.');
-          router.push('/class/vibe-intro/qa');
+          router.push('/class/vibe-intro/home?tab=qna');
         },
         onError: (error) => {
           const { userMessage } = analyzeError(error);
@@ -298,7 +298,7 @@ export default function QnaDetailPage({
   return (
     <div className="mx-auto w-full max-w-page px-600 py-750">
       <Link
-        href="/class/vibe-intro/qa"
+        href="/class/vibe-intro/home?tab=qna"
         className="inline-flex items-center gap-125 font-designer-14m text-gray-800"
       >
         <ArrowLeft className="h-300 w-300" />

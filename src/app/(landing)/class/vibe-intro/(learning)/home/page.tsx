@@ -4,8 +4,8 @@ import { BookOpen, Lock, LockOpen, Timer, Users } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   Dialog,
@@ -26,6 +26,8 @@ import type {
   CourseJourneyMapLessonResponse,
   LessonProgressStatus,
 } from '@/types/api/course.types';
+import { FeedTab } from '../_components/feed-tab';
+import { QnaTab } from '../_components/qna-tab';
 
 const LoginModal = dynamic(
   () => import('@/components/auth/modals/login-modal'),
@@ -474,7 +476,7 @@ function ChapterHeader({
   );
 }
 
-export default function JourneyMapPage() {
+function RoadmapTab() {
   const { isAuthenticated } = useAuth();
   const { data: course } = useGetCourseDetail(COURSE_SLUG);
   const courseId = course?.courseId ?? 0;
@@ -1020,5 +1022,22 @@ export default function JourneyMapPage() {
           </div>
         )}
     </div>
+  );
+}
+
+function HomeTabSwitch() {
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('tab') ?? 'roadmap';
+
+  if (tab === 'feed') return <FeedTab />;
+  if (tab === 'qna') return <QnaTab />;
+  return <RoadmapTab />;
+}
+
+export default function LearningHomePage() {
+  return (
+    <Suspense>
+      <HomeTabSwitch />
+    </Suspense>
   );
 }
