@@ -27,21 +27,152 @@ import type {
   ApiPageResponse,
 } from '@/features/admin/course-management/model/admin-course-management-contract';
 
-const unwrap = <T>(response: { data: ApiBaseResponse<T> }) =>
-  response.data.content;
+type ApiEnvelope<T> = ApiBaseResponse<T> | { data?: ApiBaseResponse<T> };
+
+const isApiBaseResponse = <T>(value: unknown): value is ApiBaseResponse<T> => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'statusCode' in value &&
+    'timestamp' in value &&
+    'content' in value
+  );
+};
+
+const unwrap = <T>(response: ApiEnvelope<T>): T => {
+  if (!response) {
+    throw new Error('API 응답 본문 형식이 올바르지 않습니다.');
+  }
+
+  if ('data' in response && isApiBaseResponse<T>(response.data)) {
+    return response.data.content;
+  }
+
+  if (isApiBaseResponse<T>(response)) {
+    return response.content;
+  }
+
+  throw new Error('API 응답 본문 형식이 올바르지 않습니다.');
+};
+
+const ADMIN_COURSE_LIST_MIN_SIZE = 1;
+const ADMIN_COURSE_LIST_MAX_SIZE = 50;
+
+const normalizeAdminCourseListParams = ({
+  status,
+  page,
+  size,
+}: AdminCourseListParams): AdminCourseListParams => ({
+  status,
+  page: Math.max(0, page),
+  size: Math.min(
+    ADMIN_COURSE_LIST_MAX_SIZE,
+    Math.max(ADMIN_COURSE_LIST_MIN_SIZE, size),
+  ),
+});
+
+const normalizeAdminCourseSummary = (
+  course: AdminCourseSummary,
+): AdminCourseSummary => ({
+  ...course,
+  enrolledCount: course.enrolledCount ?? course.activeEnrollmentCount ?? 0,
+});
+
+const normalizeAdminCoursePage = (
+  pageResponse: ApiPageResponse<AdminCourseSummary>,
+): ApiPageResponse<AdminCourseSummary> => ({
+  ...pageResponse,
+  content: pageResponse.content.map(normalizeAdminCourseSummary),
+});
+
+const normalizeAdminLessonRetrospective = (
+  response: AdminLessonRetrospectiveResponse | undefined,
+): AdminLessonRetrospectiveResponse => ({
+  retrospectives: (response?.retrospectives ?? []).map((retrospective) => ({
+    ...retrospective,
+    understandingScore:
+      retrospective.understandingScore ?? retrospective.starRating ?? 0,
+    content:
+      retrospective.content ||
+      retrospective.highlightAnswer ||
+      retrospective.unexpectedAnswer ||
+      '',
+  })),
+});
+
+const normalizeAdminLessonBuilderFeeds = (
+  response: AdminLessonBuilderFeedsResponse | undefined,
+): AdminLessonBuilderFeedsResponse => ({
+  feeds: (response?.feeds ?? []).map((feed) => ({
+    ...feed,
+    imageUrls: feed.imageUrls ?? [],
+    operatorPick: feed.operatorPick ?? feed.isOperatorPick ?? false,
+    featured: feed.featured ?? feed.isFeatured ?? false,
+  })),
+});
+
+const normalizeAdminLessonQnas = (
+  response: AdminLessonQnaListResponse | undefined,
+): AdminLessonQnaListResponse => ({
+  myQnas: response?.myQnas ?? [],
+  qnas: (response?.qnas ?? []).map((qna) => ({
+    ...qna,
+    answerCount: qna.answerCount ?? (qna.answerStatus === 'ANSWERED' ? 1 : 0),
+    viewCount: qna.viewCount ?? 0,
+    isMyQuestion: qna.isMyQuestion ?? false,
+  })),
+  totalCount: response?.totalCount ?? 0,
+});
+
+const normalizeAdminLessonQnaDetail = (
+  response: AdminLessonQnaDetailResponse,
+): AdminLessonQnaDetailResponse => ({
+  ...response,
+  content: response.content ?? '',
+  imageUrls: response.imageUrls ?? [],
+  answers: (response.answers ?? []).map((answer) => ({
+    ...answer,
+    imageUrls: answer.imageUrls ?? [],
+  })),
+});
+
+const normalizeAdminLessonDetail = (
+  response: AdminLessonDetailResponse,
+): AdminLessonDetailResponse => ({
+  ...response,
+  description: response.description ?? '',
+  content: response.content ?? '',
+  estimatedMinutes: response.estimatedMinutes ?? 30,
+  retrospectivePurpose: response.retrospectivePurpose ?? 'PRACTICE_PROOF',
+  isFree: response.isFree ?? false,
+  isPublished: response.isPublished ?? false,
+});
+
+const normalizeDeleteResponse = <
+  T extends {
+    deleted?: boolean;
+    isDeleted?: boolean;
+  },
+>(
+  response: T,
+): T & { deleted: boolean } => ({
+  ...response,
+  deleted: response.deleted ?? response.isDeleted ?? false,
+});
 
 export const getAdminCourses = async ({
   status,
   page,
   size,
 }: AdminCourseListParams): Promise<ApiPageResponse<AdminCourseSummary>> => {
+  const params = normalizeAdminCourseListParams({ status, page, size });
   const response = await axiosInstanceV5.get<
     ApiBaseResponse<ApiPageResponse<AdminCourseSummary>>
   >('admin/courses', {
-    params: { status, page, size },
+    params,
   });
 
-  return unwrap(response);
+  return normalizeAdminCoursePage(unwrap(response));
 };
 
 export const createAdminCourse = async (
@@ -84,7 +215,7 @@ export const deleteAdminCourse = async (
     ApiBaseResponse<AdminCourseDeleteResponse>
   >(`admin/courses/${courseId}`);
 
-  return unwrap(response);
+  return normalizeDeleteResponse(unwrap(response));
 };
 
 export const getAdminCourseLessons = async (
@@ -104,7 +235,7 @@ export const getAdminLessonDetail = async (
     ApiBaseResponse<AdminLessonDetailResponse>
   >(`admin/lessons/${lessonId}`);
 
-  return unwrap(response);
+  return normalizeAdminLessonDetail(unwrap(response));
 };
 
 export const createAdminLesson = async ({
@@ -141,7 +272,7 @@ export const deleteAdminLesson = async (
     ApiBaseResponse<AdminLessonDeleteResponse>
   >(`admin/lessons/${lessonId}`);
 
-  return unwrap(response);
+  return normalizeDeleteResponse(unwrap(response));
 };
 
 export const bulkUpdateAdminLessons = async ({
@@ -201,7 +332,7 @@ export const getAdminLessonQnas = async (
     ApiBaseResponse<AdminLessonQnaListResponse>
   >(`admin/lessons/${lessonId}/qnas`);
 
-  return unwrap(response);
+  return normalizeAdminLessonQnas(unwrap(response));
 };
 
 export const getAdminLessonQnaDetail = async (
@@ -211,7 +342,7 @@ export const getAdminLessonQnaDetail = async (
     ApiBaseResponse<AdminLessonQnaDetailResponse>
   >(`admin/qnas/${qnaId}`);
 
-  return unwrap(response);
+  return normalizeAdminLessonQnaDetail(unwrap(response));
 };
 
 export const createAdminLessonQnaAnswer = async ({
@@ -235,7 +366,7 @@ export const getAdminLessonRetrospectives = async (
     ApiBaseResponse<AdminLessonRetrospectiveResponse>
   >(`admin/lessons/${lessonId}/retrospectives`);
 
-  return unwrap(response);
+  return normalizeAdminLessonRetrospective(unwrap(response));
 };
 
 export const getAdminLessonBuilderFeeds = async (
@@ -245,7 +376,7 @@ export const getAdminLessonBuilderFeeds = async (
     ApiBaseResponse<AdminLessonBuilderFeedsResponse>
   >(`admin/lessons/${lessonId}/builder-feeds`);
 
-  return unwrap(response);
+  return normalizeAdminLessonBuilderFeeds(unwrap(response));
 };
 
 export const updateAdminBuilderFeedCuration = async ({

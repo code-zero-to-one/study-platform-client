@@ -104,6 +104,9 @@ function MarkdownEditor({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const editorContentWrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
+  const imageInputInsertRangeRef = useRef<
+    { from: number; to: number } | undefined
+  >(undefined);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeContent(value);
   const currentVisibleTextLength = useMemo(() => {
@@ -262,8 +265,14 @@ function MarkdownEditor({
           return false;
         }
 
-        if (resolvedImageConfig && hasClipboardImageHint(clipboardData)) {
+        if (hasClipboardImageHint(clipboardData)) {
           event.preventDefault();
+          if (!resolvedImageConfig) {
+            setImageInsertError(
+              '현재 화면에서는 이미지 업로드를 사용할 수 없습니다.',
+            );
+            return true;
+          }
           handleClipboardPaste(editorInstance, clipboardData).catch(() => {
             setImageInsertError('이미지 붙여넣기에 실패했습니다.');
           });
@@ -292,10 +301,6 @@ function MarkdownEditor({
         return true;
       },
       handleDrop: (_, event) => {
-        if (!resolvedImageConfig) {
-          return false;
-        }
-
         const dataTransfer = event.dataTransfer;
         if (!dataTransfer) {
           return false;
@@ -310,7 +315,22 @@ function MarkdownEditor({
         }
 
         event.preventDefault();
+        if (!resolvedImageConfig) {
+          setImageInsertError(
+            '현재 화면에서는 이미지 업로드를 사용할 수 없습니다.',
+          );
+          return true;
+        }
+
         const editorInstance = getValidEditorInstance();
+        const dropPosition = _.posAtCoords({
+          left: event.clientX,
+          top: event.clientY,
+        })?.pos;
+        const dropInsertRange =
+          typeof dropPosition === 'number'
+            ? { from: dropPosition, to: dropPosition }
+            : undefined;
         const onDropError = () =>
           setImageInsertError('이미지 드롭에 실패했습니다.');
 
@@ -319,7 +339,9 @@ function MarkdownEditor({
           return true;
         }
 
-        handleImageFiles(editorInstance, imageFiles).catch(onDropError);
+        handleImageFiles(editorInstance, imageFiles, dropInsertRange).catch(
+          onDropError,
+        );
 
         return true;
       },
@@ -565,7 +587,16 @@ function MarkdownEditor({
             type="button"
             color="secondary"
             size="small"
-            onClick={() => imageInputRef.current?.click()}
+            onClick={() => {
+              const editorInstance = getValidEditorInstance();
+              imageInputInsertRangeRef.current = editorInstance
+                ? {
+                    from: editorInstance.state.selection.from,
+                    to: editorInstance.state.selection.to,
+                  }
+                : undefined;
+              imageInputRef.current?.click();
+            }}
             disabled={isUploadingImages}
           >
             {isUploadingImages ? (
@@ -627,11 +658,16 @@ function MarkdownEditor({
             }
 
             const files = Array.from(event.target.files ?? []);
-            handleImageFiles(editor, files).catch(() => {
+            handleImageFiles(
+              editor,
+              files,
+              imageInputInsertRangeRef.current,
+            ).catch(() => {
               setImageInsertError(
                 '이미지 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
               );
             });
+            imageInputInsertRangeRef.current = undefined;
             event.target.value = '';
           }}
         />

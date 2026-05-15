@@ -37,8 +37,8 @@ interface AdminCourseFormContentProps {
     key: K,
     value: AdminCourseFormValues[K],
   ) => void;
-  toDateTimeLocal: (value?: string) => string;
-  toKstOffsetDateTime: (value: string) => string | undefined;
+  toDateTimeLocal?: (value?: string) => string;
+  toKstOffsetDateTime?: (value: string) => string | undefined;
 }
 
 export function AdminCourseFormContent({
@@ -58,8 +58,6 @@ export function AdminCourseFormContent({
   resetCourseForm,
   statusOptions,
   thumbnailAccept,
-  toDateTimeLocal,
-  toKstOffsetDateTime,
   updateCourseFormField,
 }: AdminCourseFormContentProps) {
   return (
@@ -140,33 +138,19 @@ export function AdminCourseFormContent({
             }
           />
         </AdminCourseField>
-        <AdminCourseField label="정가" helper="선택 · 1 이상의 정수만 허용">
-          <BaseInput
-            size="m"
-            type="number"
-            min={1}
-            step={1}
-            disabled={isCourseFormLocked}
-            value={courseForm.regularPrice}
-            placeholder="59900"
-            onValueChange={(regularPrice) =>
-              updateCourseFormField('regularPrice', regularPrice)
-            }
-          />
-        </AdminCourseField>
-        <AdminCourseField label="할인가" helper="선택 · 1 이상의 정수만 허용">
-          <BaseInput
-            size="m"
-            type="number"
-            min={1}
-            step={1}
-            disabled={isCourseFormLocked}
-            value={courseForm.discountPrice}
-            placeholder="39900"
-            onValueChange={(discountPrice) =>
-              updateCourseFormField('discountPrice', discountPrice)
-            }
-          />
+        <AdminCourseField
+          label="가격/얼리버드"
+          helper="플랜 가격, 할인가, 추천 수, 탐색 수는 서버에서 자동 계산됩니다."
+        >
+          <div className="border-border-default bg-background-alternative rounded-100 border px-125 py-100">
+            <p className="font-designer-13m text-text-default">
+              자동 계산 항목
+            </p>
+            <p className="font-designer-12r text-text-subtle mt-50">
+              카드 인원, 학습 수, 추천 수, 탐색 수, 가격/얼리버드 값은 현재 API
+              요청 본문에 포함하지 않습니다.
+            </p>
+          </div>
         </AdminCourseField>
         <AdminCourseField
           label="기간(일)"
@@ -202,23 +186,6 @@ export function AdminCourseFormContent({
             onChange={handleChangeCourseThumbnail}
             onChangeWidth={onChangeCourseThumbnailDisplayWidth}
             onClear={handleClearCourseThumbnailSelection}
-          />
-        </AdminCourseField>
-        <AdminCourseField
-          label="얼리버드 종료 시각(KST)"
-          helper="선택 · ISO-8601 offset datetime으로 저장됩니다."
-        >
-          <BaseInput
-            size="m"
-            type="datetime-local"
-            disabled={isCourseFormLocked}
-            value={toDateTimeLocal(courseForm.earlyBirdEndsAt)}
-            onValueChange={(value) =>
-              updateCourseFormField(
-                'earlyBirdEndsAt',
-                toKstOffsetDateTime(value) ?? null,
-              )
-            }
           />
         </AdminCourseField>
         <AdminCourseField

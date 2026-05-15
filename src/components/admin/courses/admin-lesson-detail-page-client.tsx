@@ -527,6 +527,7 @@ export default function AdminLessonDetailPageClient({
           </div>
           <AdminCourseMarkdownField
             editorStateKey={String(lessonId)}
+            lessonId={lessonId}
             value={lessonForm.content}
             isHydrating={isLessonFormLocked}
             hydratingText="레슨 저장 중입니다."

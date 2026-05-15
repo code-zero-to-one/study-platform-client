@@ -1,13 +1,20 @@
 import {
-  COMMUNITY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS,
   COMMUNITY_MARKDOWN_MAX_IMAGE_COUNT,
   COMMUNITY_MARKDOWN_MAX_IMAGE_FILE_SIZE,
 } from '@/types/community/markdown';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { isHtmlContent } from '@/utils/markdown-content-shared';
 
-export const ADMIN_COURSE_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS =
-  COMMUNITY_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS;
+export const ADMIN_COURSE_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS = [
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+  'gif',
+  'svg',
+  'heic',
+  'heif',
+] as const;
 export const ADMIN_COURSE_MARKDOWN_MAX_IMAGE_COUNT =
   COMMUNITY_MARKDOWN_MAX_IMAGE_COUNT;
 export const ADMIN_COURSE_MARKDOWN_MAX_IMAGE_FILE_SIZE =
