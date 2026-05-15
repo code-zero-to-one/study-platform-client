@@ -346,13 +346,10 @@ export const toAdminCoursePayload = (
     cardHeadline: form.cardHeadline.trim(),
     cardSummary: form.cardSummary.trim(),
     cardTags,
-    regularPrice: toOptionalNumber(form.regularPrice),
-    discountPrice: toOptionalNumber(form.discountPrice),
     description: form.description.trim(),
     thumbnailUrl: form.thumbnailUrl.trim(),
     status: form.status,
     durationDays: toOptionalNumber(form.durationDays),
-    earlyBirdEndsAt: form.earlyBirdEndsAt || null,
   };
 };
 
@@ -380,12 +377,6 @@ export const toAdminCourseUpdateRequest = ({
   if (touchedFields.cardTags) {
     request.cardTags = basePayload.cardTags;
   }
-  if (touchedFields.regularPrice) {
-    request.regularPrice = basePayload.regularPrice;
-  }
-  if (touchedFields.discountPrice) {
-    request.discountPrice = basePayload.discountPrice;
-  }
   if (touchedFields.description) {
     request.description = basePayload.description;
   }
@@ -397,9 +388,6 @@ export const toAdminCourseUpdateRequest = ({
   }
   if (touchedFields.durationDays) {
     request.durationDays = basePayload.durationDays;
-  }
-  if (touchedFields.earlyBirdEndsAt) {
-    request.earlyBirdEndsAt = basePayload.earlyBirdEndsAt;
   }
 
   return request;

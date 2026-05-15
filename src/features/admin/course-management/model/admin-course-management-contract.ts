@@ -27,6 +27,7 @@ export interface AdminCourseSummary {
   title: string;
   status: AdminCourseStatus;
   lessonCount: number;
+  activeEnrollmentCount?: number;
   enrolledCount: number;
   updatedAt: string | null;
 }
@@ -39,12 +40,9 @@ export interface AdminCourseDetailResponse {
   cardHeadline: string;
   cardSummary: string;
   cardTags: string[];
-  regularPrice: number | null;
-  discountPrice: number | null;
   description: string;
   thumbnailUrl: string;
   durationDays: number | null;
-  earlyBirdEndsAt: string | null;
   updatedAt: string | null;
 }
 
@@ -54,13 +52,10 @@ export interface AdminCourseUpsertRequest {
   cardHeadline: string;
   cardSummary: string;
   cardTags: string[];
-  regularPrice?: number;
-  discountPrice?: number;
   description: string;
   thumbnailUrl: string;
   status: AdminCourseStatus;
   durationDays?: number;
-  earlyBirdEndsAt: string | null;
 }
 
 export type AdminCourseUpdateRequest = Partial<AdminCourseUpsertRequest>;
@@ -165,11 +160,15 @@ export interface AdminLessonQnaListItem {
   author: {
     memberId: number;
     nickname: string;
-    role: 'BUILDER' | 'MANAGER';
+    role: string;
   };
   viewCount: number;
   answerCount: number;
   isMyQuestion: boolean;
+  previewText?: string;
+  answerStatus?: string;
+  curiousCount?: number;
+  usefulCount?: number;
   createdAt: string;
 }
 
@@ -193,17 +192,20 @@ export interface AdminLessonQnaDetailResponse {
   author: {
     memberId: number;
     nickname: string;
-    role: 'BUILDER' | 'MANAGER';
+    role: string;
   };
   createdAt: string;
   viewCount: number;
+  usefulCount?: number;
+  curiousCount?: number;
   answers: Array<{
     answerId: number;
     content: string;
+    imageUrls?: string[];
     author: {
       memberId: number;
       nickname: string;
-      role: 'BUILDER' | 'MANAGER';
+      role: string;
     };
     createdAt: string;
   }>;
@@ -219,10 +221,13 @@ export interface AdminLessonRetrospectiveResponse {
     memberId: number;
     nickname: string;
     understandingScore: number;
+    starRating?: number;
     purpose: AdminRetrospectivePurpose;
     artifactType: 'SCREENSHOT' | 'LINK' | null;
     artifactValue: string | null;
     content: string;
+    highlightAnswer?: string | null;
+    unexpectedAnswer?: string | null;
     createdAt: string;
   }>;
 }
@@ -233,11 +238,13 @@ export interface AdminLessonBuilderFeedsResponse {
     lessonId: number | null;
     memberId: number;
     nickname: string;
-    role: 'BUILDER' | 'MANAGER';
+    role: string;
     content: string;
     imageUrls: string[];
     likeCount: number;
     commentCount: number;
+    isOperatorPick?: boolean;
+    isFeatured?: boolean;
     operatorPick: boolean;
     featured: boolean;
     featuredOrder: number | null;

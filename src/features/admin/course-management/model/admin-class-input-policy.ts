@@ -60,18 +60,6 @@ export const getAdminCoursePayloadValidationError = (
     return '카드 태그는 각 30자 이내로 입력해주세요.';
   }
 
-  if (
-    typeof payload.regularPrice === 'number' &&
-    !isPositiveInteger(payload.regularPrice)
-  ) {
-    return '정가는 1 이상의 정수로 입력해주세요.';
-  }
-  if (
-    typeof payload.discountPrice === 'number' &&
-    !isPositiveInteger(payload.discountPrice)
-  ) {
-    return '할인가는 1 이상의 정수로 입력해주세요.';
-  }
   if (payload.description.length > CLASS_INPUT_LIMITS.course.descriptionMax) {
     return '공개 상세 설명은 2000자 이내로 입력해주세요.';
   }
@@ -82,7 +70,7 @@ export const getAdminCoursePayloadValidationError = (
     return '썸네일 URL은 http:// 또는 https:// 형식이어야 합니다.';
   }
   if (
-    typeof payload.durationDays === 'number' &&
+    payload.durationDays !== undefined &&
     !isPositiveInteger(payload.durationDays)
   ) {
     return '기간은 1일 이상의 정수로 입력해주세요.';

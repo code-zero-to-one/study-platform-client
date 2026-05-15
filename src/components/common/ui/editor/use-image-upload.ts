@@ -20,6 +20,40 @@ import {
 const maxImageCountError = (count: number) =>
   `이미지는 최대 ${count}개까지만 등록할 수 있습니다.`;
 
+interface ImageInsertRange {
+  from: number;
+  to: number;
+}
+
+const getCurrentImageInsertRange = (editor: Editor): ImageInsertRange => ({
+  from: editor.state.selection.from,
+  to: editor.state.selection.to,
+});
+
+const insertUploadedImageUrls = (
+  editor: Editor,
+  imageUrls: string[],
+  insertRange: ImageInsertRange,
+) => {
+  if (imageUrls.length === 0) {
+    return;
+  }
+
+  const imageContents = imageUrls.map((src) => ({
+    type: 'image',
+    attrs: {
+      src,
+      width: MARKDOWN_IMAGE_DEFAULT_WIDTH,
+    },
+  }));
+
+  try {
+    editor.chain().focus().insertContentAt(insertRange, imageContents).run();
+  } catch {
+    editor.chain().focus().insertContent(imageContents).run();
+  }
+};
+
 /**
  * 마크다운 에디터에 이미지 업로드 및 붙여넣기 기능을 제공하는 커스텀 훅입니다.
  * 파일 검증, 크기 제한, 에러 처리를 포함합니다.
@@ -35,45 +69,43 @@ export function useImageUpload(
   const [isUploadingImages, setIsUploadingImages] = useState(false);
 
   /**
-   * 파일을 업로드하고 에디터에 이미지로 삽입합니다.
+   * 파일을 업로드하고 삽입할 이미지 URL을 반환합니다.
    * @param editor TipTap 에디터 인스턴스
    * @param file 업로드할 이미지 파일
    * @returns 비동기 작업
    * @example
-   * await uploadAndInsertFile(editor, imageFile)
+   * await uploadFile(imageFile)
    */
-  const uploadAndInsertFile = useCallback(
-    async (editor: Editor, file: File) => {
+  const uploadFile = useCallback(
+    async (file: File) => {
       if (!resolvedImageConfig) {
-        return;
+        return undefined;
       }
 
-      const uploadedImageUrl = await resolvedImageConfig.uploadImageFile(file);
-      const imageCommand = editor.chain().focus().setImage({
-        src: uploadedImageUrl,
-        width: MARKDOWN_IMAGE_DEFAULT_WIDTH,
-      });
-
-      imageCommand.run();
+      return resolvedImageConfig.uploadImageFile(file);
     },
     [resolvedImageConfig],
   );
 
-  const collectUploadErrors = useCallback(
-    async (editor: Editor, files: File[]) => {
+  const collectUploadedImageUrls = useCallback(
+    async (files: File[]) => {
+      const uploadedImageUrls: string[] = [];
       const uploadErrors: string[] = [];
 
       for (const file of files) {
         try {
-          await uploadAndInsertFile(editor, file);
+          const uploadedImageUrl = await uploadFile(file);
+          if (uploadedImageUrl) {
+            uploadedImageUrls.push(uploadedImageUrl);
+          }
         } catch {
           uploadErrors.push(`${file.name}: 업로드 실패`);
         }
       }
 
-      return uploadErrors;
+      return { uploadedImageUrls, uploadErrors };
     },
-    [uploadAndInsertFile],
+    [uploadFile],
   );
 
   /**
@@ -86,7 +118,11 @@ export function useImageUpload(
    * await handleImageFiles(editor, [file1, file2])
    */
   const handleImageFiles = useCallback(
-    async (editor: Editor, files: File[]) => {
+    async (
+      editor: Editor,
+      files: File[],
+      insertRange = getCurrentImageInsertRange(editor),
+    ) => {
       if (!resolvedImageConfig || files.length === 0 || isUploadingImages) {
         return;
       }
@@ -143,7 +179,10 @@ export function useImageUpload(
       setImageInsertError('');
 
       try {
-        errors.push(...(await collectUploadErrors(editor, validFiles)));
+        const { uploadedImageUrls, uploadErrors } =
+          await collectUploadedImageUrls(validFiles);
+        insertUploadedImageUrls(editor, uploadedImageUrls, insertRange);
+        errors.push(...uploadErrors);
 
         if (hitLimit) {
           errors.push(maxImageCountError(maxImageCount));
@@ -156,7 +195,7 @@ export function useImageUpload(
         setIsUploadingImages(false);
       }
     },
-    [collectUploadErrors, isUploadingImages, resolvedImageConfig],
+    [collectUploadedImageUrls, isUploadingImages, resolvedImageConfig],
   );
 
   /**
@@ -174,6 +213,7 @@ export function useImageUpload(
         return;
       }
 
+      const insertRange = getCurrentImageInsertRange(editor);
       const editorHtml = editor.getHTML();
       const existingImageCount = extractImageUrls(editorHtml).length;
       if (existingImageCount >= resolvedImageConfig.maxImageCount) {
@@ -209,7 +249,10 @@ export function useImageUpload(
           return;
         }
 
-        await uploadAndInsertFile(editor, normalizedFile);
+        const uploadedImageUrl = await uploadFile(normalizedFile);
+        if (uploadedImageUrl) {
+          insertUploadedImageUrls(editor, [uploadedImageUrl], insertRange);
+        }
       } catch (error) {
         if (
           error instanceof Error &&
@@ -228,7 +271,7 @@ export function useImageUpload(
         setIsUploadingImages(false);
       }
     },
-    [isUploadingImages, resolvedImageConfig, uploadAndInsertFile],
+    [isUploadingImages, resolvedImageConfig, uploadFile],
   );
 
   /**
