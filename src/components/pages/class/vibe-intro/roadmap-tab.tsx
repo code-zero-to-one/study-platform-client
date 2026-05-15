@@ -327,7 +327,7 @@ export function RoadmapTab() {
                               width={906}
                               height={398}
                               className={cn(
-                                '!max-w-none',
+                                'max-w-none!',
                                 rows.length % 2 === 0 && '-scale-x-100',
                               )}
                             />
@@ -342,7 +342,7 @@ export function RoadmapTab() {
                             width={906}
                             height={319}
                             className={cn(
-                              '!max-w-none',
+                              'max-w-none!',
                               ri % 2 === 1 && '-scale-x-100',
                             )}
                           />
@@ -427,7 +427,7 @@ export function RoadmapTab() {
                       className={cn(
                         'flex h-1250 items-center justify-between rounded-200 border px-500 transition-colors',
                         isAccessible
-                          ? 'cursor-pointer border-gray-300 bg-gray-50 hover:border-border-brand'
+                          ? 'group cursor-pointer border-gray-300 bg-gray-50 hover:border-border-brand hover:text-border-brand'
                           : 'cursor-not-allowed border-gray-300 bg-gray-50 opacity-60',
                       )}
                     >
@@ -478,7 +478,7 @@ export function RoadmapTab() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex shrink-0 items-center gap-25 text-gray-400">
+                      <div className="flex shrink-0 items-center gap-25 text-gray-400 group-hover:text-border-brand">
                         <Timer className="size-300" />
                         <span className="font-designer-14r">
                           약 {l.estimatedMinutes}분 소요
