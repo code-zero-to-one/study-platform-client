@@ -81,6 +81,7 @@ export interface AdminCourseCreateResponse {
 
 export interface AdminCourseDeleteResponse {
   deleted: boolean;
+  isDeleted?: boolean;
   reason: string | null;
   status: AdminCourseStatus | null;
 }
@@ -130,6 +131,7 @@ export interface AdminLessonCreateResponse {
 
 export interface AdminLessonDeleteResponse {
   deleted: boolean;
+  isDeleted?: boolean;
   reason: string | null;
   isPublished: boolean | null;
 }

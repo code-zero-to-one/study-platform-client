@@ -876,6 +876,7 @@ export default function AdminLessonManagementPageClient({
                 ) : (
                   <AdminCourseMarkdownEditor
                     editorStateKey={`${lessonFormMode}:${editingLessonId ?? 'new'}:${editorVersion}`}
+                    lessonId={editingLessonId}
                     value={lessonForm.content}
                     placeholder="레슨 본문을 작성하세요. 이미지, 코드블록, 표, 링크를 사용할 수 있습니다."
                     onChange={(content) =>
