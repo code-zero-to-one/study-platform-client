@@ -98,8 +98,12 @@ export function useImageUpload(
           if (uploadedImageUrl) {
             uploadedImageUrls.push(uploadedImageUrl);
           }
-        } catch {
-          uploadErrors.push(`${file.name}: 업로드 실패`);
+        } catch (error) {
+          const message =
+            error instanceof Error && error.message.trim()
+              ? error.message.trim()
+              : '업로드 실패';
+          uploadErrors.push(`${file.name}: ${message}`);
         }
       }
 

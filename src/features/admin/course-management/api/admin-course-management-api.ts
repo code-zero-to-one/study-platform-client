@@ -110,6 +110,18 @@ const normalizeAdminLessonQnaDetail = (
   })),
 });
 
+const normalizeDeleteResponse = <
+  T extends {
+    deleted?: boolean;
+    isDeleted?: boolean;
+  },
+>(
+  response: T,
+): T & { deleted: boolean } => ({
+  ...response,
+  deleted: response.deleted ?? response.isDeleted ?? false,
+});
+
 export const getAdminCourses = async ({
   status,
   page,
@@ -165,7 +177,7 @@ export const deleteAdminCourse = async (
     ApiBaseResponse<AdminCourseDeleteResponse>
   >(`admin/courses/${courseId}`);
 
-  return unwrap(response);
+  return normalizeDeleteResponse(unwrap(response));
 };
 
 export const getAdminCourseLessons = async (
@@ -222,7 +234,7 @@ export const deleteAdminLesson = async (
     ApiBaseResponse<AdminLessonDeleteResponse>
   >(`admin/lessons/${lessonId}`);
 
-  return unwrap(response);
+  return normalizeDeleteResponse(unwrap(response));
 };
 
 export const bulkUpdateAdminLessons = async ({

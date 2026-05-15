@@ -265,8 +265,14 @@ function MarkdownEditor({
           return false;
         }
 
-        if (resolvedImageConfig && hasClipboardImageHint(clipboardData)) {
+        if (hasClipboardImageHint(clipboardData)) {
           event.preventDefault();
+          if (!resolvedImageConfig) {
+            setImageInsertError(
+              '현재 화면에서는 이미지 업로드를 사용할 수 없습니다.',
+            );
+            return true;
+          }
           handleClipboardPaste(editorInstance, clipboardData).catch(() => {
             setImageInsertError('이미지 붙여넣기에 실패했습니다.');
           });
@@ -295,10 +301,6 @@ function MarkdownEditor({
         return true;
       },
       handleDrop: (_, event) => {
-        if (!resolvedImageConfig) {
-          return false;
-        }
-
         const dataTransfer = event.dataTransfer;
         if (!dataTransfer) {
           return false;
@@ -313,6 +315,13 @@ function MarkdownEditor({
         }
 
         event.preventDefault();
+        if (!resolvedImageConfig) {
+          setImageInsertError(
+            '현재 화면에서는 이미지 업로드를 사용할 수 없습니다.',
+          );
+          return true;
+        }
+
         const editorInstance = getValidEditorInstance();
         const dropPosition = _.posAtCoords({
           left: event.clientX,

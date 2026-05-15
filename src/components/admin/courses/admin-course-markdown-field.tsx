@@ -2,6 +2,7 @@ import AdminCourseField from '@/components/admin/courses/admin-course-field';
 import AdminCourseMarkdownEditor from '@/components/admin/courses/admin-course-markdown-editor';
 
 interface AdminCourseMarkdownFieldProps {
+  lessonId?: number;
   value: string;
   onChange: (content: string) => void;
   placeholder: string;
@@ -12,6 +13,7 @@ interface AdminCourseMarkdownFieldProps {
 }
 
 export default function AdminCourseMarkdownField({
+  lessonId,
   value,
   onChange,
   placeholder,
@@ -30,6 +32,7 @@ export default function AdminCourseMarkdownField({
         ) : (
           <AdminCourseMarkdownEditor
             editorStateKey={editorStateKey}
+            lessonId={lessonId}
             value={value}
             placeholder={placeholder}
             onChange={onChange}
