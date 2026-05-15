@@ -178,7 +178,6 @@ export default function LessonPage({
         chapters={drawerChapters}
         expandedChapters={expandedChapters}
         onToggleChapter={toggleChapter}
-        currentLessonId={lessonId}
       />
 
       <LessonTopBar
