@@ -96,26 +96,6 @@ const formatDateTime = (value?: string | null) => {
   }).format(date);
 };
 
-const toDateTimeLocal = (value?: string | null) => {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day}T${hour}:${minute}`;
-};
-
-const toKstOffsetDateTime = (value: string) => {
-  if (!value) return undefined;
-
-  return `${value}:00+09:00`;
-};
-
 const toAdminCourseFormValues = (
   courseDetail: AdminCourseDetailResponse,
 ): AdminCourseFormValues => ({
@@ -124,14 +104,8 @@ const toAdminCourseFormValues = (
   cardHeadline: courseDetail.cardHeadline ?? '',
   cardSummary: courseDetail.cardSummary ?? '',
   cardTags: courseDetail.cardTags.join(', '),
-  regularPrice:
-    typeof courseDetail.regularPrice === 'number'
-      ? String(courseDetail.regularPrice)
-      : '',
-  discountPrice:
-    typeof courseDetail.discountPrice === 'number'
-      ? String(courseDetail.discountPrice)
-      : '',
+  regularPrice: '',
+  discountPrice: '',
   description: courseDetail.description ?? '',
   thumbnailUrl: courseDetail.thumbnailUrl ?? '',
   status: courseDetail.status,
@@ -139,7 +113,7 @@ const toAdminCourseFormValues = (
     typeof courseDetail.durationDays === 'number'
       ? String(courseDetail.durationDays)
       : '',
-  earlyBirdEndsAt: courseDetail.earlyBirdEndsAt,
+  earlyBirdEndsAt: null,
 });
 
 const CoursePreviewPanel = ({
@@ -152,8 +126,6 @@ const CoursePreviewPanel = ({
   thumbnailPreviewUrl?: string;
 }) => {
   const tags = parseAdminCourseCardTags(courseForm.cardTags);
-  const hasRegularPrice = courseForm.regularPrice.trim().length > 0;
-  const hasDiscountPrice = courseForm.discountPrice.trim().length > 0;
 
   return (
     <div className="border-border-default bg-background-default rounded-150 flex min-h-screen flex-col border p-200">
@@ -204,26 +176,9 @@ const CoursePreviewPanel = ({
           {courseForm.cardSummary || '카드 요약이 여기에 표시됩니다.'}
         </p>
         <div className="mt-125 flex items-baseline gap-75">
-          {hasRegularPrice && hasDiscountPrice ? (
-            <span className="font-designer-14r text-text-subtle line-through">
-              {courseForm.regularPrice}원
-            </span>
-          ) : null}
-          {hasDiscountPrice ? (
-            <span className="font-designer-16b text-text-default">
-              {courseForm.discountPrice}원
-            </span>
-          ) : null}
-          {!hasRegularPrice && !hasDiscountPrice ? (
-            <span className="font-designer-16b text-text-default">
-              가격 미입력
-            </span>
-          ) : null}
-          {hasRegularPrice && !hasDiscountPrice ? (
-            <span className="font-designer-16b text-text-default">
-              {courseForm.regularPrice}원
-            </span>
-          ) : null}
+          <span className="font-designer-16b text-text-default">
+            가격/얼리버드는 플랜 정책에서 자동 계산
+          </span>
         </div>
       </div>
 
@@ -259,7 +214,7 @@ export default function AdminCourseDetailPageClient({
   const isCreateMode = typeof courseId !== 'number';
   const draftKey = `course:${courseId ?? 'new'}`;
   const [hasInitializedDraft, setHasInitializedDraft] = useState(isCreateMode);
-  const coursesQuery = useAdminCoursesQuery({ page: 0, size: 100 });
+  const coursesQuery = useAdminCoursesQuery({ page: 0, size: 50 });
   const courseDetailQuery = useAdminCourseDetailQuery(courseId);
   const selectedCourse = useMemo(
     () =>
@@ -706,8 +661,6 @@ export default function AdminCourseDetailPageClient({
               }}
               statusOptions={COURSE_STATUS_OPTIONS}
               thumbnailAccept={COURSE_THUMBNAIL_INPUT_ACCEPT}
-              toDateTimeLocal={toDateTimeLocal}
-              toKstOffsetDateTime={toKstOffsetDateTime}
               updateCourseFormField={updateCourseFormField}
             />
           )}
