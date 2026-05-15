@@ -56,7 +56,7 @@ export default function CourseCompletePage() {
   function handleNextPlanSubmit() {
     if (!courseId) return;
     submitNextPlan.mutate(
-      { courseId, nextPlan: feedback },
+      { courseId, content: feedback },
       { onSuccess: () => showToast('제출이 완료되었어요!') },
     );
   }

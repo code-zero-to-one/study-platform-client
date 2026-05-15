@@ -282,14 +282,14 @@ export const useSubmitNextPlan = () => {
   return useMutation({
     mutationFn: async ({
       courseId,
-      nextPlan,
+      content,
     }: {
       courseId: number;
-      nextPlan: string;
+      content: string;
     }) => {
       const { data } = await axiosInstanceV5.post<{ content: unknown }>(
         `courses/${courseId}/next-plan`,
-        { nextPlan },
+        { content },
       );
       return data.content;
     },
