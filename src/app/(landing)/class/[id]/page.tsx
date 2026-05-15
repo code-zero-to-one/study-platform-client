@@ -28,7 +28,6 @@ import {
   useGetBuilderFeedShowcase,
   useGetCourseCurriculum,
   useGetCourseDetail,
-  useGetMyCourseFreeEnrollment,
   useGetMyGiftEmail,
   useRegisterGiftEmail,
 } from '@/hooks/queries/course/course-api';
@@ -166,10 +165,12 @@ export default function ClassDetailPage({
   const { data: builderFeedShowcase } = useGetBuilderFeedShowcase(courseId);
   const createCourseFreeEnrollment = useCreateCourseFreeEnrollment();
   const createStudyWithMeSubscription = useCreateStudyWithMeSubscription();
-  const { data: myFreeEnrollment } = useGetMyCourseFreeEnrollment(
-    isAuthenticated ? courseId : 0,
-  );
-  const isAlreadyFreeEnrolled = myFreeEnrollment?.isFreeEnrolled ?? false;
+  const ctaLabel = (() => {
+    if (createCourseFreeEnrollment.isPending) return '등록 중...';
+    if (courseDetail?.viewerStatus === 'PAID') return '학습하러 가기';
+    if (courseDetail?.viewerStatus === 'FREE_ENROLLED') return '학습 계속하기';
+    return '무료 코스 시작하기';
+  })();
   const { data: myGiftEmail } = useGetMyGiftEmail({
     enabled: isAuthenticated && !!courseDetail?.isPaidEnrolled,
   });
@@ -1037,11 +1038,7 @@ export default function ClassDetailPage({
                       disabled={createCourseFreeEnrollment.isPending}
                       className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
                     >
-                      {createCourseFreeEnrollment.isPending
-                        ? '등록 중...'
-                        : isAlreadyFreeEnrolled
-                          ? '학습 계속하기'
-                          : '무료 코스 시작하기'}
+                      {ctaLabel}
                     </button>
                   ) : (
                     <LoginModal
@@ -1095,7 +1092,7 @@ export default function ClassDetailPage({
 
                 <div className="mt-300 rounded-100 bg-gray-800 p-300">
                   <p className="font-designer-14m text-gray-0">
-                    매주 월·화·수 오전 6시
+                    매주 토요일 저녁 8시
                   </p>
                   <p className="mt-75 font-designer-18b text-gray-0">
                     Study with Me 진행!
