@@ -16,6 +16,7 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { CurriculumDrawer } from './_components/curriculum-drawer';
 import { LessonBuilderFeedCard } from './_components/lesson-builder-feed-card';
 import { LessonBuilderFeedDetailModal } from './_components/lesson-builder-feed-detail-modal';
+import { LessonLinkModal } from './_components/lesson-link-modal';
 import { LessonQnaCard } from './_components/lesson-qna-card';
 import { LessonQnaDetailModal } from './_components/lesson-qna-detail-modal';
 import { LessonQnaSubmissionModal } from './_components/lesson-qna-submission-modal';
@@ -24,6 +25,7 @@ import {
   NEGATIVE_CHIPS,
   POSITIVE_CHIPS,
 } from './_components/lesson-review-form';
+import { LessonScreenshotModal } from './_components/lesson-screenshot-modal';
 import { LessonTabs, type LessonTabValue } from './_components/lesson-tabs';
 import { LessonTopBar } from './_components/lesson-top-bar';
 
@@ -67,6 +69,13 @@ export default function LessonPage({
   const [submissionModalOpen, setSubmissionModalOpen] = useState(false);
   const [selectedQnaId, setSelectedQnaId] = useState<number | null>(null);
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
+  const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [artifactImageUrl, setArtifactImageUrl] = useState<string | null>(null);
+  const [artifactImagePreviewUrl, setArtifactImagePreviewUrl] = useState<
+    string | null
+  >(null);
+  const [artifactLink, setArtifactLink] = useState<string | null>(null);
 
   const { data: lesson } = useGetLessonDetail(lessonId);
   const courseId = lesson?.courseId ?? 0;
@@ -101,7 +110,8 @@ export default function LessonPage({
     starRating > 0 &&
     highlightAnswer.trim().length > 0 &&
     unexpectedAnswer.trim().length > 0 &&
-    selectedChips.size >= 2;
+    selectedChips.size >= 2 &&
+    (!lesson?.artifactSubmissionRequired || !!artifactImageUrl);
   const isSubmitDisabled =
     !isFormValid || submitRetrospective.isPending || alreadySubmitted;
 
@@ -136,8 +146,12 @@ export default function LessonPage({
           starRating: starRating || null,
           highlightAnswer: highlightAnswer.trim(),
           unexpectedAnswer: unexpectedAnswer.trim(),
-          artifactType: null,
-          artifactValue: null,
+          artifactType: artifactImageUrl
+            ? 'SCREENSHOT'
+            : artifactLink
+              ? 'LINK'
+              : null,
+          artifactValue: artifactImageUrl ?? artifactLink ?? null,
           feedback: { checklistFlags, freeText: feedbackText },
         },
       },
@@ -245,10 +259,17 @@ export default function LessonPage({
                 onUnexpectedAnswerChange={setUnexpectedAnswer}
                 onToggleChip={toggleChip}
                 onFeedbackChange={setFeedbackText}
-                onAttachScreenshot={() =>
-                  showToast('스크린샷 첨부는 준비 중입니다.')
-                }
-                onAttachLink={() => showToast('링크 입력은 준비 중입니다.')}
+                artifactImagePreviewUrl={artifactImagePreviewUrl}
+                artifactLink={artifactLink}
+                onAttachScreenshot={() => setScreenshotModalOpen(true)}
+                onAttachLink={() => setLinkModalOpen(true)}
+                onRemoveArtifactImage={() => {
+                  if (artifactImagePreviewUrl)
+                    URL.revokeObjectURL(artifactImagePreviewUrl);
+                  setArtifactImageUrl(null);
+                  setArtifactImagePreviewUrl(null);
+                }}
+                onRemoveArtifactLink={() => setArtifactLink(null)}
                 onSubmit={handleSubmit}
               />
             ) : null}
@@ -284,6 +305,19 @@ export default function LessonPage({
       <LessonBuilderFeedDetailModal
         feedId={selectedFeedId}
         onClose={() => setSelectedFeedId(null)}
+      />
+      <LessonScreenshotModal
+        open={screenshotModalOpen}
+        onClose={() => setScreenshotModalOpen(false)}
+        onConfirm={(imageUrl, previewUrl) => {
+          setArtifactImageUrl(imageUrl);
+          setArtifactImagePreviewUrl(previewUrl);
+        }}
+      />
+      <LessonLinkModal
+        open={linkModalOpen}
+        onClose={() => setLinkModalOpen(false)}
+        onConfirm={(url) => setArtifactLink(url)}
       />
     </div>
   );

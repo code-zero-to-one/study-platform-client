@@ -1,6 +1,6 @@
 'use client';
 
-import { Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { Image as ImageIcon, Link as LinkIcon, X } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
@@ -34,8 +34,12 @@ interface Props {
   onUnexpectedAnswerChange: (v: string) => void;
   onToggleChip: (chip: string) => void;
   onFeedbackChange: (v: string) => void;
+  artifactImagePreviewUrl?: string | null;
+  artifactLink?: string | null;
   onAttachScreenshot: () => void;
   onAttachLink: () => void;
+  onRemoveArtifactImage?: () => void;
+  onRemoveArtifactLink?: () => void;
   onSubmit: () => void;
 }
 
@@ -108,8 +112,12 @@ export function LessonReviewForm({
   onUnexpectedAnswerChange,
   onToggleChip,
   onFeedbackChange,
+  artifactImagePreviewUrl,
+  artifactLink,
   onAttachScreenshot,
   onAttachLink,
+  onRemoveArtifactImage,
+  onRemoveArtifactLink,
   onSubmit,
 }: Props) {
   return (
@@ -170,23 +178,60 @@ export function LessonReviewForm({
             bold="오늘의 프로젝트 완성 알리기"
             suffix="이미지는 필수로 등록해주세요(링크는 선택)"
           />
-          <div className="flex gap-250">
-            <button
-              type="button"
-              onClick={onAttachScreenshot}
-              className="flex h-800 flex-1 items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
-            >
-              <ImageIcon className="h-300 w-300" />
-              스크린샷 첨부
-            </button>
-            <button
-              type="button"
-              onClick={onAttachLink}
-              className="flex h-800 flex-1 items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
-            >
-              <LinkIcon className="h-300 w-300" />
-              링크 입력
-            </button>
+          <div className="flex flex-col gap-200">
+            {artifactImagePreviewUrl ? (
+              <div className="relative">
+                <Image
+                  src={artifactImagePreviewUrl}
+                  alt="첨부 스크린샷"
+                  width={400}
+                  height={202}
+                  unoptimized
+                  className="h-2525 w-full rounded-150 object-cover"
+                />
+                <button
+                  type="button"
+                  aria-label="스크린샷 삭제"
+                  onClick={onRemoveArtifactImage}
+                  className="absolute -right-75 -top-75 flex h-250 w-250 items-center justify-center rounded-full bg-gray-800 text-background-default"
+                >
+                  <X className="h-150 w-150" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={onAttachScreenshot}
+                className="flex h-800 w-full items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
+              >
+                <ImageIcon className="h-300 w-300" />
+                스크린샷 첨부
+              </button>
+            )}
+            {artifactLink ? (
+              <div className="flex items-center justify-between rounded-100 border border-gray-300 px-300 py-200">
+                <span className="truncate font-designer-14m text-gray-800">
+                  {artifactLink}
+                </span>
+                <button
+                  type="button"
+                  aria-label="링크 삭제"
+                  onClick={onRemoveArtifactLink}
+                  className="ml-200 shrink-0 text-gray-400 hover:text-gray-800"
+                >
+                  <X className="h-250 w-250" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={onAttachLink}
+                className="flex h-800 w-full items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
+              >
+                <LinkIcon className="h-300 w-300" />
+                링크 입력
+              </button>
+            )}
           </div>
         </div>
       )}
