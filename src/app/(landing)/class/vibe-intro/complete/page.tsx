@@ -1,11 +1,12 @@
 'use client';
 
 import confetti from 'canvas-confetti';
-import { ChevronUp, Link as LinkIcon, MessageCircle } from 'lucide-react';
+import { Link as LinkIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import {
   useGetCourseCompletionRecap,
   useGetCourseDetail,
@@ -213,25 +214,7 @@ export default function CourseCompletePage() {
         </div>
       </div>
 
-      {/* Counseling float */}
-      <button
-        type="button"
-        className="fixed bottom-1625 right-600 z-50 flex size-875 items-center justify-center rounded-full bg-background-brand-default shadow-1"
-        aria-label="상담 문의"
-      >
-        <MessageCircle className="h-400 w-400 text-text-inverse" />
-      </button>
-
-      {/* TopFloat */}
-      <button
-        type="button"
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-600 right-600 z-50 flex size-875 flex-col items-center justify-center rounded-full border border-gray-300 bg-background-default shadow-1"
-        aria-label="맨 위로"
-      >
-        <ChevronUp className="h-300 w-300 text-gray-500" />
-        <span className="font-designer-14r text-gray-500">TOP</span>
-      </button>
+      <FloatingClassActionButtons />
     </>
   );
 }
