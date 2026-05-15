@@ -27,8 +27,33 @@ import type {
   ApiPageResponse,
 } from '@/features/admin/course-management/model/admin-course-management-contract';
 
-const unwrap = <T>(response: { data: ApiBaseResponse<T> }) =>
-  response.data.content;
+type ApiEnvelope<T> = ApiBaseResponse<T> | { data?: ApiBaseResponse<T> };
+
+const isApiBaseResponse = <T>(value: unknown): value is ApiBaseResponse<T> => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'statusCode' in value &&
+    'timestamp' in value &&
+    'content' in value
+  );
+};
+
+const unwrap = <T>(response: ApiEnvelope<T>): T => {
+  if (!response) {
+    throw new Error('API 응답 본문 형식이 올바르지 않습니다.');
+  }
+
+  if ('data' in response && isApiBaseResponse<T>(response.data)) {
+    return response.data.content;
+  }
+
+  if (isApiBaseResponse<T>(response)) {
+    return response.content;
+  }
+
+  throw new Error('API 응답 본문 형식이 올바르지 않습니다.');
+};
 
 const ADMIN_COURSE_LIST_MIN_SIZE = 1;
 const ADMIN_COURSE_LIST_MAX_SIZE = 50;
@@ -61,9 +86,9 @@ const normalizeAdminCoursePage = (
 });
 
 const normalizeAdminLessonRetrospective = (
-  response: AdminLessonRetrospectiveResponse,
+  response: AdminLessonRetrospectiveResponse | undefined,
 ): AdminLessonRetrospectiveResponse => ({
-  retrospectives: response.retrospectives.map((retrospective) => ({
+  retrospectives: (response?.retrospectives ?? []).map((retrospective) => ({
     ...retrospective,
     understandingScore:
       retrospective.understandingScore ?? retrospective.starRating ?? 0,
@@ -76,9 +101,9 @@ const normalizeAdminLessonRetrospective = (
 });
 
 const normalizeAdminLessonBuilderFeeds = (
-  response: AdminLessonBuilderFeedsResponse,
+  response: AdminLessonBuilderFeedsResponse | undefined,
 ): AdminLessonBuilderFeedsResponse => ({
-  feeds: response.feeds.map((feed) => ({
+  feeds: (response?.feeds ?? []).map((feed) => ({
     ...feed,
     imageUrls: feed.imageUrls ?? [],
     operatorPick: feed.operatorPick ?? feed.isOperatorPick ?? false,
@@ -87,27 +112,40 @@ const normalizeAdminLessonBuilderFeeds = (
 });
 
 const normalizeAdminLessonQnas = (
-  response: AdminLessonQnaListResponse,
+  response: AdminLessonQnaListResponse | undefined,
 ): AdminLessonQnaListResponse => ({
-  myQnas: response.myQnas ?? [],
-  qnas: (response.qnas ?? []).map((qna) => ({
+  myQnas: response?.myQnas ?? [],
+  qnas: (response?.qnas ?? []).map((qna) => ({
     ...qna,
     answerCount: qna.answerCount ?? (qna.answerStatus === 'ANSWERED' ? 1 : 0),
     viewCount: qna.viewCount ?? 0,
     isMyQuestion: qna.isMyQuestion ?? false,
   })),
-  totalCount: response.totalCount,
+  totalCount: response?.totalCount ?? 0,
 });
 
 const normalizeAdminLessonQnaDetail = (
   response: AdminLessonQnaDetailResponse,
 ): AdminLessonQnaDetailResponse => ({
   ...response,
+  content: response.content ?? '',
   imageUrls: response.imageUrls ?? [],
   answers: (response.answers ?? []).map((answer) => ({
     ...answer,
     imageUrls: answer.imageUrls ?? [],
   })),
+});
+
+const normalizeAdminLessonDetail = (
+  response: AdminLessonDetailResponse,
+): AdminLessonDetailResponse => ({
+  ...response,
+  description: response.description ?? '',
+  content: response.content ?? '',
+  estimatedMinutes: response.estimatedMinutes ?? 30,
+  retrospectivePurpose: response.retrospectivePurpose ?? 'PRACTICE_PROOF',
+  isFree: response.isFree ?? false,
+  isPublished: response.isPublished ?? false,
 });
 
 const normalizeDeleteResponse = <
@@ -197,7 +235,7 @@ export const getAdminLessonDetail = async (
     ApiBaseResponse<AdminLessonDetailResponse>
   >(`admin/lessons/${lessonId}`);
 
-  return unwrap(response);
+  return normalizeAdminLessonDetail(unwrap(response));
 };
 
 export const createAdminLesson = async ({
