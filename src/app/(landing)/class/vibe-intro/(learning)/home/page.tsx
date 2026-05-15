@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { RoadmapTab } from '@/components/pages/class/vibe-intro/roadmap-tab';
 import { FeedTab } from '../_components/feed-tab';
 import { QnaTab } from '../_components/qna-tab';
