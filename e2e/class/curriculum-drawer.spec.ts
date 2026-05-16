@@ -58,8 +58,6 @@ function makeCourseDetail(): { content: CourseDetailResponse } {
       hasFullAccess: true,
       isPaidEnrolled: true,
       canPurchase: null,
-      faqs: [],
-      instructors: [],
     },
   };
 }
@@ -125,7 +123,7 @@ function makeMinimalLesson(): { content: LessonDetailResponse } {
       videoUrl: null,
       learnerCount: 10,
       viewCount: 0,
-      retrospectivePurpose: '',
+      retrospectivePurpose: 'PRACTICE_PROOF',
       retrospectivePrompt: '',
       artifactSubmissionRequired: false,
       contentMarkdown: '',
