@@ -1,12 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  loadTossPayments,
-  type TossPaymentsPayment,
-} from '@tosspayments/tosspayments-sdk';
-import { type FormEvent, useEffect, useRef, useState } from 'react';
-import { FormProvider, type UseFormReturn, useForm } from 'react-hook-form';
+import type { TossPaymentsPayment } from '@tosspayments/tosspayments-sdk';
+import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
+import type { FormEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { UseFormReturn } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
