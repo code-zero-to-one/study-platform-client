@@ -117,6 +117,14 @@ export interface StudyWithMeSubscriptionResponse {
   subscribedAt: string;
 }
 
+export type CoursePaymentStatus =
+  | 'REQUESTED'
+  | 'PENDING'
+  | 'WAITING_FOR_DEPOSIT'
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'CANCELED';
+
 export interface CoursePaymentPrepareRequest {
   planCode: CoursePlanCode;
 }
@@ -124,6 +132,7 @@ export interface CoursePaymentPrepareRequest {
 export interface CoursePaymentPrepareResponse {
   paymentId: number;
   courseId: number;
+  planId: number | null;
   planCode: CoursePlanCode;
   amount: number;
   tossOrderId: string;
@@ -133,11 +142,16 @@ export interface CoursePaymentPrepareResponse {
 export interface CoursePaymentConfirmResponse {
   paymentId: number;
   courseId: number;
+  planId: number | null;
   planCode: CoursePlanCode;
   amount: number;
-  status: string;
+  status: CoursePaymentStatus;
+  paymentMethod: 'CARD' | 'ACCOUNT' | 'EASY_PAY';
   paidAt: string;
   tossReceiptUrl: string | null;
+  virtualAccountNumber: string | null;
+  virtualAccountDueDate: string | null;
+  virtualAccountHolderName: string | null;
 }
 
 export interface CourseTossPaymentConfirmRequest {

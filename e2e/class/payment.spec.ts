@@ -94,6 +94,7 @@ function makePaymentPrepare(
     content: {
       paymentId: 999,
       courseId: COURSE_ID,
+      planId: null,
       planCode: 'ALL_IN_ONE',
       amount: 39900,
       tossOrderId: 'test-order-id-abc123',
@@ -110,11 +111,16 @@ function makePaymentConfirm(
     content: {
       paymentId: 999,
       courseId: COURSE_ID,
+      planId: null,
       planCode: 'ALL_IN_ONE',
       amount: 39900,
-      status: 'DONE',
+      status: 'SUCCESS',
+      paymentMethod: 'CARD',
       paidAt: '2025-05-16T12:00:00.000Z',
       tossReceiptUrl: null,
+      virtualAccountNumber: null,
+      virtualAccountDueDate: null,
+      virtualAccountHolderName: null,
       ...overrides,
     },
   };

@@ -12,8 +12,13 @@ interface VibeIntroPaymentSuccessProps {
 export function VibeIntroPaymentSuccess({
   paymentConfirm,
 }: VibeIntroPaymentSuccessProps) {
+  const PAYMENT_METHOD_LABELS = {
+    CARD: '신용카드',
+    ACCOUNT: '무통장 입금',
+    EASY_PAY: '간편결제',
+  } as const;
   const paymentMethodLabel =
-    paymentConfirm.status === 'DONE' ? '신용카드' : '기타';
+    PAYMENT_METHOD_LABELS[paymentConfirm.paymentMethod] ?? '기타';
 
   return (
     <div className="mx-auto flex w-full max-w-9175 flex-col items-center px-600 pb-1000 pt-800">
@@ -56,6 +61,18 @@ export function VibeIntroPaymentSuccess({
           />
         </div>
       </div>
+
+      {/* Receipt link */}
+      {paymentConfirm.tossReceiptUrl && (
+        <a
+          href={paymentConfirm.tossReceiptUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-300 font-designer-14r text-text-brand underline"
+        >
+          영수증 보기
+        </a>
+      )}
 
       {/* CTAs */}
       <div className="mt-600 flex w-full max-w-7925 gap-200">

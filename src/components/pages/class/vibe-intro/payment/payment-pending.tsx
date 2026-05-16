@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useToastStore } from '@/stores/use-toast-store';
 
 interface VirtualAccountInfo {
-  bankName: string;
+  bankName?: string;
   accountNumber: string;
   dueDate: string;
   holderName: string;
@@ -14,11 +14,15 @@ interface VirtualAccountInfo {
 
 interface VibeIntroPaymentPendingProps {
   virtualAccount: VirtualAccountInfo;
+  onCancel?: () => void;
+  isCanceling?: boolean;
 }
 
 // Lottie file required at: public/class/vibe-intro/payments.json
 export function VibeIntroPaymentPending({
   virtualAccount,
+  onCancel,
+  isCanceling = false,
 }: VibeIntroPaymentPendingProps) {
   const showToast = useToastStore((s) => s.showToast);
 
@@ -52,12 +56,14 @@ export function VibeIntroPaymentPending({
           <p className="font-designer-16b text-gray-800">은행 정보</p>
         </div>
         <div className="flex flex-col divide-y divide-gray-200 bg-background-default">
-          <div className="flex items-center justify-between px-400 py-250">
-            <span className="font-designer-14m text-gray-500">은행</span>
-            <span className="font-designer-14r text-gray-800">
-              {virtualAccount.bankName}
-            </span>
-          </div>
+          {virtualAccount.bankName && (
+            <div className="flex items-center justify-between px-400 py-250">
+              <span className="font-designer-14m text-gray-500">은행</span>
+              <span className="font-designer-14r text-gray-800">
+                {virtualAccount.bankName}
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between px-400 py-250">
             <span className="font-designer-14m text-gray-500">계좌 번호</span>
             <div className="flex items-center gap-150">
@@ -112,6 +118,17 @@ export function VibeIntroPaymentPending({
       >
         결제 관리로 가기
       </Link>
+
+      {onCancel && (
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={isCanceling}
+          className="mt-200 flex h-750 w-full max-w-5950 items-center justify-center rounded-100 border border-gray-300 font-designer-16b text-gray-600 disabled:opacity-50"
+        >
+          {isCanceling ? '취소 처리 중...' : '결제 취소'}
+        </button>
+      )}
     </div>
   );
 }

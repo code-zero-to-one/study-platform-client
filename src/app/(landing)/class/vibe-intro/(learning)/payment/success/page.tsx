@@ -2,8 +2,10 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import { VibeIntroPaymentPending } from '@/components/pages/class/vibe-intro/payment/payment-pending';
 import { VibeIntroPaymentSuccess } from '@/components/pages/class/vibe-intro/payment/payment-success';
 import {
+  useCancelCoursePayment,
   useConfirmCourseTossPayment,
   useGetCourseDetail,
 } from '@/hooks/queries/course/course-api';
@@ -27,6 +29,17 @@ function SuccessContent() {
   const { data: course } = useGetCourseDetail('vibe-intro');
   const courseId = course?.courseId ?? 0;
   const { mutateAsync: confirmPayment } = useConfirmCourseTossPayment();
+  const { mutate: cancelPayment, isPending: isCanceling } =
+    useCancelCoursePayment();
+
+  const handleCancel = () => {
+    cancelPayment(
+      { courseId, paymentId },
+      {
+        onSuccess: () => router.push('/class/vibe-intro/home'),
+      },
+    );
+  };
 
   useEffect(() => {
     if (!paymentKey || !orderId || !amount || !courseId) return;
@@ -83,6 +96,21 @@ function SuccessContent() {
           학습 홈으로 이동
         </button>
       </div>
+    );
+  }
+
+  if (confirmData.status === 'WAITING_FOR_DEPOSIT') {
+    return (
+      <VibeIntroPaymentPending
+        virtualAccount={{
+          accountNumber: confirmData.virtualAccountNumber ?? '',
+          dueDate: confirmData.virtualAccountDueDate ?? '',
+          holderName: confirmData.virtualAccountHolderName ?? '',
+          amount: confirmData.amount,
+        }}
+        onCancel={handleCancel}
+        isCanceling={isCanceling}
+      />
     );
   }
 
