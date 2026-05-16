@@ -1,7 +1,15 @@
 'use client';
 
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
+
+const DotLottieReact = dynamic(
+  () =>
+    import('@lottiefiles/dotlottie-react').then((m) => ({
+      default: m.DotLottieReact,
+    })),
+  { ssr: false },
+);
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type { CoursePaymentConfirmResponse } from '@/types/api/course.types';
 
