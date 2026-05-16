@@ -97,22 +97,12 @@ export default function ClassDetailPage({
     }));
   }, [curriculum]);
 
-  const instructorCards = useMemo(() => {
-    if (courseDetail?.instructors?.length) {
-      return courseDetail.instructors.map((inst) => ({
-        team: inst.name,
-        heading: inst.bio ?? inst.name,
-        body: inst.bio ?? undefined,
-        profileImageUrl: inst.profileImageUrl,
-      }));
-    }
-    return TEAM_MESSAGES.map((msg) => ({
-      team: msg.team,
-      heading: msg.heading,
-      body: msg.body,
-      profileImageUrl: undefined as string | undefined,
-    }));
-  }, [courseDetail?.instructors]);
+  const instructorCards = TEAM_MESSAGES.map((msg) => ({
+    team: msg.team,
+    heading: msg.heading,
+    body: msg.body,
+    profileImageUrl: undefined as string | undefined,
+  }));
 
   function handleTabClick(tab: Tab) {
     setActiveTab(tab);
@@ -262,7 +252,6 @@ export default function ClassDetailPage({
             />
             <ClassDetailBenefitsSection />
             <ClassDetailFaqSection
-              faqs={courseDetail?.faqs}
               expandedFaq={expandedFaq}
               onToggleFaq={(idx) =>
                 setExpandedFaq(expandedFaq === idx ? null : idx)
