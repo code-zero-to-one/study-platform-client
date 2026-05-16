@@ -203,7 +203,7 @@ export interface CourseProgressResponse {
 }
 
 export interface CourseCompletionRecapResponse {
-  completedLessonCount: number;
+  latestCompletedLessonCount: number;
   studyDays: number;
   siteUrlCount: number;
   completedAt: string;

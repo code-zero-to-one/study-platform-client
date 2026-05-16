@@ -106,14 +106,7 @@ function BuilderProfileBody({
                     <p className="font-designer-14m text-gray-800">
                       {nickname}
                     </p>
-                    {role && (
-                      <RoleBadge
-                        role={role}
-                        width={15}
-                        height={15}
-                        className="h-188 w-188"
-                      />
-                    )}
+                    {role && <RoleBadge role={role} />}
                   </div>
                   {roleDisplay && (
                     <p className="font-designer-12m text-gray-400">

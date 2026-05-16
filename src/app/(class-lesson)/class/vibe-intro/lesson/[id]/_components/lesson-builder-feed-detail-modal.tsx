@@ -4,9 +4,9 @@ import { Heart, MessageCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import {
   AuthorAvatar,
-  BuilderBadge,
   formatRelativeTime,
   ROLE_LABELS,
+  RoleBadge,
 } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import { useGetBuilderFeedDetail } from '@/hooks/queries/course/course-api';
@@ -60,7 +60,7 @@ export function LessonBuilderFeedDetailModal({ feedId, onClose }: Props) {
                       <p className="font-designer-14b text-gray-800">
                         {feed.author.nickname}
                       </p>
-                      {feed.author.role === 'BUILDER' && <BuilderBadge />}
+                      <RoleBadge role={feed.author.role} />
                     </div>
                     {ROLE_LABELS[feed.author.role] && (
                       <p className="font-designer-12m text-gray-400">

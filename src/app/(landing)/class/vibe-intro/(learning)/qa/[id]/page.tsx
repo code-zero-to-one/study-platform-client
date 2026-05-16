@@ -404,12 +404,7 @@ export default function QnaDetailPage({
                   <p className="font-designer-14b text-gray-800">
                     {qna.author.nickname}
                   </p>
-                  <RoleBadge
-                    role={qna.author.role}
-                    width={14}
-                    height={14}
-                    className="h-175 w-175"
-                  />
+                  <RoleBadge role={qna.author.role} />
                 </div>
                 <p className="font-designer-14r text-gray-400">
                   {formatDate(qna.createdAt)} 작성
@@ -596,12 +591,7 @@ export default function QnaDetailPage({
                               {answer.author.nickname.charAt(0)}
                             </p>
                           </div>
-                          <RoleBadge
-                            role={answer.author.role}
-                            width={14}
-                            height={14}
-                            className="h-175 w-175"
-                          />
+                          <RoleBadge role={answer.author.role} />
                           <div className="flex-1">
                             <p className="font-designer-14b text-gray-800">
                               {answer.author.nickname}
