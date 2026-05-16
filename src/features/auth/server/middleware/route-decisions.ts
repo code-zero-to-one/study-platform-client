@@ -86,7 +86,7 @@ export const decideLoginRoute = (
   }
 
   if (session.kind === ROUTE_SESSION_KINDS.AUTHENTICATED) {
-    return redirectRouteAction(AUTH_ROUTE_PATHS.HOME);
+    return redirectRouteAction(AUTH_ROUTE_PATHS.LANDING);
   }
 
   if (session.kind === ROUTE_SESSION_KINDS.INVALID) {
