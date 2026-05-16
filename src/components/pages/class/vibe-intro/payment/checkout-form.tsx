@@ -58,6 +58,7 @@ export function VibeIntroCheckoutForm({
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentFailed, setPaymentFailed] = useState(false);
+  const [paymentErrorMsg, setPaymentErrorMsg] = useState<string | null>(null);
   const [showExitModal, setShowExitModal] = useState(false);
   const paymentRef = useRef(null as TossPaymentsPayment | null);
   const navigationGuardRef = useRef(null as NavigationGuardHandlers | null);
@@ -112,79 +113,95 @@ export function VibeIntroCheckoutForm({
     };
   }, []);
 
-  const handlePay = methods.handleSubmit(async (values) => {
-    if (!paymentMethod) {
-      showToast('결제 수단을 선택해주세요.', 'error');
-      return;
-    }
-    if (!isPhoneVerified) {
-      showToast('휴대폰 인증을 완료해주세요.', 'error');
-      return;
-    }
-    if (!paymentRef.current) {
-      showToast(
-        '결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.',
-        'error',
-      );
-      return;
-    }
-
-    setIsLoading(true);
-    setPaymentFailed(false);
-
-    try {
-      const baseParams = {
-        amount: { currency: 'KRW' as const, value: paymentData.amount },
-        orderId: paymentData.tossOrderId,
-        orderName: paymentData.orderName,
-        successUrl:
-          `${window.location.origin}/class/vibe-intro/payment/success` +
-          `?paymentId=${paymentData.paymentId}&method=${paymentMethod}`,
-        failUrl: `${window.location.origin}/class/vibe-intro/payment?planCode=${planCode}`,
-        customerName: values.buyerName,
-        customerMobilePhone: values.buyerPhone,
-      };
-
-      if (paymentMethod === 'CARD') {
-        await paymentRef.current.requestPayment({
-          method: 'CARD',
-          ...baseParams,
-          card: {
-            useEscrow: false,
-            flowMode: 'DEFAULT',
-            useCardPoint: false,
-            useAppCardOnly: false,
-          },
-        });
-      } else {
-        await paymentRef.current.requestPayment({
-          method: 'VIRTUAL_ACCOUNT',
-          ...baseParams,
-          virtualAccount: {
-            cashReceipt: { type: '소득공제' },
-            useEscrow: false,
-          },
-        });
+  const handlePay = methods.handleSubmit(
+    async (values) => {
+      if (!paymentMethod) {
+        showToast('결제 수단을 선택해주세요.', 'error');
+        return;
       }
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : '';
-
-      if (msg.includes('USER_CANCEL') || msg.includes('PAY_PROCESS_CANCELED')) {
-        showToast('결제가 취소되었습니다.', 'error');
+      if (!isPhoneVerified) {
+        showToast('휴대폰 인증을 완료해주세요.', 'error');
+        return;
+      }
+      if (!paymentRef.current) {
+        showToast(
+          '결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.',
+          'error',
+        );
         return;
       }
 
-      setPaymentFailed(true);
+      setIsLoading(true);
+      setPaymentFailed(false);
+      setPaymentErrorMsg(null);
 
-      if (error instanceof TypeError || msg.toLowerCase().includes('network')) {
-        showToast('네트워크가 불안정해요. 다시 시도해주세요.', 'error');
-      } else {
-        showToast('결제에 실패했어요. 다시 시도해주세요.', 'error');
+      try {
+        const baseParams = {
+          amount: { currency: 'KRW' as const, value: paymentData.amount },
+          orderId: paymentData.tossOrderId,
+          orderName: paymentData.orderName,
+          successUrl:
+            `${window.location.origin}/class/vibe-intro/payment/success` +
+            `?paymentId=${paymentData.paymentId}&method=${paymentMethod}`,
+          failUrl: `${window.location.origin}/class/vibe-intro/payment?planCode=${planCode}`,
+          customerName: values.buyerName,
+          customerMobilePhone: values.buyerPhone,
+        };
+
+        if (paymentMethod === 'CARD') {
+          await paymentRef.current.requestPayment({
+            method: 'CARD',
+            ...baseParams,
+            card: {
+              useEscrow: false,
+              flowMode: 'DEFAULT',
+              useCardPoint: false,
+              useAppCardOnly: false,
+            },
+          });
+        } else {
+          await paymentRef.current.requestPayment({
+            method: 'VIRTUAL_ACCOUNT',
+            ...baseParams,
+            virtualAccount: {
+              cashReceipt: { type: '소득공제' },
+              useEscrow: false,
+            },
+          });
+        }
+      } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : '';
+
+        if (
+          msg.includes('USER_CANCEL') ||
+          msg.includes('PAY_PROCESS_CANCELED')
+        ) {
+          showToast('결제가 취소되었습니다.', 'error');
+          return;
+        }
+
+        if (
+          error instanceof TypeError ||
+          msg.toLowerCase().includes('network')
+        ) {
+          showToast('네트워크가 불안정해요. 다시 시도해주세요.', 'error');
+        } else {
+          setPaymentFailed(true);
+          setPaymentErrorMsg(
+            '카드에서 결제를 거절했어요. 다른 카드로 시도하시거나 카드사에 문의해주세요.',
+          );
+          showToast('결제에 실패했어요. 다시 시도해주세요.', 'error');
+        }
+      } finally {
+        setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
-    }
-  });
+    },
+    (errors) => {
+      if (errors.tosAgreed) {
+        showToast('이용약관에 동의해주세요.', 'error');
+      }
+    },
+  );
 
   const handleContinuePayment = () => setShowExitModal(false);
 
@@ -232,6 +249,12 @@ export function VibeIntroCheckoutForm({
                 신용카드 결제
               </span>
             </label>
+
+            {paymentFailed && paymentErrorMsg && paymentMethod === 'CARD' && (
+              <p className="font-designer-12r text-text-error">
+                {paymentErrorMsg}
+              </p>
+            )}
 
             {/* VIRTUAL_ACCOUNT — disabled (coming soon) */}
             <label className="flex cursor-not-allowed items-center gap-200 opacity-40">
