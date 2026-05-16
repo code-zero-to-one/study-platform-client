@@ -4,6 +4,7 @@ import { ChevronUp, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { Skeleton } from '@/components/common/ui/loading-skeleton';
 import type {
   CourseDrawerChapterResponse,
   CourseDrawerLessonResponse,
@@ -16,6 +17,7 @@ interface Props {
   chapters: CourseDrawerChapterResponse[];
   expandedChapters: Set<number>;
   onToggleChapter: (chapterId: number) => void;
+  isLoading?: boolean;
 }
 
 const ASSET = '/class/vibe-intro/curriculum';
@@ -177,6 +179,7 @@ export function CurriculumDrawer({
   chapters,
   expandedChapters,
   onToggleChapter,
+  isLoading = false,
 }: Props) {
   if (!open) return null;
 
@@ -185,9 +188,13 @@ export function CurriculumDrawer({
       <div className="flex h-full w-5250 flex-col bg-background-default shadow-2">
         <div className="relative px-375 pb-300 pt-375">
           <p className="font-designer-24b text-gray-800">커리큘럼</p>
-          <p className="mt-400 font-designer-20b text-gray-800">
-            {courseTitle}
-          </p>
+          {isLoading ? (
+            <Skeleton className="mt-400 h-375 w-4000" />
+          ) : (
+            <p className="mt-400 font-designer-20b text-gray-800">
+              {courseTitle}
+            </p>
+          )}
           <p className="mt-50 font-designer-14r text-gray-800">
             수강기한 무제한
           </p>
@@ -202,23 +209,39 @@ export function CurriculumDrawer({
         </div>
 
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          {chapters.map((chapter) => {
-            const isCompleted = chapter.lessons.every(
-              (l) => l.status === 'COMPLETED',
-            );
-            const expanded = expandedChapters.has(chapter.chapterId);
-            return (
-              <div key={chapter.chapterId}>
-                <ChapterHeader
-                  chapter={chapter}
-                  allCompleted={isCompleted}
-                  expanded={expanded}
-                  onToggle={() => onToggleChapter(chapter.chapterId)}
-                />
-                {expanded && <ChapterLessons lessons={chapter.lessons} />}
-              </div>
-            );
-          })}
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between border-b border-gray-200 bg-gray-100 px-375 py-250"
+                >
+                  <div className="flex items-center gap-150">
+                    <Skeleton className="size-525 shrink-0" />
+                    <div className="flex flex-col gap-25">
+                      <Skeleton className="h-200 w-1250" />
+                      <Skeleton className="h-250 w-3000" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-300 w-300 shrink-0" />
+                </div>
+              ))
+            : chapters.map((chapter) => {
+                const isCompleted = chapter.lessons.every(
+                  (l) => l.status === 'COMPLETED',
+                );
+                const expanded = expandedChapters.has(chapter.chapterId);
+                return (
+                  <div key={chapter.chapterId}>
+                    <ChapterHeader
+                      chapter={chapter}
+                      allCompleted={isCompleted}
+                      expanded={expanded}
+                      onToggle={() => onToggleChapter(chapter.chapterId)}
+                    />
+                    {expanded && <ChapterLessons lessons={chapter.lessons} />}
+                  </div>
+                );
+              })}
         </div>
       </div>
 

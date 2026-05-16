@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Eye,
   Heart,
   HelpCircle,
   MoreVertical,
@@ -12,6 +11,7 @@ import {
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import {
@@ -32,24 +32,24 @@ interface Props {
   onClose: () => void;
 }
 
-function GradeBadge({ role }: { role: string }) {
-  const letter = role.charAt(0).toUpperCase();
+const ROLE_BADGE_SRC: Record<string, string> = {
+  BUILDER: '/class/builder.png',
+  MANAGER: '/class/manager.png',
+};
+
+function RoleBadge({ role }: { role: string }) {
+  const src = ROLE_BADGE_SRC[role.toUpperCase()];
+  if (!src) return null;
   return (
-    <div className="flex h-350 w-350 shrink-0 items-center justify-center rounded-full bg-rose-100 font-designer-14b text-rose-500">
-      {letter}
-    </div>
+    <Image src={src} width={14} height={14} alt={role} className="shrink-0" />
   );
 }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr)
-    .toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-    .replace(/\. /g, '.')
-    .replace(/\.$/, '');
+  return new Date(dateStr).toLocaleDateString('ko-KR', {
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
 function stripHtml(html: string): string {
@@ -257,17 +257,14 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-gray-1000/40" onClick={onClose} />
       <div className="relative z-10 mx-400 flex max-h-modal w-full max-w-10000 flex-col overflow-hidden rounded-200 bg-background-default shadow-3">
-        {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-border-subtle px-400 py-300">
-          <p className="font-designer-16b text-gray-800">질문 상세</p>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-800"
-          >
-            <X className="h-300 w-300" />
-          </button>
-        </div>
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-375 top-375 z-10 text-gray-400 hover:text-gray-800"
+        >
+          <X className="h-300 w-300" />
+        </button>
 
         {/* Body */}
         <div className="overflow-y-auto px-400 py-350">
@@ -290,141 +287,87 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
 
               {/* Question section */}
               <div>
+                {/* Question title */}
+                <div className="mb-150 flex items-start gap-200">
+                  <span className="font-designer-20b text-text-brand">Q.</span>
+                  <h3 className="font-designer-20b text-gray-800">
+                    {stripHtml(qna.title)}
+                  </h3>
+                </div>
+
                 {/* Author row */}
-                <div className="mb-250 flex items-center gap-150">
-                  <div className="flex h-400 w-400 shrink-0 items-center justify-center rounded-full bg-gray-200">
-                    <p className="font-designer-14b text-gray-600">
-                      {qna.author.nickname.charAt(0)}
-                    </p>
-                  </div>
-                  <GradeBadge role={qna.author.role} />
-                  <div className="flex-1">
-                    <p className="font-designer-14b text-gray-800">
+                <div className="mb-300 flex items-center gap-150">
+                  <UserAvatar
+                    image={undefined}
+                    size={34}
+                    alt={qna.author.nickname}
+                  />
+                  <div className="flex items-center gap-50">
+                    <p className="font-designer-14m text-gray-800">
                       {qna.author.nickname}
                     </p>
+                    <RoleBadge role={qna.author.role} />
                   </div>
                   <div className="flex items-center gap-125">
-                    <div className="flex items-center gap-50">
-                      <Eye className="h-200 w-200 text-gray-400" />
-                      <p className="font-designer-14r text-gray-400">
-                        {qna.viewCount}
-                      </p>
-                    </div>
+                    <p className="font-designer-14r text-gray-400">
+                      조회 수 {qna.viewCount}
+                    </p>
                     <p className="font-designer-14r text-gray-400">
                       {formatDate(qna.createdAt)}
                     </p>
                   </div>
+                </div>
 
-                  {/* ⋮ menu */}
-                  {(qna.canEdit || qna.canDelete || qna.canReport) && (
-                    <div className="relative shrink-0">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setMenuOpen(
-                            menuOpen === 'question' ? null : 'question',
-                          )
-                        }
-                        className="text-gray-400 hover:text-gray-800"
-                      >
-                        <MoreVertical className="h-250 w-250" />
-                      </button>
-                      {menuOpen === 'question' && (
-                        <div className="absolute right-0 top-full z-10 mt-75 rounded-100 border border-border-subtle bg-background-default shadow-1">
-                          {qna.canEdit && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEditContent(qna.content);
-                                setMenuOpen(null);
-                              }}
-                              className="flex w-full items-center whitespace-nowrap px-200 py-150 font-designer-14r text-gray-800 hover:bg-gray-100"
-                            >
-                              수정
-                            </button>
-                          )}
-                          {qna.canDelete && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setDeleteMode('question');
-                                setMenuOpen(null);
-                              }}
-                              className="flex w-full items-center whitespace-nowrap px-200 py-150 font-designer-14r text-rose-500 hover:bg-gray-100"
-                            >
-                              삭제
-                            </button>
-                          )}
-                          {qna.canReport && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setReportMode(true);
-                                setMenuOpen(null);
-                              }}
-                              className="flex w-full items-center whitespace-nowrap px-200 py-150 font-designer-14r text-gray-800 hover:bg-gray-100"
-                            >
-                              신고하기
-                            </button>
-                          )}
-                        </div>
-                      )}
+                {/* Question content card */}
+                <div className="rounded-200 border border-gray-200 p-250">
+                  {/* Content: edit mode or view mode */}
+                  {editContent !== null ? (
+                    <div className="space-y-200">
+                      <MarkdownEditor
+                        value={editContent}
+                        onChange={setEditContent}
+                        placeholder="내용을 수정해주세요."
+                        uploadImage={uploadCommunityMarkdownImage}
+                      />
+                      <div className="flex justify-end gap-150">
+                        <button
+                          type="button"
+                          onClick={() => setEditContent(null)}
+                          className="rounded-100 border border-border-default px-300 py-150 font-designer-14m text-gray-600 hover:bg-gray-100"
+                        >
+                          취소
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleSaveEdit}
+                          disabled={updateQna.isPending}
+                          className="rounded-100 bg-rose-500 px-300 py-150 font-designer-14m text-text-inverse hover:opacity-90 disabled:opacity-50"
+                        >
+                          {updateQna.isPending ? '저장 중...' : '저장'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <HtmlContent html={qna.content} />
+                  )}
+
+                  {/* Question images */}
+                  {qna.imageUrls.length > 0 && (
+                    <div className="mt-250 flex flex-wrap gap-200">
+                      {qna.imageUrls.map((url, i) => (
+                        <Image
+                          key={i}
+                          src={url}
+                          alt={`첨부 이미지 ${i + 1}`}
+                          width={800}
+                          height={450}
+                          unoptimized
+                          className="max-w-full rounded-100 object-cover"
+                        />
+                      ))}
                     </div>
                   )}
                 </div>
-
-                {/* Question title */}
-                <h3 className="mb-200 font-designer-20b text-gray-800">
-                  Q. {stripHtml(qna.title)}
-                </h3>
-
-                {/* Content: edit mode or view mode */}
-                {editContent !== null ? (
-                  <div className="space-y-200">
-                    <MarkdownEditor
-                      value={editContent}
-                      onChange={setEditContent}
-                      placeholder="내용을 수정해주세요."
-                      uploadImage={uploadCommunityMarkdownImage}
-                    />
-                    <div className="flex justify-end gap-150">
-                      <button
-                        type="button"
-                        onClick={() => setEditContent(null)}
-                        className="rounded-100 border border-border-default px-300 py-150 font-designer-14m text-gray-600 hover:bg-gray-100"
-                      >
-                        취소
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleSaveEdit}
-                        disabled={updateQna.isPending}
-                        className="rounded-100 bg-rose-500 px-300 py-150 font-designer-14m text-text-inverse hover:opacity-90 disabled:opacity-50"
-                      >
-                        {updateQna.isPending ? '저장 중...' : '저장'}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <HtmlContent html={qna.content} />
-                )}
-
-                {/* Question images */}
-                {qna.imageUrls.length > 0 && (
-                  <div className="mt-250 flex flex-wrap gap-200">
-                    {qna.imageUrls.map((url, i) => (
-                      <Image
-                        key={i}
-                        src={url}
-                        alt={`첨부 이미지 ${i + 1}`}
-                        width={800}
-                        height={450}
-                        unoptimized
-                        className="max-w-full rounded-100 object-cover"
-                      />
-                    ))}
-                  </div>
-                )}
 
                 {/* Reaction buttons */}
                 <div className="mt-300 flex gap-150">
@@ -523,13 +466,6 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
 
               {/* Answers section */}
               <div className="border-t border-border-subtle pt-400">
-                <p className="mb-300 font-designer-16b text-gray-800">
-                  A.{' '}
-                  {qna.answers.length === 0
-                    ? '답변 대기 중'
-                    : `${qna.answers.length}개의 답변이 있어요`}
-                </p>
-
                 {qna.answers.length === 0 ? (
                   <p className="text-center font-designer-14r text-gray-400">
                     아직 답변이 없어요. 빠르게 답변 드릴게요!
@@ -546,20 +482,29 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
                       return (
                         <div
                           key={answer.answerId}
-                          className="space-y-250 rounded-150 border border-border-subtle p-300"
+                          className="space-y-250 rounded-200 border border-gray-200 bg-background-alternative p-250"
                         >
+                          {/* A. 답변 label */}
+                          <div className="flex items-center gap-200">
+                            <span className="font-designer-20b text-text-brand">
+                              A.
+                            </span>
+                            <span className="font-designer-18b text-gray-800">
+                              답변
+                            </span>
+                          </div>
                           {/* Answerer row */}
                           <div className="flex items-center gap-150">
-                            <div className="flex h-400 w-400 shrink-0 items-center justify-center rounded-full bg-gray-200">
-                              <p className="font-designer-14b text-gray-600">
-                                {answer.author.nickname.charAt(0)}
-                              </p>
-                            </div>
-                            <GradeBadge role={answer.author.role} />
-                            <div className="flex-1">
-                              <p className="font-designer-14b text-gray-800">
+                            <UserAvatar
+                              image={undefined}
+                              size={34}
+                              alt={answer.author.nickname}
+                            />
+                            <div className="flex flex-1 items-center gap-50">
+                              <p className="font-designer-14m text-gray-800">
                                 {answer.author.nickname}
                               </p>
+                              <RoleBadge role={answer.author.role} />
                             </div>
                             <p className="font-designer-14r text-gray-400">
                               {formatDate(answer.createdAt)}
@@ -622,7 +567,12 @@ export function LessonQnaDetailModal({ qnaId, onClose }: Props) {
                                 value={answerEdit.content}
                                 onChange={(v) =>
                                   setAnswerEdit((prev) =>
-                                    prev ? { ...prev, content: v } : null,
+                                    prev
+                                      ? {
+                                          ...prev,
+                                          content: v,
+                                        }
+                                      : null,
                                   )
                                 }
                                 placeholder="답변을 수정해주세요."

@@ -79,7 +79,8 @@ export default function LessonPage({
 
   const { data: lesson } = useGetLessonDetail(lessonId);
   const courseId = lesson?.courseId ?? 0;
-  const { data: drawer } = useGetCourseDrawer(courseId);
+  const { data: drawer, isPending: isDrawerLoading } =
+    useGetCourseDrawer(courseId);
   const { data: qnaSidebar } = useGetLessonQnaSidebar(lessonId);
   const { data: feedPreview } = useGetLessonBuilderFeedPreview(lessonId);
   const submitRetrospective = useSubmitLessonRetrospective();
@@ -178,6 +179,7 @@ export default function LessonPage({
         chapters={drawerChapters}
         expandedChapters={expandedChapters}
         onToggleChapter={toggleChapter}
+        isLoading={isDrawerLoading}
       />
 
       <LessonTopBar
