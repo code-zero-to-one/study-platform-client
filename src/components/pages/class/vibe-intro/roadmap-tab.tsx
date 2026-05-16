@@ -27,6 +27,7 @@ import {
 } from './home-constants';
 import { LessonPreviewModal } from './lesson-preview-modal';
 import { LessonStamp } from './lesson-stamp';
+import { PlanSelectionModal } from './plan-selection-modal';
 
 const LoginModal = dynamic(
   () => import('@/components/auth/modals/login-modal'),
@@ -43,6 +44,7 @@ export function RoadmapTab() {
   const router = useRouter();
   const showToast = useToastStore((s) => s.showToast);
   const [blinkLessonId, setBlinkLessonId] = useState<number | null>(null);
+  const [showPlanModal, setShowPlanModal] = useState(false);
   const [visibleChapterCount, setVisibleChapterCount] = useState(1);
 
   useEffect(() => {
@@ -167,12 +169,13 @@ export function RoadmapTab() {
                 얼리버드 가격으로 39,900원에 만나실 수 있어요! 놓치지 마세요!
               </p>
             </div>
-            <Link
-              href={`/payment/${courseId}?type=course&planCode=${course.plans?.[0]?.planCode ?? 'ALL_IN_ONE'}`}
+            <button
+              type="button"
+              onClick={() => setShowPlanModal(true)}
               className="flex h-650 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-16b text-gray-0"
             >
               결제하기
-            </Link>
+            </button>
           </div>
         ) : /* State 3: mid-progress free or paid → next lesson info */
         nextAccessibleLesson &&
@@ -554,6 +557,14 @@ export function RoadmapTab() {
 
       <FloatingClassActionButtons />
 
+      {showPlanModal && course?.plans?.[0] && (
+        <PlanSelectionModal
+          plan={course.plans[0]}
+          earlyBirdEndsAt={course?.earlyBirdEndsAt ?? null}
+          onClose={() => setShowPlanModal(false)}
+        />
+      )}
+
       {/* Sticky payment CTA for free-enrolled users */}
       {course?.viewerStatus === 'FREE_ENROLLED' &&
         course?.canPurchase &&
@@ -568,12 +579,13 @@ export function RoadmapTab() {
                   지금 결제하고 모든 레슨을 들어보세요
                 </p>
               </div>
-              <Link
-                href={`/payment/${courseId}?type=course&planCode=${course.plans[0].planCode}`}
+              <button
+                type="button"
+                onClick={() => setShowPlanModal(true)}
                 className="shrink-0 rounded-100 bg-background-brand-default px-400 py-200 font-designer-16b text-text-inverse"
               >
                 결제하기
-              </Link>
+              </button>
             </div>
           </div>
         )}
