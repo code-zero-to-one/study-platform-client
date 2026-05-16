@@ -474,7 +474,12 @@ export default function QnaDetailPage({
                       : 'border-border-default text-gray-500 hover:border-gray-400',
                   )}
                 >
-                  <Heart className="h-225 w-225" />
+                  <Heart
+                    className={cn(
+                      'h-225 w-225',
+                      qReactions.has('USEFUL') && 'fill-current',
+                    )}
+                  />
                   유용해요 {qna.usefulCount}
                 </button>
                 <button
@@ -487,7 +492,12 @@ export default function QnaDetailPage({
                       : 'border-border-default text-gray-500 hover:border-gray-400',
                   )}
                 >
-                  <HelpCircle className="h-225 w-225" />
+                  <HelpCircle
+                    className={cn(
+                      'h-225 w-225',
+                      qReactions.has('CURIOUS') && 'fill-current',
+                    )}
+                  />
                   나도 궁금해요 {qna.curiousCount}
                 </button>
               </div>
