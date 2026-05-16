@@ -260,16 +260,16 @@ export function VibeIntroCheckoutForm({
               </p>
             )}
 
-            {/* VIRTUAL_ACCOUNT — disabled (coming soon) */}
-            <label className="flex cursor-not-allowed items-center gap-200 opacity-40">
+            <label className="flex cursor-pointer items-center gap-200">
               <input
                 type="radio"
                 name="paymentMethod"
                 value="VIRTUAL_ACCOUNT"
-                disabled
+                checked={paymentMethod === 'VIRTUAL_ACCOUNT'}
+                onChange={() => setPaymentMethod('VIRTUAL_ACCOUNT')}
                 className="accent-background-brand-default"
               />
-              <span className="font-designer-16m text-gray-500">
+              <span className="font-designer-16m text-gray-800">
                 무통장 입금 (가상계좌)
               </span>
             </label>
