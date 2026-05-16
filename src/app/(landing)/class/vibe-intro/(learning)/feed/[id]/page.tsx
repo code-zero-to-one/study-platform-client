@@ -11,6 +11,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { use, useState } from 'react';
 import { RoleBadge } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
+import BuilderProfileModal from '@/components/common/modals/builder-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import { useAuth } from '@/features/auth/model/use-auth';
@@ -38,6 +39,7 @@ export default function FeedDetailPage({
   const [moreOpen, setMoreOpen] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState('');
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const { data: feed } = useGetBuilderFeedDetail(feedId);
   const { data: commentsData } = useGetFeedComments(feedId);
@@ -135,6 +137,16 @@ export default function FeedDetailPage({
         </div>
       )}
 
+      {feed !== undefined && feed.author.memberId !== undefined && (
+        <BuilderProfileModal
+          memberId={feed.author.memberId}
+          nickname={feed.author.nickname}
+          role={feed.author.role}
+          open={isProfileOpen}
+          onOpenChange={setIsProfileOpen}
+        />
+      )}
+
       <div className="w-full pb-800">
         <div className="mx-auto max-w-page px-600 pt-500">
           <Link
@@ -148,9 +160,13 @@ export default function FeedDetailPage({
           <div className="mt-400">
             {/* Author + ⋮ menu */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-150">
+              <button
+                type="button"
+                onClick={() => setIsProfileOpen(true)}
+                className="flex items-center gap-150"
+              >
                 <div className="h-400 w-400 rounded-full bg-gray-200" />
-                <div>
+                <div className="text-left">
                   <p className="font-designer-14b text-gray-800">
                     {feed?.author.nickname ?? ''}
                   </p>
@@ -163,7 +179,7 @@ export default function FeedDetailPage({
                     />
                   )}
                 </div>
-              </div>
+              </button>
 
               {/* ⋮ shown only for non-authors (신고하기 only) */}
               {!isAuthor && (
