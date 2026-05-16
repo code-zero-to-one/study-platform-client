@@ -35,7 +35,7 @@ export const decideSignUpRoute = (
     case ROUTE_SESSION_KINDS.PENDING_SIGNUP:
       return nextRouteAction();
     case ROUTE_SESSION_KINDS.AUTHENTICATED:
-      return redirectRouteAction(AUTH_ROUTE_PATHS.HOME);
+      return redirectRouteAction(AUTH_ROUTE_PATHS.LANDING);
     case ROUTE_SESSION_KINDS.INVALID:
       if (isTransientAccessTokenSessionFailureReason(session.reason)) {
         // sign-up/login/public 경로는 transient auth failure에서 즉시 clear하지 않는다.

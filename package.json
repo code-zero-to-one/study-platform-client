@@ -139,6 +139,7 @@
     "*.{js,jsx,ts,tsx,css,json}": "biome format --write"
   },
   "resolutions": {
-    "strip-ansi": "6.0.1"
+    "strip-ansi": "6.0.1",
+    "import-in-the-middle": "3.0.1"
   }
 }
