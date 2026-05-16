@@ -74,18 +74,46 @@ After converting, check: are siblings **inside** each other's bounds, or **outsi
 
 ## Tool Usage Pattern
 
-**Step 1 — Always run in parallel (no exceptions):**
-- `get_design_context(rootNode)` — layout, transforms, typography, effects, hierarchy
-- `get_metadata(rootNode)` — full child tree (required for Step 2 drill)
-- `get_screenshot(rootNode)` — reference image (save URL for visual verification step)
-- `get_variable_defs(rootNode)` — design tokens
+**Step 1 — Start with `get_design_context(node)`**
 
-**Critical — silent truncation:** `get_design_context` response is capped at ~50KB. The response looks complete even when sub-nodes are cut. There is no error or warning. **Never wait for visible signs of truncation** — always call `get_metadata` and drill sub-nodes regardless.
+Single call first. `get_design_context` returns layout, transforms, typography, effects, and hierarchy for most nodes within the ~50KB response cap.
 
-**Step 2 — Sub-section drill (mandatory for any page-level frame):**
-From `get_metadata` results, call `get_design_context` on each direct child section individually, run in parallel. For variant components, sample **every variant cell** (size × state × type) — default-only sampling causes missed token divergence.
+**Step 2 — Check for silent truncation; if truncated, drill with `get_metadata`**
 
-**Step 3 — Screenshot** — never rely on screenshot alone. It hides rotations under perspective and merges layered effects.
+`get_design_context` is capped at ~50KB. The response looks complete even when sub-nodes are cut — no error, no warning. Truncation signals:
+- Child node count in response is suspiciously low vs. the visual complexity
+- Deep nesting appears shallow in the returned tree
+- Expected variant states or sections are missing
+
+**If truncated:** call `get_metadata(node)` to get the full child map, then re-fetch only the required sub-nodes with `get_design_context` (in parallel). For variant components, sample **every variant cell** (size × state × type) — default-only sampling causes missed token divergence.
+
+**Step 3 — `get_screenshot(node)` for visual reference**
+
+Get the screenshot after design context is confirmed. Never rely on the screenshot alone — it hides rotations under perspective and merges layered effects.
+
+**Step 4 — `get_variable_defs(node)` when tokens are referenced**
+
+Only needed when the design context response references bound design tokens (color variables, spacing variables, radius variables).
+
+**Step 5 — Download assets immediately**
+
+Figma MCP asset URLs are session-scoped and expire. After `get_screenshot` or any asset URL appears in `get_design_context`, download immediately:
+```bash
+curl -s -o public/{route-slug}/{name}.png "<mcp-asset-url>"
+file public/{route-slug}/{name}.png   # must say PNG/SVG, not HTML
+```
+
+**Step 6 — Validate implementation against Figma (mandatory before marking complete)**
+
+Follow `figma-verification.md`. Attempt browser tools in order: Playwright MCP → Chrome DevTools MCP → browser-harness. If all blocked, run code-level audit and hand off to user. **Never mark complete without running at least one path.**
+
+## Code Connect
+
+Before generating raw code from a Figma component:
+
+1. Call `get_code_connect_suggestions(node)` — maps Figma components to existing project components
+2. If a match is found (e.g., Figma Button → `src/components/common/ui/Button`), use the existing component. Do not generate duplicate code.
+3. Only generate raw code when `get_code_connect_suggestions` returns no match for the target node.
 
 ## Reporting Format
 
