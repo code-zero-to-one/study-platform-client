@@ -146,7 +146,7 @@ export interface CoursePaymentConfirmResponse {
   planCode: CoursePlanCode;
   amount: number;
   status: CoursePaymentStatus;
-  paymentMethod: 'CARD' | 'ACCOUNT' | 'EASY_PAY';
+  paymentMethod: 'CARD' | 'VIRTUAL_ACCOUNT';
   paidAt: string;
   tossReceiptUrl: string | null;
   virtualAccountNumber: string | null;
