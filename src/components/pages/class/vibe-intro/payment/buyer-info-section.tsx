@@ -115,7 +115,11 @@ export function BuyerInfoSection({ onVerified }: BuyerInfoSectionProps) {
     }
 
     verifyCode.mutate(
-      { realName: name ?? '', phoneNumber: phone ?? '', code: otpCode.trim() },
+      {
+        realName: name ?? '',
+        phoneNumber: phone ?? '',
+        code: otpCode.trim(),
+      },
       {
         onSuccess: (data) => {
           if (data?.success) {
@@ -140,10 +144,14 @@ export function BuyerInfoSection({ onVerified }: BuyerInfoSectionProps) {
       <div className="flex flex-col gap-300">
         {/* 이름 */}
         <div className="flex flex-col gap-100">
-          <label className="font-designer-14b text-gray-800">
+          <label
+            htmlFor="buyerName"
+            className="font-designer-14b text-gray-800"
+          >
             이름 <span className="text-text-error">*</span>
           </label>
           <input
+            id="buyerName"
             {...register('buyerName')}
             type="text"
             placeholder="이름을 입력해주세요"
@@ -162,10 +170,14 @@ export function BuyerInfoSection({ onVerified }: BuyerInfoSectionProps) {
 
         {/* 이메일 */}
         <div className="flex flex-col gap-100">
-          <label className="font-designer-14b text-gray-800">
+          <label
+            htmlFor="buyerEmail"
+            className="font-designer-14b text-gray-800"
+          >
             이메일 <span className="text-text-error">*</span>
           </label>
           <input
+            id="buyerEmail"
             {...register('buyerEmail')}
             type="email"
             placeholder="이메일을 입력해주세요"
@@ -184,11 +196,15 @@ export function BuyerInfoSection({ onVerified }: BuyerInfoSectionProps) {
 
         {/* 휴대폰 번호 */}
         <div className="flex flex-col gap-100">
-          <label className="font-designer-14b text-gray-800">
+          <label
+            htmlFor="buyerPhone"
+            className="font-designer-14b text-gray-800"
+          >
             휴대폰 번호 <span className="text-text-error">*</span>
           </label>
           <div className="flex gap-150">
             <input
+              id="buyerPhone"
               {...register('buyerPhone')}
               type="tel"
               placeholder="01012345678"
