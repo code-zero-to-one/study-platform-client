@@ -2,6 +2,7 @@
 
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import Link from 'next/link';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type { CoursePaymentConfirmResponse } from '@/types/api/course.types';
 
 interface VibeIntroPaymentSuccessProps {
@@ -14,8 +15,7 @@ export function VibeIntroPaymentSuccess({
 }: VibeIntroPaymentSuccessProps) {
   const PAYMENT_METHOD_LABELS = {
     CARD: '신용카드',
-    ACCOUNT: '무통장 입금',
-    EASY_PAY: '간편결제',
+    VIRTUAL_ACCOUNT: '무통장 입금',
   } as const;
   const paymentMethodLabel =
     PAYMENT_METHOD_LABELS[paymentConfirm.paymentMethod] ?? '기타';
@@ -106,11 +106,10 @@ function InfoRow({
     <div className="flex items-center justify-between px-400 py-250">
       <span className="font-designer-14m text-gray-500">{label}</span>
       <span
-        className={
-          bold
-            ? 'font-designer-16b text-gray-800'
-            : 'font-designer-14r text-gray-800'
-        }
+        className={cn(
+          bold ? 'font-designer-16b' : 'font-designer-14r',
+          'text-gray-800',
+        )}
       >
         {value}
       </span>

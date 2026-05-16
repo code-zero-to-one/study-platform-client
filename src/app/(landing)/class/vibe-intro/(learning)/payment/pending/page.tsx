@@ -11,7 +11,7 @@ function PendingContent() {
   const accountNumber = searchParams.get('accountNumber') ?? '';
   const dueDate = searchParams.get('dueDate') ?? '';
   const holderName = searchParams.get('holderName') ?? '';
-  const amount = Number(searchParams.get('amount') ?? '0');
+  const amount = Number(searchParams.get('amount') ?? '0') || 0;
 
   return (
     <VibeIntroPaymentPending

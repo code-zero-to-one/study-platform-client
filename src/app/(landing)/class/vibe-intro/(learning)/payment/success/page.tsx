@@ -33,6 +33,10 @@ function SuccessContent() {
     useCancelCoursePayment();
 
   const handleCancel = () => {
+    if (!courseId) {
+      router.push('/class/vibe-intro/home');
+      return;
+    }
     cancelPayment(
       { courseId, paymentId },
       {
@@ -42,7 +46,10 @@ function SuccessContent() {
   };
 
   useEffect(() => {
-    if (!paymentKey || !orderId || !amount || !courseId) return;
+    if (!paymentKey || !orderId || !amount || !courseId) {
+      setStatus('error');
+      return;
+    }
 
     let isMounted = true;
 

@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { TossPaymentsPayment } from '@tosspayments/tosspayments-sdk';
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
-import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -113,13 +112,7 @@ export function VibeIntroCheckoutForm({
     };
   }, []);
 
-  const handlePay = async (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!methods.getValues('tosAgreed')) {
-      showToast('이용 약관에 동의해주세요.', 'error');
-      return;
-    }
+  const handlePay = methods.handleSubmit(async (values) => {
     if (!paymentMethod) {
       showToast('결제 수단을 선택해주세요.', 'error');
       return;
@@ -138,8 +131,6 @@ export function VibeIntroCheckoutForm({
 
     setIsLoading(true);
     setPaymentFailed(false);
-
-    const values = methods.getValues();
 
     try {
       const baseParams = {
@@ -193,7 +184,7 @@ export function VibeIntroCheckoutForm({
     } finally {
       setIsLoading(false);
     }
-  };
+  });
 
   const handleContinuePayment = () => setShowExitModal(false);
 

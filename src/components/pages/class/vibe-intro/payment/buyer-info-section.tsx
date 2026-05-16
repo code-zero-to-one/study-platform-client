@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
@@ -31,26 +31,40 @@ export function BuyerInfoSection({ onVerified }: BuyerInfoSectionProps) {
   const [otpCode, setOtpCode] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(OTP_SECONDS);
   const [isVerified, setIsVerified] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const buyerName = watch('buyerName');
-  const buyerPhone = watch('buyerPhone');
+  const clearTimer = useCallback(() => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
 
-  useEffect(() => {
-    if (!otpSent || isVerified) return;
+  const startTimer = useCallback(() => {
+    clearTimer();
     setSecondsLeft(OTP_SECONDS);
-
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(interval);
+          clearTimer();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
+  }, [clearTimer]);
 
-    return () => clearInterval(interval);
-  }, [otpSent, isVerified]);
+  const buyerName = watch('buyerName');
+  const buyerPhone = watch('buyerPhone');
+
+  useEffect(() => {
+    if (!otpSent || isVerified) {
+      clearTimer();
+      return;
+    }
+    startTimer();
+    return () => clearTimer();
+  }, [otpSent, isVerified, clearTimer, startTimer]);
 
   const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
   const seconds = String(secondsLeft % 60).padStart(2, '0');
@@ -68,12 +82,17 @@ export function BuyerInfoSection({ onVerified }: BuyerInfoSectionProps) {
       return;
     }
 
+    const wasAlreadySent = otpSent;
     sendCode.mutate(
       { realName: name, phoneNumber: phone },
       {
         onSuccess: () => {
           setOtpSent(true);
+          setOtpCode('');
           showToast('인증번호가 발송되었습니다.');
+          if (wasAlreadySent) {
+            startTimer();
+          }
         },
         onError: () => {
           showToast('인증번호 발송에 실패했습니다.', 'error');
@@ -188,7 +207,7 @@ export function BuyerInfoSection({ onVerified }: BuyerInfoSectionProps) {
             ) : (
               <button
                 type="button"
-                onClick={otpSent ? handleSendCode : handleSendCode}
+                onClick={handleSendCode}
                 disabled={sendCode.isPending}
                 className="h-600 shrink-0 rounded-100 bg-background-brand-default px-300 font-designer-14b text-gray-0 disabled:opacity-60"
               >
