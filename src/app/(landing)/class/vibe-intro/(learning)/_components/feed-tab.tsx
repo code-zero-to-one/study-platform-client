@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { PlanSelectionModal } from '@/components/pages/class/vibe-intro/plan-selection-modal';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useGetBuilderFeeds,
@@ -14,7 +15,6 @@ import {
 import { FeedListCard } from '../feed/_components/feed-list-card';
 import { PaginationBar } from '../feed/_components/pagination-bar';
 import { PaywallSection } from '../feed/_components/paywall-section';
-import { PlanSelectionModal } from '../feed/_components/plan-selection-modal';
 
 const LoginModal = dynamic(
   () => import('@/components/auth/modals/login-modal'),
@@ -276,7 +276,6 @@ export function FeedTab() {
       {showPlanModal && course?.plans?.[0] && (
         <PlanSelectionModal
           plan={course.plans[0]}
-          courseId={courseId}
           earlyBirdEndsAt={course?.earlyBirdEndsAt ?? null}
           onClose={() => setShowPlanModal(false)}
         />

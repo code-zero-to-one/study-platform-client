@@ -454,6 +454,10 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-4000: 20rem;
   --spacing-6000: 30rem;
   --spacing-10000: 50rem;
+  --spacing-5950: 476px;
+  --spacing-7925: 634px;
+  --spacing-9175: 734px;
+  --spacing-8875: 710px;
 
   /* fluid layout */
   --min-h-hero-section: clamp(260px, 30.2vw, 580px);

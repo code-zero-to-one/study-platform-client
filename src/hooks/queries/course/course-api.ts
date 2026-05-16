@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  type UseMutationResult,
+  type UseQueryResult,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { axiosInstanceV5 } from '@/api/client/axios';
 import type {
   BuilderFeedCommentCreateRequest,
@@ -16,23 +22,25 @@ import type {
   CourseDrawerResponse,
   CourseFreeEnrollmentResponse,
   CourseJourneyMapResponse,
+  CoursePaymentConfirmResponse,
   CoursePaymentPrepareRequest,
   CoursePaymentPrepareResponse,
-  CoursePaymentConfirmResponse,
   CourseProgressResponse,
-  CourseTossPaymentConfirmRequest,
   CourseSummaryResponse,
+  CourseTossPaymentConfirmRequest,
+  GiftEmailCreateRequest,
+  GiftEmailResponse,
   LessonDetailResponse,
   LessonQnaAnswerCreateRequest,
   LessonQnaAnswerDeleteResponse,
   LessonQnaAnswerReactionRequest,
+  LessonQnaAnswerReactionToggleResponse,
   LessonQnaAnswerUpdateRequest,
   LessonQnaAnswerUpdateResponse,
   LessonQnaCreateRequest,
   LessonQnaDeleteResponse,
   LessonQnaDetailResponse,
   LessonQnaListResponse,
-  LessonQnaAnswerReactionToggleResponse,
   LessonQnaQuestionReactionToggleResponse,
   LessonQnaReactionRequest,
   LessonQnaReportRequest,
@@ -42,10 +50,8 @@ import type {
   LessonRetrospectiveCreateRequest,
   LessonRetrospectiveCreateResponse,
   LessonRetrospectiveResponse,
-  MyCourseFreeEnrollmentResponse,
   MyBuilderFeedsResponse,
-  GiftEmailResponse,
-  GiftEmailCreateRequest,
+  MyCourseFreeEnrollmentResponse,
   OpenAlertSubscriptionRequest,
   OpenAlertSubscriptionResponse,
   StudyWithMeSubscriptionRequest,
@@ -54,7 +60,7 @@ import type {
 
 // ─── Course List ──────────────────────────────────────────────────────────────
 
-export const useGetCourseList = () => {
+export const useGetCourseList = (): UseQueryResult<CourseSummaryResponse[]> => {
   return useQuery({
     queryKey: ['courses'],
     queryFn: async () => {
@@ -68,7 +74,9 @@ export const useGetCourseList = () => {
 
 // ─── Course Detail ────────────────────────────────────────────────────────────
 
-export const useGetCourseDetail = (slug: string) => {
+export const useGetCourseDetail = (
+  slug: string,
+): UseQueryResult<CourseDetailResponse> => {
   return useQuery({
     queryKey: ['courseDetail', slug],
     queryFn: async () => {
@@ -81,7 +89,9 @@ export const useGetCourseDetail = (slug: string) => {
   });
 };
 
-export const useGetCourseCurriculum = (slug: string) => {
+export const useGetCourseCurriculum = (
+  slug: string,
+): UseQueryResult<CourseCurriculumResponse> => {
   return useQuery({
     queryKey: ['courseCurriculum', slug],
     queryFn: async () => {
@@ -94,7 +104,9 @@ export const useGetCourseCurriculum = (slug: string) => {
   });
 };
 
-export const useGetCourseDrawer = (courseId: number) => {
+export const useGetCourseDrawer = (
+  courseId: number,
+): UseQueryResult<CourseDrawerResponse> => {
   return useQuery({
     queryKey: ['courseDrawer', courseId],
     queryFn: async () => {
@@ -128,7 +140,9 @@ export const useCreateCourseFreeEnrollment = () => {
   });
 };
 
-export const useGetMyCourseFreeEnrollment = (courseId: number) => {
+export const useGetMyCourseFreeEnrollment = (
+  courseId: number,
+): UseQueryResult<MyCourseFreeEnrollmentResponse> => {
   return useQuery({
     queryKey: ['myCourseFreeEnrollment', courseId],
     queryFn: async () => {
@@ -200,7 +214,7 @@ export const usePrepareCoursePaymentQuery = ({
   courseId: number;
   planCode: CoursePaymentPrepareRequest['planCode'];
   enabled?: boolean;
-}) => {
+}): UseQueryResult<CoursePaymentPrepareResponse> => {
   return useQuery({
     queryKey: ['coursePayment', courseId, planCode],
     queryFn: async () => {
@@ -233,9 +247,25 @@ export const useConfirmCourseTossPayment = () => {
   });
 };
 
+export const useCancelCoursePayment = (): UseMutationResult<
+  void,
+  unknown,
+  { courseId: number; paymentId: number }
+> => {
+  return useMutation<void, unknown, { courseId: number; paymentId: number }>({
+    mutationFn: async ({ courseId, paymentId }) => {
+      await axiosInstanceV5.post(
+        `courses/${courseId}/payments/${paymentId}/cancel`,
+      );
+    },
+  });
+};
+
 // ─── Journey Map ──────────────────────────────────────────────────────────────
 
-export const useGetCourseJourneyMap = (courseId: number) => {
+export const useGetCourseJourneyMap = (
+  courseId: number,
+): UseQueryResult<CourseJourneyMapResponse> => {
   return useQuery({
     queryKey: ['courseJourneyMap', courseId],
     queryFn: async () => {
@@ -250,7 +280,9 @@ export const useGetCourseJourneyMap = (courseId: number) => {
 
 // ─── Progress ─────────────────────────────────────────────────────────────────
 
-export const useGetCourseProgress = (courseId: number) => {
+export const useGetCourseProgress = (
+  courseId: number,
+): UseQueryResult<CourseProgressResponse> => {
   return useQuery({
     queryKey: ['courseProgress', courseId],
     queryFn: async () => {
@@ -265,7 +297,9 @@ export const useGetCourseProgress = (courseId: number) => {
 
 // ─── Completion ───────────────────────────────────────────────────────────────
 
-export const useGetCourseCompletionRecap = (courseId: number) => {
+export const useGetCourseCompletionRecap = (
+  courseId: number,
+): UseQueryResult<CourseCompletionRecapResponse> => {
   return useQuery({
     queryKey: ['courseCompletionRecap', courseId],
     queryFn: async () => {
@@ -298,7 +332,9 @@ export const useSubmitNextPlan = () => {
 
 // ─── Lesson ───────────────────────────────────────────────────────────────────
 
-export const useGetLessonDetail = (lessonId: number) => {
+export const useGetLessonDetail = (
+  lessonId: number,
+): UseQueryResult<LessonDetailResponse> => {
   return useQuery({
     queryKey: ['lessonDetail', lessonId],
     queryFn: async () => {
