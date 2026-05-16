@@ -80,8 +80,6 @@ function makeCourseDetail(overrides: Partial<CourseDetailResponse> = {}): {
       hasFullAccess: false,
       isPaidEnrolled: false,
       canPurchase: true,
-      faqs: [],
-      instructors: [],
       ...overrides,
     },
   };

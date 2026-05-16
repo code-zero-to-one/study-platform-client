@@ -1,19 +1,16 @@
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import type { CourseFaqItem } from '@/types/api/course.types';
 import { FAQS } from './class-detail-constants';
 
 interface ClassDetailFaqSectionProps {
-  faqs?: CourseFaqItem[];
   expandedFaq: number | null;
   onToggleFaq: (idx: number) => void;
 }
 
 export function ClassDetailFaqSection({
-  faqs,
   expandedFaq,
   onToggleFaq,
 }: ClassDetailFaqSectionProps) {
-  const items = faqs?.length ? faqs : FAQS;
+  const items = FAQS;
 
   return (
     <section id="faq">
