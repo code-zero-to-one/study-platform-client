@@ -1,8 +1,16 @@
 'use client';
 
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useToastStore } from '@/stores/use-toast-store';
+
+const DotLottieReact = dynamic(
+  () =>
+    import('@lottiefiles/dotlottie-react').then((m) => ({
+      default: m.DotLottieReact,
+    })),
+  { ssr: false },
+);
 
 interface VirtualAccountInfo {
   bankName?: string;
@@ -56,14 +64,14 @@ export function VibeIntroPaymentPending({
           <p className="font-designer-16b text-gray-800">은행 정보</p>
         </div>
         <div className="flex flex-col divide-y divide-gray-200 bg-background-default">
-          {virtualAccount.bankName && (
+          {virtualAccount.bankName ? (
             <div className="flex items-center justify-between px-400 py-250">
               <span className="font-designer-14m text-gray-500">은행</span>
               <span className="font-designer-14r text-gray-800">
                 {virtualAccount.bankName}
               </span>
             </div>
-          )}
+          ) : null}
           <div className="flex items-center justify-between px-400 py-250">
             <span className="font-designer-14m text-gray-500">계좌 번호</span>
             <div className="flex items-center gap-150">
@@ -119,7 +127,7 @@ export function VibeIntroPaymentPending({
         결제 관리로 가기
       </Link>
 
-      {onCancel && (
+      {onCancel ? (
         <button
           type="button"
           onClick={onCancel}
@@ -128,7 +136,7 @@ export function VibeIntroPaymentPending({
         >
           {isCanceling ? '취소 처리 중...' : '결제 취소'}
         </button>
-      )}
+      ) : null}
     </div>
   );
 }

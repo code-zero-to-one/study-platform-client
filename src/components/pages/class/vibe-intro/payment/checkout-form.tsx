@@ -21,6 +21,7 @@ import { PaymentExitConfirmModal } from './payment-exit-confirm-modal';
 import { TosSection } from './tos-section';
 
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '';
+const CUSTOMER_KEY_SANITIZE_RE = /[^a-zA-Z0-9\-_=.@]/g;
 
 const checkoutFormSchema = z.object({
   buyerName: z.string().min(1, '이름을 입력해주세요.'),
@@ -75,7 +76,10 @@ export function VibeIntroCheckoutForm({
   useEffect(() => {
     if (!clientKey || !memberId) return;
 
-    const customerKey = `member-${memberId}`.replace(/[^a-zA-Z0-9\-_=.@]/g, '');
+    const customerKey = `member-${memberId}`.replace(
+      CUSTOMER_KEY_SANITIZE_RE,
+      '',
+    );
     if (customerKey.length < 2 || customerKey.length > 50) return;
 
     loadTossPayments(clientKey)
