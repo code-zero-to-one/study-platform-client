@@ -71,8 +71,9 @@ export function LessonQnaSubmissionModal({
     setIsUploadingImage(true);
     try {
       const publicUrl = await uploadCommunityMarkdownImage(file);
+      const key = new URL(publicUrl).pathname.slice(1);
       const previewUrl = URL.createObjectURL(file);
-      setImages((prev) => [...prev, { previewUrl, key: publicUrl }]);
+      setImages((prev) => [...prev, { previewUrl, key }]);
     } catch {
       showToast('이미지 업로드에 실패했습니다.', 'error');
     } finally {
