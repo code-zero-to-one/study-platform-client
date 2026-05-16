@@ -9,7 +9,10 @@ import {
 import type { BuilderFeedListItemResponse } from '@/types/api/course.types';
 
 function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').trim();
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/!\[.*?\]\(.*?\)/g, '')
+    .trim();
 }
 
 export function FeedListCard({ feed }: { feed: BuilderFeedListItemResponse }) {
@@ -30,12 +33,7 @@ export function FeedListCard({ feed }: { feed: BuilderFeedListItemResponse }) {
               <p className="font-designer-14m text-gray-800">
                 {feed.author.nickname}
               </p>
-              <RoleBadge
-                role={feed.author.role}
-                width={15}
-                height={15}
-                className="h-188 w-188"
-              />
+              <RoleBadge role={feed.author.role} />
             </div>
             <p className="font-designer-12r text-gray-400">
               {ROLE_LABELS[feed.author.role] ?? feed.author.role}

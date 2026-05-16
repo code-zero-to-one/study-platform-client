@@ -10,7 +10,10 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { use, useState } from 'react';
-import { RoleBadge } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
+import {
+  ROLE_LABELS,
+  RoleBadge,
+} from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import BuilderProfileModal from '@/components/common/modals/builder-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
@@ -170,14 +173,7 @@ export default function FeedDetailPage({
                   <p className="font-designer-14b text-gray-800">
                     {feed?.author.nickname ?? ''}
                   </p>
-                  {feed?.author.role && (
-                    <RoleBadge
-                      role={feed.author.role}
-                      width={15}
-                      height={15}
-                      className="h-188 w-188"
-                    />
-                  )}
+                  {feed?.author.role && <RoleBadge role={feed.author.role} />}
                 </div>
               </button>
 
@@ -318,16 +314,10 @@ export default function FeedDetailPage({
                           >
                             {c.author.nickname}
                           </p>
-                          <span
-                            className={cn(
-                              'rounded-50 px-75 py-25 font-designer-12r',
-                              isOperator
-                                ? 'bg-rose-50 text-text-brand'
-                                : 'bg-gray-200 text-gray-600',
-                            )}
-                          >
-                            {c.author.role}
-                          </span>
+                          <RoleBadge role={c.author.role} />
+                          <p className="font-designer-12r text-gray-400">
+                            {ROLE_LABELS[c.author.role] ?? c.author.role}
+                          </p>
                           <p className="font-designer-12r text-gray-400">
                             {new Date(c.createdAt).toLocaleDateString('ko-KR', {
                               month: '2-digit',

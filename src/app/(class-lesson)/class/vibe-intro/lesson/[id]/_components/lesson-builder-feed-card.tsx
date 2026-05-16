@@ -11,8 +11,8 @@ import Image from 'next/image';
 import { useState } from 'react';
 import {
   AuthorAvatar,
-  BuilderBadge,
   ROLE_LABELS,
+  RoleBadge,
 } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type { BuilderFeedPreviewItemResponse } from '@/types/api/course.types';
@@ -88,7 +88,7 @@ export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
                 <p className="font-designer-14b text-gray-800">
                   {current.author.nickname}
                 </p>
-                {current.author.role === 'BUILDER' && <BuilderBadge />}
+                <RoleBadge role={current.author.role} />
               </div>
               {ROLE_LABELS[current.author.role] && (
                 <p className="font-designer-12m text-gray-400">
