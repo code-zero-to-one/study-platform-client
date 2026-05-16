@@ -1,17 +1,5 @@
 // ─── Course Detail ────────────────────────────────────────────────────────────
 
-export interface CourseFaqItem {
-  question: string;
-  answer: string;
-}
-
-export interface CourseInstructor {
-  name: string;
-  role?: string;
-  bio?: string;
-  profileImageUrl?: string;
-}
-
 export interface CourseDetailResponse {
   courseId: number;
   slug: string;
@@ -32,8 +20,6 @@ export interface CourseDetailResponse {
   hasFullAccess: boolean | null;
   isPaidEnrolled: boolean | null;
   canPurchase: boolean | null;
-  faqs?: CourseFaqItem[];
-  instructors?: CourseInstructor[];
 }
 
 export type CoursePlanCode = 'ALL_IN_ONE' | 'LEARN_ONLY';
@@ -73,7 +59,7 @@ export interface CourseSummaryResponse {
   headline: string;
   summary: string;
   thumbnailUrl: string | null;
-  status: 'OPEN' | 'COMING_SOON';
+  status: 'OPEN' | 'COMING_SOON' | 'HIDDEN';
   tags: string[];
   learnerCount: number;
   learnerLabel: string;
@@ -226,6 +212,11 @@ export interface CourseCompletionRecapResponse {
 
 // ─── Lesson ───────────────────────────────────────────────────────────────────
 
+export type LessonRetrospectivePurpose =
+  | 'PRACTICE_PROOF'
+  | 'ARTIFACT_SHARE'
+  | 'SUBJECTIVE_QUIZ';
+
 export interface LessonDetailResponse {
   lessonId: number;
   courseId: number;
@@ -238,7 +229,7 @@ export interface LessonDetailResponse {
   videoUrl: string | null;
   learnerCount: number;
   viewCount: number;
-  retrospectivePurpose: string;
+  retrospectivePurpose: LessonRetrospectivePurpose;
   retrospectivePrompt: string;
   artifactSubmissionRequired: boolean;
   contentMarkdown: string;
