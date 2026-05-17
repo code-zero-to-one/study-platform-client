@@ -137,6 +137,28 @@ export const convertHtmlTableToMarkdownTable = (html: string) => {
   );
 };
 
+export const isHtmlTableOnlyPaste = (html: string) => {
+  if (typeof window === 'undefined' || !html.trim()) {
+    return false;
+  }
+
+  const document = new window.DOMParser().parseFromString(html, 'text/html');
+  if (!document.querySelector('table')) {
+    return false;
+  }
+
+  const body = document.body.cloneNode(true) as HTMLElement;
+  body
+    .querySelectorAll('script,style,meta,link,table')
+    .forEach((element) => element.remove());
+
+  if (normalizeTableCell(body.textContent ?? '')) {
+    return false;
+  }
+
+  return !body.querySelector('img,video,audio,iframe,canvas,svg');
+};
+
 export const renderMarkdownTablesInHtml = (html: string) => {
   if (typeof window === 'undefined' || !html.trim()) {
     return html;

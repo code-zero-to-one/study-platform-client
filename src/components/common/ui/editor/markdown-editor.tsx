@@ -54,6 +54,7 @@ import {
 import {
   convertHtmlTableToMarkdownTable,
   convertTabularTextToMarkdownTable,
+  isHtmlTableOnlyPaste,
 } from './markdown-table-utils';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
 import { useActiveCodeBlockControl } from './use-active-code-block-control';
@@ -284,11 +285,12 @@ function MarkdownEditor({
         }
 
         const pastedHtml = clipboardData.getData('text/html');
-        const markdownTable =
-          convertHtmlTableToMarkdownTable(pastedHtml) ??
-          convertTabularTextToMarkdownTable(
-            clipboardData.getData('text/plain'),
-          );
+        const pastedText = clipboardData.getData('text/plain');
+        const markdownTable = isHtmlTableOnlyPaste(pastedHtml)
+          ? convertHtmlTableToMarkdownTable(pastedHtml)
+          : !pastedHtml.trim()
+            ? convertTabularTextToMarkdownTable(pastedText)
+            : undefined;
 
         if (markdownTable) {
           event.preventDefault();
@@ -296,7 +298,6 @@ function MarkdownEditor({
           return true;
         }
 
-        const pastedText = clipboardData.getData('text/plain');
         if (!insertYouTubeEmbed(editorInstance, pastedText)) {
           return false;
         }
