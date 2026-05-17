@@ -8,6 +8,21 @@ const URL_PATTERNS: Record<UrlKind, RegExp> = {
   'data-image': /^data:image\/[a-z0-9.+-]+;base64,/i,
 };
 
+const IMAGE_URL_PART =
+  /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp|gif|bmp|avif|svg)(?:\?[^\s"'<>]*)?/gi;
+const DATA_IMAGE_TEXT_PART =
+  /data:image\/[a-z0-9.+-]+;base64,[a-zA-Z0-9+/=\s]+/gi;
+
+const removeHtmlWrappers = (html: string) => {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<img\b[^>]*>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 /**
  * URLs가 지정된 타입 선택 패턴과 일치하는지 검증합니다.
  * @param text 검증할 URL 문자열
@@ -105,4 +120,40 @@ export const hasClipboardImageHint = (clipboardData: DataTransfer) => {
   const pastedText = clipboardData.getData('text/plain').trim();
 
   return isAllowedUrl(pastedText, ['image', 'data-image']);
+};
+
+/**
+ * 클립보드 내용이 실제 텍스트보다 이미지 데이터가 주도적일 때 true를 반환합니다.
+ * 텍스트가 존재하더라도 이미지 URL만 단독으로 들어 있으면 true로 간주됩니다.
+ * @param clipboardData 클립보드 데이터
+ * @returns 이미지 전용으로 보이면 true
+ */
+export const isClipboardImageOnly = (clipboardData: DataTransfer) => {
+  const pastedText = clipboardData.getData('text/plain').trim();
+  const pastedHtml = clipboardData.getData('text/html').trim();
+
+  if (pastedText) {
+    const textWithoutImageRefs = pastedText
+      .replace(IMAGE_URL_PART, '')
+      .replace(DATA_IMAGE_TEXT_PART, '')
+      .replace(/\s+/g, '')
+      .trim();
+
+    if (textWithoutImageRefs) {
+      return false;
+    }
+
+    return !!isAllowedUrl(pastedText, ['image', 'data-image']);
+  }
+
+  if (!pastedHtml) {
+    return extractClipboardImageFiles(clipboardData).length > 0;
+  }
+
+  const htmlText = removeHtmlWrappers(pastedHtml);
+  if (htmlText) {
+    return false;
+  }
+
+  return true;
 };

@@ -34,7 +34,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
-import { hasClipboardImageHint } from './clipboard-utils';
+import { hasClipboardImageHint, isClipboardImageOnly } from './clipboard-utils';
 import EditorVisibleTextCounter from './editor-visible-text-counter';
 import {
   InstantCodeBlockExtension,
@@ -265,7 +265,11 @@ function MarkdownEditor({
           return false;
         }
 
-        if (hasClipboardImageHint(clipboardData)) {
+        const clipboardImageOnly =
+          hasClipboardImageHint(clipboardData) &&
+          isClipboardImageOnly(clipboardData);
+
+        if (clipboardImageOnly) {
           event.preventDefault();
           if (!resolvedImageConfig) {
             setImageInsertError(
