@@ -194,7 +194,8 @@ test.describe('커리큘럼 드로어 배지 렌더링 @auth', () => {
             .filter({ hasText: '심화 레슨' })
             .locator('div')
             .first(),
-        ),
+        )
+        .first(),
     ).toBeVisible();
   });
 
@@ -210,7 +211,8 @@ test.describe('커리큘럼 드로어 배지 렌더링 @auth', () => {
             .filter({ hasText: '결제 완료 레슨' })
             .locator('div')
             .first(),
-        ),
+        )
+        .first(),
     ).toBeVisible();
   });
 });
