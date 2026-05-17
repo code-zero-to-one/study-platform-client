@@ -61,9 +61,13 @@ function LessonBadge({ lesson }: { lesson: CourseDrawerLessonResponse }) {
       )}
     >
       {accessible ? (
-        <LockOpenIcon className="size-250 text-gray-400" />
+        <span role="img" aria-label="잠금 해제">
+          <LockOpenIcon className="size-250 text-gray-400" />
+        </span>
       ) : (
-        <LockIcon className="size-250 text-gray-400" />
+        <span role="img" aria-label="잠금">
+          <LockIcon className="size-250 text-gray-400" />
+        </span>
       )}
     </div>
   );

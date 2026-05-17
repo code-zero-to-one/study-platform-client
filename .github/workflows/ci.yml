@@ -145,18 +145,24 @@ jobs:
           node -e "
             const fs = require('fs');
             const a = JSON.parse(fs.readFileSync('e2e/fixtures/auth.json','utf8'));
-            const cookies = (a.cookies || []).filter(c => c.expires && c.expires > 0);
-            if (cookies.length === 0) process.exit(0);
-            const minExp = Math.min(...cookies.map(c => c.expires));
+            const refreshTokens = (a.cookies || []).filter(
+              c => c.name === 'refresh_token' && c.domain.includes('zeroone.it.kr') && c.expires && c.expires > 0
+            );
+            if (refreshTokens.length === 0) {
+              console.log('::warning::No refresh_token cookie found for zeroone.it.kr — falling back to non-auth suite.');
+              fs.appendFileSync(process.env.GITHUB_ENV, 'AUTH_EXPIRED=true\n');
+              process.exit(0);
+            }
+            const minExp = Math.min(...refreshTokens.map(c => c.expires));
             const now = Date.now();
             if (minExp * 1000 < now) {
-              console.log('::warning::auth.json cookies are expired — falling back to non-auth suite. Re-run yarn e2e:save-auth and update E2E_AUTH_JSON secret.');
+              console.log('::warning::refresh_token is expired — falling back to non-auth suite. Re-run yarn e2e:save-auth and update E2E_AUTH_JSON secret.');
               fs.appendFileSync(process.env.GITHUB_ENV, 'AUTH_EXPIRED=true\n');
               process.exit(0);
             }
             const sevenDays = 7 * 86400 * 1000;
             if (minExp * 1000 < now + sevenDays) {
-              console.log('::warning::auth.json cookies expire within 7 days. Re-run yarn e2e:save-auth and update E2E_AUTH_JSON secret.');
+              console.log('::warning::refresh_token expires within 7 days. Re-run yarn e2e:save-auth and update E2E_AUTH_JSON secret.');
             }
           "
 
