@@ -1,12 +1,10 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  MessageSquare,
-  Share2,
-  Users,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import Image from 'next/image';
+import {
+  FeedCommentIcon,
+  FeedHeartIcon,
+  FeedShareIcon,
+} from '@/components/common/ui/icons/course-icons';
 import type { BuilderFeedShowcaseResponse } from '@/types/api/course.types';
 
 interface ClassDetailBuilderFeedSectionProps {
@@ -55,18 +53,18 @@ export function ClassDetailBuilderFeedSection({
                   )}
                   <div className="flex items-center gap-125 p-250">
                     <div className="flex items-center gap-50">
-                      <Heart className="h-250 w-250 text-gray-1000" />
+                      <FeedHeartIcon className="h-250 w-250 text-gray-1000" />
                       <p className="font-designer-16r text-gray-1000">
                         {feed.likeCount}
                       </p>
                     </div>
                     <div className="flex items-center gap-50">
-                      <MessageSquare className="h-250 w-250 text-gray-1000" />
+                      <FeedCommentIcon className="h-250 w-250 text-gray-1000" />
                       <p className="font-designer-16r text-gray-1000">
                         {feed.commentCount}
                       </p>
                     </div>
-                    <Share2 className="h-250 w-250 text-gray-1000" />
+                    <FeedShareIcon className="h-250 w-250 text-gray-1000" />
                   </div>
                 </div>
               ))}
