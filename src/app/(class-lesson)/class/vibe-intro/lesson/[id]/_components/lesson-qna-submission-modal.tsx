@@ -35,6 +35,7 @@ export function LessonQnaSubmissionModal({
   const noticeVisible = autoVisible || hoverVisible;
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageListRef = useRef<AttachedImage[]>([]);
   const showToast = useToastStore((s) => s.showToast);
   const createQna = useCreateLessonQna();
 
@@ -61,6 +62,24 @@ export function LessonQnaSubmissionModal({
     }
   }, [open, lessonId]);
 
+  useEffect(() => {
+    imageListRef.current = images;
+  }, [images]);
+
+  useEffect(() => {
+    return () => {
+      imageListRef.current.forEach((img) => {
+        URL.revokeObjectURL(img.previewUrl);
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      clearImagePreviews();
+    }
+  }, [open]);
+
   if (!open) return null;
 
   async function handleImageAdd(file: File) {
@@ -83,9 +102,7 @@ export function LessonQnaSubmissionModal({
 
   function clearImagePreviews() {
     setImages((prev) => {
-      prev.forEach((img) => {
-        URL.revokeObjectURL(img.previewUrl);
-      });
+      prev.forEach((img) => URL.revokeObjectURL(img.previewUrl));
       return [];
     });
   }
