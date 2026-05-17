@@ -63,6 +63,7 @@ import {
   convertTabularTextToMarkdownTable,
   isHtmlTableOnlyPaste,
 } from './markdown-table-utils';
+import { normalizeRichClipboardHtml } from './rich-clipboard-normalizer';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
 import { useActiveCodeBlockControl } from './use-active-code-block-control';
 import { useImageUpload } from './use-image-upload';
@@ -246,12 +247,12 @@ function MarkdownEditor({
     return toFileFromBlob(blob, `pasted-image-${index + 1}.${extension}`);
   };
 
-  const replaceMixedClipboardImagesAfterDefaultPaste = (
+  const replaceMixedClipboardImagesAfterPaste = (
     editorInstance: Editor,
     clipboardData: DataTransfer,
+    imageSourcesBeforePaste: string[],
   ) => {
     const imageFiles = extractClipboardImageFiles(clipboardData);
-    const imageSourcesBeforePaste = extractImageUrls(editorInstance.getHTML());
 
     window.setTimeout(() => {
       const nextEditorInstance = getValidEditorInstance();
@@ -408,9 +409,38 @@ function MarkdownEditor({
           return true;
         }
 
-        replaceMixedClipboardImagesAfterDefaultPaste(
+        const normalizedRichClipboardHtml =
+          normalizeRichClipboardHtml(pastedHtml);
+
+        if (normalizedRichClipboardHtml.hasChanges) {
+          event.preventDefault();
+          const imageSourcesBeforePaste = extractImageUrls(
+            editorInstance.getHTML(),
+          );
+          editorInstance
+            .chain()
+            .focus()
+            .insertContent(normalizedRichClipboardHtml.html)
+            .run();
+          replaceMixedClipboardImagesAfterPaste(
+            editorInstance,
+            clipboardData,
+            imageSourcesBeforePaste,
+          );
+
+          if (normalizedRichClipboardHtml.notionAttachmentCount > 0) {
+            setImageInsertError(
+              'Notion 첨부 이미지는 원본 파일이 클립보드에 없어 위치에 안내 문구를 넣었습니다. 이미지는 직접 업로드해주세요.',
+            );
+          }
+
+          return true;
+        }
+
+        replaceMixedClipboardImagesAfterPaste(
           editorInstance,
           clipboardData,
+          extractImageUrls(editorInstance.getHTML()),
         );
 
         if (!insertYouTubeEmbed(editorInstance, pastedText)) {

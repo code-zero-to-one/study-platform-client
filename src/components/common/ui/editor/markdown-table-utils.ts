@@ -1,6 +1,7 @@
 const MARKDOWN_TABLE_SEPARATOR_CELL_PATTERN = /^:?-{3,}:?$/;
 
-const normalizeTableCell = (value: string) => value.replace(/\s+/g, ' ').trim();
+export const normalizeTableCell = (value: string) =>
+  value.replace(/\s+/g, ' ').trim();
 
 const splitMarkdownTableRow = (line: string) => {
   const trimmed = line.trim();
@@ -109,6 +110,24 @@ export const convertTabularTextToMarkdownTable = (text: string) => {
   ].join('\n');
 };
 
+export const convertHtmlTableElementToMarkdownTable = (table: Element) => {
+  const rows = Array.from(table.querySelectorAll('tr'))
+    .map((row) =>
+      Array.from(row.querySelectorAll('th,td')).map((cell) =>
+        normalizeTableCell(cell.textContent ?? ''),
+      ),
+    )
+    .filter((cells) => cells.length >= 2 && cells.some(Boolean));
+
+  if (rows.length === 0) {
+    return undefined;
+  }
+
+  return convertTabularTextToMarkdownTable(
+    rows.map((cells) => cells.join('\t')).join('\n'),
+  );
+};
+
 export const convertHtmlTableToMarkdownTable = (html: string) => {
   if (typeof window === 'undefined' || !html.trim()) {
     return undefined;
@@ -125,21 +144,7 @@ export const convertHtmlTableToMarkdownTable = (html: string) => {
     return undefined;
   }
 
-  const rows = Array.from(table.querySelectorAll('tr'))
-    .map((row) =>
-      Array.from(row.querySelectorAll('th,td')).map((cell) =>
-        normalizeTableCell(cell.textContent ?? ''),
-      ),
-    )
-    .filter((cells) => cells.length >= 2 && cells.some(Boolean));
-
-  if (rows.length === 0) {
-    return undefined;
-  }
-
-  return convertTabularTextToMarkdownTable(
-    rows.map((cells) => cells.join('\t')).join('\n'),
-  );
+  return convertHtmlTableElementToMarkdownTable(table);
 };
 
 export const isHtmlTableOnlyPaste = (html: string) => {
