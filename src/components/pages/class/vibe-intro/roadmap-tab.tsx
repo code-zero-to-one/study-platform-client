@@ -1,6 +1,5 @@
 'use client';
 
-import { Lock, LockOpen, Timer } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,6 +7,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
+import {
+  LockIcon,
+  LockOpenIcon,
+  TimerIcon,
+} from '@/components/common/ui/icons/course-icons';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useGetCourseCurriculum,
@@ -466,7 +470,7 @@ export function RoadmapTab() {
                                 aria-label="잠금"
                                 className="flex h-250 w-525 items-center justify-center rounded-50 bg-gray-400"
                               >
-                                <Lock className="size-200 text-gray-0" />
+                                <LockIcon className="size-200 text-gray-0" />
                               </span>
                             )}
                             {!l.isFree && isAccessible && (
@@ -475,14 +479,14 @@ export function RoadmapTab() {
                                 aria-label="잠금 해제"
                                 className="flex h-250 w-525 items-center justify-center rounded-50 border border-gray-300 bg-gray-0"
                               >
-                                <LockOpen className="size-200 text-gray-400" />
+                                <LockOpenIcon className="size-200 text-gray-400" />
                               </span>
                             )}
                           </div>
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-25 text-gray-400 group-hover:text-border-brand">
-                        <Timer className="size-300" />
+                        <TimerIcon className="size-300" />
                         <span className="font-designer-14r">
                           약 {l.estimatedMinutes}분 소요
                         </span>

@@ -121,7 +121,7 @@ export default function QnaWritePage() {
                 계속 작성
               </button>
               <Link
-                href="/class/vibe-intro/home?tab=qna"
+                href="/class/vibe-intro/home?tab=feed"
                 className="flex h-700 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-18b text-text-inverse"
               >
                 확인

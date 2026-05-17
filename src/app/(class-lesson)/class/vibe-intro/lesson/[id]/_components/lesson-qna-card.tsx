@@ -1,9 +1,12 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
-import Image from 'next/image';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import {
+  ModeCommentIcon,
+  ModeEditIcon,
+} from '@/components/common/ui/icons/course-icons';
 import type { LessonQnaSidebarItem } from '@/types/api/course.types';
 
 interface Props {
@@ -45,12 +48,7 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
         onClick={onAskClick}
         className="flex w-full items-center justify-center gap-75 rounded-100 bg-background-brand-default py-200 font-designer-16b text-text-inverse"
       >
-        <Image
-          src="/class/vibe-intro/curriculum/mode.svg"
-          alt="edit"
-          width={20}
-          height={20}
-        />
+        <ModeEditIcon className="size-250" />
         질문하기
       </button>
 
@@ -72,7 +70,7 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
               {stripHtml(current.title)}
             </p>
             <div className="flex shrink-0 items-center gap-50 font-designer-13m text-gray-400">
-              <MessageSquare className="h-225 w-225" />
+              <ModeCommentIcon className="h-225 w-225" />
               <span>{current.answerCount}</span>
             </div>
             <p className="shrink-0 font-designer-13m text-gray-400">

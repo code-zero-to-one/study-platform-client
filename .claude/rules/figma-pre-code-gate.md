@@ -64,7 +64,9 @@ file public/{route-slug}/{name}.png   # must say PNG/SVG, not HTML
 
 ## Gate E: Node Coverage & Container Width Audit
 
-Before writing any code, produce a two-column table from `get_metadata`:
+Run this gate when `get_metadata` was called due to truncation (Step 2 in `figma-design.md` Tool Usage Pattern). If `get_design_context` returned a complete response without truncation, skip the full node table — only perform the container width check below.
+
+When `get_metadata` was called, produce a two-column table before writing any code:
 
 | Figma node (id · name) | Present in current code? |
 |---|---|
