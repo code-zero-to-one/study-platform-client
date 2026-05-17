@@ -1,6 +1,7 @@
 const MARKDOWN_TABLE_SEPARATOR_CELL_PATTERN = /^:?-{3,}:?$/;
 
-const normalizeTableCell = (value: string) => value.replace(/\s+/g, ' ').trim();
+export const normalizeTableCell = (value: string) =>
+  value.replace(/\s+/g, ' ').trim();
 
 const splitMarkdownTableRow = (line: string) => {
   const trimmed = line.trim();
@@ -109,17 +110,7 @@ export const convertTabularTextToMarkdownTable = (text: string) => {
   ].join('\n');
 };
 
-export const convertHtmlTableToMarkdownTable = (html: string) => {
-  if (typeof window === 'undefined' || !html.trim()) {
-    return undefined;
-  }
-
-  const document = new window.DOMParser().parseFromString(html, 'text/html');
-  const table = document.querySelector('table');
-  if (!table) {
-    return undefined;
-  }
-
+export const convertHtmlTableElementToMarkdownTable = (table: Element) => {
   const rows = Array.from(table.querySelectorAll('tr'))
     .map((row) =>
       Array.from(row.querySelectorAll('th,td')).map((cell) =>
@@ -135,6 +126,53 @@ export const convertHtmlTableToMarkdownTable = (html: string) => {
   return convertTabularTextToMarkdownTable(
     rows.map((cells) => cells.join('\t')).join('\n'),
   );
+};
+
+export const convertHtmlTableToMarkdownTable = (html: string) => {
+  if (typeof window === 'undefined' || !html.trim()) {
+    return undefined;
+  }
+
+  const document = new window.DOMParser().parseFromString(html, 'text/html');
+  const tables = Array.from(document.querySelectorAll('table'));
+  if (tables.length !== 1) {
+    return undefined;
+  }
+
+  const table = tables[0];
+  if (!table) {
+    return undefined;
+  }
+
+  return convertHtmlTableElementToMarkdownTable(table);
+};
+
+export const isHtmlTableOnlyPaste = (html: string) => {
+  if (typeof window === 'undefined' || !html.trim()) {
+    return false;
+  }
+
+  const document = new window.DOMParser().parseFromString(html, 'text/html');
+  const tables = Array.from(document.querySelectorAll('table'));
+  if (tables.length !== 1) {
+    return false;
+  }
+
+  const table = tables[0];
+  if (!table || table.querySelector('img,video,audio,iframe,canvas,svg')) {
+    return false;
+  }
+
+  const body = document.body.cloneNode(true) as HTMLElement;
+  body
+    .querySelectorAll('script,style,meta,link,table')
+    .forEach((element) => element.remove());
+
+  if (normalizeTableCell(body.textContent ?? '')) {
+    return false;
+  }
+
+  return !body.querySelector('img,video,audio,iframe,canvas,svg');
 };
 
 export const renderMarkdownTablesInHtml = (html: string) => {
