@@ -81,6 +81,15 @@ export function LessonQnaSubmissionModal({
     }
   }
 
+  function clearImagePreviews() {
+    setImages((prev) => {
+      prev.forEach((img) => {
+        URL.revokeObjectURL(img.previewUrl);
+      });
+      return [];
+    });
+  }
+
   function handleImageRemove(index: number) {
     setImages((prev) => {
       const next = [...prev];
@@ -117,7 +126,7 @@ export function LessonQnaSubmissionModal({
           showToast('질문이 등록되었어요!');
           localStorage.removeItem(`lesson-qna-draft-${lessonId}`);
           setContent('');
-          setImages([]);
+          clearImagePreviews();
           onClose();
         },
         onError: (error) => {
