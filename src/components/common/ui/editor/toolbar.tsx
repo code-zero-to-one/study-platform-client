@@ -19,6 +19,7 @@ export const CODE_LANGUAGES = [
   { label: 'Swift', value: 'swift' },
   { label: 'Dart', value: 'dart' },
   { label: 'SQL', value: 'sql' },
+  { label: 'Mermaid', value: 'mermaid' },
   { label: 'HTML', value: 'html' },
   { label: 'CSS', value: 'css' },
   { label: 'JSON', value: 'json' },

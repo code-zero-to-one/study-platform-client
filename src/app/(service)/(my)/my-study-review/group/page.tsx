@@ -1,6 +1,6 @@
 'use client';
 
-import CompletedStudyReviewPage from '../_components/completed-study-review-page';
+import CompletedStudyReviewPage from '@/components/group-study/review/completed-study-review-page';
 
 export default function GroupStudyReviewListPage() {
   return (

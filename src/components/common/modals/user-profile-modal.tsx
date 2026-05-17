@@ -16,9 +16,9 @@ import TechStackIcon from '@/components/my-page/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/components/my-page/icon/verified-check.svg';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
-import { useUserPositiveKeywordsQuery } from '@/hooks/queries/use-review-query';
-import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/group-study/use-applicant-query';
+import { useUserPositiveKeywordsQuery } from '@/hooks/queries/group-study/use-review-query';
+import { useUserProfileQuery } from '@/hooks/queries/user/use-user-profile-query';
 import { AUTH_ROLE_IDS } from '@/types/auth/domain';
 import { formatPhoneNumber } from '@/utils/format';
 

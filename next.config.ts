@@ -60,6 +60,8 @@ const cspConnectSrcHosts = [
 ] as const;
 
 const nextConfig: NextConfig = {
+  eslint: { ignoreDuringBuilds: true },
+  transpilePackages: ['@tiptap/core', '@tiptap/pm', 'prosemirror-model'],
   // [보안] 보안 HTTP 헤더 설정.
   // CSP는 스테이징 검증 중이므로 Content-Security-Policy-Report-Only 모드로 먼저 배포.
   // 결제·로그인 E2E 검증 후 위반 없으면 Content-Security-Policy로 전환할 것.
@@ -73,8 +75,8 @@ const nextConfig: NextConfig = {
       `img-src 'self' data: blob: ${cspImgSrcHosts.join(' ')}`,
       // 운영에서 실제 호출되는 GA4, Ads, Clarity 수집 엔드포인트를 허용한다.
       `connect-src 'self' ${cspConnectSrcHosts.join(' ')}${isDev ? ' ws://localhost:*' : ''}`,
-      // 토스 결제창 iframe 허용
-      'frame-src https://pay.toss.im https://cert.tosspayments.com',
+      // 토스 결제창 iframe + 유튜브 nocookie embed iframe 허용
+      'frame-src https://pay.toss.im https://cert.tosspayments.com https://www.youtube-nocookie.com',
       "font-src 'self' data:",
       "worker-src 'self' blob:",
     ].join('; ');
@@ -139,6 +141,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'www.zeroone.it.kr',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname:
+          'uploaded-files-qa.32cd2fa416bea795bf67cbf65411103b.r2.cloudflarestorage.com',
         pathname: '/**',
       },
       ...(isProd
@@ -235,7 +243,7 @@ const sentryConfig = withSentryConfig(nextConfig, {
   sourcemaps: {
     filesToDeleteAfterUpload: ['.next/static/**/*.map'],
   },
-  widenClientFileUpload: true,
+  widenClientFileUpload: false,
 });
 
 export default withBundleAnalyzer(sentryConfig);

@@ -7,12 +7,12 @@ import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/noti
 import Button from '@/components/common/ui/button';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import Pagination from '@/components/common/ui/pagination';
-import NotificationList from '@/components/lists/notification-list';
+import NotificationList from '@/components/home/lists/notification-list';
 import {
   useGetNotifications,
   useGetNotificationCategories,
   useReadNotifications,
-} from '@/hooks/queries/notification-api';
+} from '@/hooks/queries/user/notification-api';
 import NotificationIcon from 'public/images/notification.svg';
 
 const READ_STATUS_OPTIONS = [

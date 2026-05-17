@@ -4,20 +4,23 @@ import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Button from '@/components/common/ui/button';
-import InquiryListTable from '@/components/lists/inquiry-list-table';
+import InquiryListTable from '@/components/home/lists/inquiry-list-table';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useGetQuestion, useGetQuestions } from '@/hooks/queries/question-api';
+import {
+  useGetQuestion,
+  useGetQuestions,
+} from '@/hooks/queries/group-study/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const PAGE_SIZE = 15;
 
 const CreateQuestionModal = dynamic(
-  () => import('@/components/common/modals/create-question-modal'),
+  () => import('@/components/group-study/modals/create-question-modal'),
   { ssr: false },
 );
 
 const EditQuestionModal = dynamic(
-  () => import('@/components/common/modals/edit-question-modal'),
+  () => import('@/components/group-study/modals/edit-question-modal'),
   { ssr: false },
 );
 

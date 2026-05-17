@@ -14,16 +14,16 @@ import DatePicker from '@/components/common/ui/date-picker';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
-import { useGetTransactionsForAdmin } from '@/hooks/queries/admin-payment-api';
+import { useGetTransactionsForAdmin } from '@/hooks/queries/admin/admin-payment-api';
 import { formatToKST } from '@/utils/time';
 
 const AdminForcedCancellationModal = dynamic(
-  () => import('@/components/common/modals/admin-forced-cancellation-modal'),
+  () => import('@/components/admin/modals/admin-forced-cancellation-modal'),
   { ssr: false },
 );
 
 const AdminRefundApprovalModal = dynamic(
-  () => import('@/components/common/modals/admin-refund-approval-modal'),
+  () => import('@/components/payment/modals/admin-refund-approval-modal'),
   { ssr: false },
 );
 

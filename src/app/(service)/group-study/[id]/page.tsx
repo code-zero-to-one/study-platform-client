@@ -9,7 +9,7 @@ import { getGroupStudyDetailInServer } from '@/api/endpoints/group-study/get-gro
 import { getGroupStudyMyStatusInServer } from '@/api/endpoints/group-study/get-group-study-my-status.server';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
-import StudyDetailPage from '@/components/pages/group-study-detail-page';
+import StudyDetailPage from '@/components/group-study/pages/group-study-detail-page';
 import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
 
 interface Props {

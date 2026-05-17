@@ -119,6 +119,7 @@ function PaymentFailContent() {
   const code = searchParams.get('code');
   const message = searchParams.get('message');
   const groupStudyId = searchParams.get('groupStudyId');
+  const type = searchParams.get('type');
 
   const errorInfo = getErrorInfo(code, message);
 
@@ -127,6 +128,11 @@ function PaymentFailContent() {
   };
 
   const handleConfirm = () => {
+    if (type === 'course') {
+      router.push('/class/vibe-intro/home');
+      return;
+    }
+
     if (groupStudyId) {
       router.push(`/group-study/${groupStudyId}`);
     } else {

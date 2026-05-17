@@ -9,6 +9,7 @@ import {
   tryGetUserProfileInServer,
 } from '@/api/endpoints/user/get-user-profile.server';
 import Button from '@/components/common/ui/button';
+import MyBuilderFeedsSection from '@/components/my-page/my-builder-feeds-section';
 import Profile from '@/components/my-page/profile';
 import ProfileInfo from '@/components/my-page/profile-info';
 import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
@@ -109,6 +110,7 @@ export default async function MyPage() {
           sincerityTemp={safeProfile.sincerityTemp}
         />
         <ProfileInfo memberId={memberId} memberInfo={safeProfile.memberInfo} />
+        <MyBuilderFeedsSection />
       </div>
     </HydrationBoundary>
   );

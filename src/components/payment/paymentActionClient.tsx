@@ -3,21 +3,32 @@
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
-import { StudyPaymentPrepareResponse } from '@/api/openapi';
+import type { StudyPaymentPrepareResponse } from '@/api/openapi';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
+import type { CoursePaymentPrepareResponse } from '@/types/api/course.types';
 import Button from '../common/ui/button';
 import Checkbox from '../common/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../common/ui/radio';
 
 const PaymentTermsModal = dynamic(
-  () => import('@/components/common/modals/payment-terms-modal'),
+  () => import('@/components/payment/modals/payment-terms-modal'),
   { ssr: false },
 );
 
 interface Props {
-  study: StudyPaymentPrepareResponse;
+  study: PaymentPrepareData;
 }
+
+type GroupPaymentPrepareData = StudyPaymentPrepareResponse & {
+  paymentType: 'group';
+};
+
+type CoursePaymentPrepareData = CoursePaymentPrepareResponse & {
+  paymentType: 'course';
+};
+
+type PaymentPrepareData = GroupPaymentPrepareData | CoursePaymentPrepareData;
 
 type PaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '';
@@ -31,10 +42,12 @@ export default function PaymentCheckoutPage({ study }: Props) {
   const [payment, setPayment] = useState(null);
   const [isAgreed, setIsAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { memberName, tel } = useUserStore();
+  const { memberId, memberName, tel } = useUserStore();
   const showToast = useToastStore((state) => state.showToast);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD');
+  const paymentMemberId =
+    study.paymentType === 'group' ? study.memberId : memberId;
 
   const canPay = isAgreed && !!paymentMethod && !isLoading;
 
@@ -62,13 +75,20 @@ export default function PaymentCheckoutPage({ study }: Props) {
           value: study.amount,
         },
         orderId: study.tossOrderId,
-        orderName: study.groupStudyTitle,
+        orderName:
+          study.paymentType === 'group'
+            ? study.groupStudyTitle
+            : study.orderName,
         successUrl:
           window.location.origin +
-          `/payment/success?paymentId=${study.paymentId}&method=${paymentMethod}`,
+          (study.paymentType === 'group'
+            ? `/payment/success?paymentId=${study.paymentId}&method=${paymentMethod}&type=${study.paymentType}`
+            : `/payment/success?paymentId=${study.paymentId}&method=${paymentMethod}&type=${study.paymentType}&courseId=${study.courseId}`),
         failUrl:
           window.location.origin +
-          `/payment/fail?paymentId=${study.paymentId}&groupStudyId=${study.groupStudyId}`,
+          (study.paymentType === 'group'
+            ? `/payment/fail?paymentId=${study.paymentId}&groupStudyId=${study.groupStudyId}`
+            : `/payment/fail?paymentId=${study.paymentId}&courseId=${study.courseId}&type=course`),
         customerName: memberName ?? undefined,
         customerMobilePhone: tel ?? undefined,
       };
@@ -131,7 +151,11 @@ export default function PaymentCheckoutPage({ study }: Props) {
         // @docs https://docs.tosspayments.com/sdk/v2/js#tosspaymentspayment
         // customerKey 형식: 영문 대소문자, 숫자, 특수문자 -, _, =, ., @로 2자 이상 50자 이하
         // memberId를 안전한 형식으로 변환 (예: 기존 123 -> 변경 후 member-123)
-        const customerKey = `member-${study.memberId}`.replace(
+        if (!paymentMemberId) {
+          throw new Error('결제 회원 정보를 찾을 수 없습니다.');
+        }
+
+        const customerKey = `member-${paymentMemberId}`.replace(
           /[^a-zA-Z0-9\-_=.@]/g,
           '',
         );
@@ -155,7 +179,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
     fetchPayment().catch((error) => {
       console.error('Error in fetchPayment:', error);
     });
-  }, [study.memberId]);
+  }, [paymentMemberId]);
 
   return (
     <div className="space-y-200">

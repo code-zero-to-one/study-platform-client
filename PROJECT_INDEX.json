@@ -1,27 +1,41 @@
 {
   "project": "ZERO-ONE Study Platform Client",
   "version": "0.1.0",
-  "generated": "2026-03-19",
+  "generated": "2026-05-08",
   "stack": {
-    "framework": "Next.js 15 (App Router)",
+    "framework": "Next.js 15.2.8 (App Router)",
     "ui": "React 19",
     "language": "TypeScript 5",
     "styling": "Tailwind CSS 4",
     "packageManager": "Yarn 1.22+",
-    "node": ">=20"
+    "node": ">=20",
+    "formatter": "Biome 2.4.6",
+    "testing": "Vitest 3 + Playwright 1.51"
   },
   "entryPoints": {
     "rootLayout": "src/app/layout.tsx",
     "middleware": "src/middleware.ts",
     "providers": "src/providers/index.tsx",
-    "instrumentation": "src/instrumentation.ts"
+    "instrumentation": "src/instrumentation.ts",
+    "globalError": "src/app/global-error.tsx"
   },
   "routes": {
     "landing": "src/app/(landing)/",
     "service": "src/app/(service)/",
     "myPage": "src/app/(service)/(my)/",
     "admin": "src/app/(admin)/admin/",
-    "apiRoutes": "src/app/api/"
+    "apiRoutes": "src/app/api/",
+    "course": {
+      "vibeIntro": {
+        "journeyMap": "src/app/(landing)/class/vibe-intro/(learning)/home/page.tsx",
+        "feedList": "src/app/(landing)/class/vibe-intro/(learning)/feed/page.tsx",
+        "feedDetail": "src/app/(landing)/class/vibe-intro/(learning)/feed/[id]/page.tsx",
+        "feedWrite": "src/app/(landing)/class/vibe-intro/(learning)/feed/write/page.tsx",
+        "lesson": "src/app/(landing)/class/vibe-intro/lesson/[id]/page.tsx",
+        "lessonComponents": "src/app/(landing)/class/vibe-intro/lesson/[id]/_components/",
+        "complete": "src/app/(landing)/class/vibe-intro/complete/page.tsx"
+      }
+    }
   },
   "servicePages": [
     "home",
@@ -31,6 +45,8 @@
     "insights",
     "payment/[id]",
     "application-list/[studyId]",
+    "community/[postId]",
+    "community/questions",
     "one-on-one",
     "sign-up",
     "login",
@@ -40,46 +56,76 @@
     "my-page",
     "my-study (completed/not-completed)",
     "my-study-review (group/mentor/one-to-one)",
+    "my-mentoring",
+    "my-activity",
     "payment-management",
     "settlement-management",
     "mentoring-management",
     "notification",
-    "my-mentoring",
     "note-consultation"
+  ],
+  "adminPages": [
+    "admin/class",
+    "admin/courses",
+    "admin/detail",
+    "admin/matching",
+    "admin/mentoring",
+    "admin/sales-management"
   ],
   "coreModules": {
     "apiLayer": {
       "legacy": "src/api/client/axios.ts",
+      "server": "src/api/client/axios.server.ts",
       "v2": "src/api/client/axiosV2.ts",
-      "openapi": "src/api/openapi/ (Swagger 자동생성 — 수정 금지)"
+      "openapi": "src/api/openapi/ (Swagger 자동생성 — 수정 금지)",
+      "openapiInstance": "src/api/client/open-api-instance.ts",
+      "interceptors": [
+        "src/api/client/auth-response-interceptor.ts",
+        "src/api/client/auth-session-recovery.ts"
+      ],
+      "errorType": "src/api/client/api-error.ts"
     },
     "queryHooks": {
       "path": "src/hooks/queries/",
-      "files": [
+      "subfolders": [
+        "course/ (course-api.ts: course detail, curriculum, journey-map, lesson detail, retrospective, qna, builder-feed list/detail/preview/comments/like/report, my-feeds, stats)",
+        "group-study/",
+        "one-to-one/",
+        "admin/",
+        "auth/",
+        "payment/",
+        "user/"
+      ],
+      "topLevel": [
         "study-query.ts",
-        "group-study-review-api.ts",
-        "group-study-member-api.ts",
         "mission-api.ts",
         "evaluation-api.ts",
         "peer-review-api.ts",
         "payment-user-api.ts",
         "refund-user-api.ts",
+        "settlement-account-api.ts",
         "settlement-user-api.ts",
         "notification-api.ts",
-        "use-auth.ts",
-        "use-auth-mutation.ts",
         "bank-search-api.ts",
-        "settlement-account-api.ts"
+        "use-phone-verification-status.ts"
       ]
     },
-    "commonHooks": {
-      "path": "src/hooks/common/",
-      "notable": [
-        "use-auth.ts",
-        "use-group-study-review-form.ts",
-        "use-reminder-review.tsx",
-        "use-study-list-filter.ts",
-        "use-infinite-scroll.ts"
+    "endpoints": {
+      "path": "src/api/endpoints/",
+      "domains": [
+        "admin",
+        "archive",
+        "auth",
+        "balance-game",
+        "channel",
+        "group-study",
+        "group-study-application",
+        "hall-of-fame",
+        "interview",
+        "participation",
+        "review",
+        "study-history",
+        "user"
       ]
     },
     "stores": {
@@ -88,54 +134,80 @@
         "useUserStore.ts (persist)",
         "useLeaderStore.ts",
         "use-toast-store.ts",
+        "use-login-modal-store.ts",
         "use-phone-verification-store.ts",
         "useMentorDirectoryStore.ts",
-        "useMentoringManagementStore.ts"
+        "useMentoringManagementStore.ts",
+        "useMentorOperationStore.ts",
+        "useMentorScreeningStore.ts"
       ]
     },
     "features": {
       "path": "src/features/",
       "domains": [
         "auth (model, server/middleware, ui)",
-        "mentoring (ui, model, api)",
+        "community (api, model, ui)",
+        "developer (api, model, ui)",
+        "mentoring (api, const, model, ui)",
+        "group-study (model, ui)",
+        "home (model)",
+        "study/one-to-one",
+        "admin/course-management",
         "admin/matching",
-        "admin/mentoring",
-        "study/one-to-one (schedule, history, discussion)",
-        "home"
+        "admin/mentoring"
       ]
     },
     "errorHandling": {
       "central": "src/utils/error-handler.ts",
-      "queryClient": "src/config/query-client.ts",
+      "queryClient": "src/config/query-client.ts (401 → login modal, others → toast+sentry)",
       "sentry": "src/config/sentry.ts",
       "globalError": "src/app/global-error.tsx",
       "errorPages": [
         "src/app/(service)/error.tsx",
         "src/app/(landing)/error.tsx",
         "src/app/(admin)/error.tsx"
-      ]
+      ],
+      "loginModal": {
+        "store": "src/stores/use-login-modal-store.ts",
+        "global": "<GlobalLoginModal /> in (service)/layout.tsx"
+      }
     }
   },
   "components": {
     "ui": "src/components/common/ui/",
     "layout": "src/components/common/layout/",
     "modals": "src/components/common/modals/",
+    "cards": "src/components/common/cards/",
+    "seo": "src/components/common/seo/",
+    "analytics": "src/components/common/analytics/",
     "pages": "src/components/pages/",
-    "notable": [
-      "common/ui/modal/index.tsx (mobileFullscreen prop)",
-      "common/modals/group-study-review-modal.tsx",
-      "common/modals/study-completion-modal.tsx",
-      "common/ui/star-rating-input.tsx",
-      "common/layout/mobile-menu-drawer.tsx",
-      "common/layout/header-user-dropdown.tsx"
+    "domains": [
+      "admin/{courses,matching,mentoring,modals}",
+      "auth/{forms,modals}",
+      "group-study/{discussion,filtering,forms,modals,model,pages,participation,premium,review,schedule,section,summary}",
+      "mentoring",
+      "my-page",
+      "one-to-one",
+      "payment",
+      "forms",
+      "home"
     ]
   },
   "types": {
     "api": "src/types/api/*.types.ts",
     "schemas": "src/types/schemas/*.schema.ts",
     "auth": "src/types/auth/domain.ts",
-    "mentoring": "src/types/mentoring/",
+    "domains": [
+      "community",
+      "developer",
+      "interview",
+      "matching",
+      "mentoring",
+      "one-to-one-study",
+      "schedule"
+    ],
     "notable": [
+      "api/course.types.ts (lesson, journey-map, builder-feed, qna sidebar, stats)",
       "api/group-study-review.types.ts",
       "api/group-study.types.ts",
       "auth/domain.ts"
@@ -143,7 +215,7 @@
   },
   "config": {
     "constants": "src/config/constants.ts",
-    "queryClient": "src/config/query-client.ts (staleTime: 60s)",
+    "queryClient": "src/config/query-client.ts (staleTime: 60s, MutationCache 401→loginModal)",
     "sentry": "src/config/sentry.ts",
     "domainConsts": [
       "group-study-const.ts",
@@ -158,34 +230,59 @@
     "time": "src/utils/time.ts",
     "jwt": "src/utils/jwt.ts",
     "seo": "src/utils/seo.ts",
+    "ssr": "src/utils/ssr.ts",
+    "serverCookie": "src/utils/server-cookie.ts",
     "errorLegacy": "src/utils/error.ts (deprecated)"
+  },
+  "testing": {
+    "unit": {
+      "framework": "Vitest 3",
+      "command": "yarn test:unit",
+      "fileCount": 22,
+      "location": "src/**/*.test.{ts,tsx}"
+    },
+    "e2e": {
+      "framework": "Playwright 1.51",
+      "command": "yarn e2e",
+      "specCount": 1,
+      "target": "https://test.zeroone.it.kr (staging)",
+      "authTag": "@auth (CI: yarn e2e --grep-invert @auth)",
+      "fixtures": "e2e/fixtures/auth.json (not committed; regenerate via yarn e2e:save-auth)",
+      "specs": "e2e/group-study/",
+      "support": "e2e/support/study-helpers.ts"
+    }
   },
   "dependencies": {
     "key": {
-      "@tanstack/react-query": "서버 상태 관리",
-      "zustand": "전역 클라이언트 상태",
-      "axios": "^1.9 HTTP 클라이언트",
-      "react-hook-form": "폼 상태",
-      "zod": "런타임 유효성 검증",
+      "next": "15.2.8 — App Router SSR",
+      "react": "19 — UI",
+      "@tanstack/react-query": "5 — 서버 상태",
+      "zustand": "5 — 전역 클라이언트 상태",
+      "axios": "1.9 — HTTP 클라이언트",
+      "react-hook-form": "7 — 폼 상태",
+      "zod": "4 — 런타임 검증",
       "@radix-ui/*": "UI 프리미티브",
-      "@sentry/nextjs": "^10 에러 모니터링",
-      "@tosspayments/tosspayments-sdk": "결제",
-      "canvas-confetti": "^1.9 완주 모달 효과",
+      "@sentry/nextjs": "10 — 에러 모니터링",
+      "@tosspayments/tosspayments-sdk": "2 — 결제",
+      "@tiptap/react": "3 — 리치 텍스트",
+      "framer-motion": "12 — 애니메이션",
+      "canvas-confetti": "1.9 — 완주 모달 효과",
       "date-fns": "날짜 처리",
       "dayjs": "날짜 처리",
-      "@tiptap/react": "^3 리치 텍스트 에디터",
-      "class-variance-authority": "CVA 컴포넌트 변형",
-      "clsx": "조건부 className",
-      "tailwind-merge": "Tailwind 병합"
+      "tailwindcss": "4 — 스타일링",
+      "@biomejs/biome": "2.4.6 — format+lint",
+      "vitest": "3 — 단위 테스트",
+      "@playwright/test": "1.51 — E2E"
     }
   },
   "conventions": {
     "className": "cn() 사용 필수, 템플릿 리터럴 금지",
-    "tailwind": "임의값(p-[4px]) 금지, global.css 토큰만 사용",
-    "api": "openapi/ 수정 금지, 없는 엔드포인트 임의 생성 금지",
-    "error": "alert() 금지, useToastStore 사용",
-    "commit": "feat/fix/refactor/style/docs/test/chore : <한국어 요약>",
-    "branch": "Feature → develop (staging) → main (production)"
+    "tailwind": "임의값(p-[4px]) 금지, 기본 스케일(p-4) 금지, global.css 토큰만 사용 (p-200, rounded-150, font-designer-16r)",
+    "api": "openapi/ 수정 금지, 없는 엔드포인트 임의 생성 금지, src/hooks/queries/, src/api/, src/api/openapi/ 확인 후 사용",
+    "error": "alert() 금지, useToastStore 사용, 401 → useLoginModalStore.open()",
+    "commit": "feat/fix/refactor/style/docs/test/chore : <한국어 요약> (50자 이내)",
+    "branch": "Feature → develop (staging) → main (production)",
+    "completionGate": "yarn lint:fix && yarn prettier:fix && yarn typecheck"
   },
   "env": {
     "required": [
@@ -208,7 +305,32 @@
     "build": "yarn build",
     "typecheck": "yarn typecheck (tsc --noEmit)",
     "lint": "yarn lint:fix",
+    "format": "yarn prettier:fix (Biome)",
     "storybook": "yarn storybook (port 6006)",
+    "testUnit": "yarn test:unit",
+    "e2e": "yarn e2e (staging)",
     "generateApi": "yarn generate:api <swagger-api-name>"
+  },
+  "environments": {
+    "staging": "https://test.zeroone.it.kr",
+    "production": "https://www.zeroone.it.kr",
+    "swaggerUI": "https://test-api.zeroone.it.kr/swagger-ui/index.html",
+    "swaggerJSON": "https://test-api.zeroone.it.kr/v3/api-docs"
+  },
+  "rules": {
+    "path": ".claude/rules/",
+    "files": [
+      "architecture.md",
+      "api-patterns.md",
+      "backend-data-safety.md",
+      "domain-entities.md",
+      "documentation-rules.md",
+      "e2e-testing.md",
+      "error-handling.md",
+      "figma-design.md",
+      "rubber-duck.md",
+      "schema-validation.md",
+      "styling.md"
+    ]
   }
 }

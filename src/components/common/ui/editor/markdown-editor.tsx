@@ -17,6 +17,7 @@ import {
   Loader2,
   Quote,
   Redo2,
+  Table2,
   Strikethrough,
   Underline as UnderlineIcon,
   Undo2,
@@ -37,25 +38,27 @@ import { hasClipboardImageHint } from './clipboard-utils';
 import EditorVisibleTextCounter from './editor-visible-text-counter';
 import {
   InstantCodeBlockExtension,
+  LinkExitOnSpaceExtension,
   lowlight,
   MarkdownHistoryShortcutsExtension,
   ResizableImageExtension,
+  YouTubeEmbedExtension,
 } from './extensions';
 import {
   type MarkdownEditorImageConfig,
-  clampImageWidth,
   MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS,
   MARKDOWN_IMAGE_DEFAULT_MAX_COUNT,
   MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE,
-  MARKDOWN_IMAGE_DEFAULT_WIDTH,
-  MARKDOWN_IMAGE_MAX_WIDTH,
-  MARKDOWN_IMAGE_MIN_WIDTH,
-  MARKDOWN_IMAGE_WIDTH_STEP,
-  parseImageWidth,
   toImageInputAccept,
 } from './image-utils';
+import {
+  convertHtmlTableToMarkdownTable,
+  convertTabularTextToMarkdownTable,
+} from './markdown-table-utils';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
+import { useActiveCodeBlockControl } from './use-active-code-block-control';
 import { useImageUpload } from './use-image-upload';
+import { isSingleYouTubeUrlText, YOUTUBE_IFRAME_TITLE } from './youtube-utils';
 
 export type { MarkdownEditorImageConfig } from './image-utils';
 
@@ -95,13 +98,15 @@ function MarkdownEditor({
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedBy,
 }: MarkdownEditorProps) {
-  const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
   const [, forceEditorRerender] = useState(0);
   const [isLinkInputOpen, setIsLinkInputOpen] = useState(false);
   const [linkInputValue, setLinkInputValue] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const editorContentWrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
+  const imageInputInsertRangeRef = useRef<
+    { from: number; to: number } | undefined
+  >(undefined);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeContent(value);
   const currentVisibleTextLength = useMemo(() => {
@@ -117,6 +122,59 @@ function MarkdownEditor({
       return null;
     }
     return editorRef.current;
+  };
+
+  const insertYouTubeEmbed = (editorInstance: Editor, pastedText: string) => {
+    const youtubeEmbed = isSingleYouTubeUrlText(pastedText);
+    if (!youtubeEmbed || editorInstance.isActive('codeBlock')) {
+      return false;
+    }
+
+    return editorInstance
+      .chain()
+      .focus()
+      .insertContent([
+        {
+          type: 'youtubeEmbed',
+          attrs: {
+            src: youtubeEmbed.embedUrl,
+            title: YOUTUBE_IFRAME_TITLE,
+          },
+        },
+        { type: 'paragraph' },
+      ])
+      .run();
+  };
+
+  const insertMarkdownTable = (
+    editorInstance: Editor,
+    markdownTable: string,
+  ) => {
+    const tableRows = markdownTable.split('\n').map((line) => ({
+      type: 'paragraph',
+      content: [
+        {
+          type: 'text',
+          text: line,
+        },
+      ],
+    }));
+
+    return editorInstance.chain().focus().insertContent(tableRows).run();
+  };
+
+  const handleInsertTable = () => {
+    const editorInstance = getValidEditorInstance();
+    if (!editorInstance) {
+      return;
+    }
+
+    insertMarkdownTable(
+      editorInstance,
+      ['| 항목 | 설명 |', '| --- | --- |', '| 예시 | 내용을 입력하세요 |'].join(
+        '\n',
+      ),
+    );
   };
 
   const resolvedImageConfig = useMemo(() => {
@@ -156,6 +214,8 @@ function MarkdownEditor({
         defaultLanguage: 'plaintext',
       }),
       MarkdownHistoryShortcutsExtension,
+      LinkExitOnSpaceExtension,
+      YouTubeEmbedExtension,
       UnderlineExtension,
       LinkExtension.configure({
         openOnClick: false,
@@ -174,19 +234,8 @@ function MarkdownEditor({
       isInternalUpdate.current = true;
       onChange?.(normalizeContent(updatedEditor.getHTML()));
     },
-    onTransaction() {
+    onTransaction: () => {
       forceEditorRerender((prev) => prev + 1);
-    },
-    onSelectionUpdate: ({ editor: nextEditor }) => {
-      if (nextEditor.isActive('image')) {
-        setSelectedImagePos(nextEditor.state.selection.from);
-
-        return;
-      }
-
-      if (nextEditor.isFocused) {
-        setSelectedImagePos(null);
-      }
     },
     editorProps: {
       attributes: {
@@ -206,37 +255,52 @@ function MarkdownEditor({
         },
       },
       handlePaste: (_, event) => {
-        if (!resolvedImageConfig) {
-          return false;
-        }
-
         const clipboardData = event.clipboardData;
         if (!clipboardData) {
           return false;
         }
 
-        if (!hasClipboardImageHint(clipboardData)) {
+        const editorInstance = getValidEditorInstance();
+        if (!editorInstance) {
+          return false;
+        }
+
+        if (hasClipboardImageHint(clipboardData)) {
+          event.preventDefault();
+          if (!resolvedImageConfig) {
+            setImageInsertError(
+              '현재 화면에서는 이미지 업로드를 사용할 수 없습니다.',
+            );
+            return true;
+          }
+          handleClipboardPaste(editorInstance, clipboardData).catch(() => {
+            setImageInsertError('이미지 붙여넣기에 실패했습니다.');
+          });
+          return true;
+        }
+
+        const pastedHtml = clipboardData.getData('text/html');
+        const markdownTable =
+          convertHtmlTableToMarkdownTable(pastedHtml) ??
+          convertTabularTextToMarkdownTable(
+            clipboardData.getData('text/plain'),
+          );
+
+        if (markdownTable) {
+          event.preventDefault();
+          insertMarkdownTable(editorInstance, markdownTable);
+          return true;
+        }
+
+        const pastedText = clipboardData.getData('text/plain');
+        if (!insertYouTubeEmbed(editorInstance, pastedText)) {
           return false;
         }
 
         event.preventDefault();
-        const editorInstance = getValidEditorInstance();
-
-        if (!editorInstance) {
-          setImageInsertError('이미지 붙여넣기에 실패했습니다.');
-          return true;
-        }
-
-        handleClipboardPaste(editorInstance, clipboardData).catch(() => {
-          setImageInsertError('이미지 붙여넣기에 실패했습니다.');
-        });
         return true;
       },
       handleDrop: (_, event) => {
-        if (!resolvedImageConfig) {
-          return false;
-        }
-
         const dataTransfer = event.dataTransfer;
         if (!dataTransfer) {
           return false;
@@ -251,16 +315,33 @@ function MarkdownEditor({
         }
 
         event.preventDefault();
-        const editorInstance = getValidEditorInstance();
-
-        if (!editorInstance) {
-          setImageInsertError('이미지 드롭에 실패했습니다.');
+        if (!resolvedImageConfig) {
+          setImageInsertError(
+            '현재 화면에서는 이미지 업로드를 사용할 수 없습니다.',
+          );
           return true;
         }
 
-        handleImageFiles(editorInstance, imageFiles).catch(() => {
+        const editorInstance = getValidEditorInstance();
+        const dropPosition = _.posAtCoords({
+          left: event.clientX,
+          top: event.clientY,
+        })?.pos;
+        const dropInsertRange =
+          typeof dropPosition === 'number'
+            ? { from: dropPosition, to: dropPosition }
+            : undefined;
+        const onDropError = () =>
           setImageInsertError('이미지 드롭에 실패했습니다.');
-        });
+
+        if (!editorInstance) {
+          onDropError();
+          return true;
+        }
+
+        handleImageFiles(editorInstance, imageFiles, dropInsertRange).catch(
+          onDropError,
+        );
 
         return true;
       },
@@ -288,24 +369,6 @@ function MarkdownEditor({
     }
   }, [editor, normalizeContent, normalizedValue]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      forceEditorRerender((prev) => prev + 1);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  /**
-   * 마크다운 내용을 단순내 넣늤른 답베비는른 단진를 뎭니다.
-   * @param e - 목록 붔토 단진
-   * @example
-   * handleToggleLink()
-   */
   const handleToggleLink = () => {
     if (!editor) {
       return;
@@ -334,14 +397,54 @@ function MarkdownEditor({
     setLinkInputValue('');
   };
 
-  /**
-   * 링크 입력 쪼랜기를 취소합니다.
-   * @example
-   * handleLinkCancel()
-   */
   const handleLinkCancel = () => {
     setIsLinkInputOpen(false);
     setLinkInputValue('');
+  };
+
+  const handleToggleBlockquote = () => {
+    if (!editor) {
+      return;
+    }
+
+    const { selection, doc } = editor.state;
+    const { from, to, empty } = selection;
+    const isInsideList =
+      editor.isActive('bulletList') || editor.isActive('orderedList');
+
+    if (!isInsideList || empty || editor.isActive('blockquote')) {
+      editor.chain().focus().toggleBlockquote().run();
+      return;
+    }
+
+    const selectedText = doc.textBetween(from, to, '\n', '\n').trim();
+    if (!selectedText) {
+      editor.chain().focus().toggleBlockquote().run();
+      return;
+    }
+
+    const blockquoteNode = {
+      type: 'blockquote',
+      content: selectedText.split('\n').map((line) => ({
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: line,
+          },
+        ],
+      })),
+    };
+
+    const didInsert = editor
+      .chain()
+      .focus()
+      .insertContentAt({ from, to }, blockquoteNode)
+      .run();
+
+    if (!didInsert) {
+      editor.chain().focus().toggleBlockquote().run();
+    }
   };
 
   /**
@@ -355,7 +458,7 @@ function MarkdownEditor({
 
     const { selection, doc } = editor.state;
     const { from, to, empty } = selection;
-    const isCodeBlockActive = editor?.isActive('codeBlock');
+    const isCodeBlockActive = editor.isActive('codeBlock');
 
     // 이미 코드블록이거나 선택이 없으면 간단히 토글
     if (isCodeBlockActive || empty) {
@@ -393,84 +496,10 @@ function MarkdownEditor({
     insertCommand.run();
   };
 
-  /**
-   * 선택된 이미지의 너비를 변경합니다.
-   */
-  const handleImageWidthChange = (nextWidth: number) => {
-    if (!editor || selectedImagePos === null) {
-      return;
-    }
-
-    const selectedNode = editor.state.doc.nodeAt(selectedImagePos);
-    if (!selectedNode || selectedNode.type.name !== 'image') {
-      setSelectedImagePos(null);
-
-      return;
-    }
-
-    const imageChain = editor
-      .chain()
-      .focus()
-      .setNodeSelection(selectedImagePos)
-      .updateAttributes('image', {
-        width: clampImageWidth(nextWidth),
-      });
-
-    const didUpdate = imageChain.run();
-
-    if (!didUpdate) {
-      return;
-    }
-
-    // 이미지 width 변경은 onUpdate가 누락될 수 있어 폼 값을 직접 동기화한다.
-    isInternalUpdate.current = true;
-    onChange?.(normalizeContent(editor.getHTML()));
-  };
-
-  const isImageActive = selectedImagePos !== null;
-  const selectedImageWidth =
-    editor && selectedImagePos !== null
-      ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
-      : MARKDOWN_IMAGE_DEFAULT_WIDTH;
-
-  const activeCodeBlockControl = useMemo(() => {
-    if (!editor?.isActive('codeBlock')) {
-      return null;
-    }
-
-    const editorContentWrapper = editorContentWrapperRef.current;
-    if (!editorContentWrapper) {
-      return null;
-    }
-
-    const { $from } = editor.state.selection;
-    const parentIsCodeBlock = $from.parent.type.name === 'codeBlock';
-    if (!parentIsCodeBlock) {
-      return null;
-    }
-
-    const codeBlockPos = $from.before();
-    const codeBlockElement = editor.view.nodeDOM(codeBlockPos);
-    const isValidCodeBlockElement = codeBlockElement instanceof HTMLElement;
-    if (!isValidCodeBlockElement) {
-      return null;
-    }
-
-    const wrapperRect = editorContentWrapper.getBoundingClientRect();
-    const codeBlockRect = codeBlockElement.getBoundingClientRect();
-    const relativeTop = codeBlockRect.top - wrapperRect.top + 6;
-    const relativeLeft = codeBlockRect.left - wrapperRect.left + 10;
-    const language =
-      (editor.getAttributes('codeBlock').language as string | undefined) ??
-      'plaintext';
-
-    return {
-      language,
-      top: Math.max(6, relativeTop),
-      left: Math.max(10, relativeLeft),
-    };
-    // editor.state는 매 트랜잭션마다 새 객체 — 선택·텍스트 변경 시 재계산
-  }, [editor]);
+  const activeCodeBlockControl = useActiveCodeBlockControl(
+    editor,
+    editorContentWrapperRef,
+  );
 
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
@@ -544,7 +573,7 @@ function MarkdownEditor({
           icon={Quote}
           label="인용"
           isActive={editor?.isActive('blockquote')}
-          onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+          onClick={handleToggleBlockquote}
         />
         <ToolbarButton
           icon={Code2}
@@ -552,12 +581,22 @@ function MarkdownEditor({
           isActive={editor?.isActive('codeBlock')}
           onClick={handleToggleCodeBlock}
         />
+        <ToolbarButton icon={Table2} label="표" onClick={handleInsertTable} />
         {resolvedImageConfig && (
           <Button
             type="button"
             color="secondary"
             size="small"
-            onClick={() => imageInputRef.current?.click()}
+            onClick={() => {
+              const editorInstance = getValidEditorInstance();
+              imageInputInsertRangeRef.current = editorInstance
+                ? {
+                    from: editorInstance.state.selection.from,
+                    to: editorInstance.state.selection.to,
+                  }
+                : undefined;
+              imageInputRef.current?.click();
+            }}
             disabled={isUploadingImages}
           >
             {isUploadingImages ? (
@@ -604,36 +643,6 @@ function MarkdownEditor({
         </form>
       )}
 
-      {isImageActive && (
-        <div className="border-border-subtle flex items-center gap-100 border-b px-150 py-100">
-          <span className="font-designer-12r text-text-subtle">
-            이미지 크기
-          </span>
-          <input
-            type="range"
-            min={MARKDOWN_IMAGE_MIN_WIDTH}
-            max={MARKDOWN_IMAGE_MAX_WIDTH}
-            step={MARKDOWN_IMAGE_WIDTH_STEP}
-            value={selectedImageWidth}
-            onChange={(event) => {
-              handleImageWidthChange(Number(event.target.value));
-            }}
-            className="accent-background-brand-default flex-1"
-          />
-          <span className="font-designer-12r text-text-default min-w-600">
-            {selectedImageWidth}px
-          </span>
-          <Button
-            type="button"
-            color="secondary"
-            size="small"
-            onClick={() => handleImageWidthChange(MARKDOWN_IMAGE_DEFAULT_WIDTH)}
-          >
-            기본 480px
-          </Button>
-        </div>
-      )}
-
       {resolvedImageConfig && (
         <input
           ref={imageInputRef}
@@ -649,11 +658,16 @@ function MarkdownEditor({
             }
 
             const files = Array.from(event.target.files ?? []);
-            handleImageFiles(editor, files).catch(() => {
+            handleImageFiles(
+              editor,
+              files,
+              imageInputInsertRangeRef.current,
+            ).catch(() => {
               setImageInsertError(
                 '이미지 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
               );
             });
+            imageInputInsertRangeRef.current = undefined;
             event.target.value = '';
           }}
         />

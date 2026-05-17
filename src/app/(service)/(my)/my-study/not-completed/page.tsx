@@ -6,13 +6,13 @@ import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { Skeleton } from '@/components/common/ui/loading-skeleton';
 import Pagination from '@/components/common/ui/pagination';
-import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
+import NotCompletedGroupStudyList from '@/components/home/lists/not-completed-group-study-list';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useMemberStudyListV2Query } from '@/hooks/queries/use-member-study-list-query';
+import { useMemberStudyListV2Query } from '@/hooks/queries/user/use-member-study-list-query';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 const GroupStudyFormModal = dynamic(
-  () => import('@/components/common/modals/group-study-form-modal'),
+  () => import('@/components/group-study/modals/group-study-form-modal'),
   { ssr: false },
 );
 

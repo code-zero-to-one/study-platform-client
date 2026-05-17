@@ -1,0 +1,55 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    # synchronize 제거: 매 푸시마다 자동 리뷰가 돌면 Max 쿼터 소비가 커서 PR open/reopen/ready 시점만 동작하도록 축소.
+    types: [opened, reopened, ready_for_review]
+    # 프론트엔드 소스/설정 변경에만 자동 리뷰가 돌도록 paths 필터 적용 (쿼터 절약).
+    paths:
+      - "src/**/*.ts"
+      - "src/**/*.tsx"
+      - "src/**/*.js"
+      - "src/**/*.jsx"
+      - "src/**/*.css"
+      - "src/**/*.scss"
+      - "package.json"
+      - "next.config.*"
+      - "tailwind.config.*"
+      - "tsconfig.json"
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # 자동 리뷰가 PR에 인라인 코멘트와 요약 코멘트를 작성할 수 있도록 write
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
+          plugins: 'code-review@claude-code-plugins'
+          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+
+      # 자동 리뷰 완료 시 프론트엔드 Slack 채널에 알림. 기존 PR open 알림과는 별도 메시지로 구분.
+      - name: Notify Slack on review complete
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_FRONT_CHANNEL_ID }}
+            text: "Claude 자동 리뷰 완료 (${{ steps.claude-review.outcome }})\n- PR: <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>\n- 작성자: ${{ github.event.pull_request.user.login }}"
+            unfurl_links: false
+            unfurl_media: false

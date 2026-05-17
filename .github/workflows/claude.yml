@@ -1,0 +1,57 @@
+name: Claude Code
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # Claude가 PR 브랜치에 커밋 푸시할 수 있도록 write
+      pull-requests: write  # Claude가 PR 코멘트/리뷰를 작성할 수 있도록 write
+      issues: write         # Claude가 이슈 코멘트를 작성할 수 있도록 write
+      id-token: write
+      actions: read         # Claude가 PR의 CI 결과를 읽을 수 있도록 필요
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          # This is an optional setting that allows Claude to read CI results on PRs
+          additional_permissions: |
+            actions: read
+
+          # 프론트엔드 작업에 필요한 패키지 매니저 명령어 허용
+          claude_args: '--allowed-tools "Bash(npm *),Bash(yarn *),Bash(pnpm *),Bash(npx *)"'
+
+      # Claude 응답 완료 시 프론트엔드 Slack 채널에 알림. 성공/실패 모두 통지하여 쿼터 소진 등 에러 상황도 추적 가능하게 함.
+      - name: Notify Slack on Claude response
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_FRONT_CHANNEL_ID }}
+            text: "Claude가 응답했습니다 (${{ steps.claude.outcome }})\n- 위치: <${{ github.event.issue.pull_request.html_url || github.event.issue.html_url || github.event.pull_request.html_url }}|보러 가기>\n- 호출자: ${{ github.event.comment.user.login || github.event.review.user.login || github.event.issue.user.login }}"
+            unfurl_links: false
+            unfurl_media: false

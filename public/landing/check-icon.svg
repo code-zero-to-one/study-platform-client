@@ -1,0 +1,6 @@
+<svg width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="check">
+<path id="Rectangle 68" d="M4 0.5H26C27.933 0.5 29.5 2.067 29.5 4V26C29.5 27.933 27.933 29.5 26 29.5H4C2.067 29.5 0.5 27.933 0.5 26V4L0.504883 3.82031C0.595411 2.03035 2.03035 0.595411 3.82031 0.504883L4 0.5Z" fill="var(--fill-0, white)" stroke="var(--stroke-0, #F63D68)"/>
+<path id="Vector 36" d="M7 13.5L14.5 21.5L22 8" stroke="var(--stroke-0, #F63D68)" stroke-width="3" stroke-linecap="round"/>
+</g>
+</svg>

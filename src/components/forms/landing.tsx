@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import LoginModal from '@/components/common/modals/login-modal';
-import SignupModal from '@/components/common/modals/sign-up-modal';
+import LoginModal from '@/components/auth/modals/login-modal';
+import SignupModal from '@/components/auth/modals/sign-up-modal';
 import Button from '@/components/common/ui/button';
 
 export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {

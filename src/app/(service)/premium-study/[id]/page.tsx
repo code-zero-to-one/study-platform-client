@@ -10,7 +10,7 @@ import { getGroupStudyMyStatusInServer } from '@/api/endpoints/group-study/get-g
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
-import PremiumStudyDetailPage from '@/components/pages/premium-study-detail-page';
+import PremiumStudyDetailPage from '@/components/group-study/pages/premium-study-detail-page';
 import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
 import { GroupStudyDetailResponse } from '@/types/api/group-study.types';
 

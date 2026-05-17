@@ -8,12 +8,12 @@ import { useLazyMount } from '@/hooks/common/use-lazy-mount';
 import { useUserStore } from '@/stores/useUserStore';
 
 const CreateQuestionModal = dynamic(
-  () => import('@/components/common/modals/create-question-modal'),
+  () => import('@/components/group-study/modals/create-question-modal'),
   { ssr: false },
 );
 
 const LoginModal = dynamic(
-  () => import('@/components/common/modals/login-modal'),
+  () => import('@/components/auth/modals/login-modal'),
   { ssr: false },
 );
 

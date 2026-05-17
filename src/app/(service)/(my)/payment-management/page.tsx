@@ -20,23 +20,25 @@ import {
   useCancelPayment,
   useGetMyTransactions,
   useGetMyTransactionsByGroupStudy,
-} from '@/hooks/queries/payment-user-api';
+} from '@/hooks/queries/payment/payment-user-api';
 import { formatToKST } from '@/utils/time';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
 
 const PremiumStudyCancelPaymentModal = dynamic(
-  () => import('@/components/common/modals/premium-study-cancel-payment-modal'),
+  () =>
+    import('@/components/payment/modals/premium-study-cancel-payment-modal'),
   { ssr: false },
 );
 
 const PremiumStudyRefundRequestModal = dynamic(
-  () => import('@/components/common/modals/premium-study-refund-request-modal'),
+  () =>
+    import('@/components/payment/modals/premium-study-refund-request-modal'),
   { ssr: false },
 );
 
 const VirtualAccountInfoModal = dynamic(
-  () => import('@/components/common/modals/virtual-account-info-modal'),
+  () => import('@/components/payment/modals/virtual-account-info-modal'),
   { ssr: false },
 );
 

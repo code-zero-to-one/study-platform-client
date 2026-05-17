@@ -5,7 +5,7 @@ import ProfileInfoCard from '@/components/common/cards/profile-info-card';
 import { MemberInfo } from '@/types/api/user.types';
 
 const ProfileInfoEditModal = dynamic(
-  () => import('@/components/common/modals/profile-info-edit-modal'),
+  () => import('@/components/my-page/modals/profile-info-edit-modal'),
   { ssr: false },
 );
 
