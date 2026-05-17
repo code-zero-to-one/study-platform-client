@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  MessageSquareMore,
-  Forward,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import {
@@ -15,6 +9,11 @@ import {
   RoleBadge,
 } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import {
+  FeedCommentIcon,
+  FeedHeartIcon,
+  FeedShareIcon,
+} from '@/components/common/ui/icons/course-icons';
 import type { BuilderFeedPreviewItemResponse } from '@/types/api/course.types';
 
 interface Props {
@@ -102,18 +101,18 @@ export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
           </p>
           <div className="flex items-center gap-200">
             <div className="flex items-center gap-50">
-              <Heart className="h-250 w-250 text-icon-brand" />
+              <FeedHeartIcon className="h-250 w-250 text-icon-brand" />
               <p className="font-designer-14r text-gray-1000">
                 {current.likeCount}
               </p>
             </div>
             <div className="flex items-center gap-50">
-              <MessageSquareMore className="h-250 w-250 text-gray-1000" />
+              <FeedCommentIcon className="h-250 w-250 text-gray-1000" />
               <p className="font-designer-14r text-gray-1000">
                 {current.commentCount}
               </p>
             </div>
-            <Forward className="h-250 w-250 text-gray-1000" />
+            <FeedShareIcon className="h-250 w-250 text-gray-1000" />
           </div>
         </button>
       )}

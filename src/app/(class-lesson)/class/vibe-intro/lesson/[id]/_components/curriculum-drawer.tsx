@@ -4,6 +4,10 @@ import { ChevronUp, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import {
+  LockIcon,
+  LockOpenIcon,
+} from '@/components/common/ui/icons/course-icons';
 import { Skeleton } from '@/components/common/ui/loading-skeleton';
 import type {
   CourseDrawerChapterResponse,
@@ -56,12 +60,11 @@ function LessonBadge({ lesson }: { lesson: CourseDrawerLessonResponse }) {
           : 'border border-gray-300 bg-background-default',
       )}
     >
-      <Image
-        src={`${ASSET}/${accessible ? 'lock-open.svg' : 'lesson-lock-icon.svg'}`}
-        alt={accessible ? '잠금 해제' : '잠금'}
-        width={20}
-        height={20}
-      />
+      {accessible ? (
+        <LockOpenIcon className="size-250 text-gray-400" />
+      ) : (
+        <LockIcon className="size-250 text-gray-400" />
+      )}
     </div>
   );
 }
@@ -95,14 +98,7 @@ function ChapterHeader({
             />
           </div>
         ) : (
-          <Image
-            src={`${ASSET}/chapter-lock.svg`}
-            alt=""
-            aria-hidden="true"
-            width={42}
-            height={42}
-            className="shrink-0"
-          />
+          <LockIcon className="size-525 shrink-0" />
         )}
         <div className="flex min-w-0 flex-col items-start gap-25">
           <p className="font-designer-14b text-text-brand">

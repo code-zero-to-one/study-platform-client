@@ -1,5 +1,5 @@
-import { Timer } from 'lucide-react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { TimerIcon } from '@/components/common/ui/icons/course-icons';
 
 interface CurriculumLessonCardProps {
   order: number;
@@ -56,7 +56,7 @@ export function CurriculumLessonCard({
           isActive ? 'text-rose-400' : 'text-gray-400',
         )}
       >
-        <Timer className="size-300" />
+        <TimerIcon className="size-300" />
         <span className="font-designer-14r">약 {estimatedMinutes}분 소요</span>
       </div>
     </div>
