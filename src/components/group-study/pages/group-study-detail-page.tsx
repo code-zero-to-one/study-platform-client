@@ -368,7 +368,9 @@ export default function StudyDetailPage({
           startTransition(() => {
             const params = new URLSearchParams(searchParams.toString());
             params.set('tab', value);
-            router.push(`${pathname}?${params.toString()}`, { scroll: false });
+            router.push(`${pathname}?${params.toString()}`, {
+              scroll: false,
+            });
 
             sendGTMEvent({
               event: 'group_study_tab_change',
