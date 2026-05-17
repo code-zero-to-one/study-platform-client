@@ -35,6 +35,7 @@ export function LessonQnaSubmissionModal({
   const noticeVisible = autoVisible || hoverVisible;
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageListRef = useRef<AttachedImage[]>([]);
   const showToast = useToastStore((s) => s.showToast);
   const createQna = useCreateLessonQna();
 
@@ -61,6 +62,24 @@ export function LessonQnaSubmissionModal({
     }
   }, [open, lessonId]);
 
+  useEffect(() => {
+    imageListRef.current = images;
+  }, [images]);
+
+  useEffect(() => {
+    return () => {
+      imageListRef.current.forEach((img) => {
+        URL.revokeObjectURL(img.previewUrl);
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      clearImagePreviews();
+    }
+  }, [open]);
+
   if (!open) return null;
 
   async function handleImageAdd(file: File) {
@@ -71,13 +90,21 @@ export function LessonQnaSubmissionModal({
     setIsUploadingImage(true);
     try {
       const publicUrl = await uploadCommunityMarkdownImage(file);
+      const key = new URL(publicUrl).pathname.slice(1);
       const previewUrl = URL.createObjectURL(file);
-      setImages((prev) => [...prev, { previewUrl, key: publicUrl }]);
+      setImages((prev) => [...prev, { previewUrl, key }]);
     } catch {
       showToast('이미지 업로드에 실패했습니다.', 'error');
     } finally {
       setIsUploadingImage(false);
     }
+  }
+
+  function clearImagePreviews() {
+    setImages((prev) => {
+      prev.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+      return [];
+    });
   }
 
   function handleImageRemove(index: number) {
@@ -116,7 +143,7 @@ export function LessonQnaSubmissionModal({
           showToast('질문이 등록되었어요!');
           localStorage.removeItem(`lesson-qna-draft-${lessonId}`);
           setContent('');
-          setImages([]);
+          clearImagePreviews();
           onClose();
         },
         onError: (error) => {
