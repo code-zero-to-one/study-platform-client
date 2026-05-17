@@ -98,7 +98,7 @@ export default function CourseCompletePage() {
           <div className="mt-500 flex gap-200">
             {[
               {
-                value: String(recap?.completedLessonCount ?? 20),
+                value: String(recap?.latestCompletedLessonCount ?? 20),
                 label: '내가 들은 레슨 수',
               },
               {

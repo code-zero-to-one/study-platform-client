@@ -33,7 +33,7 @@ export const useLogoutMutation = () => {
       window.localStorage.removeItem(VIEWED_ARCHIVES_KEY);
     }
 
-    clearClientAuthStateAndRedirect(AUTH_ROUTE_PATHS.HOME);
+    clearClientAuthStateAndRedirect(AUTH_ROUTE_PATHS.LANDING);
   };
 
   return useMutation({

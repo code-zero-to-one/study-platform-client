@@ -1,18 +1,22 @@
 'use client';
 
-import {
-  ArrowLeft,
-  Heart,
-  MessageCircle,
-  MoreVertical,
-  Share2,
-} from 'lucide-react';
+import { ArrowLeft, MoreVertical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { use, useState } from 'react';
-import { RoleBadge } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
+import {
+  ROLE_LABELS,
+  RoleBadge,
+} from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import BuilderProfileModal from '@/components/common/modals/builder-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import {
+  FeedCommentIcon,
+  FeedDeleteIcon,
+  FeedEditIcon,
+  FeedHeartIcon,
+  FeedShareIcon,
+} from '@/components/common/ui/icons/course-icons';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
@@ -170,34 +174,46 @@ export default function FeedDetailPage({
                   <p className="font-designer-14b text-gray-800">
                     {feed?.author.nickname ?? ''}
                   </p>
-                  {feed?.author.role && (
-                    <RoleBadge
-                      role={feed.author.role}
-                      width={15}
-                      height={15}
-                      className="h-188 w-188"
-                    />
-                  )}
+                  {feed?.author.role && <RoleBadge role={feed.author.role} />}
                 </div>
               </button>
 
-              {/* ⋮ shown only for non-authors (신고하기 only) */}
-              {!isAuthor && (
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setMoreOpen((p) => !p)}
-                    className="text-gray-400"
-                  >
-                    <MoreVertical className="h-300 w-300" />
-                  </button>
-                  {moreOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setMoreOpen(false)}
-                      />
-                      <div className="absolute right-0 top-full z-20 mt-50 flex flex-col items-stretch gap-25 rounded-100 border border-gray-400 bg-background-default p-125 shadow-1">
+              {/* ⋮ menu: author → 수정/삭제 (UI only), non-author → 신고하기 */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setMoreOpen((p) => !p)}
+                  className="text-gray-400"
+                >
+                  <MoreVertical className="h-300 w-300" />
+                </button>
+                {moreOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setMoreOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full z-20 mt-50 flex flex-col items-stretch gap-25 rounded-100 border border-gray-400 bg-background-default p-125 shadow-1">
+                      {isAuthor ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setMoreOpen(false)}
+                            className="flex items-center gap-125 whitespace-nowrap rounded-50 p-100 font-designer-16r text-gray-400 hover:bg-gray-100"
+                          >
+                            <FeedEditIcon className="h-300 w-300 shrink-0" />
+                            수정하기
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setMoreOpen(false)}
+                            className="flex items-center gap-125 whitespace-nowrap rounded-50 p-100 font-designer-16r text-gray-400 hover:bg-gray-100"
+                          >
+                            <FeedDeleteIcon className="h-300 w-300 shrink-0" />
+                            삭제하기
+                          </button>
+                        </>
+                      ) : (
                         <button
                           type="button"
                           onClick={() => {
@@ -208,11 +224,11 @@ export default function FeedDetailPage({
                         >
                           신고하기
                         </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Images */}
@@ -253,7 +269,7 @@ export default function FeedDetailPage({
                 onClick={() => toggleLikeMutation.mutate(feedId)}
                 className="flex items-center gap-75"
               >
-                <Heart
+                <FeedHeartIcon
                   className={cn(
                     'h-300 w-300',
                     liked ? 'fill-rose-500 text-rose-500' : 'text-gray-800',
@@ -262,7 +278,7 @@ export default function FeedDetailPage({
                 <p className="font-designer-16r text-gray-800">{likeCount}</p>
               </button>
               <button type="button" className="flex items-center gap-75">
-                <MessageCircle className="h-300 w-300 text-gray-800" />
+                <FeedCommentIcon className="h-300 w-300 text-gray-800" />
                 <p className="font-designer-16r text-gray-800">
                   {feed?.commentCount ?? 0}
                 </p>
@@ -273,7 +289,7 @@ export default function FeedDetailPage({
                   handleShare().catch(() => {});
                 }}
               >
-                <Share2 className="h-300 w-300 text-gray-800" />
+                <FeedShareIcon className="h-300 w-300 text-gray-800" />
               </button>
             </div>
 
@@ -318,16 +334,10 @@ export default function FeedDetailPage({
                           >
                             {c.author.nickname}
                           </p>
-                          <span
-                            className={cn(
-                              'rounded-50 px-75 py-25 font-designer-12r',
-                              isOperator
-                                ? 'bg-rose-50 text-text-brand'
-                                : 'bg-gray-200 text-gray-600',
-                            )}
-                          >
-                            {c.author.role}
-                          </span>
+                          <RoleBadge role={c.author.role} />
+                          <p className="font-designer-12r text-gray-400">
+                            {ROLE_LABELS[c.author.role] ?? c.author.role}
+                          </p>
                           <p className="font-designer-12r text-gray-400">
                             {new Date(c.createdAt).toLocaleDateString('ko-KR', {
                               month: '2-digit',
@@ -373,7 +383,7 @@ export default function FeedDetailPage({
                         {f.content}
                       </p>
                       <div className="mt-100 flex items-center gap-75">
-                        <Heart className="h-200 w-200 text-gray-400" />
+                        <FeedHeartIcon className="h-200 w-200 text-gray-400" />
                         <p className="font-designer-12r text-gray-400">
                           {f.likeCount}
                         </p>

@@ -404,12 +404,7 @@ export default function QnaDetailPage({
                   <p className="font-designer-14b text-gray-800">
                     {qna.author.nickname}
                   </p>
-                  <RoleBadge
-                    role={qna.author.role}
-                    width={14}
-                    height={14}
-                    className="h-175 w-175"
-                  />
+                  <RoleBadge role={qna.author.role} />
                 </div>
                 <p className="font-designer-14r text-gray-400">
                   {formatDate(qna.createdAt)} 작성
@@ -479,7 +474,12 @@ export default function QnaDetailPage({
                       : 'border-border-default text-gray-500 hover:border-gray-400',
                   )}
                 >
-                  <Heart className="h-225 w-225" />
+                  <Heart
+                    className={cn(
+                      'h-225 w-225',
+                      qReactions.has('USEFUL') && 'fill-current',
+                    )}
+                  />
                   유용해요 {qna.usefulCount}
                 </button>
                 <button
@@ -492,7 +492,12 @@ export default function QnaDetailPage({
                       : 'border-border-default text-gray-500 hover:border-gray-400',
                   )}
                 >
-                  <HelpCircle className="h-225 w-225" />
+                  <HelpCircle
+                    className={cn(
+                      'h-225 w-225',
+                      qReactions.has('CURIOUS') && 'fill-current',
+                    )}
+                  />
                   나도 궁금해요 {qna.curiousCount}
                 </button>
               </div>
@@ -596,12 +601,7 @@ export default function QnaDetailPage({
                               {answer.author.nickname.charAt(0)}
                             </p>
                           </div>
-                          <RoleBadge
-                            role={answer.author.role}
-                            width={14}
-                            height={14}
-                            className="h-175 w-175"
-                          />
+                          <RoleBadge role={answer.author.role} />
                           <div className="flex-1">
                             <p className="font-designer-14b text-gray-800">
                               {answer.author.nickname}

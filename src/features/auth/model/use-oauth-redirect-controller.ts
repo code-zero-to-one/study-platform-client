@@ -128,7 +128,7 @@ export const useOAuthRedirectController = (
         ...getAttributionParams(),
       });
 
-      router.replace(AUTH_ROUTE_PATHS.HOME);
+      router.replace(AUTH_ROUTE_PATHS.LANDING);
       router.refresh();
     } catch (error) {
       if (error instanceof OAuthRedirectContractError) {
