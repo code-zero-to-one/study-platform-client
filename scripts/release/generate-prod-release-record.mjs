@@ -153,5 +153,8 @@ status: success
 `;
 
 const outFile = join(RELEASES_DIR, `${releaseId}.yaml`);
+if (existsSync(outFile)) {
+  throw new Error(`Release record already exists: ${outFile}`);
+}
 writeFileSync(outFile, yaml);
 process.stdout.write(`${outFile}\n`);

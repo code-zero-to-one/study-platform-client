@@ -5,12 +5,10 @@ This checklist applies to `main` production deployments only. `develop` test-ser
 ## Before production deploy
 
 - Confirm PR CI is green before merging to `main`.
-- Confirm frontend version source (`package.json.version`) is intentional.
-- Confirm the production backend image/API metadata is available to the workflow:
-  - preferred: current production backend container labels/inspect output
-  - fallback: GitHub variables/secrets documented in `ops/version-management.md`
-- Confirm DB migration metadata is known when backend/database changed.
-- Confirm rollback targets are fixed image tags, not `prod` or `latest-prod`.
+- Confirm the PR has exactly one release intent: `release:patch`, `release:minor`, `release:major`, or a `release: ...` line in the PR body.
+- Confirm `ops/release-intent.md` bootstrap approval fields are present if this is the first recorded frontend production release.
+- For frontend-only deploys, confirm latest `releases/` backend image matches current production backend; if not, record the backend dispatch first.
+- Confirm rollback targets and inherited/supplied backend images are fixed image tags, not `prod` or `latest-prod`.
 
 ## Deployment order
 

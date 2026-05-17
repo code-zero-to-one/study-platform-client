@@ -1,0 +1,50 @@
+# 백엔드 prod 배포 fact(repository_dispatch)를 받아 프론트 레포 releases/에 최종 atomic release record를 남긴다.
+
+name: Record Backend Production Release
+
+on:
+  repository_dispatch:
+    types:
+      - backend-prod-deployed
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prod-release-record
+  cancel-in-progress: false
+
+jobs:
+  record-backend-release:
+    runs-on: ubuntu-latest
+    env:
+      BACKEND_RELEASE_PAYLOAD_JSON: ${{ toJSON(github.event.client_payload) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Generate backend release record
+        run: |
+          set -euo pipefail
+          RECORD_PATH="$(node scripts/release/generate-backend-prod-release-record.mjs)"
+          node scripts/release/validate-release-record.mjs "$RECORD_PATH"
+          echo "RECORD_PATH=$RECORD_PATH" >> "$GITHUB_ENV"
+
+      - name: Commit release record
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$RECORD_PATH"
+          git commit -m "chore(release): record backend prod release [release-record]"
+          git pull --rebase origin main
+          git push origin HEAD:main

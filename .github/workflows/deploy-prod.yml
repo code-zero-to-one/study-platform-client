@@ -15,12 +15,17 @@ on:
         description: 'Release summary written to releases/prod-YYYYMMDD-HHmm.yaml'
         required: false
         default: 'Manual production frontend deployment'
+      release_intent:
+        description: 'major, minor, or patch (manual dispatch only)'
+        required: false
+        default: 'patch'
 
 permissions:
   contents: write
+  pull-requests: read
 
 concurrency:
-  group: prod-frontend-deploy
+  group: prod-release-record
   cancel-in-progress: false
 
 env:
@@ -37,6 +42,18 @@ jobs:
       frontend_commit: ${{ steps.meta.outputs.frontend_commit }}
       frontend_version: ${{ steps.meta.outputs.frontend_version }}
       release_summary: ${{ steps.meta.outputs.release_summary }}
+      source_pr_number: ${{ steps.meta.outputs.source_pr_number }}
+      release_type: ${{ steps.meta.outputs.release_type }}
+      backend_changed: ${{ steps.meta.outputs.backend_changed }}
+      backend_image: ${{ steps.meta.outputs.backend_image }}
+      backend_commit: ${{ steps.meta.outputs.backend_commit }}
+      backend_version: ${{ steps.meta.outputs.backend_version }}
+      db_changed: ${{ steps.meta.outputs.db_changed }}
+      db_migration_version: ${{ steps.meta.outputs.db_migration_version }}
+      db_migration_files: ${{ steps.meta.outputs.db_migration_files }}
+      rollback_frontend_image: ${{ steps.meta.outputs.rollback_frontend_image }}
+      rollback_backend_image: ${{ steps.meta.outputs.rollback_backend_image }}
+      db_rollback_note: ${{ steps.meta.outputs.db_rollback_note }}
 
     steps:
       - name: Checkout code
@@ -48,39 +65,13 @@ jobs:
           node-version: '20'
           cache: 'yarn'
 
-      - name: Compute release metadata
+      - name: Resolve release intent and metadata
         id: meta
-        run: |
-          set -euo pipefail
-          SHORT_SHA="${GITHUB_SHA::7}"
-          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-          FRONTEND_VERSION="v${PACKAGE_VERSION#v}"
-          RELEASE_ID="prod-$(TZ=Asia/Seoul date +%Y%m%d-%H%M)"
-          DEPLOYED_AT="$(TZ=Asia/Seoul date +%Y-%m-%dT%H:%M:%S%:z)"
-          FRONTEND_IMAGE="${FRONTEND_IMAGE_REPOSITORY}:${FRONTEND_VERSION}-${SHORT_SHA}"
-          RELEASE_SUMMARY="${{ github.event.inputs.release_summary || 'Production frontend deployment' }}"
-
-          echo "release_id=${RELEASE_ID}" >> "$GITHUB_OUTPUT"
-          echo "deployed_at=${DEPLOYED_AT}" >> "$GITHUB_OUTPUT"
-          echo "frontend_image=${FRONTEND_IMAGE}" >> "$GITHUB_OUTPUT"
-          echo "frontend_commit=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-          echo "frontend_version=${FRONTEND_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "release_summary=${RELEASE_SUMMARY}" >> "$GITHUB_OUTPUT"
-
-      - name: Preflight rollback metadata
         env:
-          ROLLBACK_FRONTEND_IMAGE: ${{ vars.PROD_ROLLBACK_FRONTEND_IMAGE }}
-          ROLLBACK_BACKEND_IMAGE: ${{ vars.PROD_ROLLBACK_BACKEND_IMAGE }}
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          existing=(releases/prod-*.yaml)
-          if [ ${#existing[@]} -eq 0 ]; then
-            if [ -z "${ROLLBACK_FRONTEND_IMAGE:-}" ] || [ -z "${ROLLBACK_BACKEND_IMAGE:-}" ]; then
-              echo "::error::No previous release record exists. Set PROD_ROLLBACK_FRONTEND_IMAGE and PROD_ROLLBACK_BACKEND_IMAGE repository variables to fixed image tags for the first recorded production deployment."
-              exit 1
-            fi
-          fi
+          GITHUB_TOKEN: ${{ github.token }}
+          WORKFLOW_RELEASE_SUMMARY: "${{ github.event.inputs.release_summary || '' }}"
+          RELEASE_INTENT_BODY: "${{ github.event_name == 'workflow_dispatch' && format('release: {0}', github.event.inputs.release_intent || 'patch') || '' }}"
+        run: node scripts/release/resolve-prod-release-intent.mjs
 
       - name: Create production env file
         run: |
@@ -123,15 +114,18 @@ jobs:
       FRONTEND_COMMIT: ${{ needs.build-and-push-image.outputs.frontend_commit }}
       FRONTEND_VERSION: ${{ needs.build-and-push-image.outputs.frontend_version }}
       RELEASE_SUMMARY: ${{ needs.build-and-push-image.outputs.release_summary }}
-      PROD_BACKEND_IMAGE: ${{ vars.PROD_BACKEND_IMAGE }}
-      PROD_BACKEND_COMMIT: ${{ vars.PROD_BACKEND_COMMIT }}
-      PROD_BACKEND_VERSION: ${{ vars.PROD_BACKEND_VERSION }}
-      PROD_DB_CHANGED: ${{ vars.PROD_DB_CHANGED }}
-      PROD_DB_MIGRATION_VERSION: ${{ vars.PROD_DB_MIGRATION_VERSION }}
-      PROD_DB_MIGRATION_FILES: ${{ vars.PROD_DB_MIGRATION_FILES }}
-      PROD_ROLLBACK_FRONTEND_IMAGE: ${{ vars.PROD_ROLLBACK_FRONTEND_IMAGE }}
-      PROD_ROLLBACK_BACKEND_IMAGE: ${{ vars.PROD_ROLLBACK_BACKEND_IMAGE }}
-      PROD_DB_ROLLBACK_NOTE: ${{ vars.PROD_DB_ROLLBACK_NOTE }}
+      SOURCE_PR_NUMBER: ${{ needs.build-and-push-image.outputs.source_pr_number }}
+      RELEASE_TYPE: ${{ needs.build-and-push-image.outputs.release_type }}
+      RELEASE_BACKEND_CHANGED: ${{ needs.build-and-push-image.outputs.backend_changed }}
+      RELEASE_BACKEND_IMAGE: ${{ needs.build-and-push-image.outputs.backend_image }}
+      RELEASE_BACKEND_COMMIT: ${{ needs.build-and-push-image.outputs.backend_commit }}
+      RELEASE_BACKEND_VERSION: ${{ needs.build-and-push-image.outputs.backend_version }}
+      RELEASE_DB_CHANGED: ${{ needs.build-and-push-image.outputs.db_changed }}
+      RELEASE_DB_MIGRATION_VERSION: ${{ needs.build-and-push-image.outputs.db_migration_version }}
+      RELEASE_DB_MIGRATION_FILES: ${{ needs.build-and-push-image.outputs.db_migration_files }}
+      RELEASE_ROLLBACK_FRONTEND_IMAGE: ${{ needs.build-and-push-image.outputs.rollback_frontend_image }}
+      RELEASE_ROLLBACK_BACKEND_IMAGE: ${{ needs.build-and-push-image.outputs.rollback_backend_image }}
+      RELEASE_DB_ROLLBACK_NOTE: ${{ needs.build-and-push-image.outputs.db_rollback_note }}
       PROD_E2E_BASE_URL: ${{ vars.PROD_E2E_BASE_URL }}
 
     steps:
@@ -207,15 +201,19 @@ jobs:
           cat /tmp/prod-backend-metadata.env
           cat /tmp/prod-backend-metadata.env >> "$GITHUB_ENV"
 
-      - name: Resolve release metadata
+      - name: Resolve release record metadata
         run: |
           set -euo pipefail
-          BACKEND_IMAGE="${PROD_BACKEND_IMAGE:-${INSPECTED_BACKEND_IMAGE:-}}"
-          BACKEND_COMMIT="${PROD_BACKEND_COMMIT:-${INSPECTED_BACKEND_COMMIT:-unknown}}"
-          BACKEND_VERSION="${PROD_BACKEND_VERSION:-${INSPECTED_BACKEND_VERSION:-unknown}}"
+          BACKEND_IMAGE="${RELEASE_BACKEND_IMAGE:-${INSPECTED_BACKEND_IMAGE:-}}"
+          BACKEND_COMMIT="${RELEASE_BACKEND_COMMIT:-${INSPECTED_BACKEND_COMMIT:-unknown}}"
+          BACKEND_VERSION="${RELEASE_BACKEND_VERSION:-${INSPECTED_BACKEND_VERSION:-unknown}}"
 
           if [ -z "$BACKEND_IMAGE" ]; then
-            echo "::error::Backend image metadata is required. Set PROD_BACKEND_IMAGE or ensure the backend production container can be inspected."
+            echo "::error::Backend image metadata is required. Add backend_image/backend_commit/backend_version to the release intent body for the first recorded production release."
+            exit 1
+          fi
+          if [ -n "${INSPECTED_BACKEND_IMAGE:-}" ] && [ "$INSPECTED_BACKEND_IMAGE" != "$BACKEND_IMAGE" ]; then
+            echo "::error::Inspected backend image ($INSPECTED_BACKEND_IMAGE) differs from latest release metadata ($BACKEND_IMAGE). Record the backend deployment through backend-prod-deployed before frontend production deploy."
             exit 1
           fi
 
@@ -223,12 +221,13 @@ jobs:
             echo "BACKEND_IMAGE=$BACKEND_IMAGE"
             echo "BACKEND_COMMIT=$BACKEND_COMMIT"
             echo "BACKEND_VERSION=$BACKEND_VERSION"
-            echo "DB_CHANGED=${PROD_DB_CHANGED:-false}"
-            echo "DB_MIGRATION_VERSION=${PROD_DB_MIGRATION_VERSION:-none}"
-            echo "DB_MIGRATION_FILES=${PROD_DB_MIGRATION_FILES:-}"
-            echo "ROLLBACK_FRONTEND_IMAGE=${PROD_ROLLBACK_FRONTEND_IMAGE:-}"
-            echo "ROLLBACK_BACKEND_IMAGE=${PROD_ROLLBACK_BACKEND_IMAGE:-}"
-            echo "DB_ROLLBACK_NOTE=${PROD_DB_ROLLBACK_NOTE:-DB rollback is not automated. Confirm app compatibility with the recorded DB state.}"
+            echo "BACKEND_CHANGED=${RELEASE_BACKEND_CHANGED:-false}"
+            echo "DB_CHANGED=${RELEASE_DB_CHANGED:-false}"
+            echo "DB_MIGRATION_VERSION=${RELEASE_DB_MIGRATION_VERSION:-none}"
+            echo "DB_MIGRATION_FILES=${RELEASE_DB_MIGRATION_FILES:-}"
+            echo "ROLLBACK_FRONTEND_IMAGE=${RELEASE_ROLLBACK_FRONTEND_IMAGE:-}"
+            echo "ROLLBACK_BACKEND_IMAGE=${RELEASE_ROLLBACK_BACKEND_IMAGE:-}"
+            echo "DB_ROLLBACK_NOTE=${RELEASE_DB_ROLLBACK_NOTE:-DB rollback is not automated. Confirm app compatibility with the recorded DB state.}"
           } >> "$GITHUB_ENV"
 
       - name: Deploy frontend image to production server

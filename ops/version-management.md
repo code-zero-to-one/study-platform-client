@@ -34,12 +34,6 @@ zeroone-frontend:v{MAJOR}.{MINOR}.{PATCH}-{shortCommit}
 zeroone-backend:v{MAJOR}.{MINOR}.{PATCH}-{shortCommit}
 ```
 
-Hotfix formats:
-
-```txt
-zeroone-frontend:v1.0.1-hotfix.1-f1a2b3c
-zeroone-backend:v1.0.1-hotfix.1-b7c8d9e
-```
 
 A registry namespace may prefix the image name in workflow/deployment records, for example `zerooneitkr/zeroone-frontend:v1.0.0-f1a2b3c`, but the tag itself must still follow the immutable format above.
 
@@ -124,17 +118,61 @@ Incident analysis starts by identifying:
 
 Rollback decisions must use the fixed image tags in `rollback.app_rollback_target`, not `prod` or `latest-prod`.
 
-## GitHub Actions metadata inputs
+## Main-branch release intent
 
-The production workflow can inspect the running backend container, but the first recorded release and any backend image without OCI labels may need repository variables:
+Production versioning is derived from PR intent, not from per-release environment variables.
 
-- `PROD_BACKEND_IMAGE` - fixed backend image tag, e.g. `zerooneitkr/zeroone-backend:v1.0.0-b7c8d9e`
-- `PROD_BACKEND_COMMIT` - backend short commit
-- `PROD_BACKEND_VERSION` - backend service version, e.g. `v1.0.0`
-- `PROD_DB_CHANGED` - `true` or `false`
-- `PROD_DB_MIGRATION_VERSION` - latest DB migration version or `none`
-- `PROD_DB_MIGRATION_FILES` - comma-separated migration filenames
-- `PROD_ROLLBACK_FRONTEND_IMAGE` - required for the first recorded release when no previous release YAML exists
-- `PROD_ROLLBACK_BACKEND_IMAGE` - required for the first recorded release when no previous release YAML exists
-- `PROD_DB_ROLLBACK_NOTE` - optional DB rollback/compatibility note
-- `PROD_E2E_BASE_URL` - optional production smoke-check URL
+Allowed release intents are exactly:
+
+- `release:patch`
+- `release:minor`
+- `release:major`
+
+`hotfix` labels and `-hotfix.N` image tags are not used.
+
+## Frontend-only production release
+
+When a frontend PR is merged to `main`, `.github/workflows/deploy-prod.yml` builds and deploys the frontend image, then records the final production combination.
+
+The workflow uses the latest `releases/prod-*.yaml` as the backend/DB source of truth. It records:
+
+```yaml
+components:
+  frontend:
+    changed: true
+  backend:
+    changed: false
+```
+
+If the production backend container can be inspected and its image differs from the latest release record, the frontend workflow fails. This prevents writing a release record with stale backend metadata.
+
+## Backend-only production release
+
+When backend production deploy succeeds, backend automation must trigger the frontend repository with `repository_dispatch` event type `backend-prod-deployed`.
+
+The frontend workflow `.github/workflows/record-backend-prod-release.yml` receives the backend deploy fact, validates it, reads the current frontend production state from the latest release record, and records:
+
+```yaml
+components:
+  frontend:
+    changed: false
+  backend:
+    changed: true
+```
+
+The backend dispatch payload contract is documented in `ops/backend-release-dispatch.md`.
+
+## Duplicate and failure rules
+
+- `metadata.backend_deploy_id` is required for backend dispatch records.
+- The same `metadata.backend_deploy_id` must not be recorded twice.
+- `prod` and `latest-prod` are pointer tags only and are rejected as backend, frontend, or rollback image values.
+- If payload/schema/current-state validation fails, the workflow must fail rather than guess.
+
+## Bootstrap rule
+
+The first recorded frontend release has no previous state to inherit from. It must be explicitly approved with `bootstrap: approved` in the frontend PR body and must include fixed frontend/backend rollback image tags plus current backend metadata.
+
+Backend dispatch records require an existing release record so the frontend repository can identify the current frontend production state.
+
+`PROD_E2E_BASE_URL` is the only optional repository variable used by this rule; it controls the production smoke/E2E URL. It is not version metadata.

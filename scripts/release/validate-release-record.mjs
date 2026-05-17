@@ -6,9 +6,10 @@ const RELEASE_ID = /^prod-\d{8}-\d{4}$/;
 const DATE_IN_TAG = /:.*\d{8}|:.*\d{4}-\d{2}-\d{2}/;
 const POINTER_TAG = /:(prod|latest-prod)$/;
 const FRONTEND_IMAGE =
-  /(?:^|\/)zeroone-frontend:v\d+\.\d+\.\d+(?:-hotfix\.\d+)?-[0-9A-Za-z]{7,}$/;
-const BACKEND_IMAGE =
-  /(?:^|\/)zeroone-backend:v\d+\.\d+\.\d+(?:-hotfix\.\d+)?-[0-9A-Za-z]{7,}$/;
+  /(?:^|\/)zeroone-frontend:v\d+\.\d+\.\d+-[0-9A-Za-z]{7,}$/;
+const BACKEND_IMAGE = /(?:^|\/)zeroone-backend:v\d+\.\d+\.\d+-[0-9A-Za-z]{7,}$/;
+const SERVICE_VERSION = /^v\d+\.\d+\.\d+$/;
+const RELEASE_INTENT = /^(patch|minor|major)$/;
 
 const args = process.argv.slice(2);
 const targets = args.length ? args : ['releases'];
@@ -67,6 +68,10 @@ const validateFile = (file) => {
   if (parseScalar(content, 'env') !== 'prod') fail(file, 'env must be prod');
   if (parseScalar(content, 'status') !== 'success')
     fail(file, 'status must be success');
+  const serviceVersion = parseScalar(content, 'service_version');
+  if (!SERVICE_VERSION.test(serviceVersion)) {
+    fail(file, `service_version must be vMAJOR.MINOR.PATCH: ${serviceVersion}`);
+  }
 
   validateImage(
     file,
@@ -92,6 +97,24 @@ const validateFile = (file) => {
     parseScalar(content, 'rollback.app_rollback_target.backend'),
     BACKEND_IMAGE,
   );
+
+  const backendChanged = parseScalar(content, 'components.backend.changed');
+  if (backendChanged === 'true') {
+    const backendDeployId = parseScalar(content, 'metadata.backend_deploy_id');
+    const releaseIntent = parseScalar(content, 'metadata.release_intent');
+    const bootstrapMode = parseScalar(content, 'metadata.bootstrap_mode');
+    if (!backendDeployId)
+      fail(file, 'metadata.backend_deploy_id is required when backend changed');
+    if (!RELEASE_INTENT.test(releaseIntent)) {
+      fail(file, 'metadata.release_intent must be patch, minor, or major');
+    }
+    if (bootstrapMode !== 'true' && bootstrapMode !== 'false') {
+      fail(
+        file,
+        'metadata.bootstrap_mode must be true or false when backend changed',
+      );
+    }
+  }
 
   const dbChanged = parseScalar(content, 'database.changed');
   const migrationVersion = parseScalar(content, 'database.migration_version');
@@ -120,5 +143,18 @@ const validateFile = (file) => {
 const files = targets
   .flatMap(listYamlFiles)
   .filter((file) => /prod-\d{8}-\d{4}\.yaml$/.test(file));
-for (const file of files) validateFile(file);
+const backendDeployIds = new Map();
+for (const file of files) {
+  validateFile(file);
+  const content = readFileSync(file, 'utf8');
+  const backendDeployId = parseScalar(content, 'metadata.backend_deploy_id');
+  if (!backendDeployId) continue;
+  if (backendDeployIds.has(backendDeployId)) {
+    fail(
+      file,
+      `duplicate metadata.backend_deploy_id also recorded in ${backendDeployIds.get(backendDeployId)}`,
+    );
+  }
+  backendDeployIds.set(backendDeployId, file);
+}
 process.stdout.write(`Validated ${files.length} release record(s).\n`);
