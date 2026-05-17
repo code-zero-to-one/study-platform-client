@@ -811,6 +811,8 @@ export const useDeleteBuilderFeed = () => {
     onSuccess: async (_, feedId) => {
       queryClient.removeQueries({ queryKey: ['builderFeedDetail', feedId] });
       await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
+      await queryClient.invalidateQueries({ queryKey: ['myBuilderFeeds'] });
+      await queryClient.invalidateQueries({ queryKey: ['myBuilderFeedStats'] });
     },
   });
 };
@@ -835,6 +837,7 @@ export const useUpdateBuilderFeed = () => {
         queryKey: ['builderFeedDetail', variables.feedId],
       });
       await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
+      await queryClient.invalidateQueries({ queryKey: ['myBuilderFeeds'] });
     },
   });
 };

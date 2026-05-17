@@ -37,7 +37,9 @@ function FeedWriteContent() {
   const showToast = useToastStore((s) => s.showToast);
 
   const feedIdParam = searchParams.get('feedId');
-  const editFeedId = feedIdParam ? parseInt(feedIdParam, 10) : null;
+  const parsedFeedId = feedIdParam ? parseInt(feedIdParam, 10) : null;
+  const editFeedId =
+    parsedFeedId !== null && !Number.isNaN(parsedFeedId) ? parsedFeedId : null;
   const isEditMode = editFeedId !== null;
 
   const course = '바이브 코딩 입문자 코스';
@@ -266,7 +268,7 @@ function FeedWriteContent() {
                     />
                   </button>
                   {lessonOpen && (
-                    <div className="absolute left-0 top-full z-10 mt-75 max-h-[300px] w-full overflow-y-auto rounded-100 border border-border-default bg-background-default shadow-1">
+                    <div className="absolute left-0 top-full z-10 mt-75 max-h-3750 w-full overflow-y-auto rounded-100 border border-border-default bg-background-default shadow-1">
                       {allLessons.map((l) => (
                         <button
                           key={l.lessonId}
