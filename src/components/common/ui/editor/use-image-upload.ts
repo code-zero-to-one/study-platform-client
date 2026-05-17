@@ -25,6 +25,11 @@ interface ImageInsertRange {
   to: number;
 }
 
+interface ImageSourceFileReplacement {
+  file: File;
+  source: string;
+}
+
 const getCurrentImageInsertRange = (editor: Editor): ImageInsertRange => ({
   from: editor.state.selection.from,
   to: editor.state.selection.to,
@@ -51,6 +56,44 @@ const insertUploadedImageUrls = (
     editor.chain().focus().insertContentAt(insertRange, imageContents).run();
   } catch {
     editor.chain().focus().insertContent(imageContents).run();
+  }
+};
+
+const replaceImageSources = (
+  editor: Editor,
+  replacements: Array<{ source: string; uploadedImageUrl: string }>,
+) => {
+  if (replacements.length === 0) {
+    return;
+  }
+
+  const replacementBySource = new Map(
+    replacements.map(({ source, uploadedImageUrl }) => [
+      source,
+      uploadedImageUrl,
+    ]),
+  );
+  const transaction = editor.state.tr;
+
+  editor.state.doc.descendants((node, position) => {
+    if (node.type.name !== 'image') {
+      return;
+    }
+
+    const source = typeof node.attrs.src === 'string' ? node.attrs.src : '';
+    const uploadedImageUrl = replacementBySource.get(source);
+    if (!uploadedImageUrl) {
+      return;
+    }
+
+    transaction.setNodeMarkup(position, undefined, {
+      ...node.attrs,
+      src: uploadedImageUrl,
+    });
+  });
+
+  if (transaction.docChanged) {
+    editor.view.dispatch(transaction);
   }
 };
 
@@ -200,6 +243,116 @@ export function useImageUpload(
       }
     },
     [collectUploadedImageUrls, isUploadingImages, resolvedImageConfig],
+  );
+
+  const handleImageSourceFileReplacements = useCallback(
+    async (editor: Editor, replacements: ImageSourceFileReplacement[]) => {
+      if (
+        !resolvedImageConfig ||
+        replacements.length === 0 ||
+        isUploadingImages
+      ) {
+        return;
+      }
+
+      const replacementSources = new Set(
+        replacements.map(({ source }) => source),
+      );
+      const existingImageCount = extractImageUrls(editor.getHTML()).filter(
+        (source) => !replacementSources.has(source),
+      ).length;
+      const maxImageCount = resolvedImageConfig.maxImageCount;
+      const remainingSlots = Math.max(0, maxImageCount - existingImageCount);
+
+      if (remainingSlots === 0) {
+        setImageInsertError(maxImageCountError(maxImageCount));
+
+        return;
+      }
+
+      const validReplacements: Array<{ file: File; source: string }> = [];
+      const errors: string[] = [];
+      let hitLimit = false;
+
+      for (const replacement of replacements) {
+        if (validReplacements.length >= remainingSlots) {
+          hitLimit = true;
+          break;
+        }
+
+        let normalizedFile: File;
+        try {
+          normalizedFile = await normalizeImageFileForUpload(replacement.file);
+        } catch (error) {
+          errors.push(
+            getImageFileNormalizationErrorMessage(replacement.file.name, error),
+          );
+          continue;
+        }
+
+        const error = getImageFileUploadValidationError(
+          normalizedFile,
+          resolvedImageConfig,
+        );
+        if (error) {
+          errors.push(error);
+        } else {
+          validReplacements.push({
+            file: normalizedFile,
+            source: replacement.source,
+          });
+        }
+      }
+
+      if (validReplacements.length === 0) {
+        if (errors.length > 0) {
+          setImageInsertError(errors.join(' '));
+        }
+
+        return;
+      }
+
+      setIsUploadingImages(true);
+      setImageInsertError('');
+
+      try {
+        const uploadedReplacements: Array<{
+          source: string;
+          uploadedImageUrl: string;
+        }> = [];
+
+        for (const replacement of validReplacements) {
+          try {
+            const uploadedImageUrl = await uploadFile(replacement.file);
+            if (uploadedImageUrl) {
+              uploadedReplacements.push({
+                source: replacement.source,
+                uploadedImageUrl,
+              });
+            }
+          } catch (error) {
+            const message =
+              error instanceof Error && error.message.trim()
+                ? error.message.trim()
+                : '업로드 실패';
+            errors.push(`${replacement.file.name}: ${message}`);
+          }
+        }
+
+        replaceImageSources(editor, uploadedReplacements);
+
+        if (hitLimit) {
+          errors.push(maxImageCountError(maxImageCount));
+        }
+
+        if (errors.length > 0) {
+          setImageInsertError(errors.join(' '));
+        }
+      } finally {
+        setIsUploadingImages(false);
+      }
+    },
+    [isUploadingImages, resolvedImageConfig, uploadFile],
   );
 
   /**
@@ -362,5 +515,6 @@ export function useImageUpload(
     setImageInsertError,
     handleImageFiles,
     handleClipboardPaste,
+    handleImageSourceFileReplacements,
   };
 }

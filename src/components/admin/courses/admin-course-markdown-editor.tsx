@@ -5,10 +5,20 @@ import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadAdminLessonContentImage } from '@/features/admin/course-management/model/admin-course-image-upload';
 import {
   ADMIN_COURSE_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS,
+  ADMIN_COURSE_MARKDOWN_APPROX_KOREAN_TEXT_LENGTH,
+  ADMIN_COURSE_MARKDOWN_MAX_CONTENT_BYTES,
   ADMIN_COURSE_MARKDOWN_MAX_IMAGE_COUNT,
   ADMIN_COURSE_MARKDOWN_MAX_IMAGE_FILE_SIZE,
   normalizeAdminCourseMarkdownContent,
 } from '@/features/admin/course-management/model/admin-course-markdown';
+
+const formatByteSize = (bytes: number) => {
+  if (bytes < 1024 * 1024) {
+    return `${Math.floor(bytes / 1024)}KB`;
+  }
+
+  return `${Math.floor(bytes / 1024 / 1024)}MB`;
+};
 
 interface AdminCourseMarkdownEditorProps {
   editorStateKey?: string;
@@ -73,8 +83,17 @@ function AdminCourseMarkdownEditor({
             : undefined
         }
       />
+      <p className="font-designer-12r text-text-subtle mt-50">
+        본문 저장 한도는 최대{' '}
+        {formatByteSize(ADMIN_COURSE_MARKDOWN_MAX_CONTENT_BYTES)}
+        (TEXT, 한글/HTML 포함 약{' '}
+        {ADMIN_COURSE_MARKDOWN_APPROX_KOREAN_TEXT_LENGTH.toLocaleString()}자
+        내외)이며, 이미지는 최대 {ADMIN_COURSE_MARKDOWN_MAX_IMAGE_COUNT}개까지
+        넣을 수 있습니다. 이미지 파일은 개당 최대{' '}
+        {formatByteSize(ADMIN_COURSE_MARKDOWN_MAX_IMAGE_FILE_SIZE)}입니다.
+      </p>
       {!lessonId && (
-        <p className="font-designer-12r text-text-subtle mt-50">
+        <p className="font-designer-12r text-text-subtle mt-25">
           레슨 본문 이미지는 레슨 생성 후 편집 모드에서 업로드할 수 있습니다.
         </p>
       )}
