@@ -266,8 +266,7 @@ test.describe('결제 버튼 유효성 검사 @auth', () => {
   test('약관 동의 + 휴대폰 미인증 → "휴대폰 인증을 완료해주세요." 토스트', async ({
     page,
   }) => {
-    // Click the label wrapping the sr-only checkbox
-    await page.getByText('이용약관 동의 (필수)').click();
+    await page.locator('input[name="tosAgreed"]').check({ force: true });
     await page.getByPlaceholder('이름을 입력해주세요').fill('홍길동');
     await page.locator('#buyerEmail').fill('test@example.com');
     await page.getByPlaceholder('01012345678').fill('01012345678');

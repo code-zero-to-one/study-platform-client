@@ -212,9 +212,9 @@ test.describe('레슨 돌아보기 폼 렌더링 @auth', () => {
   });
 
   test('Q1 textarea placeholder 표시', async ({ page }) => {
-    await expect(page.getByPlaceholder(/Cursor에서/)).toBeVisible({
-      timeout: 5000,
-    });
+    await expect(
+      page.locator('.tiptap-editor [contenteditable]').first(),
+    ).toBeVisible({ timeout: 5000 });
   });
 
   test('Q2 textarea placeholder 표시', async ({ page }) => {

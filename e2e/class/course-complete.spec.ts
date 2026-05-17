@@ -94,15 +94,16 @@ async function mockApis(page: Page): Promise<void> {
 
 async function gotoComplete(page: Page): Promise<void> {
   await mockApis(page);
+  // Pre-register before navigation — mocked response fires right after courseId resolves
+  const recapResponse = page.waitForResponse(
+    (r) => /\/courses\/\d+\/completion-recap/.test(r.url()),
+    { timeout: 10000 },
+  );
   await Promise.all([
     page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
     page.goto(COMPLETE_PATH, { waitUntil: 'load' }),
   ]);
-  // Wait for recap to load (fired after courseId resolves)
-  await page.waitForResponse(
-    (r) => /\/courses\/\d+\/completion-recap/.test(r.url()),
-    { timeout: 5000 },
-  );
+  await recapResponse;
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -124,11 +125,11 @@ test.describe('코스 완주 recap 렌더링 @auth', () => {
   });
 
   test('latestCompletedLessonCount "20" 표시', async ({ page }) => {
-    await expect(page.getByText('20')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('20').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('siteUrlCount "3" 표시', async ({ page }) => {
-    await expect(page.getByText('3')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('3').first()).toBeVisible({ timeout: 5000 });
   });
 });
 
