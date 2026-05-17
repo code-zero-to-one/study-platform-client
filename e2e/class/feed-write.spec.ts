@@ -15,22 +15,34 @@ const FEED_WRITE_PATH = '/class/vibe-intro/feed/write';
 // ─── Global beforeEach: localhost auth cookie injection ───────────────────────
 
 test.beforeEach(async ({ context, baseURL }) => {
-  if (baseURL?.startsWith('http://localhost') && existsSync(AUTH_FILE)) {
-    const { cookies } = JSON.parse(readFileSync(AUTH_FILE, 'utf-8')) as {
-      cookies: {
-        name: string;
-        value: string;
-        domain: string;
-        path: string;
-        expires: number;
-        httpOnly: boolean;
-        secure: boolean;
-        sameSite: 'Strict' | 'Lax' | 'None';
-      }[];
-    };
+  if (!existsSync(AUTH_FILE)) return;
+  const { cookies } = JSON.parse(readFileSync(AUTH_FILE, 'utf-8')) as {
+    cookies: {
+      name: string;
+      value: string;
+      domain: string;
+      path: string;
+      expires: number;
+      httpOnly: boolean;
+      secure: boolean;
+      sameSite: 'Strict' | 'Lax' | 'None';
+    }[];
+  };
+  if (baseURL?.startsWith('http://localhost')) {
     await context.addCookies(
       cookies.map((c) => ({ ...c, domain: 'localhost', secure: false })),
     );
+  } else {
+    const tokenCookie = cookies.find((c) => c.name === 'accessToken');
+    if (tokenCookie && baseURL) {
+      await context.addCookies([
+        {
+          ...tokenCookie,
+          domain: new URL(baseURL).hostname,
+          expires: Math.floor(Date.now() / 1000) + 3600,
+        },
+      ]);
+    }
   }
 });
 
