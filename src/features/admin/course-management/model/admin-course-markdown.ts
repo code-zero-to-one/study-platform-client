@@ -1,7 +1,4 @@
-import {
-  COMMUNITY_MARKDOWN_MAX_IMAGE_COUNT,
-  COMMUNITY_MARKDOWN_MAX_IMAGE_FILE_SIZE,
-} from '@/types/community/markdown';
+import { COMMUNITY_MARKDOWN_MAX_IMAGE_FILE_SIZE } from '@/types/community/markdown';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { isHtmlContent } from '@/utils/markdown-content-shared';
 
@@ -15,8 +12,9 @@ export const ADMIN_COURSE_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS = [
   'heic',
   'heif',
 ] as const;
-export const ADMIN_COURSE_MARKDOWN_MAX_IMAGE_COUNT =
-  COMMUNITY_MARKDOWN_MAX_IMAGE_COUNT;
+export const ADMIN_COURSE_MARKDOWN_MAX_CONTENT_BYTES = 65_535;
+export const ADMIN_COURSE_MARKDOWN_APPROX_KOREAN_TEXT_LENGTH = 20_000;
+export const ADMIN_COURSE_MARKDOWN_MAX_IMAGE_COUNT = 10;
 export const ADMIN_COURSE_MARKDOWN_MAX_IMAGE_FILE_SIZE =
   COMMUNITY_MARKDOWN_MAX_IMAGE_FILE_SIZE;
 
