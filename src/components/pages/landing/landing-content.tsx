@@ -21,15 +21,19 @@ function FadeIn({
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
   return (
-    <motion.div
+    <m.div
       ref={ref}
       initial={{ opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{
+        duration: 0.7,
+        delay,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      }}
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -396,12 +400,8 @@ function CheckSection() {
           <span className="rounded-[40px] bg-rose-300 px-250 py-125 text-[20px] font-medium leading-[1.5] text-white md:text-[24px]">
             Check
           </span>
-        </FadeIn>
-
-        {/* Title */}
-        <FadeIn delay={0.1} className="mt-100 text-center">
-          <h2 className="text-[24px] font-bold leading-[1.5] tracking-[-0.57px] text-gray-800 md:text-[30px]">
-            혹시 이런 분 아니신가요?
+          <h2 className="text-[24px] font-bold leading-[36px] text-text-strong md:font-bold-h2 lg:font-bold-h1">
+            두 개의 여정이 만나는 곳
           </h2>
         </FadeIn>
 
@@ -463,12 +463,8 @@ function ResultsSection() {
           <span className="rounded-[40px] bg-rose-300 px-250 py-125 text-[20px] font-medium leading-[1.5] text-white md:text-[24px]">
             베타 수강생 결과물
           </span>
-        </FadeIn>
-
-        {/* Title */}
-        <FadeIn delay={0.1} className="mt-100 text-center">
-          <h2 className="text-[22px] font-bold leading-[1.5] tracking-[-0.57px] text-gray-800 md:text-[30px]">
-            개발 경험 Zero, 20일 만에 웹사이트 배포
+          <h2 className="text-[24px] font-bold leading-[36px] text-text-strong md:font-bold-h2 lg:font-bold-h1">
+            하나의 플랫폼, 다섯 가지 경험
           </h2>
         </FadeIn>
 

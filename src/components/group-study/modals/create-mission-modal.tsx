@@ -266,6 +266,9 @@ function CreateMissionForm({
               )}
             />
           </FormField>
+          <span className="font-designer-13r text-text-error">
+            미션이 시작되면 수정 및 삭제가 불가합니다.
+          </span>
         </form>
       </Modal.Body>
 
@@ -273,10 +276,6 @@ function CreateMissionForm({
         variant="form"
         className="flex items-center justify-between"
       >
-        <span className="font-designer-13r text-text-error">
-          미션이 시작되면 수정 및 삭제가 불가합니다.
-        </span>
-
         <div className="flex justify-end gap-100">
           <Modal.Close asChild>
             <Button color="secondary" size="large" onClick={onClose}>
