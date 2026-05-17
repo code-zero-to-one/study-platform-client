@@ -8,7 +8,6 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
-import { extractPlainTextFromHtml } from '@/utils/markdown-content';
 import {
   useCreateBuilderFeed,
   useGetBuilderFeedDetail,
@@ -17,6 +16,7 @@ import {
   useUpdateBuilderFeed,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import { extractPlainTextFromHtml } from '@/utils/markdown-content';
 
 interface AttachedImage {
   previewUrl: string;
