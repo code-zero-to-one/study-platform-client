@@ -91,7 +91,7 @@ if (!rollbackBackend) {
 }
 
 const dbChanged = /^true$/i.test(getEnv('DB_CHANGED', 'false'));
-const migrationVersion = getEnv('DB_MIGRATION_VERSION', 'none');
+const migrationVersion = getEnv('DB_MIGRATION_VERSION', 'N/A');
 const migrationFiles = getEnv('DB_MIGRATION_FILES')
   .split(',')
   .map((item) => item.trim())
@@ -104,6 +104,33 @@ const dbRollbackNote = getEnv(
   'DB rollback is not automated. Confirm app compatibility with the recorded DB state.',
 );
 const backendChanged = /^true$/i.test(getEnv('BACKEND_CHANGED', 'false'));
+const frontendDeployId = getEnv(
+  'FRONTEND_DEPLOY_ID',
+  `frontend-${releaseId}-${frontendCommit}`,
+);
+const backendDeployId = getEnv('BACKEND_DEPLOY_ID');
+const pairedBackendDeployId = getEnv('PAIRED_BACKEND_DEPLOY_ID');
+const backendReleaseIntent = getEnv('BACKEND_RELEASE_INTENT');
+const bootstrapMode = getEnv('BOOTSTRAP_MODE');
+
+if (migrationVersion === 'none') {
+  throw new Error(
+    'DB_MIGRATION_VERSION must use N/A when there is no migration',
+  );
+}
+if (dbChanged && migrationVersion === 'N/A') {
+  throw new Error('DB_CHANGED=true requires DB_MIGRATION_VERSION');
+}
+if (backendChanged && !backendDeployId) {
+  throw new Error('BACKEND_DEPLOY_ID is required when BACKEND_CHANGED=true');
+}
+if (
+  backendChanged &&
+  pairedBackendDeployId &&
+  pairedBackendDeployId !== backendDeployId
+) {
+  throw new Error('PAIRED_BACKEND_DEPLOY_ID must match BACKEND_DEPLOY_ID');
+}
 
 mkdirSync(RELEASES_DIR, { recursive: true });
 
@@ -150,6 +177,13 @@ ${DEPLOY_ORDER.map((item) => `  - ${item}`).join('\n')}
 deployed_at: ${quote(deployedAt)}
 deployed_by: ${quote(deployedBy)}
 status: success
+
+metadata:
+  frontend_deploy_id: ${quote(frontendDeployId)}
+  backend_deploy_id: ${quote(backendDeployId)}
+  paired_backend_deploy_id: ${quote(pairedBackendDeployId)}
+  release_intent: ${quote(backendReleaseIntent)}
+  bootstrap_mode: ${quote(bootstrapMode)}
 `;
 
 const outFile = join(RELEASES_DIR, `${releaseId}.yaml`);

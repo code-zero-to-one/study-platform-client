@@ -6,6 +6,15 @@ on:
   repository_dispatch:
     types:
       - backend-prod-deployed
+  workflow_dispatch:
+    inputs:
+      backend_payload_json:
+        description: 'Backend dispatch wrapper or client_payload JSON for validation/dry-run'
+        required: true
+      dry_run:
+        description: 'true면 record 생성/검증만 하고 commit/push하지 않는다'
+        required: true
+        default: 'true'
 
 permissions:
   contents: write
@@ -18,7 +27,8 @@ jobs:
   record-backend-release:
     runs-on: ubuntu-latest
     env:
-      BACKEND_RELEASE_PAYLOAD_JSON: ${{ toJSON(github.event.client_payload) }}
+      BACKEND_RELEASE_PAYLOAD_JSON: ${{ github.event_name == 'workflow_dispatch' && inputs.backend_payload_json || toJSON(github.event.client_payload) }}
+      BACKEND_RELEASE_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
 
     steps:
       - name: Checkout code
@@ -38,8 +48,19 @@ jobs:
           RECORD_PATH="$(node scripts/release/generate-backend-prod-release-record.mjs)"
           node scripts/release/validate-release-record.mjs "$RECORD_PATH"
           echo "RECORD_PATH=$RECORD_PATH" >> "$GITHUB_ENV"
+          echo "Generated $RECORD_PATH"
+          sed -n '1,220p' "$RECORD_PATH"
+
+      - name: Upload dry-run release record
+        if: ${{ env.BACKEND_RELEASE_DRY_RUN == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-release-record-dry-run
+          path: ${{ env.RECORD_PATH }}
+          if-no-files-found: error
 
       - name: Commit release record
+        if: ${{ env.BACKEND_RELEASE_DRY_RUN != 'true' }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"

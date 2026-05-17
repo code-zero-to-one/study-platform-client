@@ -75,7 +75,19 @@ const readPayload = () => {
   const raw = getEnv('BACKEND_RELEASE_PAYLOAD_JSON');
   if (!raw) throw new Error('BACKEND_RELEASE_PAYLOAD_JSON is required');
   try {
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && 'event_type' in parsed) {
+      if (parsed.event_type !== 'backend-prod-deployed') {
+        throw new Error(
+          `event_type must be backend-prod-deployed: ${parsed.event_type}`,
+        );
+      }
+      if (!parsed.client_payload || typeof parsed.client_payload !== 'object') {
+        throw new Error('client_payload is required');
+      }
+      return parsed.client_payload;
+    }
+    return parsed;
   } catch (error) {
     throw new Error(`Invalid backend release payload JSON: ${error.message}`);
   }
@@ -138,10 +150,7 @@ if (!RELEASE_INTENTS.has(releaseIntent)) {
   fail('metadata.release_intent must be patch, minor, or major');
 }
 
-const backendRepo =
-  backend.repo === undefined
-    ? 'study-platform-mvp'
-    : requireString(backend.repo, 'backend.repo');
+const backendRepo = requireString(backend.repo, 'backend.repo');
 const backendImage = requireString(backend.image, 'backend.image');
 const backendCommit = requireString(backend.commit, 'backend.commit');
 const backendVersion = requireString(backend.version, 'backend.version');
@@ -163,7 +172,10 @@ if (!backendChanged)
   fail('backend.changed must be true for backend-prod-deployed');
 if (!VERSION.test(backendVersion))
   fail(`backend.version must be vMAJOR.MINOR.PATCH: ${backendVersion}`);
-if (dbChanged && migrationVersion === 'none') {
+if (migrationVersion === 'none') {
+  fail('database.migration_version must use N/A when there is no migration');
+}
+if (dbChanged && migrationVersion === 'N/A') {
   fail('database.changed=true requires database.migration_version');
 }
 validateImage({

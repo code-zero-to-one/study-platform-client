@@ -2,6 +2,8 @@
 
 This checklist applies to `main` production deployments only. `develop` test-server deployment keeps the existing lightweight pointer-tag flow.
 
+This document follows the shared FE/BE contract in `ops/release-record-shared-contract.md`.
+
 ## Before production deploy
 
 - Confirm PR CI is green before merging to `main`.

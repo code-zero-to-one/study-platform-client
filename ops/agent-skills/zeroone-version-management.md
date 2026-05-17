@@ -6,10 +6,11 @@ This file is the shared skill source of truth. Codex and Claude wrappers must st
 
 ## Required reading order
 
-1. `ops/version-management.md` - repository rule and release-record policy.
-2. `ops/release-intent.md` - human usage for PR labels/body and bootstrap.
-3. `ops/deploy-checklist.md` or `ops/rollback.md` only when deploying or rolling back.
-4. Relevant scripts/workflows only after the docs above:
+1. `ops/release-record-shared-contract.md` - FE/BE shared payload and final record contract.
+2. `ops/version-management.md` - frontend repository rule and release-record policy.
+3. `ops/release-intent.md` - human usage for PR labels/body and bootstrap.
+4. `ops/deploy-checklist.md` or `ops/rollback.md` only when deploying or rolling back.
+5. Relevant scripts/workflows only after the docs above:
    - `.github/workflows/deploy-prod.yml`
    - `.github/workflows/release-record-check.yml`
    - `scripts/release/resolve-prod-release-intent.mjs`
@@ -17,14 +18,15 @@ This file is the shared skill source of truth. Codex and Claude wrappers must st
    - `scripts/release/generate-backend-prod-release-record.mjs`
    - `scripts/release/validate-release-record.mjs`
    - `ops/backend-release-dispatch.md`
+   - `ops/release-record-shared-contract.md`
 
 ## Non-negotiable rules
 
 - This skill applies to `main` production releases only. Do not change `develop` deployment behavior unless the user explicitly asks.
-- `releases/` is the frontend repository source of truth for successful production FE/BE/DB/rollback combinations.
+- `ops/release-record-shared-contract.md` is the shared FE/BE contract; `releases/` is the frontend repository source of truth for successful production FE/BE/DB/rollback combinations.
 - Frontend repo owns only the frontend version-management rule. Do not add the backend repository rule here.
 - Production version metadata comes from PR intent or backend dispatch payload, not per-release repository variables.
-- Exactly one release intent is allowed: `release:major`, `release:minor`, or `release:patch`.
+- Exactly one release intent is allowed: `release:major`, `release:minor`, or `release:patch`. Use `N/A` for no DB migration version.
 - If multiple `release:*` labels are present, or label intent conflicts with body `release`, fail instead of guessing.
 - First recorded frontend production release requires explicit bootstrap approval metadata in the PR body: `bootstrap: approved`, `base_version` or `version`, backend image/commit/version, and rollback frontend/backend fixed image tags.
 - `prod` and `latest-prod` are pointer tags only. They are never valid rollback targets and must fail if used as inherited or supplied backend/rollback images.

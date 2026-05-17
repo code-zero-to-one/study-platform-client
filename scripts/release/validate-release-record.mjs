@@ -99,12 +99,30 @@ const validateFile = (file) => {
   );
 
   const backendChanged = parseScalar(content, 'components.backend.changed');
+  const frontendChanged = parseScalar(content, 'components.frontend.changed');
+  if (
+    frontendChanged === 'true' &&
+    !parseScalar(content, 'metadata.frontend_deploy_id')
+  ) {
+    fail(file, 'metadata.frontend_deploy_id is required when frontend changed');
+  }
+
   if (backendChanged === 'true') {
     const backendDeployId = parseScalar(content, 'metadata.backend_deploy_id');
     const releaseIntent = parseScalar(content, 'metadata.release_intent');
     const bootstrapMode = parseScalar(content, 'metadata.bootstrap_mode');
+    const pairedBackendDeployId = parseScalar(
+      content,
+      'metadata.paired_backend_deploy_id',
+    );
     if (!backendDeployId)
       fail(file, 'metadata.backend_deploy_id is required when backend changed');
+    if (pairedBackendDeployId && pairedBackendDeployId !== backendDeployId) {
+      fail(
+        file,
+        'metadata.paired_backend_deploy_id must match metadata.backend_deploy_id',
+      );
+    }
     if (!RELEASE_INTENT.test(releaseIntent)) {
       fail(file, 'metadata.release_intent must be patch, minor, or major');
     }
@@ -118,9 +136,15 @@ const validateFile = (file) => {
 
   const dbChanged = parseScalar(content, 'database.changed');
   const migrationVersion = parseScalar(content, 'database.migration_version');
+  if (migrationVersion === 'none') {
+    fail(
+      file,
+      'database.migration_version must use N/A when there is no migration',
+    );
+  }
   if (
     dbChanged === 'true' &&
-    (!migrationVersion || migrationVersion === 'none')
+    (!migrationVersion || migrationVersion === 'N/A')
   ) {
     fail(file, 'database.changed=true requires database.migration_version');
   }
@@ -149,12 +173,20 @@ for (const file of files) {
   const content = readFileSync(file, 'utf8');
   const backendDeployId = parseScalar(content, 'metadata.backend_deploy_id');
   if (!backendDeployId) continue;
+  const pairedBackendDeployId = parseScalar(
+    content,
+    'metadata.paired_backend_deploy_id',
+  );
   if (backendDeployIds.has(backendDeployId)) {
-    fail(
-      file,
-      `duplicate metadata.backend_deploy_id also recorded in ${backendDeployIds.get(backendDeployId)}`,
-    );
+    const original = backendDeployIds.get(backendDeployId);
+    if (pairedBackendDeployId !== backendDeployId) {
+      fail(
+        file,
+        `duplicate metadata.backend_deploy_id also recorded in ${original}`,
+      );
+    }
+  } else {
+    backendDeployIds.set(backendDeployId, file);
   }
-  backendDeployIds.set(backendDeployId, file);
 }
 process.stdout.write(`Validated ${files.length} release record(s).\n`);

@@ -4,6 +4,8 @@ Production release intent is how a PR tells the production automation what seman
 
 This applies only when code is deployed from `main`. `develop` test-server deployment keeps its existing flow.
 
+This document follows the shared FE/BE contract in `ops/release-record-shared-contract.md`.
+
 ## Allowed labels
 
 Use exactly one release label:

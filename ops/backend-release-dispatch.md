@@ -2,6 +2,8 @@
 
 This is the frontend repository contract for backend production deployments. Backend automation is the producer of backend deploy facts. The frontend repository is the final release-record writer.
 
+This document follows the shared FE/BE contract in `ops/release-record-shared-contract.md`.
+
 ## Trigger
 
 Backend production deploy success must call the frontend repository with `repository_dispatch` or an equivalent API trigger.
@@ -63,7 +65,7 @@ The frontend workflow that receives this event is:
 - `backend.version` - `vMAJOR.MINOR.PATCH`
 - `backend.changed` - must be `true`
 - `database.changed` - boolean
-- `database.migration_version` - migration version or `none`
+- `database.migration_version` - migration version or `N/A`
 - `database.migration_files` - array
 - `rollback.backend` - fixed immutable backend rollback image tag
 - `metadata.release_intent` - `patch`, `minor`, or `major`

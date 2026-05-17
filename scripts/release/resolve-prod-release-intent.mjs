@@ -35,15 +35,30 @@ const parseField = (content, path) => {
   return '';
 };
 
-const latestRelease = () => {
-  if (!existsSync(RELEASES_DIR)) return null;
-  const files = readdirSync(RELEASES_DIR)
+const releaseFiles = () => {
+  if (!existsSync(RELEASES_DIR)) return [];
+  return readdirSync(RELEASES_DIR)
     .filter((file) => /^prod-\d{8}-\d{4}\.yaml$/.test(file))
     .sort();
+};
+
+const latestRelease = () => {
+  const files = releaseFiles();
   if (files.length === 0) return null;
   const file = files[files.length - 1];
   const content = readFileSync(join(RELEASES_DIR, file), 'utf8');
   return { file, content };
+};
+
+const releaseByBackendDeployId = (backendDeployId) => {
+  if (!backendDeployId) return null;
+  for (const file of releaseFiles().reverse()) {
+    const content = readFileSync(join(RELEASES_DIR, file), 'utf8');
+    if (parseField(content, 'metadata.backend_deploy_id') === backendDeployId) {
+      return { file, content };
+    }
+  }
+  return null;
 };
 
 const normalizeVersion = (value) => {
@@ -297,26 +312,51 @@ const deployedAt = new Intl.DateTimeFormat('sv-SE', {
   .replace(' ', 'T')
   .concat('+09:00');
 
-const previousBackendImage = previous
-  ? parseField(previous.content, 'components.backend.image')
+const pairedBackendDeployId = values.get('paired_backend_deploy_id') || '';
+const pairedBackendRelease = releaseByBackendDeployId(pairedBackendDeployId);
+if (pairedBackendDeployId && !pairedBackendRelease) {
+  throw new Error(
+    `paired_backend_deploy_id was not found in releases: ${pairedBackendDeployId}`,
+  );
+}
+const backendSource = pairedBackendRelease || previous;
+const previousBackendImage = backendSource
+  ? parseField(backendSource.content, 'components.backend.image')
   : '';
-const previousBackendCommit = previous
-  ? parseField(previous.content, 'components.backend.commit')
+const previousBackendCommit = backendSource
+  ? parseField(backendSource.content, 'components.backend.commit')
   : '';
-const previousBackendVersion = previous
-  ? parseField(previous.content, 'components.backend.version')
+const previousBackendVersion = backendSource
+  ? parseField(backendSource.content, 'components.backend.version')
   : '';
 const backendImage = values.get('backend_image') || previousBackendImage;
 const backendCommit = values.get('backend_commit') || previousBackendCommit;
 const backendVersion = normalizeVersion(
   values.get('backend_version') || previousBackendVersion,
 );
+const backendDeployId = pairedBackendRelease
+  ? parseField(pairedBackendRelease.content, 'metadata.backend_deploy_id')
+  : '';
+const bootstrapMode = pairedBackendRelease
+  ? parseField(pairedBackendRelease.content, 'metadata.bootstrap_mode')
+  : '';
+const backendReleaseIntent = pairedBackendRelease
+  ? parseField(pairedBackendRelease.content, 'metadata.release_intent')
+  : '';
+const backendChanged = pairedBackendRelease ? 'true' : 'false';
 const rollbackFrontendImage =
   values.get('rollback_frontend_image') ||
   (previous ? parseField(previous.content, 'components.frontend.image') : '');
 const rollbackBackendImage =
   values.get('rollback_backend_image') ||
-  (previous ? parseField(previous.content, 'components.backend.image') : '');
+  (pairedBackendRelease
+    ? parseField(
+        pairedBackendRelease.content,
+        'rollback.app_rollback_target.backend',
+      )
+    : previous
+      ? parseField(previous.content, 'components.backend.image')
+      : '');
 
 if (!backendImage || !backendCommit || !backendVersion) {
   throw new Error(
@@ -360,17 +400,30 @@ writeOutput({
   source_pr_number: intent.number,
   source_intent: intent.source,
   release_type: releaseType || 'patch',
-  backend_changed: 'false',
+  frontend_deploy_id: `frontend-${releaseId}-${shortSha}`,
+  backend_changed: backendChanged,
+  backend_deploy_id: backendDeployId,
+  paired_backend_deploy_id: pairedBackendDeployId,
+  backend_release_intent: backendReleaseIntent,
+  bootstrap_mode: bootstrapMode,
   backend_image: backendImage,
   backend_commit: backendCommit,
   backend_version: backendVersion,
-  db_changed: values.get('db_changed') || 'false',
+  db_changed:
+    values.get('db_changed') ||
+    (pairedBackendRelease
+      ? parseField(pairedBackendRelease.content, 'database.changed')
+      : 'false'),
   db_migration_version:
     values.get('db_migration_version') ||
-    (previous
-      ? parseField(previous.content, 'database.migration_version')
-      : 'none'),
-  db_migration_files: values.get('db_migration_files') || '',
+    (backendSource
+      ? parseField(backendSource.content, 'database.migration_version')
+      : 'N/A'),
+  db_migration_files:
+    values.get('db_migration_files') ||
+    (pairedBackendRelease
+      ? parseField(pairedBackendRelease.content, 'database.migration_files')
+      : ''),
   rollback_frontend_image: rollbackFrontendImage,
   rollback_backend_image: rollbackBackendImage,
   db_rollback_note:
