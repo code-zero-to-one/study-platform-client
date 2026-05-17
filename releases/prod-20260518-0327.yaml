@@ -1,0 +1,50 @@
+release_id: prod-20260518-0327
+env: prod
+service_version: v2.0.0
+
+summary: "fix: 운영 프론트 이미지 전달 복구"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v2.0.0-643be4b
+    commit: 643be4b
+    version: v2.0.0
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.1-07cb8f6
+    commit: 07cb8f6
+    version: v1.0.1
+    changed: false
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v1.0.0-8c2ce22
+    backend: zeroone-backend:v1.0.1-07cb8f6
+  db_rollback_note: "DB unchanged. Use fixed app image rollback targets if needed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-18T03:27:57+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260518-0327-643be4b
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: major
+  bootstrap_mode: ""
