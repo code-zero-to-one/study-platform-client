@@ -115,7 +115,12 @@ export const convertHtmlTableToMarkdownTable = (html: string) => {
   }
 
   const document = new window.DOMParser().parseFromString(html, 'text/html');
-  const table = document.querySelector('table');
+  const tables = Array.from(document.querySelectorAll('table'));
+  if (tables.length !== 1) {
+    return undefined;
+  }
+
+  const table = tables[0];
   if (!table) {
     return undefined;
   }
@@ -143,7 +148,13 @@ export const isHtmlTableOnlyPaste = (html: string) => {
   }
 
   const document = new window.DOMParser().parseFromString(html, 'text/html');
-  if (!document.querySelector('table')) {
+  const tables = Array.from(document.querySelectorAll('table'));
+  if (tables.length !== 1) {
+    return false;
+  }
+
+  const table = tables[0];
+  if (!table || table.querySelector('img,video,audio,iframe,canvas,svg')) {
     return false;
   }
 
