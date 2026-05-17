@@ -3,6 +3,7 @@
 import type { ClipboardEvent } from 'react';
 import { useMemo, useState } from 'react';
 import Button from '@/components/common/ui/button';
+import { NOTION_CLIPBOARD_TYPES } from '@/components/common/ui/editor/notion-clipboard-utils';
 
 interface ClipboardFileSummary {
   name: string;
@@ -29,6 +30,7 @@ interface ClipboardSnapshot {
   files: ClipboardFileSummary[];
   plainText: string;
   html: string;
+  notionPayloads: Record<string, string>;
   htmlSummary: HtmlSummary;
 }
 
@@ -60,6 +62,9 @@ const toClipboardSnapshot = (
 ): ClipboardSnapshot => {
   const html = clipboardData.getData('text/html');
   const plainText = clipboardData.getData('text/plain');
+  const notionPayloads = Object.fromEntries(
+    NOTION_CLIPBOARD_TYPES.map((type) => [type, clipboardData.getData(type)]),
+  );
 
   return {
     capturedAt: new Date().toISOString(),
@@ -75,6 +80,7 @@ const toClipboardSnapshot = (
     })),
     plainText,
     html,
+    notionPayloads,
     htmlSummary: summarizeHtml(html),
   };
 };
@@ -164,6 +170,16 @@ export default function AdminClipboardInspectorPage() {
               <dd className="text-text-default">
                 {snapshot.htmlSummary.tableCount}
               </dd>
+              <dt>Notion blocks length</dt>
+              <dd className="text-text-default">
+                {snapshot.notionPayloads['text/_notion-blocks-v3-production']
+                  ?.length ?? 0}
+              </dd>
+              <dt>Notion source length</dt>
+              <dd className="text-text-default">
+                {snapshot.notionPayloads['text/_notion-page-source-production']
+                  ?.length ?? 0}
+              </dd>
             </dl>
           </section>
 
@@ -209,6 +225,22 @@ export default function AdminClipboardInspectorPage() {
               value={snapshot.plainText || '(empty)'}
             />
           </section>
+
+          {Object.entries(snapshot.notionPayloads).map(([type, payload]) => (
+            <section
+              key={type}
+              className="border-border-default bg-background-default rounded-150 col-span-2 border p-200"
+            >
+              <h2 className="font-designer-20b text-text-default">
+                {type} 원문
+              </h2>
+              <textarea
+                className="border-border-default bg-background-muted text-text-default font-designer-13r mt-150 h-400 w-full resize-y rounded-100 border p-150"
+                readOnly
+                value={payload || '(empty)'}
+              />
+            </section>
+          ))}
         </div>
       )}
     </section>
