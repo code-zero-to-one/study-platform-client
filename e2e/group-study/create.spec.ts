@@ -88,7 +88,7 @@ test.describe('멘토스터디 개설 @auth', () => {
     await openPremiumStudyModal(page);
     await fillStep1(page);
 
-    const priceInput = page.getByLabel('참가비');
+    const priceInput = page.getByPlaceholder('10,000');
     await priceInput.fill('50000');
 
     await page.getByRole('button', { name: '다음' }).click();

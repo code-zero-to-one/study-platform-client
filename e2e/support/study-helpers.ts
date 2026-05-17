@@ -31,7 +31,8 @@ type StudyType =
   | 'SEMINAR'
   | 'CHALLENGE'
   | 'BOOK_STUDY'
-  | 'LECTURE_STUDY';
+  | 'LECTURE_STUDY'
+  | 'MENTOR_STUDY';
 
 export async function fillStep1(page: Page, type: StudyType = 'PROJECT') {
   // Radio type: click associated label (id="study-type-${type}")

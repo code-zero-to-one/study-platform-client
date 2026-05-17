@@ -332,7 +332,7 @@ test.describe('안내창 상태 렌더링 @auth', () => {
       page.getByText('Chapter3까지 무료 코스! 마음껏 학습하세요.'),
     ).toBeVisible();
     await expect(
-      page.getByRole('link', { name: '결제하기' }),
+      page.getByRole('button', { name: '결제하기' }),
     ).not.toBeVisible();
   });
 
@@ -372,7 +372,7 @@ test.describe('안내창 상태 렌더링 @auth', () => {
       page.getByText(/이어서 공부를 원하시면 결제를 진행해주세요/),
     ).toBeVisible();
     await expect(
-      page.getByRole('link', { name: '결제하기' }).first(),
+      page.getByRole('button', { name: '결제하기' }).first(),
     ).toBeVisible();
   });
 
@@ -477,7 +477,7 @@ test.describe('안내창 상태 렌더링 @auth', () => {
     await gotoAndWaitForData(page);
 
     await expect(
-      page.getByRole('link', { name: '결제하기' }),
+      page.getByRole('button', { name: '결제하기' }),
     ).not.toBeVisible();
   });
 
@@ -496,7 +496,7 @@ test.describe('안내창 상태 렌더링 @auth', () => {
 
     // Sticky payment CTA shows when canPurchase=true regardless of freeLessonCount
     await expect(
-      page.getByRole('link', { name: '결제하기' }).first(),
+      page.getByRole('button', { name: '결제하기' }).first(),
     ).toBeVisible();
   });
 });
@@ -684,7 +684,7 @@ test.describe('건너뛰기 내비게이션 @auth', () => {
         },
         {
           lessonId: LESSON_OPTION_ID,
-          order: 2,
+          order: 3,
           title: LESSON_OPTION_TITLE,
           isFree: true,
           status: 'IN_PROGRESS',
@@ -692,7 +692,7 @@ test.describe('건너뛰기 내비게이션 @auth', () => {
         },
         {
           lessonId: LESSON_LOCKED_ID,
-          order: 3,
+          order: 4,
           title: '심화 레슨',
           isFree: false,
           status: 'LOCKED',
@@ -713,10 +713,13 @@ test.describe('건너뛰기 내비게이션 @auth', () => {
 
     await page.getByRole('button', { name: '건너뛰기' }).click();
 
+    // Toast appears immediately after click — assert before dialog animation completes
+    await expect(page.getByText('다음 레슨으로 이어가세요')).toBeVisible({
+      timeout: 3000,
+    });
+
     // Modal closes, URL stays on journey map
     await expect(page.getByRole('dialog')).not.toBeVisible();
     expect(page.url()).toContain(PAGE_PATH);
-    // Toast confirms next lesson prompt
-    await expect(page.getByText('다음 레슨으로 이어가세요')).toBeVisible();
   });
 });
