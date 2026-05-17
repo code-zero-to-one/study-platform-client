@@ -141,6 +141,7 @@ export default function GroupStudyFormModal({
   const router = useRouter();
   const qc = useQueryClient();
   const [open, setOpen] = useState<boolean>(false);
+  const [pendingOpen, setPendingOpen] = useState(false);
   const { memberId } = useAuthReady();
   const { mutateAsync: createGroupStudy } = useCreateGroupStudyMutation();
   const { mutateAsync: updateGroupStudy } =
@@ -193,6 +194,7 @@ export default function GroupStudyFormModal({
     const isCreateOpening = mode === 'create' && isOpen;
 
     if (isCreateOpening && isVerificationLoading) {
+      setPendingOpen(true);
       return;
     }
     if (isCreateOpening && isVerificationError) {
@@ -216,6 +218,29 @@ export default function GroupStudyFormModal({
       if (onClose) onClose(isOpen);
     }
   };
+
+  useEffect(() => {
+    if (!pendingOpen || isVerificationLoading) return;
+    setPendingOpen(false);
+    if (isVerificationError) {
+      showToast(
+        '인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
+      return;
+    }
+    if (!isVerified) {
+      setIsVerificationModalOpen(true);
+      return;
+    }
+    setOpen(true);
+  }, [
+    pendingOpen,
+    isVerificationLoading,
+    isVerificationError,
+    isVerified,
+    showToast,
+  ]);
 
   const refineStudyDetail = useCallback(
     (value: GroupStudyFullResponseDto): GroupStudyFormValues => {
