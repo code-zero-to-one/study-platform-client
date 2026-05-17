@@ -110,7 +110,8 @@ const frontendDeployId = getEnv(
 );
 const backendDeployId = getEnv('BACKEND_DEPLOY_ID');
 const pairedBackendDeployId = getEnv('PAIRED_BACKEND_DEPLOY_ID');
-const backendReleaseIntent = getEnv('BACKEND_RELEASE_INTENT');
+const releaseIntent =
+  getEnv('BACKEND_RELEASE_INTENT') || getEnv('RELEASE_TYPE');
 const bootstrapMode = getEnv('BOOTSTRAP_MODE');
 
 if (migrationVersion === 'none') {
@@ -182,7 +183,7 @@ metadata:
   frontend_deploy_id: ${quote(frontendDeployId)}
   backend_deploy_id: ${quote(backendDeployId)}
   paired_backend_deploy_id: ${quote(pairedBackendDeployId)}
-  release_intent: ${quote(backendReleaseIntent)}
+  release_intent: ${quote(releaseIntent)}
   bootstrap_mode: ${quote(bootstrapMode)}
 `;
 

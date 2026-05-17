@@ -35,6 +35,38 @@ const parseField = (content, path) => {
   return '';
 };
 
+const parseListField = (content, path) => {
+  const lines = content.split(/\r?\n/);
+  const stack = [];
+  const values = [];
+  let targetIndent = -1;
+
+  for (const raw of lines) {
+    const match = raw.match(/^(\s*)([A-Za-z0-9_]+):\s*(.*)$/);
+    if (match) {
+      const indent = match[1].length;
+      const key = match[2];
+      const value = match[3].trim();
+      while (stack.length && stack[stack.length - 1].indent >= indent)
+        stack.pop();
+      stack.push({ indent, key });
+      const currentPath = stack.map((item) => item.key).join('.');
+      if (currentPath === path) {
+        if (value === '[]') return [];
+        targetIndent = indent;
+        continue;
+      }
+      if (targetIndent >= 0 && indent <= targetIndent) break;
+    }
+
+    if (targetIndent < 0) continue;
+    const item = raw.match(/^\s*-\s*(.+?)\s*$/);
+    if (item) values.push(item[1].replace(/^["']|["']$/g, ''));
+  }
+
+  return values;
+};
+
 const releaseFiles = () => {
   if (!existsSync(RELEASES_DIR)) return [];
   return readdirSync(RELEASES_DIR)
@@ -422,7 +454,10 @@ writeOutput({
   db_migration_files:
     values.get('db_migration_files') ||
     (pairedBackendRelease
-      ? parseField(pairedBackendRelease.content, 'database.migration_files')
+      ? parseListField(
+          pairedBackendRelease.content,
+          'database.migration_files',
+        ).join(',')
       : ''),
   rollback_frontend_image: rollbackFrontendImage,
   rollback_backend_image: rollbackBackendImage,
