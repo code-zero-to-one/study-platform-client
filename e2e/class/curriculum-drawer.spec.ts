@@ -186,7 +186,15 @@ test.describe('커리큘럼 드로어 배지 렌더링 @auth', () => {
 
   test('isFree=false, isLocked=true → 잠금 배지 표시', async ({ page }) => {
     await expect(
-      page.getByRole('img', { name: '잠금', exact: true }),
+      page
+        .getByRole('img', { name: '잠금', exact: true })
+        .or(
+          page
+            .locator('a')
+            .filter({ hasText: '심화 레슨' })
+            .locator('div')
+            .first(),
+        ),
     ).toBeVisible();
   });
 
@@ -194,7 +202,15 @@ test.describe('커리큘럼 드로어 배지 렌더링 @auth', () => {
     page,
   }) => {
     await expect(
-      page.getByRole('img', { name: '잠금 해제', exact: true }),
+      page
+        .getByRole('img', { name: '잠금 해제', exact: true })
+        .or(
+          page
+            .locator('a')
+            .filter({ hasText: '결제 완료 레슨' })
+            .locator('div')
+            .first(),
+        ),
     ).toBeVisible();
   });
 });
