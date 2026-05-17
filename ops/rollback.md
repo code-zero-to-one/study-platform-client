@@ -24,4 +24,4 @@ Rollback is based on fixed image tags recorded in `releases/`, never on pointer 
 3. Deploy the fixed frontend/backend images.
 4. Run backend health check.
 5. Run frontend smoke/E2E check.
-6. Record the rollback outcome in a follow-up release/incident note.
+6. Record the rollback outcome in a new `releases/prod-*.yaml` release record, then link any follow-up incident note from that record or the incident tracker.

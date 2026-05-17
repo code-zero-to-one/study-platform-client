@@ -11,7 +11,36 @@ Backend production deploy success must call the frontend repository with `reposi
 ```json
 {
   "event_type": "backend-prod-deployed",
-  "client_payload": {}
+  "client_payload": {
+    "release_id": "prod-20260517-2100",
+    "env": "prod",
+    "summary": "backend patch release",
+    "backend": {
+      "repo": "study-platform-mvp",
+      "image": "zeroone-backend:v1.4.3-b7c8d9e",
+      "commit": "b7c8d9e",
+      "version": "v1.4.3",
+      "changed": true
+    },
+    "database": {
+      "changed": true,
+      "migration_version": "V45",
+      "migration_files": [
+        "src/main/resources/db/migration/V45__create_course_refund.sql"
+      ]
+    },
+    "rollback": {
+      "backend": "zeroone-backend:v1.4.2-a1b2c3d"
+    },
+    "metadata": {
+      "release_intent": "patch",
+      "bootstrap_mode": false,
+      "previous_deploy_image": "zeroone-backend:v1.4.2-a1b2c3d",
+      "pull_request_number": 1234,
+      "pull_request_labels": ["release:patch", "db:backup-confirmed"],
+      "backend_deploy_id": "backend-prod-123"
+    }
+  }
 }
 ```
 
@@ -21,7 +50,7 @@ The frontend workflow that receives this event is:
 .github/workflows/record-backend-prod-release.yml
 ```
 
-## Required payload
+## Required `client_payload`
 
 ```json
 {
