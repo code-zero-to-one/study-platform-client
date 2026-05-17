@@ -10,8 +10,16 @@ async function clickStudyCreateButton(page: Page) {
   const trigger = page.getByRole('button', { name: '스터디 개설하기' });
   await trigger.waitFor({ state: 'visible', timeout: 15000 });
   await expect(trigger).toBeEnabled({ timeout: 10000 });
-  await trigger.click();
-  await page.waitForSelector('[role="dialog"]', { timeout: 15000 });
+
+  // Retry until dialog appears: the first click may be silently ignored while
+  // the phone-verification status query is still loading (isVerificationLoading=true).
+  const dialog = page.locator('[role="dialog"]');
+  await expect(async () => {
+    if (!(await dialog.isVisible())) {
+      await trigger.click();
+    }
+    await expect(dialog).toBeVisible({ timeout: 3000 });
+  }).toPass({ timeout: 20000 });
 }
 
 export async function openCreateModal(page: Page) {
