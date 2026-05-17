@@ -1,21 +1,88 @@
-# 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.11.1 배포) 돌아라
+# 도커 허브에 immutable production image를 push 후 서버에 배포하고 release record를 남긴다.
 
 name: Front Production Server (Main)
 
 on:
   push:
     branches:
-      - main # main 브랜치에 push가 발생하면 실행
+      - main
+    paths-ignore:
+      - 'releases/**'
+      - 'ops/**'
+  workflow_dispatch:
+    inputs:
+      release_summary:
+        description: 'Release summary written to releases/prod-YYYYMMDD-HHmm.yaml'
+        required: false
+        default: 'Manual production frontend deployment'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prod-frontend-deploy
+  cancel-in-progress: false
+
+env:
+  FRONTEND_IMAGE_REPOSITORY: zerooneitkr/zeroone-frontend
 
 jobs:
-  build-and-push-image: # 도커 이미지 빌드 및 도커 허브 push
+  build-and-push-image:
+    if: ${{ !contains(github.event.head_commit.message || '', '[release-record]') }}
     runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.meta.outputs.release_id }}
+      deployed_at: ${{ steps.meta.outputs.deployed_at }}
+      frontend_image: ${{ steps.meta.outputs.frontend_image }}
+      frontend_commit: ${{ steps.meta.outputs.frontend_commit }}
+      frontend_version: ${{ steps.meta.outputs.frontend_version }}
+      release_summary: ${{ steps.meta.outputs.release_summary }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: ENV 파일 생성
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Compute release metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          SHORT_SHA="${GITHUB_SHA::7}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          FRONTEND_VERSION="v${PACKAGE_VERSION#v}"
+          RELEASE_ID="prod-$(TZ=Asia/Seoul date +%Y%m%d-%H%M)"
+          DEPLOYED_AT="$(TZ=Asia/Seoul date +%Y-%m-%dT%H:%M:%S%:z)"
+          FRONTEND_IMAGE="${FRONTEND_IMAGE_REPOSITORY}:${FRONTEND_VERSION}-${SHORT_SHA}"
+          RELEASE_SUMMARY="${{ github.event.inputs.release_summary || 'Production frontend deployment' }}"
+
+          echo "release_id=${RELEASE_ID}" >> "$GITHUB_OUTPUT"
+          echo "deployed_at=${DEPLOYED_AT}" >> "$GITHUB_OUTPUT"
+          echo "frontend_image=${FRONTEND_IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "frontend_commit=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "frontend_version=${FRONTEND_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "release_summary=${RELEASE_SUMMARY}" >> "$GITHUB_OUTPUT"
+
+      - name: Preflight rollback metadata
+        env:
+          ROLLBACK_FRONTEND_IMAGE: ${{ vars.PROD_ROLLBACK_FRONTEND_IMAGE }}
+          ROLLBACK_BACKEND_IMAGE: ${{ vars.PROD_ROLLBACK_BACKEND_IMAGE }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          existing=(releases/prod-*.yaml)
+          if [ ${#existing[@]} -eq 0 ]; then
+            if [ -z "${ROLLBACK_FRONTEND_IMAGE:-}" ] || [ -z "${ROLLBACK_BACKEND_IMAGE:-}" ]; then
+              echo "::error::No previous release record exists. Set PROD_ROLLBACK_FRONTEND_IMAGE and PROD_ROLLBACK_BACKEND_IMAGE repository variables to fixed image tags for the first recorded production deployment."
+              exit 1
+            fi
+          fi
+
+      - name: Create production env file
         run: |
           echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_PROD_BASE_URL }}" > .env
           echo "NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}" >> .env
@@ -23,29 +90,62 @@ jobs:
           echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_GOOGLE_CLIENT_ID }}" >> .env
           echo "NEXT_PUBLIC_STRAPI_URL=${{ secrets.NEXT_PUBLIC_PROD_STRAPI_URL }}" >> .env
           echo "NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_PROD_TOSS_CLIENT_KEY }}" >> .env
-
-          # 이 부분 부터 점검 필요 - 프로덕션 환경에서도 같은걸 씀? (GTM도 프로덕션 데브 같이쓰는게 맞음? dev 엔 현재 빠진듯?)
-          echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}" >> .env 
+          echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}" >> .env
           echo "NEXT_PUBLIC_GOOGLE_SHEETS_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}" >> .env
           echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" >> .env
           echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
 
-      - name: DockerHub 로그인
+      - name: DockerHub login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Docker 이미지 빌드 및 push
+      - name: Docker image build and push
         run: |
-          docker build -f Dockerfile.prod -t zerooneitkr/frontend:prod .
-          docker push zerooneitkr/frontend:prod
+          set -euo pipefail
+          docker build -f Dockerfile.prod \
+            -t "${{ steps.meta.outputs.frontend_image }}" \
+            -t "${FRONTEND_IMAGE_REPOSITORY}:prod" \
+            -t "${FRONTEND_IMAGE_REPOSITORY}:latest-prod" \
+            .
+          docker push "${{ steps.meta.outputs.frontend_image }}"
+          docker push "${FRONTEND_IMAGE_REPOSITORY}:prod"
+          docker push "${FRONTEND_IMAGE_REPOSITORY}:latest-prod"
 
-  deploy-image-to-server: # 도커 허브 pull 후 서버에 배포
+  deploy-image-to-server:
     runs-on: ubuntu-latest
     needs: build-and-push-image
+    env:
+      FRONTEND_IMAGE: ${{ needs.build-and-push-image.outputs.frontend_image }}
+      RELEASE_ID: ${{ needs.build-and-push-image.outputs.release_id }}
+      DEPLOYED_AT: ${{ needs.build-and-push-image.outputs.deployed_at }}
+      FRONTEND_COMMIT: ${{ needs.build-and-push-image.outputs.frontend_commit }}
+      FRONTEND_VERSION: ${{ needs.build-and-push-image.outputs.frontend_version }}
+      RELEASE_SUMMARY: ${{ needs.build-and-push-image.outputs.release_summary }}
+      PROD_BACKEND_IMAGE: ${{ vars.PROD_BACKEND_IMAGE }}
+      PROD_BACKEND_COMMIT: ${{ vars.PROD_BACKEND_COMMIT }}
+      PROD_BACKEND_VERSION: ${{ vars.PROD_BACKEND_VERSION }}
+      PROD_DB_CHANGED: ${{ vars.PROD_DB_CHANGED }}
+      PROD_DB_MIGRATION_VERSION: ${{ vars.PROD_DB_MIGRATION_VERSION }}
+      PROD_DB_MIGRATION_FILES: ${{ vars.PROD_DB_MIGRATION_FILES }}
+      PROD_ROLLBACK_FRONTEND_IMAGE: ${{ vars.PROD_ROLLBACK_FRONTEND_IMAGE }}
+      PROD_ROLLBACK_BACKEND_IMAGE: ${{ vars.PROD_ROLLBACK_BACKEND_IMAGE }}
+      PROD_DB_ROLLBACK_NOTE: ${{ vars.PROD_DB_ROLLBACK_NOTE }}
+      PROD_E2E_BASE_URL: ${{ vars.PROD_E2E_BASE_URL }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
       - name: Install cloudflared
         run: |
           echo "Downloading cloudflared..."
@@ -66,11 +166,7 @@ jobs:
           echo "Setting up SSH config..."
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-
-          # known_hosts 설정 (실패해도 계속 진행)
           ssh-keyscan -p 24 -H ssh.zeroone.it.kr >> ~/.ssh/known_hosts 2>&1 || echo "ssh-keyscan 실패 (계속 진행)"
-
-          # SSH config 생성
           cat > ~/.ssh/config << 'SSHCONFIG'
           Host ssh.zeroone.it.kr
             HostName ssh.zeroone.it.kr
@@ -80,28 +176,81 @@ jobs:
             StrictHostKeyChecking no
           SSHCONFIG
           chmod 600 ~/.ssh/config
-          echo "SSH config 생성 완료"
-          cat ~/.ssh/config
 
-      - name: 서버 배포
+      - name: Read current backend metadata
         run: |
+          set -euo pipefail
+          sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh ssh.zeroone.it.kr bash << 'EOF' > /tmp/prod-backend-metadata.env
           SUDO_PASSWORD='${{ secrets.SSH_PASSWORD }}'
-          sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh ssh.zeroone.it.kr bash << EOF
+          inspect_label() {
+            container="$1"
+            label="$2"
+            echo "$SUDO_PASSWORD" | sudo -S docker inspect "$container" --format "{{ index .Config.Labels \"$label\" }}" 2>/dev/null || true
+          }
+          inspect_image() {
+            container="$1"
+            echo "$SUDO_PASSWORD" | sudo -S docker inspect "$container" --format '{{.Config.Image}}' 2>/dev/null || true
+          }
+          for container in backend-prod zeroone-backend backend app-prod; do
+            image="$(inspect_image "$container")"
+            if [ -n "$image" ] && [ "$image" != "<no value>" ]; then
+              echo "INSPECTED_BACKEND_IMAGE=$image"
+              revision="$(inspect_label "$container" org.opencontainers.image.revision)"
+              version="$(inspect_label "$container" org.opencontainers.image.version)"
+              [ -n "$revision" ] && [ "$revision" != "<no value>" ] && echo "INSPECTED_BACKEND_COMMIT=$revision"
+              [ -n "$version" ] && [ "$version" != "<no value>" ] && echo "INSPECTED_BACKEND_VERSION=$version"
+              exit 0
+            fi
+          done
+          EOF
+
+          cat /tmp/prod-backend-metadata.env
+          cat /tmp/prod-backend-metadata.env >> "$GITHUB_ENV"
+
+      - name: Resolve release metadata
+        run: |
+          set -euo pipefail
+          BACKEND_IMAGE="${PROD_BACKEND_IMAGE:-${INSPECTED_BACKEND_IMAGE:-}}"
+          BACKEND_COMMIT="${PROD_BACKEND_COMMIT:-${INSPECTED_BACKEND_COMMIT:-unknown}}"
+          BACKEND_VERSION="${PROD_BACKEND_VERSION:-${INSPECTED_BACKEND_VERSION:-unknown}}"
+
+          if [ -z "$BACKEND_IMAGE" ]; then
+            echo "::error::Backend image metadata is required. Set PROD_BACKEND_IMAGE or ensure the backend production container can be inspected."
+            exit 1
+          fi
+
+          {
+            echo "BACKEND_IMAGE=$BACKEND_IMAGE"
+            echo "BACKEND_COMMIT=$BACKEND_COMMIT"
+            echo "BACKEND_VERSION=$BACKEND_VERSION"
+            echo "DB_CHANGED=${PROD_DB_CHANGED:-false}"
+            echo "DB_MIGRATION_VERSION=${PROD_DB_MIGRATION_VERSION:-none}"
+            echo "DB_MIGRATION_FILES=${PROD_DB_MIGRATION_FILES:-}"
+            echo "ROLLBACK_FRONTEND_IMAGE=${PROD_ROLLBACK_FRONTEND_IMAGE:-}"
+            echo "ROLLBACK_BACKEND_IMAGE=${PROD_ROLLBACK_BACKEND_IMAGE:-}"
+            echo "DB_ROLLBACK_NOTE=${PROD_DB_ROLLBACK_NOTE:-DB rollback is not automated. Confirm app compatibility with the recorded DB state.}"
+          } >> "$GITHUB_ENV"
+
+      - name: Deploy frontend image to production server
+        run: |
+          set -euo pipefail
+          sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh ssh.zeroone.it.kr bash << 'EOF'
             set -e
-            
+            SUDO_PASSWORD='${{ secrets.SSH_PASSWORD }}'
+            FRONTEND_IMAGE='${{ needs.build-and-push-image.outputs.frontend_image }}'
+
             echo "사용하지 않는 컨테이너, 이미지, 네트워크 정리 중 (볼륨제외)..."
             echo "$SUDO_PASSWORD" | sudo -S docker stop frontend-prod || true
             echo "$SUDO_PASSWORD" | sudo -S docker rm frontend-prod || true
             echo "$SUDO_PASSWORD" | sudo -S docker system prune -a -f
-            
-            # 여기다 도커 컴포즈 파일 갖다놓았기 때문임
+
             cd ~/front/study-platform-client-prod || {
               echo "디렉토리가 없습니다. 생성합니다..."
               mkdir -p ~/front/study-platform-client-prod
               cd ~/front/study-platform-client-prod
             }
 
-            echo ".env 파일 생성 (런타임에 필요한 모든 환경변수. 디버깅용)"
+            echo ".env 파일 생성 (런타임에 필요한 모든 환경변수)"
             echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_PROD_BASE_URL }}" > .env
             echo "NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}" >> .env
             echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_KAKAO_CLIENT_ID }}" >> .env
@@ -114,26 +263,54 @@ jobs:
             echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
 
             echo "docker-compose.prod.yml 파일 생성"
-            echo "services:" > docker-compose.prod.yml
-            echo "  frontend:" >> docker-compose.prod.yml
-            echo "    container_name: frontend-prod" >> docker-compose.prod.yml
-            echo "    image: zerooneitkr/frontend:prod" >> docker-compose.prod.yml
-            echo "    ports:" >> docker-compose.prod.yml
-            echo "      - '13755:13755'" >> docker-compose.prod.yml
-            echo "    env_file:" >> docker-compose.prod.yml
-            echo "      - .env" >> docker-compose.prod.yml
-            echo "    restart: unless-stopped" >> docker-compose.prod.yml
+            cat > docker-compose.prod.yml << COMPOSE
+          services:
+            frontend:
+              container_name: frontend-prod
+              image: ${FRONTEND_IMAGE}
+              ports:
+                - '13755:13755'
+              env_file:
+                - .env
+              restart: unless-stopped
+          COMPOSE
 
             echo "기존 컨테이너 완전 제거"
             echo "$SUDO_PASSWORD" | sudo -S docker compose -f docker-compose.prod.yml down || true
             echo "$SUDO_PASSWORD" | sudo -S docker stop frontend-prod || true
             echo "$SUDO_PASSWORD" | sudo -S docker rm frontend-prod || true
 
-            echo "도커 이미지 pull"
-            echo "$SUDO_PASSWORD" | sudo -S docker pull zerooneitkr/frontend:prod
+            echo "도커 이미지 pull: $FRONTEND_IMAGE"
+            echo "$SUDO_PASSWORD" | sudo -S docker pull "$FRONTEND_IMAGE"
 
             echo "도커 컴포즈 재시작"
             echo "$SUDO_PASSWORD" | sudo -S docker compose -f docker-compose.prod.yml up -d
 
             echo "운영 서버 배포 완료"
           EOF
+
+      - name: Production smoke/E2E check
+        run: |
+          set -euo pipefail
+          if [ -z "${PROD_E2E_BASE_URL:-}" ]; then
+            echo "::warning::PROD_E2E_BASE_URL is not set. Skipping production smoke/E2E check."
+            exit 0
+          fi
+          curl --fail --retry 5 --retry-delay 5 --max-time 20 "$PROD_E2E_BASE_URL" >/dev/null
+
+      - name: Generate and validate release record
+        run: |
+          set -euo pipefail
+          RECORD_PATH="$(node scripts/release/generate-prod-release-record.mjs)"
+          node scripts/release/validate-release-record.mjs "$RECORD_PATH"
+          echo "RECORD_PATH=$RECORD_PATH" >> "$GITHUB_ENV"
+
+      - name: Commit release record
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$RECORD_PATH"
+          git commit -m "chore(release): record ${RELEASE_ID} [release-record]"
+          git pull --rebase origin main
+          git push origin HEAD:main

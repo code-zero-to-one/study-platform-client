@@ -82,3 +82,8 @@ yarn typecheck      # tsc --noEmit
 - `@radix-ui/*` — headless UI primitives (Dialog, DropdownMenu, Avatar, etc.)
 
 <!-- MANUAL: Any manually added notes below this line are preserved on regeneration -->
+
+### Production Version Management
+- Main-branch production deployments must follow `ops/version-management.md` (ZERO-ONE Version Management Rule - Frontend Repository).
+- `releases/` is the source of truth for successful production FE/BE/DB/rollback combinations.
+- Develop/test-server deployment keeps the existing flow and does not create release records.

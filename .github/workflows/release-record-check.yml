@@ -1,0 +1,26 @@
+name: Release Record Check
+
+on:
+  pull_request:
+    paths:
+      - 'releases/**/*.yaml'
+      - 'scripts/release/**'
+      - 'ops/**'
+      - '.github/workflows/deploy-prod.yml'
+      - '.github/workflows/release-record-check.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-release-records:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate release records
+        run: node scripts/release/validate-release-record.mjs releases

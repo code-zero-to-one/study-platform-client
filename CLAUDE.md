@@ -32,6 +32,7 @@ yarn typecheck      # No type errors
 - No hardcoded colors/spacing. Use only `@theme inline` tokens from `global.css`.
 
 @.claude/rules/no-img-no-eslint-disable.md
+@.claude/rules/version-management-frontend.md
 
 ---
 
