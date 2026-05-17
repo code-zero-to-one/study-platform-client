@@ -1,0 +1,47 @@
+release_id: prod-20260517-1941
+env: prod
+service_version: v1.0.0
+
+summary: Frontend production baseline before backend-prod-56
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v1.0.0-8c2ce22
+    commit: 8c2ce22
+    version: v1.0.0
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.0-2312fdb
+    commit: 2312fdb
+    version: v1.0.0
+    changed: false
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v1.0.0-8c2ce22
+    backend: zeroone-backend:v1.0.0-2312fdb
+  db_rollback_note: DB unchanged. This bootstrap baseline records the current production app state before backend-prod-56.
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-17T19:41:27+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260517-1941-8c2ce22
+  bootstrap_mode: true
