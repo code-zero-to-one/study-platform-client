@@ -122,7 +122,7 @@ export default function QnaWritePage() {
                 계속 작성
               </button>
               <Link
-                href={`/class/${slug}/home?tab=feed`}
+                href={`/class/${slug}/home?tab=qna`}
                 className="flex h-700 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-18b text-text-inverse"
               >
                 확인

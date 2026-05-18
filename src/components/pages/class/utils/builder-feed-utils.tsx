@@ -7,7 +7,7 @@ export const ROLE_LABELS: Record<string, string> = {
 };
 
 const ROLE_BADGE_CONFIG: Record<string, { label: string; bg: string }> = {
-  BUILDER: { label: 'B', bg: 'bg-purple-600' },
+  BUILDER: { label: 'B', bg: 'bg-background-accent-purple-strong' },
   MANAGER: { label: 'M', bg: 'bg-background-brand-default' },
 };
 
