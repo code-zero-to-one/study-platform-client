@@ -1,6 +1,10 @@
-import { axiosInstanceV5 } from '@/api/client/axios';
+import {
+  axiosInstanceForMultipartV5,
+  axiosInstanceV5,
+} from '@/api/client/axios';
 import type {
   AdminBuilderFeedCurationRequest,
+  AdminLessonBatchImportResponse,
   AdminCompletionMessageRequest,
   AdminCompletionMessageResponse,
   AdminCourseDetailResponse,
@@ -238,6 +242,23 @@ export const getAdminLessonDetail = async (
   return normalizeAdminLessonDetail(unwrap(response));
 };
 
+export const importAdminLessonContentZip = async ({
+  lessonId,
+  file,
+}: {
+  lessonId: number;
+  file: File;
+}): Promise<AdminLessonDetailResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await axiosInstanceForMultipartV5.post<
+    ApiBaseResponse<AdminLessonDetailResponse>
+  >(`admin/lessons/${lessonId}/imports/notion-zip`, formData);
+
+  return normalizeAdminLessonDetail(unwrap(response));
+};
+
 export const createAdminLesson = async ({
   courseId,
   request,
@@ -248,6 +269,23 @@ export const createAdminLesson = async ({
   const response = await axiosInstanceV5.post<
     ApiBaseResponse<AdminLessonCreateResponse>
   >(`admin/courses/${courseId}/lessons`, request);
+
+  return unwrap(response);
+};
+
+export const createAdminLessonsFromNotionZips = async ({
+  courseId,
+  files,
+}: {
+  courseId: number;
+  files: File[];
+}): Promise<AdminLessonBatchImportResponse> => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append('files', file));
+
+  const response = await axiosInstanceForMultipartV5.post<
+    ApiBaseResponse<AdminLessonBatchImportResponse>
+  >(`admin/courses/${courseId}/lessons/imports/notion-zips`, formData);
 
   return unwrap(response);
 };

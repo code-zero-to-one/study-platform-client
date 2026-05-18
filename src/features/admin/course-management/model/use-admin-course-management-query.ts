@@ -3,6 +3,7 @@ import {
   createAdminCourse,
   bulkUpdateAdminLessons,
   createAdminLesson,
+  createAdminLessonsFromNotionZips,
   deleteAdminCourse,
   deleteAdminLesson,
   getAdminCourseDetail,
@@ -13,6 +14,7 @@ import {
   getAdminLessonQnaDetail,
   getAdminLessonQnas,
   getAdminLessonRetrospectives,
+  importAdminLessonContentZip,
   updateAdminBuilderFeedCuration,
   createAdminLessonQnaAnswer,
   getAdminLessonBuilderFeeds,
@@ -77,6 +79,38 @@ const showMutationError = (error: unknown) => {
   useToastStore
     .getState()
     .showToast(userMessage || '요청 처리 중 오류가 발생했습니다.', 'error');
+};
+
+const getNotionZipImportErrorMessage = (
+  error: unknown,
+  operation: 'single' | 'batch',
+) => {
+  const errorInfo = analyzeError(error);
+
+  if (errorInfo.statusCode === 404) {
+    return '대상을 찾지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.';
+  }
+
+  if (errorInfo.statusCode === 409) {
+    return operation === 'batch'
+      ? '같은 챕터에 같은 레슨 번호가 이미 있어 생성할 수 없습니다. 기존 레슨 번호를 확인해주세요.'
+      : '본문 교체 중 충돌이 발생했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.';
+  }
+
+  if (errorInfo.statusCode === 400) {
+    return '올린 ZIP 형식을 해석하지 못했습니다. Notion export ZIP인지, markdown 1개와 이미지 파일이 함께 들어있는지 확인해주세요.';
+  }
+
+  return errorInfo.userMessage || 'ZIP import 처리 중 오류가 발생했습니다.';
+};
+
+const showNotionZipImportError = (
+  error: unknown,
+  operation: 'single' | 'batch',
+) => {
+  useToastStore
+    .getState()
+    .showToast(getNotionZipImportErrorMessage(error, operation), 'error');
 };
 
 export const useAdminCoursesQuery = (params: AdminCourseListParams) =>
@@ -217,6 +251,52 @@ export const useCreateAdminLessonMutation = () => {
       });
     },
     onError: showMutationError,
+  });
+};
+
+export const useImportAdminLessonContentZipMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: importAdminLessonContentZip,
+    onSuccess: async (lessonDetail) => {
+      useToastStore
+        .getState()
+        .showToast('본문을 ZIP 기준으로 교체했습니다.', 'success');
+      queryClient.setQueryData(
+        adminCourseManagementQueryKeys.lessonDetail(lessonDetail.lessonId),
+        lessonDetail,
+      );
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.lessonDetail(
+          lessonDetail.lessonId,
+        ),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: (error) => showNotionZipImportError(error, 'single'),
+  });
+};
+
+export const useCreateAdminLessonsFromNotionZipsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createAdminLessonsFromNotionZips,
+    onSuccess: async (response, variables) => {
+      useToastStore
+        .getState()
+        .showToast(`${response.lessonCount}개 레슨을 생성했습니다.`, 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.lessons(variables.courseId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: (error) => showNotionZipImportError(error, 'batch'),
   });
 };
 

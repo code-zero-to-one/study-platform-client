@@ -129,6 +129,18 @@ export interface AdminLessonCreateResponse {
   lessonId: number;
 }
 
+export interface AdminLessonImportResult {
+  lessonId: number;
+  chapterNumber: number;
+  lessonNumber: number;
+  title: string;
+}
+
+export interface AdminLessonBatchImportResponse {
+  lessonCount: number;
+  lessons: AdminLessonImportResult[];
+}
+
 export interface AdminLessonDeleteResponse {
   deleted: boolean;
   isDeleted?: boolean;
