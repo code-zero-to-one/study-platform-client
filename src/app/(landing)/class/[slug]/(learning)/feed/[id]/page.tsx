@@ -173,7 +173,7 @@ export default function FeedDetailPage({
                   deleteFeedMutation.mutate(feedId, {
                     onSuccess: () => {
                       showToast('피드가 삭제되었어요.');
-                      router.push('/class/vibe-intro/home?tab=feed');
+                      router.push(`/class/${slug}/home?tab=feed`);
                     },
                     onError: () => showToast('삭제에 실패했어요.', 'error'),
                   })
@@ -247,7 +247,7 @@ export default function FeedDetailPage({
                             onClick={() => {
                               setMoreOpen(false);
                               router.push(
-                                `/class/vibe-intro/feed/write?feedId=${feedId}`,
+                                `/class/${slug}/feed/write?feedId=${feedId}`,
                               );
                             }}
                             className="flex items-center gap-125 whitespace-nowrap rounded-50 p-100 font-designer-16r text-gray-400 hover:bg-gray-100"

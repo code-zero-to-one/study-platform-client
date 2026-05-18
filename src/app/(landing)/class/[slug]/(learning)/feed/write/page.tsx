@@ -3,8 +3,8 @@
 import { ArrowLeft, ChevronDown, Plus, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
@@ -124,7 +124,7 @@ export default function FeedWritePage() {
         {
           onSuccess: () => {
             showToast('피드가 수정되었어요!');
-            router.push(`/class/vibe-intro/feed/${editFeedId}`);
+            router.push(`/class/${slug}/feed/${editFeedId}`);
           },
           onError: () => showToast('수정에 실패했어요.', 'error'),
         },
@@ -150,7 +150,7 @@ export default function FeedWritePage() {
         {
           onSuccess: () => {
             showToast('피드가 등록되었어요!');
-            router.push('/class/vibe-intro/home?tab=feed');
+            router.push(`/class/${slug}/home?tab=feed`);
           },
           onError: () => showToast('등록에 실패했어요.', 'error'),
         },
@@ -159,8 +159,8 @@ export default function FeedWritePage() {
   }
 
   const backHref = isEditMode
-    ? `/class/vibe-intro/feed/${editFeedId}`
-    : '/class/vibe-intro/home?tab=feed';
+    ? `/class/${slug}/feed/${editFeedId}`
+    : `/class/${slug}/home?tab=feed`;
   const backLabel = isEditMode ? '피드로 돌아가기' : '빌더 피드 돌아가기';
   const submitLabel = isEditMode ? '수정하기' : '등록하기';
   const submitPending = isEditMode
@@ -360,7 +360,7 @@ export default function FeedWritePage() {
                 <button
                   type="button"
                   onClick={() =>
-                    router.push(`/class/vibe-intro/feed/${editFeedId}`)
+                    router.push(`/class/${slug}/feed/${editFeedId}`)
                   }
                   className="flex h-700 flex-1 items-center justify-center rounded-100 border border-border-default font-designer-16m text-gray-800"
                 >
