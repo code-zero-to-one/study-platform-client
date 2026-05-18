@@ -124,7 +124,7 @@ rollback_backend_image: zerooneitkr/zeroone-backend:v0.6.3-e4f5g6h
 db_changed: false
 db_migration_version: V12
 db_migration_files:
-db_rollback_note: DB rollback is not automated. Confirm app compatibility with the recorded DB state.
+db_rollback_note: DB 롤백은 자동화되어 있지 않습니다. 기록된 DB 상태와 앱 호환성을 확인하세요.
 ```
 
 Bootstrap은 명시적으로 승인된 예외 경로입니다. `bootstrap: approved`가 없으면 첫 릴리즈 기록 생성은 실패해야 합니다.
@@ -191,7 +191,7 @@ components:
 - 프론트엔드 컨테이너가 고정 프론트엔드 이미지 태그로 실행 중인지 확인합니다.
 - 백엔드 health/API 호환성을 확인합니다.
 - `releases/prod-YYYYMMDD-HHmm.yaml`이 `main`에 커밋됐는지 확인합니다.
-- 릴리즈 기록에 frontend, backend, database, rollback, deploy order, deployed time, actor, `status: success`가 포함됐는지 확인합니다.
+- 릴리즈 기록에 frontend, backend, database, rollback, deployed time, actor, `status: success`가 포함됐는지 확인합니다.
 
 ## 중복 및 실패 규칙
 

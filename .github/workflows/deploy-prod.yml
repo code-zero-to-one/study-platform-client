@@ -241,7 +241,7 @@ jobs:
             echo "DB_MIGRATION_FILES=${RELEASE_DB_MIGRATION_FILES:-}"
             echo "ROLLBACK_FRONTEND_IMAGE=${RELEASE_ROLLBACK_FRONTEND_IMAGE:-}"
             echo "ROLLBACK_BACKEND_IMAGE=${RELEASE_ROLLBACK_BACKEND_IMAGE:-}"
-            echo "DB_ROLLBACK_NOTE=${RELEASE_DB_ROLLBACK_NOTE:-DB rollback is not automated. Confirm app compatibility with the recorded DB state.}"
+            echo "DB_ROLLBACK_NOTE=${RELEASE_DB_ROLLBACK_NOTE:-DB 롤백은 자동화되어 있지 않습니다. 기록된 DB 상태와 앱 호환성을 확인하세요.}"
           } >> "$GITHUB_ENV"
 
       - name: Deploy frontend image to production server

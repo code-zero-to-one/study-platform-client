@@ -227,7 +227,7 @@ const getIntent = async () => {
     body: '',
     labels: [],
     number: '',
-    title: getEnv('WORKFLOW_RELEASE_SUMMARY', 'Manual production deployment'),
+    title: getEnv('WORKFLOW_RELEASE_SUMMARY', '수동 프로덕션 배포'),
     source: 'none',
   };
 };
@@ -466,5 +466,5 @@ writeOutput({
     (previous
       ? parseField(previous.content, 'rollback.db_rollback_note')
       : '') ||
-    'DB rollback is not automated. Confirm app compatibility with the recorded DB state.',
+    'DB 롤백은 자동화되어 있지 않습니다. 기록된 DB 상태와 앱 호환성을 확인하세요.',
 });
