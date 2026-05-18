@@ -15,7 +15,7 @@
 2. Jenkins에서 백엔드 운영 배포를 실행합니다.
 3. Jenkins 배포 성공을 확인합니다.
 
-여기까지가 백엔드 운영 배포입니다. 이 단계만으로 프론트엔드 PR이나 새 `releases/prod-*.yaml` 기록이 생기지는 않습니다. 최종 운영 조합 기록은 프론트엔드 운영 배포가 성공할 때 남깁니다.
+여기까지가 사람이 보는 백엔드 운영 배포입니다. 백엔드 PR 머지만으로는 프론트엔드 PR이나 릴리즈 기록이 생기지 않습니다. 다만 Jenkins 운영 배포가 성공해 프론트엔드 저장소로 배포 사실을 보내면, 프론트엔드 저장소가 `frontend.changed: false`, `backend.changed: true`인 backend-only 릴리즈 기록을 남길 수 있습니다.
 
 ## 2. 프론트엔드 운영 배포는 이렇게 합니다
 
@@ -51,7 +51,7 @@ ZERO-ONE은 백엔드와 프론트엔드가 따로 배포될 수 있습니다. �
 Frontend image + Backend image + DB migration 상태
 ```
 
-그래서 프론트엔드 운영 배포가 성공하면 프론트엔드 저장소의 `releases/prod-*.yaml`에 최종 운영 조합을 기록합니다.
+그래서 프론트엔드 또는 백엔드 운영 배포가 성공하면 프론트엔드 저장소의 `releases/prod-*.yaml`에 그 시점의 운영 조합을 기록합니다.
 
 릴리즈 기록에는 다음 정보가 남습니다.
 
@@ -67,7 +67,7 @@ Frontend image + Backend image + DB migration 상태
 
 ### 5-1. 백엔드 운영 배포 자동화
 
-백엔드는 Jenkins가 운영 배포합니다. Jenkins는 DB migration을 검증하고, 백엔드 이미지를 빌드한 뒤 운영 서버에 반영합니다. 배포가 성공하면 운영 백엔드 이미지/버전/DB 상태가 확정되고, 이 상태는 이후 프론트엔드 릴리즈 기록에 함께 남습니다.
+백엔드는 Jenkins가 운영 배포합니다. Jenkins는 DB migration을 검증하고, 백엔드 이미지를 빌드한 뒤 운영 서버에 반영합니다. 배포가 성공하면 프론트엔드 저장소에 backend-only 릴리즈 기록을 남길 수 있습니다. 이때 프론트엔드는 그대로이고 백엔드만 바뀐 조합으로 기록됩니다.
 
 ### 5-2. 프론트엔드 운영 배포 자동화
 
@@ -88,14 +88,14 @@ Frontend image + Backend image + DB migration 상태
 
 1. 운영자가 Jenkins 배포를 실행합니다.
 2. Jenkins가 migration 검증, 이미지 빌드, 운영 서버 반영을 처리합니다.
-3. Jenkins 성공 시 운영 백엔드 상태가 확정됩니다.
+3. Jenkins 성공 시 프론트엔드 저장소가 backend-only 릴리즈 기록을 남깁니다.
 
 짧게 쓰면 이 흐름입니다.
 
 ```txt
 백엔드 Jenkins 배포
 → migration 검증 / image build / production deploy
-→ 운영 백엔드 상태 확정
+→ backend-only releases/prod-*.yaml 기록
 ```
 
 ### 6-2. 프론트엔드 배포 내부 흐름
@@ -150,7 +150,7 @@ Frontend + Backend + Database + Rollback target
 
 ### 9-1. 백엔드 배포가 성공했는데 왜 프론트 PR이 안 생기나요?
 
-정상입니다. 백엔드 Jenkins는 프론트 PR을 만들지 않습니다. 백엔드 운영 배포만으로 프론트 저장소에 새 `releases/prod-*.yaml`이 생긴다고 보면 안 됩니다. 최종 릴리즈 기록은 프론트엔드 운영 배포에서 현재 운영 백엔드 상태까지 포함해 씁니다.
+정상입니다. 백엔드 Jenkins는 프론트 PR을 만들지 않습니다. 대신 Jenkins가 배포 사실을 프론트엔드 저장소로 보내면 backend-only `releases/prod-*.yaml` 기록이 생길 수 있습니다. 그래서 프론트 PR은 없는데 YAML만 생기는 상황은 정상입니다.
 
 ### 9-2. 프론트 PR 본문에 백엔드 payload 값을 직접 적어야 하나요?
 

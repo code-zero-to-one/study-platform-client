@@ -54,7 +54,7 @@ AI agent가 운영 배포, 릴리즈 기록, release intent label, rollback meta
 2. Jenkins에서 백엔드 운영 배포를 실행합니다.
 3. Jenkins 배포 성공을 확인합니다.
 
-백엔드 배포가 성공하면 운영 백엔드 이미지/버전/DB migration 상태가 확정됩니다. 이 단계만으로 프론트엔드 PR이나 새 `releases/prod-*.yaml` 기록이 생기지는 않습니다.
+백엔드 PR 머지만으로는 프론트엔드 PR이나 릴리즈 기록이 생기지 않습니다. Jenkins 운영 배포가 성공하고 배포 사실이 프론트엔드 저장소로 전달되면, 프론트엔드 저장소가 backend-only `releases/prod-*.yaml` 기록을 작성합니다.
 
 ## Release ID와 이미지 태그
 
@@ -145,21 +145,19 @@ components:
 
 운영 백엔드 컨테이너를 확인할 수 있고 그 이미지가 최신 릴리즈 기록과 다르면 프론트엔드 워크플로우는 실패해야 합니다. 오래된 백엔드 메타데이터로 릴리즈 기록을 쓰는 것을 막기 위한 규칙입니다.
 
-## 백엔드 운영 상태와 프론트엔드 릴리즈 기록
+## 백엔드 운영 배포 기록
 
-백엔드 운영 배포가 성공하면 운영 백엔드 이미지/버전/DB migration 상태가 확정됩니다. 하지만 백엔드 배포만으로 프론트엔드 저장소에 새 `releases/prod-*.yaml` 기록이 생긴다고 보면 안 됩니다.
-
-최종 릴리즈 기록은 프론트엔드 운영 배포가 성공할 때 작성합니다. 이때 프론트엔드 워크플로우는 현재 운영 백엔드 상태를 함께 확인해서 다음 형태로 기록합니다.
+백엔드 Jenkins 운영 배포가 성공하면 백엔드 이미지/버전/DB migration 상태가 확정됩니다. Jenkins가 이 배포 사실을 프론트엔드 저장소로 전달하면, 프론트엔드 저장소의 backend release record workflow가 다음 형태의 기록을 작성합니다.
 
 ```yaml
 components:
   frontend:
-    changed: true
-  backend:
     changed: false
+  backend:
+    changed: true
 ```
 
-백엔드 상태를 payload로 전달하는 경우 정확한 필드 스키마는 `docs/ops/release-record-shared-contract.md`를 따릅니다.
+이 기록은 프론트엔드 배포가 아닙니다. 현재 운영 프론트엔드는 그대로 두고, 새 백엔드와 짝이 된 운영 조합만 남기는 기록입니다. 백엔드 payload의 정확한 필드 스키마는 `docs/ops/release-record-shared-contract.md`를 따릅니다.
 
 선택 payload 필드는 사람이 프론트 PR에 적는 값이 아닙니다. 백엔드 Jenkins가 배포 과정에서 채워서 전달할 수 있는 참고 메타데이터입니다.
 
@@ -175,14 +173,6 @@ components:
 - 첫 프론트엔드 운영 릴리즈 기록이라면 `bootstrap: approved`와 bootstrap 필드가 있는지 확인합니다.
 - 프론트엔드만 배포하는 경우 최신 `releases/`의 백엔드 이미지가 현재 운영 백엔드와 일치하는지 확인합니다. 다르면 백엔드 디스패치 기록을 먼저 남깁니다.
 - 롤백 대상과 상속/제공된 백엔드 이미지가 `prod`나 `latest-prod`가 아닌 고정 이미지 태그인지 확인합니다.
-
-## 운영 배포 순서
-
-1. `db_migration`
-2. `backend`
-3. `backend_health_check`
-4. `frontend`
-5. `e2e_check`
 
 프론트엔드만 운영 배포하는 경우에도, 릴리즈 기록을 쓰기 전에 현재 배포된 백엔드 이미지/API와 database migration 상태를 기록해야 합니다.
 
