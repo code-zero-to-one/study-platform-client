@@ -1,7 +1,5 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
-import { use, useEffect } from 'react';
+import { redirect } from 'next/navigation';
+import { use } from 'react';
 
 export default function FeedEditPage({
   params,

@@ -16,6 +16,7 @@ import type {
   BuilderFeedReportCreateRequest,
   BuilderFeedShowcaseResponse,
   BuilderFeedStatsResponse,
+  BuilderFeedUpdateRequest,
   CourseCompletionRecapResponse,
   CourseCurriculumResponse,
   CourseDetailResponse,
@@ -797,6 +798,46 @@ export const useReportBuilderFeed = () => {
         content: { reportId: number };
       }>(`builder-feeds/${feedId}/report`, request);
       return data.content;
+    },
+  });
+};
+
+export const useDeleteBuilderFeed = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (feedId: number) => {
+      await axiosInstanceV5.delete(`builder-feeds/${feedId}`);
+    },
+    onSuccess: async (_, feedId) => {
+      queryClient.removeQueries({ queryKey: ['builderFeedDetail', feedId] });
+      await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
+      await queryClient.invalidateQueries({ queryKey: ['myBuilderFeeds'] });
+      await queryClient.invalidateQueries({ queryKey: ['myBuilderFeedStats'] });
+    },
+  });
+};
+
+export const useUpdateBuilderFeed = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      feedId,
+      request,
+    }: {
+      feedId: number;
+      request: BuilderFeedUpdateRequest;
+    }) => {
+      const { data } = await axiosInstanceV5.put<{
+        content: { feedId: number };
+      }>(`builder-feeds/${feedId}`, request);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['builderFeedDetail', variables.feedId],
+      });
+      await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
+      await queryClient.invalidateQueries({ queryKey: ['myBuilderFeeds'] });
     },
   });
 };

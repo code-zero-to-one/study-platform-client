@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type BrowserContext } from '@playwright/test';
+import { existsSync, readFileSync } from 'fs';
 import {
   openCreateModal,
   openPremiumStudyModal,
@@ -9,9 +10,52 @@ import {
   API_BASE,
 } from '../support/study-helpers';
 
+const AUTH_FILE = 'e2e/fixtures/auth.json';
+
+interface AuthCookie {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  expires: number;
+  httpOnly: boolean;
+  secure: boolean;
+  sameSite: 'Strict' | 'Lax' | 'None';
+}
+
+async function injectAuthCookies(
+  context: BrowserContext,
+  baseURL: string | undefined,
+) {
+  if (!existsSync(AUTH_FILE)) return;
+  const { cookies } = JSON.parse(readFileSync(AUTH_FILE, 'utf-8')) as {
+    cookies: AuthCookie[];
+  };
+  if (baseURL?.startsWith('http://localhost')) {
+    await context.addCookies(
+      cookies.map((c) => ({ ...c, domain: 'localhost', secure: false })),
+    );
+  } else {
+    const tokenCookie = cookies.find((c) => c.name === 'accessToken');
+    if (tokenCookie && baseURL) {
+      await context.addCookies([
+        {
+          ...tokenCookie,
+          domain: new URL(baseURL).hostname,
+          expires: Math.floor(Date.now() / 1000) + 3600,
+        },
+      ]);
+    }
+  }
+}
+
 // ── 그룹스터디 개설 ──────────────────────────────────────────────
 test.describe('그룹스터디 개설 @auth', () => {
   let createdStudyId: number | null = null;
+
+  test.beforeEach(async ({ context, baseURL }) => {
+    await injectAuthCookies(context, baseURL);
+  });
 
   test.afterEach(async ({ request }) => {
     const idToDelete = createdStudyId; // ① 로컬에 캡처
@@ -72,6 +116,10 @@ test.describe('그룹스터디 개설 @auth', () => {
 test.describe('멘토스터디 개설 @auth', () => {
   let createdStudyId: number | null = null;
 
+  test.beforeEach(async ({ context, baseURL }) => {
+    await injectAuthCookies(context, baseURL);
+  });
+
   test.afterEach(async ({ request }) => {
     const idToDelete = createdStudyId;
     createdStudyId = null;
@@ -88,7 +136,7 @@ test.describe('멘토스터디 개설 @auth', () => {
     await openPremiumStudyModal(page);
     await fillStep1(page);
 
-    const priceInput = page.getByLabel('참가비');
+    const priceInput = page.getByPlaceholder('10,000');
     await priceInput.fill('50000');
 
     await page.getByRole('button', { name: '다음' }).click();

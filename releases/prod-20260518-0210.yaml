@@ -1,0 +1,52 @@
+release_id: prod-20260518-0210
+env: prod
+service_version: v1.0.1
+
+summary: "[patch] release -patch bootstrap rollback payload 예외 계약을 맞춘다"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v1.0.0-8c2ce22
+    commit: 8c2ce22
+    version: v1.0.0
+    changed: false
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.1-07cb8f6
+    commit: 07cb8f6
+    version: v1.0.1
+    changed: true
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v1.0.0-8c2ce22
+    backend: zeroone-backend:v1.0.0-2312fdb
+  db_rollback_note: DB unchanged. Use fixed app image rollback targets if needed.
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-18T02:10:00+09:00
+deployed_by: automation
+status: success
+
+metadata:
+  backend_deploy_id: backend-prod-56
+  release_intent: patch
+  bootstrap_mode: false
+  previous_deploy_image: zeroone-backend:v1.0.0-2312fdb
+  pull_request_number: "1075"
+  pull_request_labels:
+    - release:patch

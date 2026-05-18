@@ -3,6 +3,7 @@
 import { ArrowLeft, MoreVertical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
 import BuilderProfileModal from '@/components/common/modals/builder-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -21,6 +22,7 @@ import {
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useCreateFeedComment,
+  useDeleteBuilderFeed,
   useGetBuilderFeedDetail,
   useGetBuilderFeeds,
   useGetFeedComments,
@@ -38,10 +40,12 @@ export default function FeedDetailPage({
   const feedId = parseInt(id, 10);
   const { memberId } = useAuth();
   const showToast = useToastStore((s) => s.showToast);
+  const router = useRouter();
 
   const [comment, setComment] = useState('');
   const [moreOpen, setMoreOpen] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -56,6 +60,7 @@ export default function FeedDetailPage({
   const toggleLikeMutation = useToggleFeedLike();
   const createCommentMutation = useCreateFeedComment();
   const reportFeedMutation = useReportBuilderFeed();
+  const deleteFeedMutation = useDeleteBuilderFeed();
 
   const liked = feed?.isLiked ?? false;
   const likeCount = feed?.likeCount ?? 0;
@@ -141,6 +146,47 @@ export default function FeedDetailPage({
         </div>
       )}
 
+      {/* Delete confirm modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="flex w-5000 flex-col items-center gap-300 rounded-200 bg-background-default p-500">
+            <div className="text-center">
+              <p className="font-designer-20b text-gray-800">
+                피드를 삭제하시겠습니까?
+              </p>
+              <p className="mt-150 font-designer-16r text-gray-500">
+                삭제된 피드는 복구할 수 없습니다.
+              </p>
+            </div>
+            <div className="flex w-full gap-200">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex h-700 flex-1 items-center justify-center rounded-100 border border-border-default font-designer-16m text-gray-800"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                disabled={deleteFeedMutation.isPending}
+                onClick={() =>
+                  deleteFeedMutation.mutate(feedId, {
+                    onSuccess: () => {
+                      showToast('피드가 삭제되었어요.');
+                      router.push('/class/vibe-intro/home?tab=feed');
+                    },
+                    onError: () => showToast('삭제에 실패했어요.', 'error'),
+                  })
+                }
+                className="flex h-700 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-16m text-text-inverse disabled:opacity-50"
+              >
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {feed !== undefined && feed.author.memberId !== undefined && (
         <BuilderProfileModal
           memberId={feed.author.memberId}
@@ -198,7 +244,12 @@ export default function FeedDetailPage({
                         <>
                           <button
                             type="button"
-                            onClick={() => setMoreOpen(false)}
+                            onClick={() => {
+                              setMoreOpen(false);
+                              router.push(
+                                `/class/vibe-intro/feed/write?feedId=${feedId}`,
+                              );
+                            }}
                             className="flex items-center gap-125 whitespace-nowrap rounded-50 p-100 font-designer-16r text-gray-400 hover:bg-gray-100"
                           >
                             <FeedEditIcon className="h-300 w-300 shrink-0" />
@@ -206,7 +257,10 @@ export default function FeedDetailPage({
                           </button>
                           <button
                             type="button"
-                            onClick={() => setMoreOpen(false)}
+                            onClick={() => {
+                              setMoreOpen(false);
+                              setShowDeleteConfirm(true);
+                            }}
                             className="flex items-center gap-125 whitespace-nowrap rounded-50 p-100 font-designer-16r text-gray-400 hover:bg-gray-100"
                           >
                             <FeedDeleteIcon className="h-300 w-300 shrink-0" />

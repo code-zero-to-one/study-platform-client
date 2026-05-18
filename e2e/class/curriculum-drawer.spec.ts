@@ -185,16 +185,24 @@ test.describe('커리큘럼 드로어 배지 렌더링 @auth', () => {
   });
 
   test('isFree=false, isLocked=true → 잠금 배지 표시', async ({ page }) => {
+    const lessonLockBadge = page.getByRole('link', {
+      name: '잠금 Lesson 02심화 레슨',
+      exact: true,
+    });
     await expect(
-      page.getByRole('img', { name: '잠금', exact: true }),
+      lessonLockBadge.getByRole('img', { name: '잠금', exact: true }),
     ).toBeVisible();
   });
 
   test('isFree=false, isLocked=false → 잠금 해제 배지 표시', async ({
     page,
   }) => {
+    const lessonUnlockBadge = page.getByRole('link', {
+      name: '잠금 해제 Lesson 03결제 완료 레슨',
+      exact: true,
+    });
     await expect(
-      page.getByRole('img', { name: '잠금 해제', exact: true }),
+      lessonUnlockBadge.getByRole('img', { name: '잠금 해제', exact: true }),
     ).toBeVisible();
   });
 });

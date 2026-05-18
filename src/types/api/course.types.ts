@@ -632,6 +632,13 @@ export interface GiftEmailResponse {
   email?: string;
 }
 
+// ─── Builder Feed Mutations ───────────────────────────────────────────────────
+
+export interface BuilderFeedUpdateRequest {
+  content: string;
+  imageKeys?: string[];
+}
+
 export interface GiftEmailCreateRequest {
   email: string;
 }
