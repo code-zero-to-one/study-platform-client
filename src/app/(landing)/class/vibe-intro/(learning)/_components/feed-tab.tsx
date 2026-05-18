@@ -82,7 +82,9 @@ export function FeedTab() {
     feedData?.feedCountLabel ??
     `지금까지 ${totalCount}개의 피드가 완성되었어요!`;
   const weeklyTopBuilder = feedData?.weeklyTopBuilder;
-  const paywall = feedData?.paywall ?? null;
+  // TODO: restore paywall when access control is re-enabled
+  // const paywall = feedData?.paywall ?? null;
+  const paywall = null;
 
   const emptyMessage =
     filter === '내 피드'
