@@ -13,14 +13,15 @@ const DotLottieReact = dynamic(
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type { CoursePaymentConfirmResponse } from '@/types/api/course.types';
 
-interface VibeIntroPaymentSuccessProps {
+interface CoursePaymentSuccessProps {
   paymentConfirm: CoursePaymentConfirmResponse;
+  slug: string;
 }
 
-// Lottie file required at: public/class/vibe-intro/payments.json
-export function VibeIntroPaymentSuccess({
+export function CoursePaymentSuccess({
   paymentConfirm,
-}: VibeIntroPaymentSuccessProps) {
+  slug,
+}: CoursePaymentSuccessProps) {
   const PAYMENT_METHOD_LABELS = {
     CARD: '신용카드',
     VIRTUAL_ACCOUNT: '무통장 입금',
@@ -31,7 +32,7 @@ export function VibeIntroPaymentSuccess({
   return (
     <div className="mx-auto flex w-full max-w-9175 flex-col items-center px-600 pb-1000 pt-800">
       <DotLottieReact
-        src="/class/vibe-intro/payments.json"
+        src="/class/payments.json"
         autoplay
         className="h-1875 w-1875"
       />
@@ -91,7 +92,7 @@ export function VibeIntroPaymentSuccess({
           마이클래스
         </Link>
         <Link
-          href="/class/vibe-intro/home"
+          href={`/class/${slug}/home`}
           className="flex h-750 flex-1 items-center justify-center rounded-100 border border-background-brand-default font-designer-16b text-text-brand"
         >
           내 학습 여정 맵으로 가기

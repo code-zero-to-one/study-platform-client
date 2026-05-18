@@ -39,21 +39,21 @@ interface NavigationGuardHandlers {
   beforeUnload: (_e: BeforeUnloadEvent) => void;
 }
 
-interface VibeIntroCheckoutFormProps {
+interface CourseCheckoutFormProps {
+  slug: string;
   plan: CoursePlanResponse;
   paymentData: CoursePaymentPrepareResponse;
   planCode: CoursePlanCode;
   onChangePlan: () => void;
-  thumbnailUrl: string | null;
 }
 
-export function VibeIntroCheckoutForm({
+export function CourseCheckoutForm({
+  slug,
   plan,
   paymentData,
   planCode,
   onChangePlan,
-  thumbnailUrl,
-}: VibeIntroCheckoutFormProps) {
+}: CourseCheckoutFormProps) {
   const { memberId, memberName, tel } = useUserStore();
   const showToast = useToastStore((s) => s.showToast);
 
@@ -147,9 +147,9 @@ export function VibeIntroCheckoutForm({
           orderId: paymentData.tossOrderId,
           orderName: paymentData.orderName,
           successUrl:
-            `${window.location.origin}/class/vibe-intro/payment/success` +
+            `${window.location.origin}/class/${slug}/payment/success` +
             `?paymentId=${paymentData.paymentId}&method=${paymentMethod}`,
-          failUrl: `${window.location.origin}/class/vibe-intro/payment?planCode=${planCode}`,
+          failUrl: `${window.location.origin}/class/${slug}/payment?planCode=${planCode}`,
           customerName: values.buyerName,
           customerMobilePhone: values.buyerPhone,
         };
@@ -222,7 +222,7 @@ export function VibeIntroCheckoutForm({
         navigationGuardRef.current.beforeUnload,
       );
     }
-    window.location.href = '/class/vibe-intro/home';
+    window.location.href = `/class/${slug}/home`;
   };
 
   const canPay = !isLoading;
@@ -236,7 +236,7 @@ export function VibeIntroCheckoutForm({
         <CourseSummarySection
           plan={plan}
           onChangePlan={onChangePlan}
-          thumbnailUrl={thumbnailUrl}
+          slug={slug}
         />
 
         <BuyerInfoSection onVerified={setIsPhoneVerified} />

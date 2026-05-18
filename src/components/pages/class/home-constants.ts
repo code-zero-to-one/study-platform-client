@@ -4,8 +4,6 @@ import type {
   LessonProgressStatus,
 } from '@/types/api/course.types';
 
-export const COURSE_SLUG = 'vibe-intro';
-
 export const FALLBACK_CHAPTERS: CourseCurriculumChapterResponse[] = [
   {
     chapterId: -1,
