@@ -58,6 +58,7 @@ export default function VibeIntroPaymentPage() {
         courseId={courseId}
         planCode={planCode}
         onChangePlan={() => setShowPlanModal(true)}
+        thumbnailUrl={course?.thumbnailUrl ?? null}
       />
 
       {showPlanModal && (

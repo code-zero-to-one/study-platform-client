@@ -45,6 +45,7 @@ interface CourseCheckoutFormProps {
   courseId: number;
   planCode: CoursePlanCode;
   onChangePlan: () => void;
+  thumbnailUrl: string | null;
 }
 
 export function CourseCheckoutForm({
@@ -53,6 +54,7 @@ export function CourseCheckoutForm({
   courseId,
   planCode,
   onChangePlan,
+  thumbnailUrl,
 }: CourseCheckoutFormProps) {
   const { memberId, memberName, tel } = useUserStore();
   const showToast = useToastStore((s) => s.showToast);
@@ -260,7 +262,7 @@ export function CourseCheckoutForm({
         <CourseSummarySection
           plan={plan}
           onChangePlan={onChangePlan}
-          slug={slug}
+          thumbnailUrl={thumbnailUrl}
         />
 
         <BuyerInfoSection onVerified={setIsPhoneVerified} />
