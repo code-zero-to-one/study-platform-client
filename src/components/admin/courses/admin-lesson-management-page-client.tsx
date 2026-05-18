@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import AdminCourseField from '@/components/admin/courses/admin-course-field';
 import AdminCourseMarkdownEditor from '@/components/admin/courses/admin-course-markdown-editor';
+import AdminNotionZipImportButton, {
+  ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE,
+} from '@/components/admin/courses/admin-notion-zip-import-button';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
@@ -23,6 +26,7 @@ import {
   readAdminDraft,
   useAdminLocalDraft,
 } from '@/features/admin/course-management/model/admin-draft-storage';
+import { toAdminLessonForm } from '@/features/admin/course-management/model/admin-lesson-form-mapper';
 import {
   getAdminLessonPayloadValidationError,
   toAdminLessonPayload,
@@ -33,6 +37,8 @@ import {
   useAdminLessonRetrospectivesQuery,
   useCreateAdminLessonMutation,
   useDeleteAdminLessonMutation,
+  useCreateAdminLessonsFromNotionZipsMutation,
+  useImportAdminLessonContentZipMutation,
   useReorderAdminLessonsMutation,
   useUpdateAdminLessonMutation,
 } from '@/features/admin/course-management/model/use-admin-course-management-query';
@@ -174,6 +180,9 @@ export default function AdminLessonManagementPageClient({
   const [hydratedLessonId, setHydratedLessonId] = useState<
     number | undefined
   >();
+  const [recentlyImportedLessonIds, setRecentlyImportedLessonIds] = useState<
+    number[]
+  >([]);
   const [editorVersion, setEditorVersion] = useState(0);
   const draftKey = `lesson:${courseId}:${lessonFormMode}:${editingLessonId ?? 'new'}`;
   // edit 모드에서는 server hydration이 끝난 뒤에만 draft 자동저장을 활성화한다.
@@ -192,6 +201,10 @@ export default function AdminLessonManagementPageClient({
   });
 
   const createLessonMutation = useCreateAdminLessonMutation();
+  const createLessonsFromNotionZipsMutation =
+    useCreateAdminLessonsFromNotionZipsMutation();
+  const importLessonContentZipMutation =
+    useImportAdminLessonContentZipMutation();
   const updateLessonMutation = useUpdateAdminLessonMutation();
   const deleteLessonMutation = useDeleteAdminLessonMutation();
   const reorderLessonsMutation = useReorderAdminLessonsMutation();
@@ -243,6 +256,8 @@ export default function AdminLessonManagementPageClient({
   );
   const isLessonFormLocked =
     createLessonMutation.isPending ||
+    createLessonsFromNotionZipsMutation.isPending ||
+    importLessonContentZipMutation.isPending ||
     updateLessonMutation.isPending ||
     lessonDetailQuery.isFetching;
   const isListFiltered =
@@ -285,17 +300,7 @@ export default function AdminLessonManagementPageClient({
       return;
     }
 
-    const serverLessonForm = {
-      chapterNumber: lessonDetailQuery.data.chapterNumber,
-      lessonNumber: lessonDetailQuery.data.lessonNumber,
-      title: lessonDetailQuery.data.title,
-      description: lessonDetailQuery.data.description ?? '',
-      content: lessonDetailQuery.data.content,
-      estimatedMinutes: lessonDetailQuery.data.estimatedMinutes,
-      retrospectivePurpose: lessonDetailQuery.data.retrospectivePurpose,
-      isFree: lessonDetailQuery.data.isFree,
-      isPublished: lessonDetailQuery.data.isPublished,
-    };
+    const serverLessonForm = toAdminLessonForm(lessonDetailQuery.data);
     const draft = normalizeLessonDraft(
       readAdminDraft<AdminLessonUpsertRequest>(
         `lesson:${courseId}:edit:${lessonDetailQuery.data.lessonId}`,
@@ -401,6 +406,44 @@ export default function AdminLessonManagementPageClient({
     );
   };
 
+  const handleCreateLessonsFromNotionZips = (zipFiles: File[]) => {
+    if (zipFiles.length === 0 || isLessonFormLocked) return;
+
+    createLessonsFromNotionZipsMutation.mutate(
+      { courseId, files: zipFiles },
+      {
+        onSuccess: (response) => {
+          setLessonSearch('');
+          setChapterFilter('ALL');
+          setPublishedFilter('ALL');
+          setAccessFilter('ALL');
+          setRecentlyImportedLessonIds(
+            response.lessons.map((lesson) => lesson.lessonId),
+          );
+        },
+      },
+    );
+  };
+
+  const handleImportNotionZip = (files: File[]) => {
+    const [file] = files;
+    if (!file || isLessonFormLocked || !editingLessonId) {
+      return;
+    }
+
+    importLessonContentZipMutation.mutate(
+      { lessonId: editingLessonId, file },
+      {
+        onSuccess: (lessonDetail) => {
+          clearLessonDraft();
+          setLessonForm(toAdminLessonForm(lessonDetail));
+          setHydratedLessonId(lessonDetail.lessonId);
+          setEditorVersion((prev) => prev + 1);
+        },
+      },
+    );
+  };
+
   const handleDeleteLesson = (lesson: AdminLessonSummary) => {
     const confirmed = window.confirm(
       `${lesson.title} 레슨을 삭제할까요? 돌아보기 이력이 있으면 실제 삭제되지 않고 비게시 처리됩니다.`,
@@ -462,6 +505,14 @@ export default function AdminLessonManagementPageClient({
           </div>
         </div>
         <div className="flex gap-75">
+          <AdminNotionZipImportButton
+            multiple
+            disabled={isLessonFormLocked}
+            loading={createLessonsFromNotionZipsMutation.isPending}
+            onSelectFiles={handleCreateLessonsFromNotionZips}
+          >
+            Notion ZIP 다건 업로드
+          </AdminNotionZipImportButton>
           {lessonFormMode !== 'create' && (
             <Button color="secondary" size="small" onClick={startCreateLesson}>
               새 레슨 추가
@@ -561,6 +612,8 @@ export default function AdminLessonManagementPageClient({
                           'border-border-default flex items-start justify-between gap-100 border-b p-125',
                           editingLessonId === lesson.lessonId &&
                             'bg-fill-brand-subtle-default',
+                          recentlyImportedLessonIds.includes(lesson.lessonId) &&
+                            'bg-fill-success-subtle-default',
                         )}
                       >
                         <button
@@ -838,7 +891,20 @@ export default function AdminLessonManagementPageClient({
               미리보기입니다. unsafe HTML/script와 외부 이미지 scheme은 저장
               정책에서 허용되지 않습니다.
             </p>
+            <p className="font-designer-13r text-text-subtle mt-50">
+              Notion export ZIP 1개를 업로드하면 현재 레슨의 본문만 교체됩니다.
+            </p>
           </div>
+          {lessonFormMode === 'edit' && (
+            <AdminNotionZipImportButton
+              confirmMessage={ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE}
+              disabled={isLessonFormLocked || !editingLessonId}
+              loading={importLessonContentZipMutation.isPending}
+              onSelectFiles={handleImportNotionZip}
+            >
+              Notion ZIP import
+            </AdminNotionZipImportButton>
+          )}
           <div className="font-designer-13r text-text-subtle flex gap-125">
             <span>
               자동 임시저장:{' '}

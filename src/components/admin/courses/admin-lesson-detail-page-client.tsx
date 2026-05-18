@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import AdminCourseField from '@/components/admin/courses/admin-course-field';
 import AdminCourseMarkdownField from '@/components/admin/courses/admin-course-markdown-field';
+import AdminNotionZipImportButton, {
+  ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE,
+} from '@/components/admin/courses/admin-notion-zip-import-button';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
@@ -15,11 +18,14 @@ import type {
   AdminLessonUpsertRequest,
   AdminRetrospectivePurpose,
 } from '@/features/admin/course-management/model/admin-course-management-contract';
-import { normalizeAdminCourseMarkdownContent } from '@/features/admin/course-management/model/admin-course-markdown';
 import {
   ADMIN_RETROSPECTIVE_PURPOSE_OPTIONS,
   getAdminRetrospectivePurposeMeta,
 } from '@/features/admin/course-management/model/admin-course-presentation';
+import {
+  toAdminLessonForm,
+  toAdminLessonHydrationSnapshot,
+} from '@/features/admin/course-management/model/admin-lesson-form-mapper';
 import {
   getAdminLessonPayloadValidationError,
   toAdminLessonPayload,
@@ -29,6 +35,7 @@ import {
   useAdminLessonQnasQuery,
   useAdminLessonRetrospectivesQuery,
   useCreateAdminLessonQnaAnswerMutation,
+  useImportAdminLessonContentZipMutation,
   useUpdateAdminBuilderFeedCurationMutation,
   useUpdateAdminLessonMutation,
 } from '@/features/admin/course-management/model/use-admin-course-management-query';
@@ -67,6 +74,8 @@ export default function AdminLessonDetailPageClient({
   const lessonBuilderFeedsQuery = useAdminLessonBuilderFeedsQuery(lessonId);
   const lessonQnasQuery = useAdminLessonQnasQuery(lessonId);
   const updateLessonMutation = useUpdateAdminLessonMutation();
+  const importLessonContentZipMutation =
+    useImportAdminLessonContentZipMutation();
   const updateBuilderFeedCurationMutation =
     useUpdateAdminBuilderFeedCurationMutation();
   const createLessonQnaAnswerMutation = useCreateAdminLessonQnaAnswerMutation();
@@ -88,41 +97,19 @@ export default function AdminLessonDetailPageClient({
   const [isAwaitingLessonRefresh, setIsAwaitingLessonRefresh] = useState(false);
 
   const isLessonFormLocked =
-    updateLessonMutation.isPending || isAwaitingLessonRefresh;
+    updateLessonMutation.isPending ||
+    importLessonContentZipMutation.isPending ||
+    isAwaitingLessonRefresh;
 
   const lessonDetailSnapshot = lessonDetailQuery.data
-    ? JSON.stringify({
-        chapterNumber: lessonDetailQuery.data.chapterNumber,
-        lessonNumber: lessonDetailQuery.data.lessonNumber,
-        title: lessonDetailQuery.data.title,
-        description: '',
-        content: normalizeAdminCourseMarkdownContent(
-          lessonDetailQuery.data.content,
-        ),
-        estimatedMinutes: lessonDetailQuery.data.estimatedMinutes,
-        retrospectivePurpose: lessonDetailQuery.data.retrospectivePurpose,
-        isFree: lessonDetailQuery.data.isFree,
-        isPublished: lessonDetailQuery.data.isPublished,
-      })
+    ? toAdminLessonHydrationSnapshot(lessonDetailQuery.data)
     : '';
 
   useEffect(() => {
     if (!lessonDetailQuery.data) return;
     if (hydratedLessonSnapshot === lessonDetailSnapshot) return;
 
-    setLessonForm({
-      chapterNumber: lessonDetailQuery.data.chapterNumber,
-      lessonNumber: lessonDetailQuery.data.lessonNumber,
-      title: lessonDetailQuery.data.title,
-      description: lessonDetailQuery.data.description ?? '',
-      content: normalizeAdminCourseMarkdownContent(
-        lessonDetailQuery.data.content,
-      ),
-      estimatedMinutes: lessonDetailQuery.data.estimatedMinutes,
-      retrospectivePurpose: lessonDetailQuery.data.retrospectivePurpose,
-      isFree: lessonDetailQuery.data.isFree,
-      isPublished: lessonDetailQuery.data.isPublished,
-    });
+    setLessonForm(toAdminLessonForm(lessonDetailQuery.data));
     setHydratedLessonSnapshot(lessonDetailSnapshot);
   }, [hydratedLessonSnapshot, lessonDetailQuery.data, lessonDetailSnapshot]);
 
@@ -273,6 +260,25 @@ export default function AdminLessonDetailPageClient({
     );
   };
 
+  const handleImportNotionZip = (files: File[]) => {
+    const [file] = files;
+    if (!file || isLessonFormLocked) {
+      return;
+    }
+
+    importLessonContentZipMutation.mutate(
+      { lessonId, file },
+      {
+        onSuccess: (lessonDetail) => {
+          setLessonForm(toAdminLessonForm(lessonDetail));
+          setHydratedLessonSnapshot(
+            toAdminLessonHydrationSnapshot(lessonDetail),
+          );
+        },
+      },
+    );
+  };
+
   const handleToggleBuilderFeedCuration = ({
     feedId,
     currentOperatorPick,
@@ -398,6 +404,14 @@ export default function AdminLessonDetailPageClient({
           </div>
         </div>
         <div className="flex gap-75">
+          <AdminNotionZipImportButton
+            confirmMessage={ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE}
+            disabled={isLessonFormLocked}
+            loading={importLessonContentZipMutation.isPending}
+            onSelectFiles={handleImportNotionZip}
+          >
+            Notion ZIP import
+          </AdminNotionZipImportButton>
           <Button
             size="small"
             disabled={isLessonFormLocked}
