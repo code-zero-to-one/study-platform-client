@@ -137,7 +137,7 @@ const CoursePreviewPanel = ({
           </p>
         </div>
         <Button asChild color="outlined" size="xsmall">
-          <Link href="/class/vibe-intro" target="_blank">
+          <Link href={`/class/${courseForm.slug}`} target="_blank">
             공개 화면 열기
           </Link>
         </Button>

@@ -7,10 +7,12 @@ export function PlanSelectionModal({
   plan,
   earlyBirdEndsAt,
   onClose,
+  slug,
 }: {
   plan: CoursePlanResponse;
   earlyBirdEndsAt: string | null;
   onClose: () => void;
+  slug: string;
 }) {
   const isEarlyBird =
     !!earlyBirdEndsAt && new Date(earlyBirdEndsAt) > new Date();
@@ -96,7 +98,7 @@ export function PlanSelectionModal({
             </div>
 
             <Link
-              href={`/class/vibe-intro/payment?planCode=${plan.planCode}`}
+              href={`/class/${slug}/payment?planCode=${plan.planCode}`}
               className="flex h-575 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-gray-0"
               onClick={onClose}
             >

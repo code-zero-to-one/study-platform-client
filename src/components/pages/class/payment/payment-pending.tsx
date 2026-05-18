@@ -20,18 +20,17 @@ interface VirtualAccountInfo {
   amount: number;
 }
 
-interface VibeIntroPaymentPendingProps {
+interface CoursePaymentPendingProps {
   virtualAccount: VirtualAccountInfo;
   onCancel?: () => void;
   isCanceling?: boolean;
 }
 
-// Lottie file required at: public/class/vibe-intro/payments.json
-export function VibeIntroPaymentPending({
+export function CoursePaymentPending({
   virtualAccount,
   onCancel,
   isCanceling = false,
-}: VibeIntroPaymentPendingProps) {
+}: CoursePaymentPendingProps) {
   const showToast = useToastStore((s) => s.showToast);
 
   const handleCopyAccount = async () => {
@@ -46,7 +45,7 @@ export function VibeIntroPaymentPending({
   return (
     <div className="mx-auto flex w-full max-w-9175 flex-col items-center px-600 pb-1000 pt-800">
       <DotLottieReact
-        src="/class/vibe-intro/payments.json"
+        src="/class/payments.json"
         autoplay
         className="h-1875 w-1875"
       />

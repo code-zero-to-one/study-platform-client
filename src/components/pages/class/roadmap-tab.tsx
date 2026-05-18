@@ -23,7 +23,6 @@ import { useToastStore } from '@/stores/use-toast-store';
 import type { CourseCurriculumChapterResponse } from '@/types/api/course.types';
 import { ChapterHeader } from './chapter-header';
 import {
-  COURSE_SLUG,
   FALLBACK_CHAPTERS,
   buildLessonMap,
   mergeLessons,
@@ -37,12 +36,12 @@ const LoginModal = dynamic(
   () => import('@/components/auth/modals/login-modal'),
 );
 
-export function RoadmapTab() {
+export function RoadmapTab({ slug }: { slug: string }) {
   const { isAuthenticated } = useAuth();
-  const { data: course } = useGetCourseDetail(COURSE_SLUG);
+  const { data: course } = useGetCourseDetail(slug);
   const courseId = course?.courseId ?? 0;
 
-  const { data: curriculum, isLoading } = useGetCourseCurriculum(COURSE_SLUG);
+  const { data: curriculum, isLoading } = useGetCourseCurriculum(slug);
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
   const router = useRouter();
@@ -125,7 +124,7 @@ export function RoadmapTab() {
         <div className="mt-300 flex items-center gap-300">
           <div className="relative shrink-0">
             <Image
-              src="/class/vibe-intro/chapter-progress.svg"
+              src={`/class/${slug}/chapter-progress.svg`}
               alt="진도 표시"
               width={173}
               height={61}
@@ -245,7 +244,7 @@ export function RoadmapTab() {
                       {index === 0 && ri === 0 && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <Image
-                            src="/class/vibe-intro/journey-1st-load.svg"
+                            src={`/class/${slug}/journey-1st-load.svg`}
                             alt=""
                             aria-hidden="true"
                             width={795}
@@ -267,7 +266,7 @@ export function RoadmapTab() {
                                   <Link
                                     href={
                                       chapters[0]?.lessons[0]
-                                        ? `/class/vibe-intro/lesson/${chapters[0].lessons[0].lessonId}`
+                                        ? `/class/${slug}/lesson/${chapters[0].lessons[0].lessonId}`
                                         : '#'
                                     }
                                     className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-20sb text-gray-0"
@@ -320,6 +319,7 @@ export function RoadmapTab() {
                                 course?.learnerCount ??
                                 0
                               }
+                              slug={slug}
                             />
                           </div>
                         ))}
@@ -328,7 +328,7 @@ export function RoadmapTab() {
                         index < visibleChapters.length - 1 && (
                           <div className="pointer-events-none absolute right-0 top-1/2">
                             <Image
-                              src="/class/vibe-intro/journey-load.svg"
+                              src={`/class/${slug}/journey-load.svg`}
                               alt=""
                               aria-hidden="true"
                               width={906}
@@ -343,7 +343,7 @@ export function RoadmapTab() {
                       {ri < rows.length - 1 && (
                         <div className="pointer-events-none absolute right-0 top-1/2">
                           <Image
-                            src="/class/vibe-intro/journey-load-reverse.svg"
+                            src={`/class/${slug}/journey-load-reverse.svg`}
                             alt=""
                             aria-hidden="true"
                             width={906}
@@ -498,7 +498,7 @@ export function RoadmapTab() {
                     return (
                       <Link
                         key={l.lessonId}
-                        href={`/class/vibe-intro/lesson/${l.lessonId}`}
+                        href={`/class/${slug}/lesson/${l.lessonId}`}
                       >
                         {card}
                       </Link>
@@ -537,7 +537,7 @@ export function RoadmapTab() {
           learnerCount={course?.learnerCount ?? 0}
           onStart={() => {
             router.push(
-              `/class/vibe-intro/lesson/${selectedLesson.lesson.lessonId}`,
+              `/class/${slug}/lesson/${selectedLesson.lesson.lessonId}`,
             );
             setSelectedLesson(null);
           }}
@@ -566,6 +566,7 @@ export function RoadmapTab() {
           plan={course.plans[0]}
           earlyBirdEndsAt={course?.earlyBirdEndsAt ?? null}
           onClose={() => setShowPlanModal(false)}
+          slug={slug}
         />
       )}
 

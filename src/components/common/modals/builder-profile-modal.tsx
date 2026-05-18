@@ -2,8 +2,8 @@
 
 import { X } from 'lucide-react';
 import Image from 'next/image';
-import { RoleBadge } from '@/app/(landing)/class/vibe-intro/_components/builder-feed-utils';
 import { Modal } from '@/components/common/ui/modal';
+import { RoleBadge } from '@/components/pages/class/utils/builder-feed-utils';
 import { useUserProfileQuery } from '@/hooks/queries/user/use-user-profile-query';
 
 interface BuilderProfileModalProps {
