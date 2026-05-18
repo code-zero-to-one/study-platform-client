@@ -132,7 +132,7 @@ export function ClassDetailSidebar({
                 type="button"
                 onClick={onStartCourse}
                 disabled={isEnrolling}
-                className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                className="flex h-550 w-full cursor-pointer items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse hover:opacity-90 active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {ctaLabel}
               </button>
