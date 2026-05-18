@@ -168,13 +168,9 @@ async function mockCourseApis(
   });
 }
 
-// Registers response watchers BEFORE goto so cascaded requests are not missed.
-// prepare fires after courseId resolves from the detail response, so both
-// watchers must be live before navigation starts.
 async function gotoPaymentPage(page: Page): Promise<void> {
   await Promise.all([
     page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
-    page.waitForResponse((r) => r.url().includes('/payments/prepare')),
     page.goto(PAYMENT_PAGE, { waitUntil: 'load' }),
   ]);
 }
