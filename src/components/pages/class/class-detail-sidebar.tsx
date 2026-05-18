@@ -1,14 +1,14 @@
-import dynamic from 'next/dynamic';
-import Image from 'next/image';
-import { Fragment } from 'react';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { Fragment } from "react";
+import { cn } from "@/components/common/ui/(shadcn)/lib/utils";
 import type {
   CourseDetailResponse,
   GiftEmailResponse,
-} from '@/types/api/course.types';
+} from "@/types/api/course.types";
 
 const LoginModal = dynamic(
-  () => import('@/components/auth/modals/login-modal'),
+  () => import("@/components/auth/modals/login-modal"),
 );
 
 interface ClassDetailSidebarProps {
@@ -49,15 +49,15 @@ export function ClassDetailSidebar({
           )}
           <h3
             className={cn(
-              'font-designer-28b text-gray-800',
-              courseDetail?.earlyBirdEndsAt && 'mt-75',
+              "font-designer-28b text-gray-800",
+              courseDetail?.earlyBirdEndsAt && "mt-75",
             )}
           >
-            {courseDetail?.title ?? '바이브 코딩 입문자 코스'}
+            {courseDetail?.title ?? "바이브 코딩 입문자 코스"}
           </h3>
           <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-800">
             {courseDetail?.description ??
-              '바이브 코딩 막막함 이젠 여기서 끝내세요!\nZERO-ONE의 빌더들과 함께 뿌셔보세요!'}
+              "바이브 코딩 막막함 이젠 여기서 끝내세요!\nZERO-ONE의 빌더들과 함께 뿌셔보세요!"}
           </p>
 
           <span className="mt-150 inline-block rounded-50 bg-gray-400 px-75 py-25 font-designer-12r text-text-inverse">
@@ -69,7 +69,7 @@ export function ClassDetailSidebar({
             {courseDetail?.freeLessonCount !== null &&
             courseDetail?.freeLessonCount !== undefined
               ? `${courseDetail.freeLessonCount}개 레슨`
-              : 'N개 레슨'}{' '}
+              : "N개 레슨"}{" "}
             + 실습 가이드
           </p>
 
@@ -111,7 +111,7 @@ export function ClassDetailSidebar({
               <path d="M17.5 7.1025C16.72 7.1025 16.01 6.6425 15.68 5.9325L15.27 5.0325L14.37 4.6225C13.66 4.2925 13.2 3.5825 13.2 2.8025C13.2 2.1425 13.54 1.5425 14.07 1.1725C12.83 0.6225 11.45 0.3025 10 0.3025C4.48 0.3025 0 4.7825 0 10.3025C0 15.8225 4.48 20.3025 10 20.3025C15.52 20.3025 20 15.8225 20 10.3025C20 8.8525 19.68 7.4725 19.13 6.2325C18.76 6.7625 18.16 7.1025 17.5 7.1025ZM10 18.3025C5.59 18.3025 2 14.7125 2 10.3025C2 10.2525 2.01 10.2025 2 10.1625C4.6 9.1825 6.69 7.1725 7.74 4.6125C9.58 6.8625 12.37 8.3025 15.5 8.3025C16.25 8.3025 16.97 8.2125 17.67 8.0625C17.88 8.7725 18 9.5225 18 10.3025C18 14.7125 14.41 18.3025 10 18.3025Z" />
             </svg>
             <p className="font-designer-14m text-gray-800">
-              지금{' '}
+              지금{" "}
               <span className="text-text-brand">
                 {courseDetail?.exploringCount ?? 0}
               </span>
@@ -132,7 +132,7 @@ export function ClassDetailSidebar({
                 type="button"
                 onClick={onStartCourse}
                 disabled={isEnrolling}
-                className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                className="flex h-550 w-full cursor-pointer items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse hover:opacity-90 active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {ctaLabel}
               </button>
@@ -174,7 +174,7 @@ export function ClassDetailSidebar({
                     disabled={isRegisteringGiftEmail || !giftEmail.trim()}
                     className="flex h-500 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse disabled:opacity-50"
                   >
-                    {isRegisteringGiftEmail ? '등록 중...' : '등록하기'}
+                    {isRegisteringGiftEmail ? "등록 중..." : "등록하기"}
                   </button>
                 </div>
               )}
@@ -190,7 +190,7 @@ export function ClassDetailSidebar({
             </p>
             <p className="mt-150 whitespace-pre-line font-designer-14r text-gray-400">
               {
-                '함께 모여 공부하는 시간이에요.\n디스코드 라이브 채널에서 만나요.'
+                "함께 모여 공부하는 시간이에요.\n디스코드 라이브 채널에서 만나요."
               }
             </p>
             <p className="mt-200 font-designer-12r text-gray-400">

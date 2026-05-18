@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { Flame, History, ThumbsUp } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { use, useMemo, useState } from 'react';
-import { ClassDetailBenefitsSection } from '@/components/pages/class/class-detail-benefits-section';
-import { ClassDetailBuilderFeedSection } from '@/components/pages/class/class-detail-builder-feed-section';
+import { Flame, History, ThumbsUp } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { use, useMemo, useState } from "react";
+import { ClassDetailBenefitsSection } from "@/components/pages/class/class-detail-benefits-section";
+import { ClassDetailBuilderFeedSection } from "@/components/pages/class/class-detail-builder-feed-section";
 import {
   CHAPTERS,
   TEAM_MESSAGES,
   type Tab,
-} from '@/components/pages/class/class-detail-constants';
+} from "@/components/pages/class/class-detail-constants";
 import {
   ClassDetailCurriculumSection,
   type ChapterForRoadmap,
-} from '@/components/pages/class/class-detail-curriculum-section';
-import { ClassDetailFaqSection } from '@/components/pages/class/class-detail-faq-section';
-import { ClassDetailInstructorSection } from '@/components/pages/class/class-detail-instructor-section';
-import { ClassDetailRoadmapSection } from '@/components/pages/class/class-detail-roadmap-section';
-import { ClassDetailSidebar } from '@/components/pages/class/class-detail-sidebar';
-import { ClassDetailTabNav } from '@/components/pages/class/class-detail-tab-nav';
-import { useAuth } from '@/features/auth/model/use-auth';
+} from "@/components/pages/class/class-detail-curriculum-section";
+import { ClassDetailFaqSection } from "@/components/pages/class/class-detail-faq-section";
+import { ClassDetailInstructorSection } from "@/components/pages/class/class-detail-instructor-section";
+import { ClassDetailRoadmapSection } from "@/components/pages/class/class-detail-roadmap-section";
+import { ClassDetailSidebar } from "@/components/pages/class/class-detail-sidebar";
+import { ClassDetailTabNav } from "@/components/pages/class/class-detail-tab-nav";
+import { useAuth } from "@/features/auth/model/use-auth";
 import {
   useCreateCourseFreeEnrollment,
   useCreateStudyWithMeSubscription,
@@ -28,8 +28,8 @@ import {
   useGetCourseDetail,
   useGetMyGiftEmail,
   useRegisterGiftEmail,
-} from '@/hooks/queries/course/course-api';
-import { useToastStore } from '@/stores/use-toast-store';
+} from "@/hooks/queries/course/course-api";
+import { useToastStore } from "@/stores/use-toast-store";
 
 export default function ClassDetailPage({
   params,
@@ -38,14 +38,14 @@ export default function ClassDetailPage({
 }) {
   const { slug } = use(params);
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<Tab>('roadmap');
+  const [activeTab, setActiveTab] = useState<Tab>("roadmap");
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set([0]),
   );
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-  const [studyWithMePhone, setStudyWithMePhone] = useState('');
+  const [studyWithMePhone, setStudyWithMePhone] = useState("");
   const [studyWithMeAgreed, setStudyWithMeAgreed] = useState(false);
-  const [giftEmail, setGiftEmail] = useState('');
+  const [giftEmail, setGiftEmail] = useState("");
   const showToast = useToastStore((state) => state.showToast);
   const { isAuthenticated } = useAuth();
 
@@ -57,10 +57,10 @@ export default function ClassDetailPage({
   const createCourseFreeEnrollment = useCreateCourseFreeEnrollment();
   const createStudyWithMeSubscription = useCreateStudyWithMeSubscription();
   const ctaLabel = (() => {
-    if (createCourseFreeEnrollment.isPending) return '등록 중...';
-    if (courseDetail?.viewerStatus === 'PAID') return '학습하러 가기';
-    if (courseDetail?.viewerStatus === 'FREE_ENROLLED') return '학습 계속하기';
-    return '무료 코스 시작하기';
+    if (createCourseFreeEnrollment.isPending) return "등록 중...";
+    if (courseDetail?.viewerStatus === "PAID") return "학습하러 가기";
+    if (courseDetail?.viewerStatus === "FREE_ENROLLED") return "학습 계속하기";
+    return "무료 코스 시작하기";
   })();
   const { data: myGiftEmail } = useGetMyGiftEmail({
     enabled: isAuthenticated && !!courseDetail?.isPaidEnrolled,
@@ -72,9 +72,9 @@ export default function ClassDetailPage({
   const chaptersForRoadmap = useMemo<ChapterForRoadmap[]>(() => {
     if (curriculum?.chapters && curriculum.chapters.length > 0) {
       return curriculum.chapters.map((chapter) => ({
-        num: String(chapter.chapterNumber).padStart(2, '0'),
+        num: String(chapter.chapterNumber).padStart(2, "0"),
         title: chapter.title,
-        desc: '',
+        desc: "",
         lessons: chapter.lessons.map((lesson) => ({
           order: lesson.order,
           title: lesson.title,
@@ -107,13 +107,13 @@ export default function ClassDetailPage({
     setActiveTab(tab);
     document
       .getElementById(tab)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   async function handleShare() {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      showToast('링크가 복사되었어요!');
+      showToast("링크가 복사되었어요!");
     } catch {
       // clipboard API unavailable
     }
@@ -121,19 +121,18 @@ export default function ClassDetailPage({
 
   async function handleStartCourse() {
     if (!courseDetail) {
-      showToast('코스 정보를 불러오는 중입니다.', 'info');
+      showToast("코스 정보를 불러오는 중입니다.", "info");
       return;
     }
     if (
-      courseDetail.viewerStatus === 'LOGIN_ONLY' &&
+      courseDetail.viewerStatus === "LOGIN_ONLY" &&
       courseDetail.canFreeEnroll
     ) {
       try {
         await createCourseFreeEnrollment.mutateAsync(courseDetail.courseId);
-        showToast('무료 코스 등록이 완료되었어요.');
+        showToast("무료 코스 등록이 완료되었어요.");
       } catch {
-        showToast('무료 코스 등록 중 오류가 발생했어요.', 'error');
-        return;
+        showToast("무료 코스 등록 중 오류가 발생했어요.", "error");
       }
     }
     router.push(learningHomeHref);
@@ -141,15 +140,15 @@ export default function ClassDetailPage({
 
   async function handleStudyWithMeSubmit() {
     if (!courseDetail) {
-      showToast('코스 정보를 불러오는 중입니다.', 'info');
+      showToast("코스 정보를 불러오는 중입니다.", "info");
       return;
     }
     if (!studyWithMePhone.trim()) {
-      showToast('전화번호를 입력해주세요.', 'error');
+      showToast("전화번호를 입력해주세요.", "error");
       return;
     }
     if (!studyWithMeAgreed) {
-      showToast('개인정보 수집·이용에 동의해주세요.', 'error');
+      showToast("개인정보 수집·이용에 동의해주세요.", "error");
       return;
     }
     try {
@@ -157,31 +156,31 @@ export default function ClassDetailPage({
         courseId: courseDetail.courseId,
         request: { phone: studyWithMePhone.trim(), agreed: studyWithMeAgreed },
       });
-      setStudyWithMePhone('');
+      setStudyWithMePhone("");
       setStudyWithMeAgreed(false);
-      showToast('Study with Me 알림 신청이 완료되었어요.');
+      showToast("Study with Me 알림 신청이 완료되었어요.");
     } catch {
-      showToast('Study with Me 알림 신청 중 오류가 발생했어요.', 'error');
+      showToast("Study with Me 알림 신청 중 오류가 발생했어요.", "error");
     }
   }
 
   function handleRegisterGiftEmail() {
     if (!giftEmail.trim()) {
-      showToast('이메일을 입력해주세요.', 'error');
+      showToast("이메일을 입력해주세요.", "error");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(giftEmail.trim())) {
-      showToast('올바른 이메일 형식을 입력해주세요.', 'error');
+      showToast("올바른 이메일 형식을 입력해주세요.", "error");
       return;
     }
     registerGiftEmailMutation.mutate(
       { email: giftEmail.trim() },
       {
         onSuccess: () => {
-          setGiftEmail('');
-          showToast('Gift 이메일이 등록되었어요.');
+          setGiftEmail("");
+          showToast("Gift 이메일이 등록되었어요.");
         },
-        onError: () => showToast('이메일 등록에 실패했어요.', 'error'),
+        onError: () => showToast("이메일 등록에 실패했어요.", "error"),
       },
     );
   }
@@ -199,7 +198,7 @@ export default function ClassDetailPage({
     <div className="w-full pb-800">
       <div className="mx-auto max-w-page px-600 pt-600">
         <h1 className="font-designer-36b text-gray-800">
-          {courseDetail?.title ?? '바이브 코딩 입문자 코스'}
+          {courseDetail?.title ?? "바이브 코딩 입문자 코스"}
         </h1>
         <div className="mt-300 flex flex-wrap gap-400">
           <div className="flex items-center gap-75">
@@ -262,7 +261,7 @@ export default function ClassDetailPage({
             courseDetail={courseDetail}
             isAuthenticated={isAuthenticated}
             ctaLabel={ctaLabel}
-            isEnrolling={createCourseFreeEnrollment.isPending}
+            isEnrolling={!courseDetail || createCourseFreeEnrollment.isPending}
             onShare={handleShare}
             onStartCourse={handleStartCourse}
             myGiftEmail={myGiftEmail}
