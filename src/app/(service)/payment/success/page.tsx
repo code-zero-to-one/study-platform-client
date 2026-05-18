@@ -244,9 +244,7 @@ function PaymentSuccessContent() {
             color="primary"
             size="large"
             onClick={() =>
-              router.push(
-                isCoursePayment ? '/class/vibe-intro/home' : '/my-study',
-              )
+              router.push(isCoursePayment ? '/class' : '/my-study')
             }
           >
             {isCoursePayment ? '코스 학습으로 이동' : '마이스터디로 이동'}

@@ -129,7 +129,7 @@ function PaymentFailContent() {
 
   const handleConfirm = () => {
     if (type === 'course') {
-      router.push('/class/vibe-intro/home');
+      router.push('/class');
       return;
     }
 
