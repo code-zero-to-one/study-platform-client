@@ -136,10 +136,19 @@ const CoursePreviewPanel = ({
             코스 카드와 상세 화면에서 보일 핵심 값을 확인합니다.
           </p>
         </div>
-        <Button asChild color="outlined" size="xsmall">
-          <Link href="/class/vibe-intro" target="_blank">
-            공개 화면 열기
-          </Link>
+        <Button
+          asChild={!!courseForm.slug}
+          color="outlined"
+          size="xsmall"
+          disabled={!courseForm.slug}
+        >
+          {courseForm.slug ? (
+            <Link href={`/class/${courseForm.slug}`} target="_blank">
+              공개 화면 열기
+            </Link>
+          ) : (
+            <span>공개 화면 열기</span>
+          )}
         </Button>
       </div>
 
