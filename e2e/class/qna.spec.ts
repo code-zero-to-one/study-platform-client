@@ -13,6 +13,7 @@ const COURSE_ID = 1;
 const QNA_ID = 77;
 const QNA_LIST_PATH = '/class/vibe-intro/home?tab=qna';
 const QNA_DETAIL_PATH = `/class/vibe-intro/qa/${QNA_ID}`;
+const QNA_WRITE_PATH = '/class/vibe-intro/qna/write';
 
 // ─── Localhost auth cookie injection ─────────────────────────────────────────
 
@@ -233,5 +234,98 @@ test.describe('QnA 상세', () => {
     await page.getByRole('link', { name: '질문답변 목록' }).click();
     await page.waitForURL('**/class/vibe-intro/home**', { timeout: 5000 });
     expect(page.url()).toContain('tab=qna');
+  });
+});
+
+// ─── Chunk 3: QnA 작성 폼 유효성 검사 ────────────────────────────────────────
+
+test.describe('QnA 작성 폼 유효성 검사 @auth', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route(/\/courses\//, async (route) => {
+      const url = route.request().url();
+      if (url.includes('/curriculum')) {
+        await route.fulfill({
+          json: {
+            content: {
+              courseId: COURSE_ID,
+              durationDays: 30,
+              totalChapters: 1,
+              totalLessons: 1,
+              chapters: [
+                {
+                  chapterId: 10,
+                  order: 1,
+                  chapterNumber: 1,
+                  title: '시작하기',
+                  description: null,
+                  estimatedMinutes: 18,
+                  lessons: [
+                    {
+                      lessonId: 101,
+                      order: 1,
+                      title: '기초 세팅',
+                      description: null,
+                      isFree: true,
+                      isLocked: false,
+                      estimatedMinutes: 18,
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        });
+      } else if (/\/courses\/vibe-intro$/.test(url)) {
+        await route.fulfill({ json: makeCourseDetail() });
+      } else {
+        await route.continue();
+      }
+    });
+    await page.goto(QNA_WRITE_PATH, { waitUntil: 'load' });
+  });
+
+  test('레슨 미선택 → 제출 버튼 비활성화', async ({ page }) => {
+    const submitBtn = page
+      .getByRole('button', { name: /등록|제출|질문/ })
+      .first();
+    await expect(submitBtn).toBeDisabled({ timeout: 5000 });
+  });
+
+  test('내용 입력 후 제출 → POST /courses/{courseId}/qnas 호출', async ({
+    page,
+  }) => {
+    await page.route(/\/qnas/, async (route) => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({ json: { content: { qnaId: QNA_ID } } });
+      } else {
+        await route.continue();
+      }
+    });
+
+    // Open lesson selector and pick first option
+    const selector = page.locator('select, [role="combobox"]').first();
+    await selector.click();
+    const firstOption = page.getByRole('option').first();
+    if (await firstOption.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await firstOption.click();
+    }
+
+    await page
+      .locator('textarea, [contenteditable="true"]')
+      .first()
+      .fill('레슨을 수강하며 궁금한 점이 생겼습니다.');
+
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().includes('/qnas') && r.request().method() === 'POST',
+        { timeout: 5000 },
+      ),
+      page
+        .getByRole('button', { name: /등록|제출|질문/ })
+        .first()
+        .click(),
+    ]);
+
+    expect(response.status()).toBe(200);
   });
 });

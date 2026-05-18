@@ -267,6 +267,7 @@ test.describe('결제 버튼 유효성 검사 @auth', () => {
     page,
   }) => {
     await page.locator('input[name="tosAgreed"]').check({ force: true });
+    await page.locator('input[type="radio"][value="CARD"]').check();
     await page.getByPlaceholder('이름을 입력해주세요').fill('홍길동');
     await page.locator('#buyerEmail').fill('test@example.com');
     await page.getByPlaceholder('01012345678').fill('01012345678');

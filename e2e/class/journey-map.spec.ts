@@ -423,7 +423,7 @@ test.describe('안내창 상태 렌더링 @auth', () => {
     await expect(page.getByText(/NEXT → Lesson 02/)).toBeVisible();
     await expect(page.getByText('Chapter3까지 무료 코스!')).not.toBeVisible();
     await expect(
-      page.getByRole('link', { name: '결제하기' }),
+      page.getByRole('button', { name: '결제하기' }),
     ).not.toBeVisible();
   });
 
@@ -455,7 +455,7 @@ test.describe('안내창 상태 렌더링 @auth', () => {
     await expect(page.getByText(/NEXT → Lesson 01/)).toBeVisible();
     await expect(page.getByText('Chapter3까지 무료 코스!')).not.toBeVisible();
     await expect(
-      page.getByRole('link', { name: '결제하기' }),
+      page.getByRole('button', { name: '결제하기' }),
     ).not.toBeVisible();
   });
 
@@ -473,7 +473,7 @@ test.describe('안내창 상태 렌더링 @auth', () => {
     await gotoAndWaitForData(page);
 
     await expect(
-      page.getByRole('link', { name: '결제하기' }),
+      page.getByRole('button', { name: '결제하기' }),
     ).not.toBeVisible();
   });
 

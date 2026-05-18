@@ -134,7 +134,7 @@ test.describe('멘토스터디 개설 @auth', () => {
 
   test('PREMIUM_STUDY 가격 필드 포함 전체 제출', async ({ page }) => {
     await openPremiumStudyModal(page);
-    await fillStep1(page);
+    await fillStep1(page, 'MENTOR_STUDY');
 
     const priceInput = page.getByPlaceholder('10,000');
     await priceInput.fill('50000');
