@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
-import { use } from 'react';
+import { useRouter } from 'next/navigation';
+import { use, useEffect } from 'react';
 
 export default function FeedEditPage({
   params,
