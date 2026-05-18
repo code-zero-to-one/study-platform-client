@@ -8,7 +8,7 @@ on:
       - main
     paths-ignore:
       - 'releases/**'
-      - 'ops/**'
+      - 'docs/ops/**'
   workflow_dispatch:
     inputs:
       release_summary:

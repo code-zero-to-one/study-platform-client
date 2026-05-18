@@ -6,24 +6,24 @@ This file is the shared skill source of truth. Codex and Claude wrappers must st
 
 ## Required reading order
 
-1. `ops/release-record-shared-contract.md` - FE/BE shared payload and final record contract.
-2. `ops/version-management.md` - frontend repository rule and release-record policy.
-3. `ops/release-intent.md` - human usage for PR labels/body and bootstrap.
-4. `ops/deploy-checklist.md` or `ops/rollback.md` only when deploying or rolling back.
-5. Relevant scripts/workflows only after the docs above:
+1. `docs/ops/onboarding.md` - human onboarding for operators who do not know the deployment system yet.
+2. `docs/ops/version-management.md` - human-facing production deployment, release intent, backend dispatch, checklist, and rollback guide.
+3. `docs/ops/release-record-shared-contract.md` - FE/BE shared payload and final record contract.
+4. Relevant scripts/workflows only after the docs above:
    - `.github/workflows/deploy-prod.yml`
    - `.github/workflows/release-record-check.yml`
    - `scripts/release/resolve-prod-release-intent.mjs`
    - `scripts/release/generate-prod-release-record.mjs`
    - `scripts/release/generate-backend-prod-release-record.mjs`
    - `scripts/release/validate-release-record.mjs`
-   - `ops/backend-release-dispatch.md`
-   - `ops/release-record-shared-contract.md`
+   - `docs/ops/onboarding.md`
+   - `docs/ops/version-management.md`
+   - `docs/ops/release-record-shared-contract.md`
 
 ## Non-negotiable rules
 
 - This skill applies to `main` production releases only. Do not change `develop` deployment behavior unless the user explicitly asks.
-- `ops/release-record-shared-contract.md` is the shared FE/BE contract; `releases/` is the frontend repository source of truth for successful production FE/BE/DB/rollback combinations.
+- `docs/ops/release-record-shared-contract.md` is the shared FE/BE contract; `releases/` is the frontend repository source of truth for successful production FE/BE/DB/rollback combinations.
 - Frontend repo owns only the frontend version-management rule. Do not add the backend repository rule here.
 - Production version metadata comes from PR intent or backend dispatch payload, not per-release repository variables.
 - Exactly one release intent is allowed: `release:major`, `release:minor`, or `release:patch`. Use `N/A` for no DB migration version.

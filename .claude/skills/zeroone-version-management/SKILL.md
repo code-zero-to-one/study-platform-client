@@ -5,6 +5,6 @@ description: Use when working on ZERO-ONE production release records, PR release
 
 # ZERO-ONE Version Management Wrapper for Claude
 
-Source of truth: `ops/agent-skills/zeroone-version-management.md`.
+Source of truth: `skills_context/SHARED/zeroone-version-management.md`.
 
 Immediately read that file and follow it. Do not duplicate or reinterpret the rule in this wrapper.
