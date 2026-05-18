@@ -12,6 +12,7 @@ import {
   useGetCourseCurriculum,
   useGetCourseDetail,
 } from '@/hooks/queries/course/course-api';
+import type { BuilderFeedPaywall } from '@/types/api/course.types';
 import { FeedListCard } from '../feed/_components/feed-list-card';
 import { PaginationBar } from '../feed/_components/pagination-bar';
 import { PaywallSection } from '../feed/_components/paywall-section';
@@ -84,7 +85,7 @@ export function FeedTab() {
   const weeklyTopBuilder = feedData?.weeklyTopBuilder;
   // TODO: restore paywall when access control is re-enabled
   // const paywall = feedData?.paywall ?? null;
-  const paywall = null;
+  const paywall: BuilderFeedPaywall | null = null;
 
   const emptyMessage =
     filter === '내 피드'
