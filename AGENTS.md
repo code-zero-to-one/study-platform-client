@@ -36,6 +36,7 @@ ZERO-ONE Study Platform — a 1:1 morning study platform built with Next.js 15 (
 | `.github/` | CI/CD workflows (8 workflows): lint, typecheck, build, Storybook, security audit |
 | `.storybook/` | Storybook configuration |
 | `StudyVault/` | Structured knowledge vault organized by domain (AI-readable docs) |
+| `skills_context/` | Shared agent-facing context and skill source-of-truth documents |
 | `.claude/` | Claude Code project configuration and rules |
 | `.agents/` | Agent skills for automation (25 skills) |
 
@@ -84,7 +85,7 @@ yarn typecheck      # tsc --noEmit
 <!-- MANUAL: Any manually added notes below this line are preserved on regeneration -->
 
 ### Production Version Management
-- Main-branch production deployments must follow `ops/version-management.md` (ZERO-ONE Version Management Rule - Frontend Repository).
-- Agent skill SSOT for this workflow is `ops/agent-skills/zeroone-version-management.md`; Codex/Claude skill files are thin wrappers only.
+- Main-branch production deployments must follow `docs/ops/version-management.md` (ZERO-ONE Version Management Rule - Frontend Repository).
+- Agent skill SSOT for this workflow is `skills_context/SHARED/zeroone-version-management.md`; Codex/Claude skill files are thin wrappers only.
 - `releases/` is the source of truth for successful production FE/BE/DB/rollback combinations.
 - Develop/test-server deployment keeps the existing flow and does not create release records.

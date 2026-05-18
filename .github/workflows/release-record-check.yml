@@ -5,7 +5,7 @@ on:
     paths:
       - 'releases/**/*.yaml'
       - 'scripts/release/**'
-      - 'ops/**'
+      - 'docs/ops/**'
       - '.github/workflows/deploy-prod.yml'
       - '.github/workflows/release-record-check.yml'
   workflow_dispatch:
