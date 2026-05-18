@@ -9,14 +9,6 @@ import {
 import { join } from 'node:path';
 
 const RELEASES_DIR = 'releases';
-const DEPLOY_ORDER = [
-  'db_migration',
-  'backend',
-  'backend_health_check',
-  'frontend',
-  'e2e_check',
-];
-
 const getEnv = (name, fallback = '') => process.env[name]?.trim() || fallback;
 const required = (name) => {
   const value = getEnv(name);
@@ -98,10 +90,10 @@ const migrationFiles = getEnv('DB_MIGRATION_FILES')
   .filter(Boolean);
 const deployedAt = required('DEPLOYED_AT');
 const deployedBy = getEnv('DEPLOYED_BY', 'github-actions');
-const summary = getEnv('RELEASE_SUMMARY', 'Production frontend deployment');
+const summary = getEnv('RELEASE_SUMMARY', '프론트엔드 프로덕션 배포');
 const dbRollbackNote = getEnv(
   'DB_ROLLBACK_NOTE',
-  'DB rollback is not automated. Confirm app compatibility with the recorded DB state.',
+  'DB 롤백은 자동화되어 있지 않습니다. 기록된 DB 상태와 앱 호환성을 확인하세요.',
 );
 const backendChanged = /^true$/i.test(getEnv('BACKEND_CHANGED', 'false'));
 const frontendDeployId = getEnv(
@@ -171,9 +163,6 @@ rollback:
     frontend: ${quote(rollbackFrontend)}
     backend: ${quote(rollbackBackend)}
   db_rollback_note: ${quote(dbRollbackNote)}
-
-deploy_order:
-${DEPLOY_ORDER.map((item) => `  - ${item}`).join('\n')}
 
 deployed_at: ${quote(deployedAt)}
 deployed_by: ${quote(deployedBy)}

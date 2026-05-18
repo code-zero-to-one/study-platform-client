@@ -154,7 +154,7 @@ release_id: prod-20260517-2100
 env: prod
 service_version: v1.4.3
 
-summary: backend patch release
+summary: 백엔드 patch 배포
 
 components:
   frontend:
@@ -181,14 +181,7 @@ rollback:
   app_rollback_target:
     frontend: zeroone-frontend:v1.4.2-f1a2b3c
     backend: zeroone-backend:v1.4.2-a1b2c3d
-  db_rollback_note: Verify compatibility before app rollback if DB changed.
-
-deploy_order:
-  - db_migration
-  - backend
-  - backend_health_check
-  - frontend
-  - e2e_check
+  db_rollback_note: DB 변경이 있었다면 앱 롤백 전에 호환성을 확인하세요.
 
 deployed_at: 2026-05-17T21:00:00+09:00
 deployed_by: automation
@@ -218,7 +211,6 @@ metadata:
 - `database.migration_files`
 - `rollback.app_rollback_target.frontend`
 - `rollback.app_rollback_target.backend`
-- `deploy_order`
 - `deployed_at`
 - `deployed_by`
 - `status`

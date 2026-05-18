@@ -9,13 +9,6 @@ import {
 import { join } from 'node:path';
 
 const RELEASES_DIR = 'releases';
-const DEPLOY_ORDER = [
-  'db_migration',
-  'backend',
-  'backend_health_check',
-  'frontend',
-  'e2e_check',
-];
 const RELEASE_ID = /^prod-\d{8}-\d{4}$/;
 const VERSION = /^v\d+\.\d+\.\d+$/;
 const DATE_IN_TAG = /:.*\d{8}|:.*\d{4}-\d{2}-\d{2}/;
@@ -245,12 +238,12 @@ const deployedBy = getEnv('DEPLOYED_BY', 'automation');
 const summary =
   typeof payload.summary === 'string' && payload.summary.trim()
     ? payload.summary.trim()
-    : `backend ${releaseIntent} release`;
+    : `백엔드 ${releaseIntent} 배포`;
 const dbRollbackNote = getEnv(
   'DB_ROLLBACK_NOTE',
   dbChanged
-    ? 'Verify compatibility before app rollback if DB changed.'
-    : 'DB unchanged. Use fixed app image rollback targets if needed.',
+    ? 'DB 변경이 있었다면 앱 롤백 전에 호환성을 확인하세요.'
+    : 'DB 변경 없음. 필요 시 기록된 고정 앱 이미지 기준으로 롤백하세요.',
 );
 const pullRequestLabels = Array.isArray(metadata.pull_request_labels)
   ? metadata.pull_request_labels.map((label, index) =>
@@ -314,9 +307,6 @@ rollback:
     frontend: ${quote(frontendImage)}
     backend: ${quote(rollbackBackend)}
   db_rollback_note: ${quote(dbRollbackNote)}
-
-deploy_order:
-${DEPLOY_ORDER.map((item) => `  - ${item}`).join('\n')}
 
 deployed_at: ${quote(deployedAt)}
 deployed_by: ${quote(deployedBy)}
