@@ -68,7 +68,7 @@ prod-YYYYMMDD-HHmm
 
 ## 4. 백엔드 운영 상태 전달 payload 계약
 
-백엔드 운영 배포가 성공하면 백엔드 이미지/버전/DB migration 상태가 확정됩니다. 이 값은 프론트엔드 운영 배포가 최종 릴리즈 기록을 만들 때 사용할 수 있도록 전달됩니다.
+백엔드 운영 배포가 성공하면 백엔드 이미지/버전/DB migration 상태가 확정됩니다. 이 값은 프론트엔드 저장소가 backend-only 릴리즈 기록을 만들 때 사용합니다.
 
 전달 방식으로 `repository_dispatch`를 사용할 경우 아래 계약을 따릅니다.
 
@@ -113,7 +113,7 @@ prod-YYYYMMDD-HHmm
 }
 ```
 
-GitHub Actions에서 이미 `github.event.client_payload`를 선택한 경우, 프론트엔드 스크립트는 내부 `client_payload` 객체만 직접 받아도 됩니다. 단, 이 payload 자체가 곧 최종 `releases/prod-*.yaml` 생성을 의미하지는 않습니다. 최종 기록은 프론트엔드 운영 배포가 현재 FE/BE/DB 조합을 확정할 때 작성합니다.
+GitHub Actions에서 이미 `github.event.client_payload`를 선택한 경우, 프론트엔드 스크립트는 내부 `client_payload` 객체만 직접 받아도 됩니다. 이 payload가 처리되면 프론트엔드 저장소는 현재 운영 프론트엔드 상태와 새 백엔드 상태를 묶어 backend-only `releases/prod-*.yaml` 기록을 작성합니다.
 
 ### 필수 payload 필드
 
