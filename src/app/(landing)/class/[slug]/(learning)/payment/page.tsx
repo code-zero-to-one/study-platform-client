@@ -23,7 +23,9 @@ export default function VibeIntroPaymentPage() {
   const { data: course, isLoading: courseLoading } = useGetCourseDetail(slug);
   const courseId = course?.courseId ?? 0;
 
-  const plan = course?.plans?.find((p) => p.planCode === planCode);
+  const plan = course?.plans?.find(
+    (p) => p.planCode.replace(/-/g, '_').toUpperCase() === planCode,
+  );
 
   if (courseLoading) {
     return (
