@@ -319,7 +319,6 @@ export function RoadmapTab({ slug }: { slug: string }) {
                                 course?.learnerCount ??
                                 0
                               }
-                              slug={slug}
                             />
                           </div>
                         ))}

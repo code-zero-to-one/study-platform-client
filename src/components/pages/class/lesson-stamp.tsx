@@ -17,7 +17,6 @@ interface LessonStampProps {
   onSelect: (lesson: LessonDisplayInfo) => void;
   shouldBlink?: boolean;
   learnerCount: number;
-  slug: string;
 }
 
 export function LessonStamp({
@@ -26,7 +25,6 @@ export function LessonStamp({
   onSelect,
   shouldBlink = false,
   learnerCount,
-  slug,
 }: LessonStampProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCompleted = lesson.status === 'COMPLETED';
@@ -42,8 +40,8 @@ export function LessonStamp({
       <Image
         src={
           isActive
-            ? `/class/${slug}/lesson-stamp-active.svg`
-            : `/class/${slug}/lesson-stamp.svg`
+            ? `/class/lesson-stamp-active.svg`
+            : `/class/lesson-stamp.svg`
         }
         alt=""
         aria-hidden="true"
