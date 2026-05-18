@@ -11,11 +11,12 @@ export default function VibeIntroPaymentPage() {
   const { slug } = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const VALID_PLAN_CODES: CoursePlanCode[] = ['ALL_IN_ONE', 'LEARN_ONLY'];
-  const rawPlanCode = searchParams.get('planCode') ?? 'ALL_IN_ONE';
+  const rawPlanCode = searchParams.get('planCode') ?? '';
+  const normalizedCode = rawPlanCode.replace(/-/g, '_').toUpperCase();
   const planCode: CoursePlanCode = VALID_PLAN_CODES.includes(
-    rawPlanCode as CoursePlanCode,
+    normalizedCode as CoursePlanCode,
   )
-    ? (rawPlanCode as CoursePlanCode)
+    ? (normalizedCode as CoursePlanCode)
     : 'ALL_IN_ONE';
 
   const [showPlanModal, setShowPlanModal] = useState(false);
@@ -23,7 +24,9 @@ export default function VibeIntroPaymentPage() {
   const { data: course, isLoading: courseLoading } = useGetCourseDetail(slug);
   const courseId = course?.courseId ?? 0;
 
-  const plan = course?.plans?.find((p) => p.planCode === planCode);
+  const plan = course?.plans?.find(
+    (p) => p.planCode.replace(/-/g, '_').toUpperCase() === planCode,
+  );
 
   if (courseLoading) {
     return (

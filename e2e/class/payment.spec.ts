@@ -168,13 +168,9 @@ async function mockCourseApis(
   });
 }
 
-// Registers response watchers BEFORE goto so cascaded requests are not missed.
-// prepare fires after courseId resolves from the detail response, so both
-// watchers must be live before navigation starts.
 async function gotoPaymentPage(page: Page): Promise<void> {
   await Promise.all([
     page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
-    page.waitForResponse((r) => r.url().includes('/payments/prepare')),
     page.goto(PAYMENT_PAGE, { waitUntil: 'load' }),
   ]);
 }
@@ -233,13 +229,12 @@ test.describe('결제 페이지 렌더링 @auth', () => {
 // ─── Chunk 2: 결제 정보 로드 오류 @auth ──────────────────────────────────────
 
 test.describe('결제 정보 로드 오류 @auth', () => {
-  test('prepare API 500 → "결제 정보를 불러올 수 없습니다." 표시', async ({
+  test('코스 플랜 없음 → "결제 정보를 불러올 수 없습니다." 표시', async ({
     page,
   }) => {
-    await mockCourseApis(page, { prepare: null });
+    await mockCourseApis(page, { detail: makeCourseDetail({ plans: null }) });
     await Promise.all([
       page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
-      page.waitForResponse((r) => r.url().includes('/payments/prepare')),
       page.goto(PAYMENT_PAGE, { waitUntil: 'load' }),
     ]);
     await expect(page.getByText('결제 정보를 불러올 수 없습니다.')).toBeVisible(
