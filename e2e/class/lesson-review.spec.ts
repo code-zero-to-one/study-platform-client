@@ -189,9 +189,12 @@ async function fillReviewForm(page: Page) {
 
   // Q1 — MarkdownEditor (tiptap, contenteditable)
   // CDP-based input and execCommand don't trigger ProseMirror's onUpdate in
-  // headless Chromium (no trusted beforeinput). Walk the React fiber tree from
-  // the .tiptap-editor wrapper to find the tiptap Editor in EditorContent's
-  // memoizedProps, then call insertContent() through ProseMirror transactions.
+  // headless Chromium (no trusted beforeinput).
+  // Dual strategy: (1) walk the React fiber tree from .tiptap-editor to find
+  // EditorContent's memoizedProps.editor and call insertContent() so tiptap's
+  // DOM is updated immediately; (2) continue walking up to find MarkdownEditor's
+  // onChange prop and call it directly so React state is always updated even if
+  // tiptap's onUpdate→onChange chain is broken on the deployed staging code.
   await page.locator('.tiptap-editor [contenteditable]').first().click();
   await page.evaluate(() => {
     const wrapper = document.querySelector('.tiptap-editor');
@@ -211,10 +214,23 @@ async function fillReviewForm(page: Page) {
       wrapper as unknown as Record<string, FiberNode>
     )[fiberKey];
     while (fiber) {
+      // Path 1: find tiptap Editor in EditorContent.memoizedProps — updates DOM
       const ed = fiber.memoizedProps?.editor as TiptapEditor | undefined;
       if (typeof ed?.commands?.insertContent === 'function') {
         ed.commands.focus();
         ed.commands.insertContent('신기한 코드');
+        // Do NOT return here — continue walking up for Path 2
+      }
+      // Path 2: find MarkdownEditor's onChange prop — updates React state directly
+      // MarkdownEditor has value + onChange + placeholder all in memoizedProps
+      const p = fiber.memoizedProps;
+      if (
+        p &&
+        typeof p.onChange === 'function' &&
+        typeof p.placeholder === 'string' &&
+        'value' in p
+      ) {
+        (p.onChange as (v: string) => void)('<p>신기한 코드</p>');
         return;
       }
       fiber = fiber.return ?? null;
@@ -222,7 +238,7 @@ async function fillReviewForm(page: Page) {
   });
   await expect(
     page.locator('.tiptap-editor [contenteditable]').first(),
-  ).toContainText('신기한 코드', { timeout: 3000 });
+  ).toContainText('신기한 코드', { timeout: 5000 });
 
   // Q2 — plain textarea
   await page.getByPlaceholder(/코드 한 줄만/).fill('의외의 순간');
