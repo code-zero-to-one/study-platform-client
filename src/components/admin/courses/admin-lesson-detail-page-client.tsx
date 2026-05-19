@@ -4,9 +4,8 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import AdminCourseField from '@/components/admin/courses/admin-course-field';
 import AdminCourseMarkdownField from '@/components/admin/courses/admin-course-markdown-field';
-import AdminNotionZipImportButton, {
-  ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE,
-} from '@/components/admin/courses/admin-notion-zip-import-button';
+import AdminNotionZipActionCard from '@/components/admin/courses/admin-notion-zip-action-card';
+import { ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE } from '@/components/admin/courses/admin-notion-zip-import-button';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
@@ -404,14 +403,6 @@ export default function AdminLessonDetailPageClient({
           </div>
         </div>
         <div className="flex gap-75">
-          <AdminNotionZipImportButton
-            confirmMessage={ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE}
-            disabled={isLessonFormLocked}
-            loading={importLessonContentZipMutation.isPending}
-            onSelectFiles={handleImportNotionZip}
-          >
-            Notion ZIP import
-          </AdminNotionZipImportButton>
           <Button
             size="small"
             disabled={isLessonFormLocked}
@@ -539,6 +530,22 @@ export default function AdminLessonDetailPageClient({
               </NativeSelect>
             </AdminCourseField>
           </div>
+          <AdminNotionZipActionCard
+            badgeLabel="본문 교체"
+            buttonLabel="Notion ZIP import"
+            confirmMessage={ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE}
+            description="Notion export ZIP 1개를 업로드하면 현재 레슨의 본문만 교체됩니다."
+            bullets={[
+              '제목, 설명, 챕터, 레슨 번호는 유지됩니다.',
+              'ZIP 기준 본문으로 에디터 값이 즉시 갱신됩니다.',
+              '일반 이미지 수동 업로드 기능은 기존처럼 그대로 사용할 수 있습니다.',
+            ]}
+            disabled={isLessonFormLocked}
+            loading={importLessonContentZipMutation.isPending}
+            title="현재 레슨 본문 교체"
+            tone="warning"
+            onSelectFiles={handleImportNotionZip}
+          />
           <AdminCourseMarkdownField
             editorStateKey={String(lessonId)}
             lessonId={lessonId}

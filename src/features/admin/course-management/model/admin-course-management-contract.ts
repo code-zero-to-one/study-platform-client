@@ -277,3 +277,16 @@ export interface AdminLessonBulkUpdateRequest {
   isFree?: boolean;
   isPublished?: boolean;
 }
+
+export interface AdminLessonBatchUpdateItem extends AdminLessonUpdateRequest {
+  lessonId: number;
+}
+
+export interface AdminLessonBatchUpdateRequest {
+  lessons: AdminLessonBatchUpdateItem[];
+}
+
+export interface AdminLessonBatchUpdateResponse {
+  updatedCount: number;
+  lessons: Array<{ lessonId: number }>;
+}
