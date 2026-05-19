@@ -188,24 +188,37 @@ async function fillReviewForm(page: Page) {
   await page.getByRole('button', { name: '3점' }).click();
 
   // Q1 — MarkdownEditor (tiptap, contenteditable)
-  // CDP-based input methods and execCommand don't fire tiptap's onUpdate in
-  // headless Chromium because ProseMirror requires a trusted beforeinput event.
-  // Instead, access the editor instance exposed as el.__tiptap and call
-  // insertContent() directly through ProseMirror's transaction system.
+  // CDP-based input and execCommand don't trigger ProseMirror's onUpdate in
+  // headless Chromium (no trusted beforeinput). Walk the React fiber tree from
+  // the .tiptap-editor wrapper to find the tiptap Editor in EditorContent's
+  // memoizedProps, then call insertContent() through ProseMirror transactions.
   await page.locator('.tiptap-editor [contenteditable]').first().click();
   await page.evaluate(() => {
-    const el = document.querySelector('.tiptap-editor [contenteditable]') as
-      | (HTMLElement & {
-          __tiptap?: {
-            commands: {
-              focus: () => boolean;
-              insertContent: (v: string) => boolean;
-            };
-          };
-        })
-      | null;
-    el?.__tiptap?.commands.focus();
-    el?.__tiptap?.commands.insertContent('신기한 코드');
+    const wrapper = document.querySelector('.tiptap-editor');
+    if (!wrapper) return;
+    const fiberKey = Object.keys(wrapper).find((k) =>
+      k.startsWith('__reactFiber'),
+    );
+    if (!fiberKey) return;
+    type FiberNode = {
+      memoizedProps?: Record<string, unknown>;
+      return?: FiberNode | null;
+    };
+    type TiptapEditor = {
+      commands: { focus: () => boolean; insertContent: (v: string) => boolean };
+    };
+    let fiber: FiberNode | null = (
+      wrapper as unknown as Record<string, FiberNode>
+    )[fiberKey];
+    while (fiber) {
+      const ed = fiber.memoizedProps?.editor as TiptapEditor | undefined;
+      if (typeof ed?.commands?.insertContent === 'function') {
+        ed.commands.focus();
+        ed.commands.insertContent('신기한 코드');
+        return;
+      }
+      fiber = fiber.return ?? null;
+    }
   });
   await expect(
     page.locator('.tiptap-editor [contenteditable]').first(),
