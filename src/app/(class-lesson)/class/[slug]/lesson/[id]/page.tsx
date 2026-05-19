@@ -105,6 +105,7 @@ export default function LessonPage({
 
   function handleSubmit(formData: LessonFormData) {
     const isQuiz = lesson?.retrospectivePurpose === 'SUBJECTIVE_QUIZ';
+    const requiresArtifact = !!lesson?.artifactSubmissionRequired && !isQuiz;
     submitRetrospective.mutate(
       {
         lessonId,
@@ -112,16 +113,22 @@ export default function LessonPage({
           starRating: formData.starRating || null,
           highlightAnswer: formData.expectationAnswer.trim(),
           unexpectedAnswer: formData.surpriseAnswer.trim(),
-          artifactType: !isQuiz
-            ? formData.artifactImageUrl
-              ? 'SCREENSHOT'
-              : formData.artifactLink
-                ? 'LINK'
-                : null
-            : null,
-          artifactValue: !isQuiz
-            ? (formData.artifactImageUrl ?? formData.artifactLink ?? null)
-            : null,
+          artifactType:
+            requiresArtifact ||
+            formData.artifactImageUrl ||
+            formData.artifactLink
+              ? formData.artifactImageUrl
+                ? 'SCREENSHOT'
+                : formData.artifactLink
+                  ? 'LINK'
+                  : null
+              : null,
+          artifactValue:
+            requiresArtifact ||
+            formData.artifactImageUrl ||
+            formData.artifactLink
+              ? (formData.artifactImageUrl ?? formData.artifactLink ?? null)
+              : null,
           feedback: {
             checklistFlags: formData.checklistFlags,
             freeText: formData.feedbackText,
@@ -224,6 +231,9 @@ export default function LessonPage({
                   lesson?.retrospectivePurpose ?? 'ARTIFACT_SHARE'
                 }
                 retrospectivePrompt={lesson?.retrospectivePrompt}
+                artifactSubmissionRequired={
+                  lesson?.artifactSubmissionRequired ?? false
+                }
                 alreadySubmitted={alreadySubmitted}
                 submitting={submitRetrospective.isPending}
                 onSubmit={handleSubmit}

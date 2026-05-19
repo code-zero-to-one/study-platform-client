@@ -35,6 +35,7 @@ export interface LessonFormData {
 interface LessonFormProps {
   retrospectivePurpose: LessonRetrospectivePurpose;
   retrospectivePrompt?: string;
+  artifactSubmissionRequired: boolean;
   alreadySubmitted: boolean;
   submitting: boolean;
   onSubmit: (data: LessonFormData) => void;
@@ -96,6 +97,7 @@ function SectionTitle({ bold, suffix }: { bold: string; suffix: string }) {
 export function LessonReviewForm({
   retrospectivePurpose,
   retrospectivePrompt,
+  artifactSubmissionRequired,
   alreadySubmitted,
   submitting,
   onSubmit,
@@ -121,12 +123,13 @@ export function LessonReviewForm({
     };
   }, [artifactPreviewUrl]);
 
-  // Backend requires both answers non-blank for all types; artifact required for non-quiz
+  const requiresArtifact = artifactSubmissionRequired && !isQuiz;
+
   const isFormValid =
     starRating > 0 &&
     expectationAnswer.trim().length > 0 &&
     surpriseAnswer.trim().length > 0 &&
-    (isQuiz || !!artifactImageUrl) &&
+    (!requiresArtifact || !!artifactImageUrl) &&
     selectedChips.size >= 2;
 
   const submitDisabled = !isFormValid || submitting || alreadySubmitted;
@@ -212,12 +215,16 @@ export function LessonReviewForm({
         />
       </div>
 
-      {/* Artifact section — PRACTICE_PROOF and ARTIFACT_SHARE (backend requires artifact for !isQuiz) */}
+      {/* Artifact section — render for non-quiz, but require only when API says so */}
       {!isQuiz && (
         <div className="flex flex-col gap-350">
           <SectionTitle
             bold="오늘의 프로젝트 완성 알리기"
-            suffix="이미지는 필수로 등록해주세요(링크는 선택)"
+            suffix={
+              requiresArtifact
+                ? '이미지는 필수로 등록해주세요(링크는 선택)'
+                : '이미지는 선택으로 등록할 수 있어요(링크는 선택)'
+            }
           />
           <div className="flex flex-col gap-200">
             {artifactPreviewUrl ? (
