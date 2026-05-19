@@ -188,17 +188,24 @@ async function fillReviewForm(page: Page) {
   await page.getByRole('button', { name: '3점' }).click();
 
   // Q1 — MarkdownEditor (tiptap, contenteditable)
-  // document.execCommand('insertText') dispatches a trusted beforeinput event
-  // that ProseMirror processes through its transaction system, firing onUpdate.
-  // CDP-based methods (keyboard.insertText, pressSequentially) do not dispatch
-  // trusted beforeinput in headless Chromium, so onUpdate never fires.
+  // CDP-based input methods and execCommand don't fire tiptap's onUpdate in
+  // headless Chromium because ProseMirror requires a trusted beforeinput event.
+  // Instead, access the editor instance exposed as el.__tiptap and call
+  // insertContent() directly through ProseMirror's transaction system.
   await page.locator('.tiptap-editor [contenteditable]').first().click();
   await page.evaluate(() => {
-    const el = document.querySelector(
-      '.tiptap-editor [contenteditable]',
-    ) as HTMLElement | null;
-    el?.focus();
-    document.execCommand('insertText', false, '신기한 코드');
+    const el = document.querySelector('.tiptap-editor [contenteditable]') as
+      | (HTMLElement & {
+          __tiptap?: {
+            commands: {
+              focus: () => boolean;
+              insertContent: (v: string) => boolean;
+            };
+          };
+        })
+      | null;
+    el?.__tiptap?.commands.focus();
+    el?.__tiptap?.commands.insertContent('신기한 코드');
   });
   await expect(
     page.locator('.tiptap-editor [contenteditable]').first(),
