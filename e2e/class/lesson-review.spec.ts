@@ -188,12 +188,21 @@ async function fillReviewForm(page: Page) {
   await page.getByRole('button', { name: '3점' }).click();
 
   // Q1 — MarkdownEditor (tiptap, contenteditable)
-  // keyboard.insertText dispatches beforeinput with inputType:'insertText' that ProseMirror handles
+  // document.execCommand('insertText') dispatches a trusted beforeinput event
+  // that ProseMirror processes through its transaction system, firing onUpdate.
+  // CDP-based methods (keyboard.insertText, pressSequentially) do not dispatch
+  // trusted beforeinput in headless Chromium, so onUpdate never fires.
   await page.locator('.tiptap-editor [contenteditable]').first().click();
-  await page.keyboard.insertText('신기한 코드');
+  await page.evaluate(() => {
+    const el = document.querySelector(
+      '.tiptap-editor [contenteditable]',
+    ) as HTMLElement | null;
+    el?.focus();
+    document.execCommand('insertText', false, '신기한 코드');
+  });
   await expect(
     page.locator('.tiptap-editor [contenteditable]').first(),
-  ).toContainText('신기한 코드', { timeout: 2000 });
+  ).toContainText('신기한 코드', { timeout: 3000 });
 
   // Q2 — plain textarea
   await page.getByPlaceholder(/코드 한 줄만/).fill('의외의 순간');
