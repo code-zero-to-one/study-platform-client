@@ -188,9 +188,12 @@ async function fillReviewForm(page: Page) {
   await page.getByRole('button', { name: '3점' }).click();
 
   // Q1 — MarkdownEditor (tiptap, contenteditable)
-  const editor = page.locator('.tiptap-editor [contenteditable]').first();
-  await editor.click();
-  await editor.pressSequentially('신기한 코드');
+  // keyboard.insertText dispatches beforeinput with inputType:'insertText' that ProseMirror handles
+  await page.locator('.tiptap-editor [contenteditable]').first().click();
+  await page.keyboard.insertText('신기한 코드');
+  await expect(
+    page.locator('.tiptap-editor [contenteditable]').first(),
+  ).toContainText('신기한 코드', { timeout: 2000 });
 
   // Q2 — plain textarea
   await page.getByPlaceholder(/코드 한 줄만/).fill('의외의 순간');
