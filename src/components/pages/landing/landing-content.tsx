@@ -23,7 +23,6 @@ function FadeIn({
   return (
     <m.div
       ref={ref}
-      initial={{ opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{
         duration: 0.7,

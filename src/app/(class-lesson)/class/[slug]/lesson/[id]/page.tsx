@@ -16,16 +16,13 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { CurriculumDrawer } from './_components/curriculum-drawer';
 import { LessonBuilderFeedCard } from './_components/lesson-builder-feed-card';
 import { LessonBuilderFeedDetailModal } from './_components/lesson-builder-feed-detail-modal';
-import { LessonLinkModal } from './_components/lesson-link-modal';
 import { LessonQnaCard } from './_components/lesson-qna-card';
 import { LessonQnaDetailModal } from './_components/lesson-qna-detail-modal';
 import { LessonQnaSubmissionModal } from './_components/lesson-qna-submission-modal';
 import {
   LessonReviewForm,
-  NEGATIVE_CHIPS,
-  POSITIVE_CHIPS,
+  type LessonFormData,
 } from './_components/lesson-review-form';
-import { LessonScreenshotModal } from './_components/lesson-screenshot-modal';
 import { LessonTabs, type LessonTabValue } from './_components/lesson-tabs';
 import { LessonTopBar } from './_components/lesson-top-bar';
 
@@ -51,11 +48,7 @@ export default function LessonPage({
       });
     }
   }
-  const [starRating, setStarRating] = useState(0);
-  const [highlightAnswer, setHighlightAnswer] = useState('');
-  const [unexpectedAnswer, setUnexpectedAnswer] = useState('');
-  const [selectedChips, setSelectedChips] = useState<Set<string>>(new Set());
-  const [feedbackText, setFeedbackText] = useState('');
+
   const [curriculumOpen, setCurriculumOpen] = useState(false);
 
   useEffect(() => {
@@ -63,19 +56,13 @@ export default function LessonPage({
     const timer = setTimeout(() => setCurriculumOpen(false), 2000);
     return () => clearTimeout(timer);
   }, []);
+
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set(),
   );
   const [submissionModalOpen, setSubmissionModalOpen] = useState(false);
   const [selectedQnaId, setSelectedQnaId] = useState<number | null>(null);
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
-  const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
-  const [linkModalOpen, setLinkModalOpen] = useState(false);
-  const [artifactImageUrl, setArtifactImageUrl] = useState<string | null>(null);
-  const [artifactImagePreviewUrl, setArtifactImagePreviewUrl] = useState<
-    string | null
-  >(null);
-  const [artifactLink, setArtifactLink] = useState<string | null>(null);
 
   const { data: lesson } = useGetLessonDetail(lessonId);
   const courseId = lesson?.courseId ?? 0;
@@ -88,7 +75,6 @@ export default function LessonPage({
   const drawerChapters = useMemo(() => drawer?.chapters ?? [], [drawer]);
   const courseTitle = drawer?.courseTitle ?? lesson?.courseTitle ?? '';
 
-  // Initialize expanded chapters from drawer.isDefaultExpanded
   useEffect(() => {
     if (drawerChapters.length === 0) return;
     setExpandedChapters((prev) => {
@@ -107,23 +93,6 @@ export default function LessonPage({
   );
 
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
-  const isFormValid =
-    starRating > 0 &&
-    highlightAnswer.trim().length > 0 &&
-    unexpectedAnswer.trim().length > 0 &&
-    selectedChips.size >= 2 &&
-    (!lesson?.artifactSubmissionRequired || !!artifactImageUrl);
-  const isSubmitDisabled =
-    !isFormValid || submitRetrospective.isPending || alreadySubmitted;
-
-  function toggleChip(chip: string) {
-    setSelectedChips((prev) => {
-      const next = new Set(prev);
-      if (next.has(chip)) next.delete(chip);
-      else next.add(chip);
-      return next;
-    });
-  }
 
   function toggleChapter(chapterId: number) {
     setExpandedChapters((prev) => {
@@ -134,26 +103,29 @@ export default function LessonPage({
     });
   }
 
-  function handleSubmit() {
-    if (isSubmitDisabled) return;
-    const chips = [...selectedChips];
-    const checklistFlags = [...POSITIVE_CHIPS, ...NEGATIVE_CHIPS].map((c) =>
-      chips.includes(c),
-    );
+  function handleSubmit(formData: LessonFormData) {
+    const isQuiz = lesson?.retrospectivePurpose === 'SUBJECTIVE_QUIZ';
     submitRetrospective.mutate(
       {
         lessonId,
         request: {
-          starRating: starRating || null,
-          highlightAnswer: highlightAnswer.trim(),
-          unexpectedAnswer: unexpectedAnswer.trim(),
-          artifactType: artifactImageUrl
-            ? 'SCREENSHOT'
-            : artifactLink
-              ? 'LINK'
-              : null,
-          artifactValue: artifactImageUrl ?? artifactLink ?? null,
-          feedback: { checklistFlags, freeText: feedbackText },
+          starRating: formData.starRating || null,
+          highlightAnswer: formData.expectationAnswer.trim(),
+          unexpectedAnswer: formData.surpriseAnswer.trim(),
+          artifactType: !isQuiz
+            ? formData.artifactImageUrl
+              ? 'SCREENSHOT'
+              : formData.artifactLink
+                ? 'LINK'
+                : null
+            : null,
+          artifactValue: !isQuiz
+            ? (formData.artifactImageUrl ?? formData.artifactLink ?? null)
+            : null,
+          feedback: {
+            checklistFlags: formData.checklistFlags,
+            freeText: formData.feedbackText,
+          },
         },
       },
       {
@@ -247,32 +219,13 @@ export default function LessonPage({
 
             {tab === 'review' || tab === 'follow' ? (
               <LessonReviewForm
-                starRating={starRating}
-                onStarRatingChange={setStarRating}
-                highlightAnswer={highlightAnswer}
-                unexpectedAnswer={unexpectedAnswer}
-                selectedChips={selectedChips}
-                feedbackText={feedbackText}
-                submitDisabled={isSubmitDisabled}
-                submitting={submitRetrospective.isPending}
-                alreadySubmitted={alreadySubmitted}
-                showArtifact={lesson?.artifactSubmissionRequired ?? false}
+                key={lessonId}
+                retrospectivePurpose={
+                  lesson?.retrospectivePurpose ?? 'ARTIFACT_SHARE'
+                }
                 retrospectivePrompt={lesson?.retrospectivePrompt}
-                onHighlightAnswerChange={setHighlightAnswer}
-                onUnexpectedAnswerChange={setUnexpectedAnswer}
-                onToggleChip={toggleChip}
-                onFeedbackChange={setFeedbackText}
-                artifactImagePreviewUrl={artifactImagePreviewUrl}
-                artifactLink={artifactLink}
-                onAttachScreenshot={() => setScreenshotModalOpen(true)}
-                onAttachLink={() => setLinkModalOpen(true)}
-                onRemoveArtifactImage={() => {
-                  if (artifactImagePreviewUrl)
-                    URL.revokeObjectURL(artifactImagePreviewUrl);
-                  setArtifactImageUrl(null);
-                  setArtifactImagePreviewUrl(null);
-                }}
-                onRemoveArtifactLink={() => setArtifactLink(null)}
+                alreadySubmitted={alreadySubmitted}
+                submitting={submitRetrospective.isPending}
                 onSubmit={handleSubmit}
               />
             ) : null}
@@ -308,19 +261,6 @@ export default function LessonPage({
       <LessonBuilderFeedDetailModal
         feedId={selectedFeedId}
         onClose={() => setSelectedFeedId(null)}
-      />
-      <LessonScreenshotModal
-        open={screenshotModalOpen}
-        onClose={() => setScreenshotModalOpen(false)}
-        onConfirm={(imageUrl, previewUrl) => {
-          setArtifactImageUrl(imageUrl);
-          setArtifactImagePreviewUrl(previewUrl);
-        }}
-      />
-      <LessonLinkModal
-        open={linkModalOpen}
-        onClose={() => setLinkModalOpen(false)}
-        onConfirm={(url) => setArtifactLink(url)}
       />
     </div>
   );
