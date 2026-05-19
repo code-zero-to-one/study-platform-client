@@ -2,6 +2,10 @@
 
 <!-- 관련 이슈를 적어주세요 -->
 
+<!-- main 브랜치 대상 PR (hotfix)에만 작성. develop 대상이면 이 섹션 삭제 -->
+<!-- release: patch | minor | major -->
+release: patch
+
 ### ☘️ 작업 내용
 
 <!-- 작업한 내용을 적어주세요 -->
