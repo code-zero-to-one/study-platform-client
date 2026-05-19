@@ -1,0 +1,50 @@
+release_id: prod-20260519-2252
+env: prod
+service_version: v2.0.3
+
+summary: "무료 코스 등록 후 레슨 클릭 불가 버그 수정"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v2.0.3-07d2773
+    commit: 07d2773
+    version: v2.0.3
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.1-07cb8f6
+    commit: 07cb8f6
+    version: v1.0.1
+    changed: false
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v2.0.2-2f326b6
+    backend: zeroone-backend:v1.0.1-07cb8f6
+  db_rollback_note: "DB unchanged. Use fixed app image rollback targets if needed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-19T22:52:17+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260519-2252-07d2773
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: patch
+  bootstrap_mode: ""
