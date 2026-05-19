@@ -188,13 +188,17 @@ async function fillReviewForm(page: Page) {
   await page.getByRole('button', { name: '3점' }).click();
 
   // Q1 — MarkdownEditor (tiptap, contenteditable)
-  // CDP-based input and execCommand don't trigger ProseMirror's onUpdate in
-  // headless Chromium (no trusted beforeinput).
-  // Dual strategy: (1) walk the React fiber tree from .tiptap-editor to find
-  // EditorContent's memoizedProps.editor and call insertContent() so tiptap's
-  // DOM is updated immediately; (2) continue walking up to find MarkdownEditor's
-  // onChange prop and call it directly so React state is always updated even if
-  // tiptap's onUpdate→onChange chain is broken on the deployed staging code.
+  // CDP input / execCommand don't trigger ProseMirror onUpdate in headless
+  // Chromium (no trusted beforeinput), so the React state never updates via the
+  // normal onUpdate→onChange chain.
+  //
+  // Strategy:
+  // 1. Call tiptap insertContent() via EditorContent.memoizedProps.editor so
+  //    the DOM reflects the typed text (for toContainText assertions).
+  // 2. Brute-force: collect EVERY onChange / onHighlightAnswerChange function
+  //    found while walking up the fiber tree and call them all. One of them is
+  //    setHighlightAnswer — guaranteed because React props thread it all the way
+  //    down from LessonPage → LessonReviewForm → QuestionBlock → MarkdownEditor.
   await page.locator('.tiptap-editor [contenteditable]').first().click();
   await page.evaluate(() => {
     const wrapper = document.querySelector('.tiptap-editor');
@@ -203,37 +207,53 @@ async function fillReviewForm(page: Page) {
       k.startsWith('__reactFiber'),
     );
     if (!fiberKey) return;
-    type FiberNode = {
+    interface FiberNode {
       memoizedProps?: Record<string, unknown>;
       return?: FiberNode | null;
-    };
-    type TiptapEditor = {
+    }
+    interface TiptapEditor {
       commands: { focus: () => boolean; insertContent: (v: string) => boolean };
-    };
+    }
     let fiber: FiberNode | null = (
       wrapper as unknown as Record<string, FiberNode>
     )[fiberKey];
-    while (fiber) {
-      // Path 1: find tiptap Editor in EditorContent.memoizedProps — updates DOM
-      const ed = fiber.memoizedProps?.editor as TiptapEditor | undefined;
-      if (typeof ed?.commands?.insertContent === 'function') {
-        ed.commands.focus();
-        ed.commands.insertContent('신기한 코드');
-        // Do NOT return here — continue walking up for Path 2
-      }
-      // Path 2: find MarkdownEditor's onChange prop — updates React state directly
-      // MarkdownEditor has value + onChange + placeholder all in memoizedProps
+
+    const onChangeFns: Array<(v: string) => void> = [];
+    let insertContentCalled = false;
+    let depth = 0;
+
+    while (fiber && depth < 60) {
+      depth++;
       const p = fiber.memoizedProps;
-      if (
-        p &&
-        typeof p.onChange === 'function' &&
-        typeof p.placeholder === 'string' &&
-        'value' in p
-      ) {
-        (p.onChange as (v: string) => void)('<p>신기한 코드</p>');
-        return;
+      if (p) {
+        // Step 1: tiptap insertContent — updates DOM text
+        const ed = p.editor as TiptapEditor | undefined;
+        if (
+          !insertContentCalled &&
+          typeof ed?.commands?.insertContent === 'function'
+        ) {
+          ed.commands.focus();
+          ed.commands.insertContent('신기한 코드');
+          insertContentCalled = true;
+        }
+        // Step 2: collect every onChange / onHighlightAnswerChange
+        if (typeof p.onChange === 'function') {
+          onChangeFns.push(p.onChange as (v: string) => void);
+        }
+        if (typeof p.onHighlightAnswerChange === 'function') {
+          onChangeFns.push(p.onHighlightAnswerChange as (v: string) => void);
+        }
       }
       fiber = fiber.return ?? null;
+    }
+
+    // Call all collected functions — at least one is setHighlightAnswer
+    for (const fn of onChangeFns) {
+      try {
+        fn('<p>신기한 코드</p>');
+      } catch (_) {
+        // ignore type mismatches from unrelated handlers
+      }
     }
   });
   await expect(
