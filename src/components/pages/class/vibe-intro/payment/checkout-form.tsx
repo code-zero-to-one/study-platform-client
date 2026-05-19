@@ -44,6 +44,7 @@ interface VibeIntroCheckoutFormProps {
   paymentData: CoursePaymentPrepareResponse;
   planCode: CoursePlanCode;
   onChangePlan: () => void;
+  thumbnailUrl: string | null;
 }
 
 export function VibeIntroCheckoutForm({
@@ -51,6 +52,7 @@ export function VibeIntroCheckoutForm({
   paymentData,
   planCode,
   onChangePlan,
+  thumbnailUrl,
 }: VibeIntroCheckoutFormProps) {
   const { memberId, memberName, tel } = useUserStore();
   const showToast = useToastStore((s) => s.showToast);
@@ -231,7 +233,11 @@ export function VibeIntroCheckoutForm({
         onSubmit={handlePay}
         className="mx-auto flex w-full max-w-9175 flex-col gap-300 px-600 pb-1000 pt-500"
       >
-        <CourseSummarySection plan={plan} onChangePlan={onChangePlan} />
+        <CourseSummarySection
+          plan={plan}
+          onChangePlan={onChangePlan}
+          thumbnailUrl={thumbnailUrl}
+        />
 
         <BuyerInfoSection onVerified={setIsPhoneVerified} />
 

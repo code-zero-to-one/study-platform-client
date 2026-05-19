@@ -13,11 +13,12 @@ import type { CoursePlanCode } from '@/types/api/course.types';
 export default function VibeIntroPaymentPage() {
   const searchParams = useSearchParams();
   const VALID_PLAN_CODES: CoursePlanCode[] = ['ALL_IN_ONE', 'LEARN_ONLY'];
-  const rawPlanCode = searchParams.get('planCode') ?? 'ALL_IN_ONE';
+  const rawPlanCode = searchParams.get('planCode') ?? '';
+  const normalizedCode = rawPlanCode.replace(/-/g, '_').toUpperCase();
   const planCode: CoursePlanCode = VALID_PLAN_CODES.includes(
-    rawPlanCode as CoursePlanCode,
+    normalizedCode as CoursePlanCode,
   )
-    ? (rawPlanCode as CoursePlanCode)
+    ? (normalizedCode as CoursePlanCode)
     : 'ALL_IN_ONE';
 
   const [showPlanModal, setShowPlanModal] = useState(false);
@@ -64,6 +65,7 @@ export default function VibeIntroPaymentPage() {
         paymentData={paymentData}
         planCode={planCode}
         onChangePlan={() => setShowPlanModal(true)}
+        thumbnailUrl={course?.thumbnailUrl ?? null}
       />
 
       {showPlanModal && (
