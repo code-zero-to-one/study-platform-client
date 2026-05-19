@@ -45,6 +45,7 @@ interface CourseCheckoutFormProps {
   paymentData: CoursePaymentPrepareResponse;
   planCode: CoursePlanCode;
   onChangePlan: () => void;
+  thumbnailUrl: string | null;
 }
 
 export function CourseCheckoutForm({
@@ -53,6 +54,7 @@ export function CourseCheckoutForm({
   paymentData,
   planCode,
   onChangePlan,
+  thumbnailUrl,
 }: CourseCheckoutFormProps) {
   const { memberId, memberName, tel } = useUserStore();
   const showToast = useToastStore((s) => s.showToast);
@@ -143,7 +145,10 @@ export function CourseCheckoutForm({
 
       try {
         const baseParams = {
-          amount: { currency: 'KRW' as const, value: paymentData.amount },
+          amount: {
+            currency: 'KRW' as const,
+            value: paymentData.amount,
+          },
           orderId: paymentData.tossOrderId,
           orderName: paymentData.orderName,
           successUrl:
@@ -237,6 +242,7 @@ export function CourseCheckoutForm({
           plan={plan}
           onChangePlan={onChangePlan}
           slug={slug}
+          thumbnailUrl={thumbnailUrl}
         />
 
         <BuyerInfoSection onVerified={setIsPhoneVerified} />
