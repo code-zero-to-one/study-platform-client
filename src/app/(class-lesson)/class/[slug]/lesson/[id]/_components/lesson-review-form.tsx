@@ -32,7 +32,7 @@ export interface LessonFormData {
   feedbackText: string;
 }
 
-interface Props {
+interface LessonFormProps {
   retrospectivePurpose: LessonRetrospectivePurpose;
   retrospectivePrompt?: string;
   alreadySubmitted: boolean;
@@ -99,8 +99,7 @@ export function LessonReviewForm({
   alreadySubmitted,
   submitting,
   onSubmit,
-}: Props) {
-  const isPractice = retrospectivePurpose === 'PRACTICE_PROOF';
+}: LessonFormProps) {
   const isQuiz = retrospectivePurpose === 'SUBJECTIVE_QUIZ';
 
   const [starRating, setStarRating] = useState(0);
@@ -122,13 +121,12 @@ export function LessonReviewForm({
     };
   }, [artifactPreviewUrl]);
 
+  // Backend requires both answers non-blank for all types; artifact required for non-quiz
   const isFormValid =
     starRating > 0 &&
-    (!isPractice ||
-      (expectationAnswer.trim().length > 0 &&
-        surpriseAnswer.trim().length > 0 &&
-        !!artifactImageUrl)) &&
-    (!isQuiz || expectationAnswer.trim().length > 0) &&
+    expectationAnswer.trim().length > 0 &&
+    surpriseAnswer.trim().length > 0 &&
+    (isQuiz || !!artifactImageUrl) &&
     selectedChips.size >= 2;
 
   const submitDisabled = !isFormValid || submitting || alreadySubmitted;
@@ -185,105 +183,102 @@ export function LessonReviewForm({
         <RatingBox rating={starRating} onChange={setStarRating} />
       </div>
 
-      {isPractice && (
-        <>
-          <div className="flex flex-col gap-350">
-            <QuestionBlock
-              question="이번 레슨, 어떤 기대로 시작했나요?"
-              helper="어려웠던 점이나 뿌듯했던 순간을 기록해 보세요. 이 기록들은 모여서 당신만의 멋진 포트폴리오가 됩니다."
-              value={expectationAnswer}
-              placeholder="예 : Cursor에서 Cmd+K를 누르면 Claude가 바로 나타나는 게 신기했다."
-              onChange={setExpectationAnswer}
-              tall
-            />
-          </div>
-          <div className="flex flex-col gap-350">
-            <QuestionBlock
-              question="직접 해보니 생각과 달랐던 의외의 순간은?"
-              helper="예상과 다르게 잘 됐거나, 막혔던 순간을 솔직하게 적어주세요."
-              value={surpriseAnswer}
-              placeholder="예 : 코드 한 줄만 바꿨는데 전체 디자인이 바뀌어서 놀랐다."
-              onChange={setSurpriseAnswer}
-            />
-          </div>
-          <div className="flex flex-col gap-350">
-            <SectionTitle
-              bold="오늘의 프로젝트 완성 알리기"
-              suffix="이미지는 필수로 등록해주세요(링크는 선택)"
-            />
-            <div className="flex flex-col gap-200">
-              {artifactPreviewUrl ? (
-                <div className="relative">
-                  <Image
-                    src={artifactPreviewUrl}
-                    alt="첨부 스크린샷"
-                    width={400}
-                    height={202}
-                    unoptimized
-                    className="h-2525 w-full rounded-150 object-cover"
-                  />
-                  <button
-                    type="button"
-                    aria-label="스크린샷 삭제"
-                    onClick={() => {
-                      if (artifactPreviewUrl)
-                        URL.revokeObjectURL(artifactPreviewUrl);
-                      setArtifactImageUrl(null);
-                      setArtifactPreviewUrl(null);
-                    }}
-                    className="absolute -right-75 -top-75 flex h-250 w-250 items-center justify-center rounded-full bg-gray-800 text-background-default"
-                  >
-                    <X className="h-150 w-150" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setScreenshotOpen(true)}
-                  className="flex h-800 w-full items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
-                >
-                  <ImageIcon className="h-300 w-300" />
-                  스크린샷 첨부
-                </button>
-              )}
-              {artifactLink ? (
-                <div className="flex items-center justify-between rounded-100 border border-gray-300 px-300 py-200">
-                  <span className="truncate font-designer-14m text-gray-800">
-                    {artifactLink}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label="링크 삭제"
-                    onClick={() => setArtifactLink(null)}
-                    className="ml-200 shrink-0 text-gray-400 hover:text-gray-800"
-                  >
-                    <X className="h-250 w-250" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setLinkOpen(true)}
-                  className="flex h-800 w-full items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
-                >
-                  <LinkIcon className="h-300 w-300" />
-                  링크 입력
-                </button>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+      {/* Q1 — always required by backend (highlightAnswer) */}
+      <div className="flex flex-col gap-350">
+        <QuestionBlock
+          question="이번 레슨, 어떤 기대로 시작했나요?"
+          helper="어려웠던 점이나 뿌듯했던 순간을 기록해 보세요. 이 기록들은 모여서 당신만의 멋진 포트폴리오가 됩니다."
+          value={expectationAnswer}
+          placeholder="예 : Cursor에서 Cmd+K를 누르면 Claude가 바로 나타나는 게 신기했다."
+          onChange={setExpectationAnswer}
+          tall={!isQuiz}
+        />
+      </div>
 
-      {isQuiz && (
+      {/* Q2 — always required by backend (unexpectedAnswer); retrospectivePrompt overrides text for SUBJECTIVE_QUIZ */}
+      <div className="flex flex-col gap-350">
+        <QuestionBlock
+          question={
+            retrospectivePrompt ?? '직접 해보니 생각과 달랐던 의외의 순간은?'
+          }
+          helper="예상과 다르게 잘 됐거나, 막혔던 순간을 솔직하게 적어주세요."
+          value={surpriseAnswer}
+          placeholder={
+            isQuiz
+              ? '내용을 작성해 주세요. 정답은 없습니다.'
+              : '예 : 코드 한 줄만 바꿨는데 전체 디자인이 바뀌어서 놀랐다.'
+          }
+          onChange={setSurpriseAnswer}
+        />
+      </div>
+
+      {/* Artifact section — PRACTICE_PROOF and ARTIFACT_SHARE (backend requires artifact for !isQuiz) */}
+      {!isQuiz && (
         <div className="flex flex-col gap-350">
-          <QuestionBlock
-            question={retrospectivePrompt ?? ''}
-            helper="배웠던 내용을 다시 복습해보세요! 정답은 없습니다."
-            value={expectationAnswer}
-            placeholder="내용을 작성해 주세요. 정답은 없습니다."
-            onChange={setExpectationAnswer}
+          <SectionTitle
+            bold="오늘의 프로젝트 완성 알리기"
+            suffix="이미지는 필수로 등록해주세요(링크는 선택)"
           />
+          <div className="flex flex-col gap-200">
+            {artifactPreviewUrl ? (
+              <div className="relative">
+                <Image
+                  src={artifactPreviewUrl}
+                  alt="첨부 스크린샷"
+                  width={400}
+                  height={202}
+                  unoptimized
+                  className="h-2525 w-full rounded-150 object-cover"
+                />
+                <button
+                  type="button"
+                  aria-label="스크린샷 삭제"
+                  onClick={() => {
+                    if (artifactPreviewUrl)
+                      URL.revokeObjectURL(artifactPreviewUrl);
+                    setArtifactImageUrl(null);
+                    setArtifactPreviewUrl(null);
+                  }}
+                  className="absolute -right-75 -top-75 flex h-250 w-250 items-center justify-center rounded-full bg-gray-800 text-background-default"
+                >
+                  <X className="h-150 w-150" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setScreenshotOpen(true)}
+                className="flex h-800 w-full items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
+              >
+                <ImageIcon className="h-300 w-300" />
+                스크린샷 첨부
+              </button>
+            )}
+            {artifactLink ? (
+              <div className="flex items-center justify-between rounded-100 border border-gray-300 px-300 py-200">
+                <span className="truncate font-designer-14m text-gray-800">
+                  {artifactLink}
+                </span>
+                <button
+                  type="button"
+                  aria-label="링크 삭제"
+                  onClick={() => setArtifactLink(null)}
+                  className="ml-200 shrink-0 text-gray-400 hover:text-gray-800"
+                >
+                  <X className="h-250 w-250" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setLinkOpen(true)}
+                className="flex h-800 w-full items-center justify-center gap-75 rounded-100 border border-gray-400 bg-background-default font-designer-18b text-gray-800"
+              >
+                <LinkIcon className="h-300 w-300" />
+                링크 입력
+              </button>
+            )}
+          </div>
         </div>
       )}
 

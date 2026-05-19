@@ -104,24 +104,22 @@ export default function LessonPage({
   }
 
   function handleSubmit(formData: LessonFormData) {
-    const isPractice = lesson?.retrospectivePurpose === 'PRACTICE_PROOF';
     const isQuiz = lesson?.retrospectivePurpose === 'SUBJECTIVE_QUIZ';
     submitRetrospective.mutate(
       {
         lessonId,
         request: {
           starRating: formData.starRating || null,
-          highlightAnswer:
-            isPractice || isQuiz ? formData.expectationAnswer.trim() : '',
-          unexpectedAnswer: isPractice ? formData.surpriseAnswer.trim() : '',
-          artifactType: isPractice
+          highlightAnswer: formData.expectationAnswer.trim(),
+          unexpectedAnswer: formData.surpriseAnswer.trim(),
+          artifactType: !isQuiz
             ? formData.artifactImageUrl
               ? 'SCREENSHOT'
               : formData.artifactLink
                 ? 'LINK'
                 : null
             : null,
-          artifactValue: isPractice
+          artifactValue: !isQuiz
             ? (formData.artifactImageUrl ?? formData.artifactLink ?? null)
             : null,
           feedback: {
