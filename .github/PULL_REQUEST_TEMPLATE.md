@@ -2,6 +2,17 @@
 
 <!-- 관련 이슈를 적어주세요 -->
 
+### 🚀 프로덕션 배포 (main 브랜치 PR 전용)
+
+<!--
+main 브랜치 대상 PR에만 작성하세요. develop 대상 PR은 삭제해도 됩니다.
+release 타입을 정확히 한 가지만 지정하세요.
+-->
+
+release: patch
+
+<!-- release: patch | minor | major -->
+
 ### ☘️ 작업 내용
 
 <!-- 작업한 내용을 적어주세요 -->

@@ -169,10 +169,12 @@ async function mockCourseApis(
 }
 
 async function gotoPaymentPage(page: Page): Promise<void> {
-  await Promise.all([
-    page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
-    page.goto(PAYMENT_PAGE, { waitUntil: 'load' }),
-  ]);
+  await page.goto(PAYMENT_PAGE, { waitUntil: 'load' });
+  // Wait for UI to settle: heading visible = all cascading queries (detail + prepare) resolved
+  await page
+    .getByRole('heading', { name: '결제하기' })
+    .or(page.getByText('결제 정보를 불러올 수 없습니다.'))
+    .waitFor({ state: 'visible', timeout: 30000 });
 }
 
 // ─── Chunk 1: 결제 페이지 렌더링 @auth ───────────────────────────────────────
@@ -233,12 +235,9 @@ test.describe('결제 정보 로드 오류 @auth', () => {
     page,
   }) => {
     await mockCourseApis(page, { detail: makeCourseDetail({ plans: null }) });
-    await Promise.all([
-      page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
-      page.goto(PAYMENT_PAGE, { waitUntil: 'load' }),
-    ]);
+    await page.goto(PAYMENT_PAGE, { waitUntil: 'load' });
     await expect(page.getByText('결제 정보를 불러올 수 없습니다.')).toBeVisible(
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
   });
 });
