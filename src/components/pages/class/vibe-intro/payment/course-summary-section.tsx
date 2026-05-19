@@ -1,6 +1,25 @@
 import Image from 'next/image';
 import type { CoursePlanResponse } from '@/types/api/course.types';
 
+const ALLOWED_IMAGE_HOSTS = new Set([
+  'img1.kakaocdn.net',
+  'lh3.googleusercontent.com',
+  'test-api.zeroone.it.kr',
+  'api.zeroone.it.kr',
+  'www.zeroone.it.kr',
+  'uploaded-files-qa.32cd2fa416bea795bf67cbf65411103b.r2.cloudflarestorage.com',
+  'test-blog.zeroone.it.kr',
+  'blog.zeroone.it.kr',
+]);
+
+function isAllowedHost(url: string): boolean {
+  try {
+    return ALLOWED_IMAGE_HOSTS.has(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
 interface CourseSummarySectionProps {
   plan: CoursePlanResponse;
   onChangePlan: () => void;
@@ -17,7 +36,7 @@ export function CourseSummarySection({
       <h2 className="mb-300 font-designer-18b text-gray-800">주문 정보</h2>
 
       <div className="flex items-start gap-300">
-        {thumbnailUrl && (
+        {thumbnailUrl && isAllowedHost(thumbnailUrl) && (
           <div className="relative h-1250 w-2000 shrink-0 overflow-hidden rounded-100">
             <Image
               src={thumbnailUrl}
