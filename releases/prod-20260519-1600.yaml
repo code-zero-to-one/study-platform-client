@@ -1,0 +1,50 @@
+release_id: prod-20260519-1600
+env: prod
+service_version: v2.0.1
+
+summary: "[payments] fix : planCode 대소문자 불일치로 결제 폼 미표시 수정"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v2.0.1-8d9bc42
+    commit: 8d9bc42
+    version: v2.0.1
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.1-07cb8f6
+    commit: 07cb8f6
+    version: v1.0.1
+    changed: false
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v2.0.0-643be4b
+    backend: zeroone-backend:v1.0.1-07cb8f6
+  db_rollback_note: "DB unchanged. Use fixed app image rollback targets if needed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-19T16:00:23+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260519-1600-8d9bc42
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: patch
+  bootstrap_mode: ""
