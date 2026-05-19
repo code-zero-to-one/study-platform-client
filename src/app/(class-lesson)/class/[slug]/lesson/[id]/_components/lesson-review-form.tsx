@@ -125,6 +125,7 @@ export function LessonReviewForm({
     };
   }, [artifactPreviewUrl]);
 
+  // Backend requires both answers non-blank for all types; artifact required for non-quiz
   const requiresArtifact = artifactSubmissionRequired && !isQuiz;
 
   const isFormValid =
