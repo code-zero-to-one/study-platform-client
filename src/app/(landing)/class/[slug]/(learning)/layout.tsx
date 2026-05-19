@@ -88,7 +88,7 @@ export default function VibeIntroLearningLayout({
       >
         <div className="flex items-center gap-350">
           <Image
-            src={`/class/${slug}/discord-avatar.png`}
+            src="/class/discord-avatar.png"
             alt="Discord"
             width={54}
             height={54}

@@ -124,7 +124,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
         <div className="mt-300 flex items-center gap-300">
           <div className="relative shrink-0">
             <Image
-              src={`/class/${slug}/chapter-progress.svg`}
+              src="/class/chapter-progress.svg"
               alt="진도 표시"
               width={173}
               height={61}
@@ -244,7 +244,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                       {index === 0 && ri === 0 && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <Image
-                            src={`/class/${slug}/journey-1st-load.svg`}
+                            src="/class/journey-1st-load.svg"
                             alt=""
                             aria-hidden="true"
                             width={795}
@@ -319,7 +319,6 @@ export function RoadmapTab({ slug }: { slug: string }) {
                                 course?.learnerCount ??
                                 0
                               }
-                              slug={slug}
                             />
                           </div>
                         ))}
@@ -328,7 +327,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                         index < visibleChapters.length - 1 && (
                           <div className="pointer-events-none absolute right-0 top-1/2">
                             <Image
-                              src={`/class/${slug}/journey-load.svg`}
+                              src="/class/journey-load.svg"
                               alt=""
                               aria-hidden="true"
                               width={906}
@@ -343,7 +342,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                       {ri < rows.length - 1 && (
                         <div className="pointer-events-none absolute right-0 top-1/2">
                           <Image
-                            src={`/class/${slug}/journey-load-reverse.svg`}
+                            src="/class/journey-load-reverse.svg"
                             alt=""
                             aria-hidden="true"
                             width={906}

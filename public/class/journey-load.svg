@@ -1,6 +1,6 @@
 <svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 912 394" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="load" filter="url(#filter0_i_0_392)">
-<path d="M3 3H749.428C837.557 3 909 89.8568 909 197C909 304.143 837.557 391 749.428 391H161" stroke="var(--stroke-0, #FAFAFA)" stroke-width="6" stroke-linecap="round" stroke-dasharray="18 18"/>
+<path d="M3 3H749.428C837.557 3 909 89.8568 909 197C909 304.143 837.557 391 749.428 391H161" stroke="#d5d7da" stroke-width="6" stroke-linecap="round" stroke-dasharray="18 18"/>
 </g>
 <defs>
 <filter id="filter0_i_0_392" x="0" y="0" width="912" height="398" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
