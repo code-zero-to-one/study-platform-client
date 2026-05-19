@@ -132,13 +132,18 @@ export default function LessonPage({
     return isLast && allOthersCompleted;
   }, [drawerChapters, lessonId]);
 
+  const purpose = lesson?.retrospectivePurpose;
+  const showArtifact =
+    purpose !== 'SUBJECTIVE_QUIZ' &&
+    (lesson?.artifactSubmissionRequired ?? false);
+
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
   const isFormValid =
     starRating > 0 &&
     highlightAnswer.trim().length > 0 &&
     unexpectedAnswer.trim().length > 0 &&
     selectedChips.size >= 2 &&
-    (!lesson?.artifactSubmissionRequired || !!artifactImageUrl);
+    (!showArtifact || !!artifactImageUrl);
   const isSubmitDisabled =
     !isFormValid || submitRetrospective.isPending || alreadySubmitted;
 
@@ -292,7 +297,7 @@ export default function LessonPage({
                   submitDisabled={isSubmitDisabled}
                   submitting={submitRetrospective.isPending}
                   alreadySubmitted={alreadySubmitted}
-                  showArtifact={lesson?.artifactSubmissionRequired ?? false}
+                  showArtifact={showArtifact}
                   retrospectivePrompt={lesson?.retrospectivePrompt}
                   onHighlightAnswerChange={setHighlightAnswer}
                   onUnexpectedAnswerChange={setUnexpectedAnswer}
