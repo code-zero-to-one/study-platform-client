@@ -141,7 +141,7 @@ async function selectLesson(page: Page) {
 async function fillEditor(page: Page, text: string) {
   const editor = page.locator('.tiptap-editor [contenteditable]').first();
   await editor.click();
-  await page.keyboard.type(text);
+  await editor.pressSequentially(text);
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -209,6 +209,11 @@ test.describe('피드 제출 성공 @auth', () => {
     await mockAndNavigate(page);
     await selectLesson(page);
     await fillEditor(page, '오늘 배운 내용입니다.');
+    await expect(
+      page.getByRole('button', { name: '등록하기' }),
+    ).not.toBeDisabled({
+      timeout: 5000,
+    });
 
     const [response] = await Promise.all([
       page.waitForResponse(

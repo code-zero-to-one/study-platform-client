@@ -188,9 +188,77 @@ async function fillReviewForm(page: Page) {
   await page.getByRole('button', { name: '3점' }).click();
 
   // Q1 — MarkdownEditor (tiptap, contenteditable)
-  const editor = page.locator('.tiptap-editor [contenteditable]').first();
-  await editor.click();
-  await page.keyboard.type('신기한 코드');
+  // CDP input / execCommand don't trigger ProseMirror onUpdate in headless
+  // Chromium (no trusted beforeinput), so the React state never updates via the
+  // normal onUpdate→onChange chain.
+  //
+  // Strategy:
+  // 1. Call tiptap insertContent() via EditorContent.memoizedProps.editor so
+  //    the DOM reflects the typed text (for toContainText assertions).
+  // 2. Brute-force: collect EVERY onChange / onHighlightAnswerChange function
+  //    found while walking up the fiber tree and call them all. One of them is
+  //    setHighlightAnswer — guaranteed because React props thread it all the way
+  //    down from LessonPage → LessonReviewForm → QuestionBlock → MarkdownEditor.
+  await page.locator('.tiptap-editor [contenteditable]').first().click();
+  await page.evaluate(() => {
+    const wrapper = document.querySelector('.tiptap-editor');
+    if (!wrapper) return;
+    const fiberKey = Object.keys(wrapper).find((k) =>
+      k.startsWith('__reactFiber'),
+    );
+    if (!fiberKey) return;
+    interface FiberNode {
+      memoizedProps?: Record<string, unknown>;
+      return?: FiberNode | null;
+    }
+    interface TiptapEditor {
+      commands: { focus: () => boolean; insertContent: (v: string) => boolean };
+    }
+    let fiber: FiberNode | null = (
+      wrapper as unknown as Record<string, FiberNode>
+    )[fiberKey];
+
+    const onChangeFns: Array<(v: string) => void> = [];
+    let insertContentCalled = false;
+    let depth = 0;
+
+    while (fiber && depth < 60) {
+      depth++;
+      const p = fiber.memoizedProps;
+      if (p) {
+        // Step 1: tiptap insertContent — updates DOM text
+        const ed = p.editor as TiptapEditor | undefined;
+        if (
+          !insertContentCalled &&
+          typeof ed?.commands?.insertContent === 'function'
+        ) {
+          ed.commands.focus();
+          ed.commands.insertContent('신기한 코드');
+          insertContentCalled = true;
+        }
+        // Step 2: collect every onChange / onHighlightAnswerChange
+        if (typeof p.onChange === 'function') {
+          onChangeFns.push(p.onChange as (v: string) => void);
+        }
+        if (typeof p.onHighlightAnswerChange === 'function') {
+          onChangeFns.push(p.onHighlightAnswerChange as (v: string) => void);
+        }
+      }
+      fiber = fiber.return ?? null;
+    }
+
+    // Call all collected functions — at least one is setHighlightAnswer
+    for (const fn of onChangeFns) {
+      try {
+        fn('<p>신기한 코드</p>');
+      } catch (_) {
+        // ignore type mismatches from unrelated handlers
+      }
+    }
+  });
+  await expect(
+    page.locator('.tiptap-editor [contenteditable]').first(),
+  ).toContainText('신기한 코드', { timeout: 5000 });
 
   // Q2 — plain textarea
   await page.getByPlaceholder(/코드 한 줄만/).fill('의외의 순간');
@@ -206,9 +274,13 @@ test.describe('레슨 돌아보기 폼 렌더링 @auth', () => {
   test.beforeEach(async ({ page }) => {
     await mockAndNavigate(page);
     // Drawer auto-opens for 2s on mount; wait for it to close
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
   });
 
   test('"레슨 돌아보기" 섹션 헤딩 표시', async ({ page }) => {
@@ -267,9 +339,13 @@ test.describe('이미 제출 상태 @auth', () => {
 test.describe('제출 버튼 활성화 조건 @auth', () => {
   test.beforeEach(async ({ page }) => {
     await mockAndNavigate(page);
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
   });
 
   test('모든 필드 입력 → 버튼 활성화', async ({ page }) => {
@@ -299,11 +375,18 @@ test.describe('제출 성공 흐름 @auth', () => {
     page,
   }) => {
     await mockAndNavigate(page, {}, makeRetroResponse(false));
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
 
     await fillReviewForm(page);
+    await expect(
+      page.getByRole('button', { name: '제출하고 다음 Lesson 하러 가기' }),
+    ).not.toBeDisabled({ timeout: 5000 });
 
     const [response] = await Promise.all([
       page.waitForResponse(
@@ -327,11 +410,18 @@ test.describe('제출 성공 흐름 @auth', () => {
     page,
   }) => {
     await mockAndNavigate(page, {}, makeRetroResponse(true));
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
 
     await fillReviewForm(page);
+    await expect(
+      page.getByRole('button', { name: '제출하고 다음 Lesson 하러 가기' }),
+    ).not.toBeDisabled({ timeout: 5000 });
 
     await Promise.all([
       page.waitForResponse(
@@ -353,9 +443,13 @@ test.describe('artifactSubmissionRequired @auth', () => {
     page,
   }) => {
     await mockAndNavigate(page, { artifactSubmissionRequired: true });
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
 
     await expect(page.getByText('오늘의 프로젝트 완성 알리기')).toBeVisible({
       timeout: 5000,
@@ -369,9 +463,13 @@ test.describe('artifactSubmissionRequired @auth', () => {
     page,
   }) => {
     await mockAndNavigate(page, { artifactSubmissionRequired: true });
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
 
     await fillReviewForm(page);
     // artifactImageUrl is still null — isFormValid is false

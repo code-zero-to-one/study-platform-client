@@ -503,6 +503,15 @@ function MarkdownEditor({
   }, [editor]);
 
   useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    const dom = editor.view.dom as HTMLElement & { __tiptap?: unknown };
+    dom.__tiptap = editor;
+    return () => {
+      delete dom.__tiptap;
+    };
+  }, [editor]);
+
+  useEffect(() => {
     if (!editor || editor.isDestroyed) {
       return;
     }

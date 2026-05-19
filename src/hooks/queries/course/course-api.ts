@@ -137,6 +137,7 @@ export const useCreateCourseFreeEnrollment = () => {
       await queryClient.invalidateQueries({
         queryKey: ['myCourseFreeEnrollment', courseId],
       });
+      await queryClient.invalidateQueries({ queryKey: ['courseJourneyMap'] });
     },
   });
 };
