@@ -134,7 +134,6 @@ export default function ClassDetailPage({
         showToast('무료 코스 등록이 완료되었어요.');
       } catch {
         showToast('무료 코스 등록 중 오류가 발생했어요.', 'error');
-        return;
       }
     }
     router.push(learningHomeHref);
@@ -263,7 +262,7 @@ export default function ClassDetailPage({
             courseDetail={courseDetail}
             isAuthenticated={isAuthenticated}
             ctaLabel={ctaLabel}
-            isEnrolling={createCourseFreeEnrollment.isPending}
+            isEnrolling={!courseDetail || createCourseFreeEnrollment.isPending}
             onShare={handleShare}
             onStartCourse={handleStartCourse}
             myGiftEmail={myGiftEmail}
