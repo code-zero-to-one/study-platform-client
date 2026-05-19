@@ -111,6 +111,28 @@ export type CoursePaymentStatus =
   | 'FAILED'
   | 'CANCELED';
 
+export interface MyCoursePaymentListItemResponse {
+  paymentId: number;
+  paymentCode: string;
+  courseId: number;
+  courseSlug: string;
+  courseTitle: string;
+  planId: number | null;
+  planCode: string;
+  planName: string;
+  amount: number;
+  status: CoursePaymentStatus;
+  paymentMethod: 'CARD' | 'VIRTUAL_ACCOUNT';
+  tossReceiptUrl: string | null;
+  virtualAccountNumber: string | null;
+  virtualAccountDueDate: string | null;
+  requestedAt: string | null;
+  paidAt: string | null;
+  canceledAt: string | null;
+  createdAt: string;
+  cancellable: boolean;
+}
+
 export interface CoursePaymentPrepareRequest {
   planCode: CoursePlanCode;
   buyerName: string;

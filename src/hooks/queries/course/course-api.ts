@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { axiosInstanceV5 } from '@/api/client/axios';
+import { useToastStore } from '@/stores/use-toast-store';
 import type {
   BuilderFeedCommentCreateRequest,
   BuilderFeedCommentsResponse,
@@ -26,6 +27,7 @@ import type {
   CoursePaymentConfirmResponse,
   CoursePaymentPrepareRequest,
   CoursePaymentPrepareResponse,
+  CoursePaymentStatus,
   CourseProgressResponse,
   CourseSummaryResponse,
   CourseTossPaymentConfirmRequest,
@@ -51,6 +53,7 @@ import type {
   LessonRetrospectiveCreateRequest,
   LessonRetrospectiveCreateResponse,
   LessonRetrospectiveResponse,
+  MyCoursePaymentListItemResponse,
   MyBuilderFeedsResponse,
   MyCourseFreeEnrollmentResponse,
   OpenAlertSubscriptionRequest,
@@ -253,11 +256,33 @@ export const useCancelCoursePayment = (): UseMutationResult<
   unknown,
   { courseId: number; paymentId: number }
 > => {
+  const queryClient = useQueryClient();
+
   return useMutation<void, unknown, { courseId: number; paymentId: number }>({
     mutationFn: async ({ courseId, paymentId }) => {
       await axiosInstanceV5.post(
         `courses/${courseId}/payments/${paymentId}/cancel`,
       );
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['myCoursePayments'] });
+      useToastStore.getState().showToast('결제가 취소되었습니다.', 'success');
+    },
+  });
+};
+
+// ─── My Course Payments ───────────────────────────────────────────────────────
+
+export const useGetMyCoursePayments = (
+  params: { courseId?: number; status?: CoursePaymentStatus } = {},
+) => {
+  return useQuery({
+    queryKey: ['myCoursePayments', params],
+    queryFn: async () => {
+      const { data } = await axiosInstanceV5.get<{
+        content: { content: MyCoursePaymentListItemResponse[] };
+      }>('mypage/course-payments', { params });
+      return data.content.content;
     },
   });
 };
