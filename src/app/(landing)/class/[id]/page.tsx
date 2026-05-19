@@ -67,8 +67,10 @@ export default function ClassDetailPage({
   });
   const registerGiftEmailMutation = useRegisterGiftEmail();
 
-  const learningHomeHref =
-    slug === 'vibe-intro' ? '/class/vibe-intro/home' : `/class/${slug}`;
+  // 학습 홈 라우트는 `/class/vibe-intro/home` 하나뿐이고
+  // RoadmapTab의 COURSE_SLUG가 `vibe-intro`로 하드코딩돼 있어
+  // 다른 바이브 코스 슬러그(vibe-intro-claude-code 등)도 동일 라우트를 공유한다.
+  const learningHomeHref = '/class/vibe-intro/home';
 
   const chaptersForRoadmap = useMemo<ChapterForRoadmap[]>(() => {
     if (curriculum?.chapters && curriculum.chapters.length > 0) {
