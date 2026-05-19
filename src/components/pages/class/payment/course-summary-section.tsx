@@ -23,14 +23,12 @@ function isAllowedHost(url: string): boolean {
 interface CourseSummarySectionProps {
   plan: CoursePlanResponse;
   onChangePlan: () => void;
-  slug: string;
   thumbnailUrl: string | null;
 }
 
 export function CourseSummarySection({
   plan,
   onChangePlan,
-  slug,
   thumbnailUrl,
 }: CourseSummarySectionProps) {
   return (

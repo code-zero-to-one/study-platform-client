@@ -71,7 +71,7 @@ export default function CourseCompletePage() {
           {/* Party animation + title */}
           <div className="relative">
             <Image
-              src="/class/vibe-intro/party-animation.png"
+              src="/class/party-animation.png"
               alt=""
               aria-hidden="true"
               width={64}
@@ -137,7 +137,7 @@ export default function CourseCompletePage() {
               className="flex h-625 w-3875 items-center justify-center gap-50 rounded-100 border border-border-brand bg-background-default font-designer-18b text-text-brand"
             >
               <Image
-                src="/class/vibe-intro/instagram-icon.png"
+                src="/class/instagram-icon.png"
                 alt="Instagram"
                 width={34}
                 height={34}

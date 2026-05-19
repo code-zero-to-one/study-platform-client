@@ -241,7 +241,6 @@ export function CourseCheckoutForm({
         <CourseSummarySection
           plan={plan}
           onChangePlan={onChangePlan}
-          slug={slug}
           thumbnailUrl={thumbnailUrl}
         />
 
