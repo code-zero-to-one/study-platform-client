@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Fragment } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type {
@@ -128,14 +129,24 @@ export function ClassDetailSidebar({
               공유하기
             </button>
             {isAuthenticated ? (
-              <button
-                type="button"
-                onClick={onStartCourse}
-                disabled={isEnrolling}
-                className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
-              >
-                {ctaLabel}
-              </button>
+              courseDetail?.viewerStatus === 'PAID' ||
+              courseDetail?.viewerStatus === 'FREE_ENROLLED' ? (
+                <Link
+                  href={`/class/${courseDetail.slug}/home`}
+                  className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                >
+                  {ctaLabel}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onStartCourse}
+                  disabled={isEnrolling}
+                  className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                >
+                  {ctaLabel}
+                </button>
+              )
             ) : (
               <LoginModal
                 openTrigger={
