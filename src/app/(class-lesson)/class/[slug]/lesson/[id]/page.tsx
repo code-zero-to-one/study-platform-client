@@ -23,16 +23,13 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { CurriculumDrawer } from './_components/curriculum-drawer';
 import { LessonBuilderFeedCard } from './_components/lesson-builder-feed-card';
 import { LessonBuilderFeedDetailModal } from './_components/lesson-builder-feed-detail-modal';
-import { LessonLinkModal } from './_components/lesson-link-modal';
 import { LessonQnaCard } from './_components/lesson-qna-card';
 import { LessonQnaDetailModal } from './_components/lesson-qna-detail-modal';
 import { LessonQnaSubmissionModal } from './_components/lesson-qna-submission-modal';
 import {
   LessonReviewForm,
-  NEGATIVE_CHIPS,
-  POSITIVE_CHIPS,
+  type LessonFormData,
 } from './_components/lesson-review-form';
-import { LessonScreenshotModal } from './_components/lesson-screenshot-modal';
 import { LessonTabs, type LessonTabValue } from './_components/lesson-tabs';
 import { LessonTopBar } from './_components/lesson-top-bar';
 
@@ -50,16 +47,16 @@ export default function LessonPage({
   const reviewRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const topBarRef = useRef<HTMLDivElement>(null);
-  const leftColRef = useRef<HTMLDivElement>(null);
 
   function scrollToRef(ref: RefObject<HTMLDivElement | null>) {
-    if (!ref.current || !leftColRef.current) return;
-    const container = leftColRef.current;
+    if (!ref.current) return;
+    const headerHeight = topBarRef.current?.offsetHeight ?? 64;
     const top =
-      container.scrollTop +
-      ref.current.getBoundingClientRect().top -
-      container.getBoundingClientRect().top;
-    container.scrollTo({ top, behavior: 'smooth' });
+      ref.current.getBoundingClientRect().top +
+      window.scrollY -
+      headerHeight -
+      16;
+    window.scrollTo({ top, behavior: 'smooth' });
   }
 
   function handleTabChange(next: LessonTabValue) {
@@ -67,11 +64,7 @@ export default function LessonPage({
     if (next === 'review') scrollToRef(reviewRef);
     else if (next === 'follow') scrollToRef(contentRef);
   }
-  const [starRating, setStarRating] = useState(0);
-  const [highlightAnswer, setHighlightAnswer] = useState('');
-  const [unexpectedAnswer, setUnexpectedAnswer] = useState('');
-  const [selectedChips, setSelectedChips] = useState<Set<string>>(new Set());
-  const [feedbackText, setFeedbackText] = useState('');
+
   const [curriculumOpen, setCurriculumOpen] = useState(false);
 
   useEffect(() => {
@@ -79,19 +72,13 @@ export default function LessonPage({
     const timer = setTimeout(() => setCurriculumOpen(false), 2000);
     return () => clearTimeout(timer);
   }, []);
+
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(
     new Set(),
   );
   const [submissionModalOpen, setSubmissionModalOpen] = useState(false);
   const [selectedQnaId, setSelectedQnaId] = useState<number | null>(null);
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
-  const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
-  const [linkModalOpen, setLinkModalOpen] = useState(false);
-  const [artifactImageUrl, setArtifactImageUrl] = useState<string | null>(null);
-  const [artifactImagePreviewUrl, setArtifactImagePreviewUrl] = useState<
-    string | null
-  >(null);
-  const [artifactLink, setArtifactLink] = useState<string | null>(null);
 
   const { data: lesson } = useGetLessonDetail(lessonId);
   const courseId = lesson?.courseId ?? 0;
@@ -104,7 +91,6 @@ export default function LessonPage({
   const drawerChapters = useMemo(() => drawer?.chapters ?? [], [drawer]);
   const courseTitle = drawer?.courseTitle ?? lesson?.courseTitle ?? '';
 
-  // Initialize expanded chapters from drawer.isDefaultExpanded
   useEffect(() => {
     if (drawerChapters.length === 0) return;
     setExpandedChapters((prev) => {
@@ -132,29 +118,7 @@ export default function LessonPage({
     return isLast && allOthersCompleted;
   }, [drawerChapters, lessonId]);
 
-  const purpose = lesson?.retrospectivePurpose;
-  const showArtifact =
-    purpose !== 'SUBJECTIVE_QUIZ' &&
-    (lesson?.artifactSubmissionRequired ?? false);
-
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
-  const isFormValid =
-    starRating > 0 &&
-    highlightAnswer.trim().length > 0 &&
-    unexpectedAnswer.trim().length > 0 &&
-    selectedChips.size >= 2 &&
-    (!showArtifact || !!artifactImageUrl);
-  const isSubmitDisabled =
-    !isFormValid || submitRetrospective.isPending || alreadySubmitted;
-
-  function toggleChip(chip: string) {
-    setSelectedChips((prev) => {
-      const next = new Set(prev);
-      if (next.has(chip)) next.delete(chip);
-      else next.add(chip);
-      return next;
-    });
-  }
 
   function toggleChapter(chapterId: number) {
     setExpandedChapters((prev) => {
@@ -165,26 +129,36 @@ export default function LessonPage({
     });
   }
 
-  function handleSubmit() {
-    if (isSubmitDisabled) return;
-    const chips = [...selectedChips];
-    const checklistFlags = [...POSITIVE_CHIPS, ...NEGATIVE_CHIPS].map((c) =>
-      chips.includes(c),
-    );
+  function handleSubmit(formData: LessonFormData) {
+    const isQuiz = lesson?.retrospectivePurpose === 'SUBJECTIVE_QUIZ';
+    const requiresArtifact = !!lesson?.artifactSubmissionRequired && !isQuiz;
     submitRetrospective.mutate(
       {
         lessonId,
         request: {
-          starRating: starRating || null,
-          highlightAnswer: highlightAnswer.trim(),
-          unexpectedAnswer: unexpectedAnswer.trim(),
-          artifactType: artifactImageUrl
-            ? 'SCREENSHOT'
-            : artifactLink
-              ? 'LINK'
+          starRating: formData.starRating || null,
+          highlightAnswer: formData.expectationAnswer.trim(),
+          unexpectedAnswer: formData.surpriseAnswer.trim(),
+          artifactType:
+            requiresArtifact ||
+            formData.artifactImageUrl ||
+            formData.artifactLink
+              ? formData.artifactImageUrl
+                ? 'SCREENSHOT'
+                : formData.artifactLink
+                  ? 'LINK'
+                  : null
               : null,
-          artifactValue: artifactImageUrl ?? artifactLink ?? null,
-          feedback: { checklistFlags, freeText: feedbackText },
+          artifactValue:
+            requiresArtifact ||
+            formData.artifactImageUrl ||
+            formData.artifactLink
+              ? (formData.artifactImageUrl ?? formData.artifactLink ?? null)
+              : null,
+          feedback: {
+            checklistFlags: formData.checklistFlags,
+            freeText: formData.feedbackText,
+          },
         },
       },
       {
@@ -226,117 +200,93 @@ export default function LessonPage({
       </div>
 
       <div className="mx-auto w-full max-w-[1236px] px-300">
-        <div className="flex items-start gap-250">
+        <div className="grid grid-cols-content-sidebar-360 items-start gap-250 pt-500">
           {/* LEFT */}
-          <div className="min-w-0 flex-1 flex flex-col h-[calc(100vh-var(--spacing-800))]">
-            {/* Fixed header: back link, title, description, tabs — never scrolls */}
-            <div className="shrink-0 pt-500">
-              <Link
-                href={`/class/${lesson?.courseSlug ?? slug}/home`}
-                className="inline-flex items-center gap-125 rounded-full border border-gray-200 bg-background-default px-200 py-100"
-              >
-                <ArrowLeft className="h-250 w-250 text-gray-800" />
-                <span className="font-designer-14m text-gray-1000">
-                  학습 여정 맵 돌아가기
+          <div className="min-w-0">
+            <Link
+              href={`/class/${lesson?.courseSlug ?? slug}/home`}
+              className="inline-flex items-center gap-125 rounded-full border border-gray-200 bg-background-default px-200 py-100"
+            >
+              <ArrowLeft className="h-250 w-250 text-gray-800" />
+              <span className="font-designer-14m text-gray-1000">
+                학습 여정 맵 돌아가기
+              </span>
+            </Link>
+
+            <div className="mt-300 flex items-center justify-between">
+              <div className="flex items-center gap-200">
+                <span className="rounded-100 bg-rose-200 px-125 py-25 font-designer-14m text-rose-400">
+                  Lesson {String(lessonId).padStart(2, '0')}
                 </span>
-              </Link>
-
-              <div className="mt-300 flex items-center justify-between">
-                <div className="flex items-center gap-200">
-                  <span className="rounded-100 bg-rose-200 px-125 py-25 font-designer-14m text-rose-400">
-                    Lesson {String(lessonId).padStart(2, '0')}
-                  </span>
-                  <h1 className="font-designer-32b text-gray-800">
-                    {lesson?.title ?? 'AI 처음 만나는 날'}
-                  </h1>
-                </div>
-                <p className="font-designer-16m text-gray-500">
-                  {lesson?.estimatedMinutes
-                    ? `약 ${lesson.estimatedMinutes}분 소요`
-                    : ''}
-                </p>
+                <h1 className="font-designer-32b text-gray-800">
+                  {lesson?.title ?? 'AI 처음 만나는 날'}
+                </h1>
               </div>
-
-              {lesson?.description ? (
-                <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-700">
-                  {lesson.description}
-                </p>
-              ) : null}
-
-              <div className="mt-300 bg-gray-100">
-                <LessonTabs value={tab} onChange={handleTabChange} />
-              </div>
+              <p className="font-designer-16m text-gray-500">
+                {lesson?.estimatedMinutes
+                  ? `약 ${lesson.estimatedMinutes}분 소요`
+                  : ''}
+              </p>
             </div>
 
-            {/* Scroll area: content + review form only */}
-            <div ref={leftColRef} className="flex-1 overflow-y-auto">
-              <div
-                ref={contentRef}
-                className="mt-300 min-h-[964px] rounded-150 bg-background-default p-500"
-              >
-                {lesson?.contentMarkdown ? (
-                  <MarkdownContentCore content={lesson.contentMarkdown} />
-                ) : (
-                  <p className="font-designer-16r text-gray-500">
-                    본문이 준비 중입니다.
-                  </p>
-                )}
-              </div>
+            {lesson?.description ? (
+              <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-700">
+                {lesson.description}
+              </p>
+            ) : null}
 
-              <div ref={reviewRef} />
-              <hr className="my-500 border-gray-300" />
-
-              {tab === 'review' || tab === 'follow' ? (
-                <LessonReviewForm
-                  starRating={starRating}
-                  onStarRatingChange={setStarRating}
-                  highlightAnswer={highlightAnswer}
-                  unexpectedAnswer={unexpectedAnswer}
-                  selectedChips={selectedChips}
-                  feedbackText={feedbackText}
-                  submitDisabled={isSubmitDisabled}
-                  submitting={submitRetrospective.isPending}
-                  alreadySubmitted={alreadySubmitted}
-                  showArtifact={showArtifact}
-                  retrospectivePrompt={lesson?.retrospectivePrompt}
-                  onHighlightAnswerChange={setHighlightAnswer}
-                  onUnexpectedAnswerChange={setUnexpectedAnswer}
-                  onToggleChip={toggleChip}
-                  onFeedbackChange={setFeedbackText}
-                  artifactImagePreviewUrl={artifactImagePreviewUrl}
-                  artifactLink={artifactLink}
-                  onAttachScreenshot={() => setScreenshotModalOpen(true)}
-                  onAttachLink={() => setLinkModalOpen(true)}
-                  onRemoveArtifactImage={() => {
-                    if (artifactImagePreviewUrl)
-                      URL.revokeObjectURL(artifactImagePreviewUrl);
-                    setArtifactImageUrl(null);
-                    setArtifactImagePreviewUrl(null);
-                  }}
-                  onRemoveArtifactLink={() => setArtifactLink(null)}
-                  isLastLesson={isLastLesson}
-                  onSubmit={handleSubmit}
-                />
-              ) : null}
-
-              <div className="h-1000" />
+            <div className="sticky top-800 z-20 mt-300 bg-gray-100">
+              <LessonTabs value={tab} onChange={handleTabChange} />
             </div>
+
+            <div
+              ref={contentRef}
+              className="mt-300 min-h-[964px] rounded-150 bg-background-default p-500"
+            >
+              {lesson?.contentMarkdown ? (
+                <MarkdownContentCore content={lesson.contentMarkdown} />
+              ) : (
+                <p className="font-designer-16r text-gray-500">
+                  본문이 준비 중입니다.
+                </p>
+              )}
+            </div>
+
+            <div ref={reviewRef} />
+            <hr className="my-500 border-gray-300" />
+
+            {tab === 'review' || tab === 'follow' ? (
+              <LessonReviewForm
+                key={lessonId}
+                retrospectivePurpose={
+                  lesson?.retrospectivePurpose ?? 'ARTIFACT_SHARE'
+                }
+                retrospectivePrompt={lesson?.retrospectivePrompt}
+                artifactSubmissionRequired={
+                  lesson?.artifactSubmissionRequired ?? false
+                }
+                alreadySubmitted={alreadySubmitted}
+                submitting={submitRetrospective.isPending}
+                isLastLesson={isLastLesson}
+                onSubmit={handleSubmit}
+              />
+            ) : null}
+
+            <div className="h-1000" />
           </div>
 
-          {/* RIGHT sidebar — stays put while left column scrolls */}
-          <div className="w-4500 shrink-0 pt-500">
-            <div className="flex flex-col gap-250">
-              <LessonQnaCard
-                myQnas={qnaSidebar?.qnas ?? []}
-                builderQnas={qnaSidebar?.builderQnas ?? []}
-                onAskClick={() => setSubmissionModalOpen(true)}
-                onSelectQna={setSelectedQnaId}
-              />
-              <LessonBuilderFeedCard
-                feeds={feedPreview?.feeds ?? []}
-                onSelectFeed={setSelectedFeedId}
-              />
-            </div>
+          {/* RIGHT sticky sidebar */}
+          <div className="sticky top-800 z-10 flex flex-col gap-250">
+            <LessonQnaCard
+              myQnas={qnaSidebar?.qnas ?? []}
+              builderQnas={qnaSidebar?.builderQnas ?? []}
+              onAskClick={() => setSubmissionModalOpen(true)}
+              onSelectQna={setSelectedQnaId}
+            />
+            <LessonBuilderFeedCard
+              feeds={feedPreview?.feeds ?? []}
+              onSelectFeed={setSelectedFeedId}
+            />
           </div>
         </div>
       </div>
@@ -354,19 +304,6 @@ export default function LessonPage({
       <LessonBuilderFeedDetailModal
         feedId={selectedFeedId}
         onClose={() => setSelectedFeedId(null)}
-      />
-      <LessonScreenshotModal
-        open={screenshotModalOpen}
-        onClose={() => setScreenshotModalOpen(false)}
-        onConfirm={(imageUrl, previewUrl) => {
-          setArtifactImageUrl(imageUrl);
-          setArtifactImagePreviewUrl(previewUrl);
-        }}
-      />
-      <LessonLinkModal
-        open={linkModalOpen}
-        onClose={() => setLinkModalOpen(false)}
-        onConfirm={(url) => setArtifactLink(url)}
       />
     </div>
   );
