@@ -1,0 +1,82 @@
+'use client';
+
+import { useParams, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { CourseCheckoutForm } from '@/components/pages/class/payment/checkout-form';
+import { PlanSelectionModal } from '@/components/pages/class/plan-selection-modal';
+import {
+  useGetCourseDetail,
+  usePrepareCoursePaymentQuery,
+} from '@/hooks/queries/course/course-api';
+import type { CoursePlanCode } from '@/types/api/course.types';
+
+export default function VibeIntroPaymentPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
+  const VALID_PLAN_CODES: CoursePlanCode[] = ['ALL_IN_ONE', 'LEARN_ONLY'];
+  const rawPlanCode = searchParams.get('planCode') ?? '';
+  const normalizedCode = rawPlanCode.replace(/-/g, '_').toUpperCase();
+  const planCode: CoursePlanCode = VALID_PLAN_CODES.includes(
+    normalizedCode as CoursePlanCode,
+  )
+    ? (normalizedCode as CoursePlanCode)
+    : 'ALL_IN_ONE';
+
+  const [showPlanModal, setShowPlanModal] = useState(false);
+
+  const { data: course, isLoading: courseLoading } = useGetCourseDetail(slug);
+  const courseId = course?.courseId ?? 0;
+
+  const { data: paymentData, isLoading: paymentLoading } =
+    usePrepareCoursePaymentQuery({
+      courseId,
+      planCode,
+      enabled: !!courseId,
+    });
+
+  const plan = course?.plans?.find((p) => p.planCode === planCode);
+
+  if (courseLoading || paymentLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="font-designer-16r text-gray-500">로딩 중...</p>
+      </div>
+    );
+  }
+
+  if (!plan || !paymentData) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="font-designer-16r text-gray-500">
+          결제 정보를 불러올 수 없습니다.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="border-b border-gray-300 py-400 text-center">
+        <h1 className="font-designer-20b text-gray-800">결제하기</h1>
+      </div>
+
+      <CourseCheckoutForm
+        slug={slug}
+        plan={plan}
+        paymentData={paymentData}
+        planCode={planCode}
+        onChangePlan={() => setShowPlanModal(true)}
+        thumbnailUrl={course?.thumbnailUrl ?? null}
+      />
+
+      {showPlanModal && (
+        <PlanSelectionModal
+          plan={plan}
+          earlyBirdEndsAt={course?.earlyBirdEndsAt ?? null}
+          onClose={() => setShowPlanModal(false)}
+          slug={slug}
+        />
+      )}
+    </>
+  );
+}

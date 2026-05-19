@@ -61,4 +61,9 @@ e2e/fixtures/auth.json
 playwright-report/
 test-results/
 
-.claude/
+.claude/commands
+.claude/agents
+.claude/skills
+.playwright-mcp
+.omc
+/docs
