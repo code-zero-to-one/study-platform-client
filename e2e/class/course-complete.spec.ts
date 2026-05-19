@@ -106,15 +106,12 @@ async function mockApis(page: Page): Promise<void> {
 
 async function gotoComplete(page: Page): Promise<void> {
   await mockApis(page);
-  // Pre-register before navigation — mocked response fires right after courseId resolves
+  // Pre-register before navigation — courseId resolves first, then recap fires
   const recapResponse = page.waitForResponse(
     (r) => /\/courses\/\d+\/completion-recap/.test(r.url()),
-    { timeout: 10000 },
+    { timeout: 15000 },
   );
-  await Promise.all([
-    page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
-    page.goto(COMPLETE_PATH, { waitUntil: 'load' }),
-  ]);
+  await page.goto(COMPLETE_PATH, { waitUntil: 'load' });
   await recapResponse;
 }
 

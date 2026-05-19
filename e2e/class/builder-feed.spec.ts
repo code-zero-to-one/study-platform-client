@@ -192,10 +192,12 @@ test.describe('빌더 피드 목록 @auth', () => {
     page,
   }) => {
     await mockFeedListApis(page, [makeFeedItem(FEED_ID)]);
-    await Promise.all([
-      page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
-      page.goto(FEED_LIST_PATH, { waitUntil: 'load' }),
-    ]);
+    const feedsResponse = page.waitForResponse(
+      (r) => /\/courses\/\d+\/builder-feeds/.test(r.url()),
+      { timeout: 15000 },
+    );
+    await page.goto(FEED_LIST_PATH, { waitUntil: 'load' });
+    await feedsResponse;
 
     await expect(page.getByText(/테스트 피드 내용/)).toBeVisible({
       timeout: 5000,
@@ -207,10 +209,12 @@ test.describe('빌더 피드 목록 @auth', () => {
     page,
   }) => {
     await mockFeedListApis(page, []);
-    await Promise.all([
-      page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
-      page.goto(FEED_LIST_PATH, { waitUntil: 'load' }),
-    ]);
+    const feedsResponse = page.waitForResponse(
+      (r) => /\/courses\/\d+\/builder-feeds/.test(r.url()),
+      { timeout: 15000 },
+    );
+    await page.goto(FEED_LIST_PATH, { waitUntil: 'load' });
+    await feedsResponse;
 
     await expect(page.getByText('아직 등록된 피드가 없어요.')).toBeVisible({
       timeout: 5000,
