@@ -190,7 +190,7 @@ async function fillReviewForm(page: Page) {
   // Q1 — MarkdownEditor (tiptap, contenteditable)
   const editor = page.locator('.tiptap-editor [contenteditable]').first();
   await editor.click();
-  await page.keyboard.type('신기한 코드');
+  await editor.pressSequentially('신기한 코드');
 
   // Q2 — plain textarea
   await page.getByPlaceholder(/코드 한 줄만/).fill('의외의 순간');
@@ -206,9 +206,13 @@ test.describe('레슨 돌아보기 폼 렌더링 @auth', () => {
   test.beforeEach(async ({ page }) => {
     await mockAndNavigate(page);
     // Drawer auto-opens for 2s on mount; wait for it to close
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
   });
 
   test('"레슨 돌아보기" 섹션 헤딩 표시', async ({ page }) => {
@@ -267,9 +271,13 @@ test.describe('이미 제출 상태 @auth', () => {
 test.describe('제출 버튼 활성화 조건 @auth', () => {
   test.beforeEach(async ({ page }) => {
     await mockAndNavigate(page);
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
   });
 
   test('모든 필드 입력 → 버튼 활성화', async ({ page }) => {
@@ -299,11 +307,18 @@ test.describe('제출 성공 흐름 @auth', () => {
     page,
   }) => {
     await mockAndNavigate(page, {}, makeRetroResponse(false));
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
 
     await fillReviewForm(page);
+    await expect(
+      page.getByRole('button', { name: '제출하고 다음 Lesson 하러 가기' }),
+    ).not.toBeDisabled({ timeout: 5000 });
 
     const [response] = await Promise.all([
       page.waitForResponse(
@@ -327,11 +342,18 @@ test.describe('제출 성공 흐름 @auth', () => {
     page,
   }) => {
     await mockAndNavigate(page, {}, makeRetroResponse(true));
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
 
     await fillReviewForm(page);
+    await expect(
+      page.getByRole('button', { name: '제출하고 다음 Lesson 하러 가기' }),
+    ).not.toBeDisabled({ timeout: 5000 });
 
     await Promise.all([
       page.waitForResponse(
@@ -353,9 +375,13 @@ test.describe('artifactSubmissionRequired @auth', () => {
     page,
   }) => {
     await mockAndNavigate(page, { artifactSubmissionRequired: true });
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
 
     await expect(page.getByText('오늘의 프로젝트 완성 알리기')).toBeVisible({
       timeout: 5000,
@@ -369,9 +395,13 @@ test.describe('artifactSubmissionRequired @auth', () => {
     page,
   }) => {
     await mockAndNavigate(page, { artifactSubmissionRequired: true });
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
 
     await fillReviewForm(page);
     // artifactImageUrl is still null — isFormValid is false

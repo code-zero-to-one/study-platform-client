@@ -169,10 +169,14 @@ async function mockAndNavigate(page: Page): Promise<void> {
 test.describe('커리큘럼 드로어 배지 렌더링 @auth', () => {
   test.beforeEach(async ({ page }) => {
     await mockAndNavigate(page);
-    // Page auto-opens the drawer for 2s on mount; wait for it to close first
-    await expect(
-      page.getByRole('button', { name: '커리큘럼 닫기' }).first(),
-    ).not.toBeVisible({ timeout: 5000 });
+    // Page auto-opens the drawer for 2s on mount; wait for it to open then close
+    const drawerCloseBtn = page
+      .getByRole('button', { name: '커리큘럼 닫기' })
+      .first();
+    await drawerCloseBtn
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .catch(() => {});
+    await expect(drawerCloseBtn).not.toBeVisible({ timeout: 5000 });
     await page.getByRole('button', { name: '커리큘럼', exact: true }).click();
     // Confirm drawer is open before badge assertions
     await expect(
