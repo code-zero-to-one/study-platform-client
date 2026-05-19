@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createAdminCourse,
+  batchUpdateAdminLessons,
   bulkUpdateAdminLessons,
   createAdminLesson,
   createAdminLessonsFromNotionZips,
@@ -30,6 +31,7 @@ import type {
   AdminCourseListParams,
   AdminCourseUpdateRequest,
   AdminCourseUpsertRequest,
+  AdminLessonBatchUpdateRequest,
   AdminLessonUpsertRequest,
 } from '@/features/admin/course-management/model/admin-course-management-contract';
 import { parseAdminCourseCardTags } from '@/features/admin/course-management/model/admin-course-tag-utils';
@@ -297,6 +299,44 @@ export const useCreateAdminLessonsFromNotionZipsMutation = () => {
       });
     },
     onError: (error) => showNotionZipImportError(error, 'batch'),
+  });
+};
+
+export const useBatchUpdateAdminLessonsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      courseId,
+      request,
+    }: {
+      courseId: number;
+      request: AdminLessonBatchUpdateRequest;
+    }) => batchUpdateAdminLessons({ courseId, request }),
+    onSuccess: async (response, variables) => {
+      useToastStore
+        .getState()
+        .showToast(
+          `${response.updatedCount}개 레슨을 저장했습니다.`,
+          'success',
+        );
+      await Promise.all(
+        response.lessons.map((lesson) =>
+          queryClient.invalidateQueries({
+            queryKey: adminCourseManagementQueryKeys.lessonDetail(
+              lesson.lessonId,
+            ),
+          }),
+        ),
+      );
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.lessons(variables.courseId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: showMutationError,
   });
 };
 

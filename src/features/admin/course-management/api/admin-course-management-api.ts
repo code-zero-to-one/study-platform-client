@@ -5,6 +5,8 @@ import {
 import type {
   AdminBuilderFeedCurationRequest,
   AdminLessonBatchImportResponse,
+  AdminLessonBatchUpdateRequest,
+  AdminLessonBatchUpdateResponse,
   AdminCompletionMessageRequest,
   AdminCompletionMessageResponse,
   AdminCourseDetailResponse,
@@ -324,6 +326,20 @@ export const bulkUpdateAdminLessons = async ({
     `admin/courses/${courseId}/lessons/bulk`,
     request,
   );
+};
+
+export const batchUpdateAdminLessons = async ({
+  courseId,
+  request,
+}: {
+  courseId: number;
+  request: AdminLessonBatchUpdateRequest;
+}): Promise<AdminLessonBatchUpdateResponse> => {
+  const response = await axiosInstanceV5.patch<
+    ApiBaseResponse<AdminLessonBatchUpdateResponse>
+  >(`admin/courses/${courseId}/lessons/batch`, request);
+
+  return unwrap(response);
 };
 
 export const reorderAdminLessons = async ({
