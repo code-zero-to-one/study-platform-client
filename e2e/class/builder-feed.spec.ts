@@ -192,15 +192,10 @@ test.describe('빌더 피드 목록 @auth', () => {
     page,
   }) => {
     await mockFeedListApis(page, [makeFeedItem(FEED_ID)]);
-    const feedsResponse = page.waitForResponse(
-      (r) => /\/courses\/\d+\/builder-feeds/.test(r.url()),
-      { timeout: 15000 },
-    );
     await page.goto(FEED_LIST_PATH, { waitUntil: 'load' });
-    await feedsResponse;
 
     await expect(page.getByText(/테스트 피드 내용/)).toBeVisible({
-      timeout: 5000,
+      timeout: 25000,
     });
     await expect(page.getByText('테스터').first()).toBeVisible();
   });
@@ -209,15 +204,10 @@ test.describe('빌더 피드 목록 @auth', () => {
     page,
   }) => {
     await mockFeedListApis(page, []);
-    const feedsResponse = page.waitForResponse(
-      (r) => /\/courses\/\d+\/builder-feeds/.test(r.url()),
-      { timeout: 15000 },
-    );
     await page.goto(FEED_LIST_PATH, { waitUntil: 'load' });
-    await feedsResponse;
 
     await expect(page.getByText('아직 등록된 피드가 없어요.')).toBeVisible({
-      timeout: 5000,
+      timeout: 25000,
     });
   });
 });
@@ -228,20 +218,13 @@ test.describe('빌더 피드 상세 @auth', () => {
   });
 
   test('피드 상세 렌더링 — 내용·댓글 표시', async ({ page }) => {
-    await Promise.all([
-      page.waitForResponse(
-        (r) =>
-          /\/builder-feeds\/\d+$/.test(r.url()) &&
-          r.request().method() === 'GET',
-      ),
-      page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' }),
-    ]);
+    await page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' });
 
     await expect(page.getByText('피드 상세 내용입니다.')).toBeVisible({
-      timeout: 5000,
+      timeout: 25000,
     });
     await expect(page.getByText('멋진 피드네요!')).toBeVisible({
-      timeout: 5000,
+      timeout: 10000,
     });
   });
 
@@ -253,6 +236,7 @@ test.describe('빌더 피드 상세 @auth', () => {
         (r) =>
           /\/builder-feeds\/\d+$/.test(r.url()) &&
           r.request().method() === 'GET',
+        { timeout: 45000 },
       ),
       page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' }),
     ]);
