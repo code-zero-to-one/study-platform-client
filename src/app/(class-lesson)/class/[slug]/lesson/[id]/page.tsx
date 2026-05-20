@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useMemo, useRef, useState } from 'react';
+import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import {
   useGetCourseDrawer,
@@ -207,7 +208,7 @@ export default function LessonPage({
               </p>
             ) : null}
 
-            <div className="mt-300">
+            <div className="sticky top-800 z-20 mt-300 bg-gray-100">
               <LessonTabs value={tab} onChange={handleTabChange} />
             </div>
 
@@ -244,9 +245,10 @@ export default function LessonPage({
           </div>
 
           {/* RIGHT sticky sidebar */}
-          <div className="sticky top-[88px] flex flex-col gap-250">
+          <div className="sticky top-800 z-10 flex flex-col gap-250">
             <LessonQnaCard
               myQnas={qnaSidebar?.qnas ?? []}
+              builderQnas={qnaSidebar?.builderQnas ?? []}
               onAskClick={() => setSubmissionModalOpen(true)}
               onSelectQna={setSelectedQnaId}
             />
@@ -272,6 +274,7 @@ export default function LessonPage({
         feedId={selectedFeedId}
         onClose={() => setSelectedFeedId(null)}
       />
+      <FloatingClassActionButtons />
     </div>
   );
 }
