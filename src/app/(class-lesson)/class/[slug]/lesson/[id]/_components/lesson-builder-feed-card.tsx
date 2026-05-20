@@ -1,8 +1,14 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useState } from 'react';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   FeedCommentIcon,
@@ -81,7 +87,19 @@ export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
           className="flex flex-col gap-150 text-left disabled:cursor-default"
         >
           <div className="flex items-center gap-125">
-            <AuthorAvatar nickname={current.author.nickname} />
+            <UserProfileModal
+              memberId={current.author.memberId}
+              trigger={
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  aria-label={`${current.author.nickname} 프로필 보기`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <AuthorAvatar nickname={current.author.nickname} />
+                </button>
+              }
+            />
             <div className="flex flex-col">
               <div className="flex items-center gap-50">
                 <p className="font-designer-14b text-gray-800">
