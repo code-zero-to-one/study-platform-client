@@ -7,10 +7,14 @@ import {
   ModeCommentIcon,
   ModeEditIcon,
 } from '@/components/common/ui/icons/course-icons';
-import type { LessonQnaSidebarItem } from '@/types/api/course.types';
+import type {
+  BuilderQnaSidebarItem,
+  LessonQnaSidebarItem,
+} from '@/types/api/course.types';
 
 interface Props {
   myQnas: LessonQnaSidebarItem[];
+  builderQnas: BuilderQnaSidebarItem[];
   onAskClick: () => void;
   onSelectQna: (qnaId: number) => void;
 }
@@ -21,10 +25,15 @@ function stripHtml(html: string): string {
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
-  return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+  return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
-export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
+export function LessonQnaCard({
+  myQnas,
+  builderQnas,
+  onAskClick,
+  onSelectQna,
+}: Props) {
   const [page, setPage] = useState(0);
   const total = myQnas.length;
   const hasMyQna = total > 0;
@@ -60,41 +69,58 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
           </span>
         </div>
 
-        {current ? (
-          <button
-            type="button"
-            onClick={() => onSelectQna(current.qnaId)}
-            className="flex w-full items-center gap-125 rounded-100 border border-border-subtle bg-gray-100 p-150 text-left hover:border-border-brand"
-          >
-            <p className="flex-1 truncate font-designer-14b text-gray-800">
-              {stripHtml(current.title)}
-            </p>
-            <div className="flex shrink-0 items-center gap-50 font-designer-13m text-gray-400">
-              <ModeCommentIcon className="h-225 w-225" />
-              <span>{current.answerCount}</span>
-            </div>
-            <p className="shrink-0 font-designer-13m text-gray-400">
-              {formatDate(current.createdAt)}
-            </p>
-          </button>
-        ) : (
-          <p className="rounded-100 border border-border-subtle bg-gray-100 p-150 text-center font-designer-13m text-gray-400">
-            아직 질문이 없어요.
-          </p>
-        )}
+        <div className="flex flex-col gap-100">
+          <div className="relative">
+            {hasMyQna && (
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                aria-label="이전 질문"
+                className="absolute -left-300 top-1/2 -translate-y-1/2 text-border-default disabled:opacity-50"
+              >
+                <ChevronLeft className="h-300 w-300" />
+              </button>
+            )}
 
-        {hasMyQna && (
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
-              aria-label="이전 질문"
-              className="text-border-default disabled:opacity-50"
-            >
-              <ChevronLeft className="h-300 w-300" />
-            </button>
-            <div className="flex gap-50">
+            {current ? (
+              <button
+                type="button"
+                onClick={() => onSelectQna(current.qnaId)}
+                className="flex w-full items-center gap-125 rounded-100 border border-border-subtle bg-gray-100 p-150 text-left hover:border-border-brand"
+              >
+                <p className="flex-1 truncate font-designer-14b text-gray-800">
+                  {stripHtml(current.title)}
+                </p>
+                <div className="flex shrink-0 items-center gap-50 font-designer-13m text-gray-400">
+                  <ModeCommentIcon className="h-225 w-225" />
+                  <p className="shrink-0 font-designer-13m text-gray-400">
+                    {formatDate(current.createdAt)}
+                  </p>
+                  <span>{current.answerCount}</span>
+                </div>
+              </button>
+            ) : (
+              <p className="rounded-100 border border-border-subtle bg-gray-100 p-150 text-center font-designer-13m text-gray-400">
+                아직 질문이 없어요.
+              </p>
+            )}
+
+            {hasMyQna && (
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(total - 1, p + 1))}
+                disabled={page >= total - 1}
+                aria-label="다음 질문"
+                className="absolute -right-300 top-1/2 -translate-y-1/2 text-border-default disabled:opacity-50"
+              >
+                <ChevronRight className="h-300 w-300" />
+              </button>
+            )}
+          </div>
+
+          {hasMyQna && total > 1 && (
+            <div className="flex justify-center gap-50">
               {myQnas.map((q, i) => (
                 <span
                   key={q.qnaId}
@@ -105,16 +131,48 @@ export function LessonQnaCard({ myQnas, onAskClick, onSelectQna }: Props) {
                 />
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.min(total - 1, p + 1))}
-              disabled={page >= total - 1}
-              aria-label="다음 질문"
-              className="text-border-default disabled:opacity-50"
-            >
-              <ChevronRight className="h-300 w-300" />
-            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-150">
+        <p className="font-designer-14b text-gray-1000">빌더들의 질문</p>
+
+        {builderQnas.length > 0 ? (
+          <div className="flex flex-col gap-125">
+            {builderQnas.map((q, i) => (
+              <button
+                key={q.qnaId ?? i}
+                type="button"
+                onClick={() => onSelectQna(q.qnaId)}
+                className="flex h-1250 w-full flex-col gap-50 overflow-hidden rounded-100 border border-gray-200 bg-gray-100 px-150 py-175 text-left hover:border-border-brand"
+              >
+                <div className="flex w-full items-center gap-125">
+                  <p className="flex-1 truncate font-designer-14b text-gray-800">
+                    {stripHtml(q.title)}
+                  </p>
+                  <p className="shrink-0 font-designer-13m text-gray-400">
+                    {formatDate(q.createdAt)}
+                  </p>
+                  <div className="flex shrink-0 items-center gap-50">
+                    <ModeCommentIcon className="h-225 w-225 text-gray-400" />
+                    <span className="font-designer-13m text-gray-400">
+                      {q.answerCount}
+                    </span>
+                  </div>
+                </div>
+                {q.preview && (
+                  <p className="line-clamp-2 font-designer-14r text-gray-1000">
+                    {q.preview}
+                  </p>
+                )}
+              </button>
+            ))}
           </div>
+        ) : (
+          <p className="rounded-100 border border-border-subtle bg-gray-100 p-150 text-center font-designer-13m text-gray-400">
+            아직 질문이 없어요.
+          </p>
         )}
       </div>
     </div>
