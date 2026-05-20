@@ -7,6 +7,7 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { isHtmlContent } from '@/utils/markdown-content-shared';
+import { replaceEmoticonShortcodes } from './emoticon-shortcode';
 import hljs from './hljs-setup';
 import {
   applyPostSanitizeAttributes,
@@ -36,6 +37,10 @@ const MARKDOWN_CONTENT_BASE_STYLES = [
   '[&_.mermaid-render-error]:border-border-error [&_.mermaid-render-error]:bg-background-error-subtle [&_.mermaid-render-error]:text-text-error [&_.mermaid-render-error]:font-designer-13r [&_.mermaid-render-error]:mb-150 [&_.mermaid-render-error]:rounded-100 [&_.mermaid-render-error]:border [&_.mermaid-render-error]:p-125',
   '[&_iframe.youtube-embed]:mb-100 [&_iframe.youtube-embed]:flex [&_iframe.youtube-embed]:justify-center [&_iframe.youtube-embed]:aspect-video [&_iframe.youtube-embed]:w-full [&_iframe.youtube-embed]:max-w-youtube-embed [&_iframe.youtube-embed]:rounded-100 [&_iframe.youtube-embed]:border [&_iframe.youtube-embed]:border-border-subtle',
   '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-100 [&_img]:block [&_img]:h-auto [&_img]:max-h-markdown-img [&_img]:max-w-markdown-img [&_img]:border [&_img]:object-contain',
+  '[&_img.emoticon-inline]:!inline-block [&_img.emoticon-inline]:!h-[24px] [&_img.emoticon-inline]:!w-auto [&_img.emoticon-inline]:!max-h-[24px] [&_img.emoticon-inline]:!max-w-none [&_img.emoticon-inline]:!border-0 [&_img.emoticon-inline]:!rounded-none [&_img.emoticon-inline]:!my-0 [&_img.emoticon-inline]:!mb-0 [&_img.emoticon-inline]:!align-middle',
+  '[&_img.emoticon-lg]:!inline-block [&_img.emoticon-lg]:!h-[48px] [&_img.emoticon-lg]:!w-auto [&_img.emoticon-lg]:!max-h-[48px] [&_img.emoticon-lg]:!max-w-none [&_img.emoticon-lg]:!border-0 [&_img.emoticon-lg]:!rounded-none [&_img.emoticon-lg]:!my-0 [&_img.emoticon-lg]:!mb-0 [&_img.emoticon-lg]:!align-middle',
+  '[&_img.emoticon-xl]:!inline-block [&_img.emoticon-xl]:!h-[96px] [&_img.emoticon-xl]:!w-auto [&_img.emoticon-xl]:!max-h-[96px] [&_img.emoticon-xl]:!max-w-none [&_img.emoticon-xl]:!border-0 [&_img.emoticon-xl]:!rounded-none [&_img.emoticon-xl]:!my-0 [&_img.emoticon-xl]:!mb-0 [&_img.emoticon-xl]:!align-middle',
+  '[&_img.emoticon-xxl]:!inline-block [&_img.emoticon-xxl]:!h-[150px] [&_img.emoticon-xxl]:!w-auto [&_img.emoticon-xxl]:!max-h-[150px] [&_img.emoticon-xxl]:!max-w-none [&_img.emoticon-xxl]:!border-0 [&_img.emoticon-xxl]:!rounded-none [&_img.emoticon-xxl]:!my-0 [&_img.emoticon-xxl]:!mb-0 [&_img.emoticon-xxl]:!align-middle',
   '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-25',
   '[&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-100 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100',
   '[&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_pre_code]:py-0',
@@ -63,8 +68,9 @@ function MarkdownContent({
     }
 
     const isOriginalHtml = isHtmlContent(normalizedContent);
-    const normalizedContentWithEmbeds =
-      replaceStandaloneYouTubeLinksWithEmbeds(normalizedContent);
+    const normalizedContentWithEmbeds = replaceEmoticonShortcodes(
+      replaceStandaloneYouTubeLinksWithEmbeds(normalizedContent),
+    );
 
     let html: string;
 
