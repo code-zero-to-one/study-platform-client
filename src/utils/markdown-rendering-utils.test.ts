@@ -3,6 +3,7 @@ import {
   hasRenderableMarkdownSyntax,
   recoverMarkdownTextFromTextOnlyHtml,
   renderMarkdownToHtml,
+  shouldRenderMarkdownAsMarkdown,
 } from './markdown-rendering-utils';
 
 const signedImageUrl =
@@ -64,5 +65,36 @@ describe('markdown-rendering-utils', () => {
         `<p>본문</p><img src="${signedImageUrl}">`,
       ),
     ).toBeUndefined();
+  });
+
+  it('treats HTML examples inside fenced code blocks as markdown content', () => {
+    const markdown = [
+      '#IDE #Cursor #HTML',
+      '',
+      '### 5단계. 첫 웹페이지 띄우기',
+      '',
+      '```markdown',
+      '<h1>Hello, Zero-One!</h1>',
+      '<h2>I am a Vibe Coder</h2>',
+      '<h3>Future Frontier</h3>',
+      '```',
+      '',
+      `![image.png](${signedImageUrl})`,
+    ].join('\n');
+
+    expect(shouldRenderMarkdownAsMarkdown(markdown)).toBe(true);
+
+    const html = renderMarkdownToHtml(markdown);
+
+    expect(html).toContain('<h3>');
+    expect(html).toContain('<pre><code class="language-markdown">');
+    expect(html).toContain('&lt;h1&gt;Hello, Zero-One!&lt;/h1&gt;');
+    expect(html).toContain('<img');
+  });
+
+  it('keeps normal editor HTML classified as HTML even if it has text', () => {
+    expect(
+      shouldRenderMarkdownAsMarkdown('<p>본문</p><img src="/images/a.png">'),
+    ).toBe(false);
   });
 });

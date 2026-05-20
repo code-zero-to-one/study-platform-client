@@ -7,7 +7,10 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { isHtmlContent } from '@/utils/markdown-content-shared';
-import { normalizeMarkdownForRichRendering } from '@/utils/markdown-rendering-utils';
+import {
+  normalizeMarkdownForRichRendering,
+  shouldRenderMarkdownAsMarkdown,
+} from '@/utils/markdown-rendering-utils';
 import hljs from './hljs-setup';
 import {
   applyPostSanitizeAttributes,
@@ -65,7 +68,9 @@ function MarkdownContent({
 
     const renderableContent =
       normalizeMarkdownForRichRendering(normalizedContent);
-    const isOriginalHtml = isHtmlContent(renderableContent);
+    const isOriginalHtml =
+      isHtmlContent(renderableContent) &&
+      !shouldRenderMarkdownAsMarkdown(renderableContent);
     const normalizedContentWithEmbeds =
       replaceStandaloneYouTubeLinksWithEmbeds(renderableContent);
 
