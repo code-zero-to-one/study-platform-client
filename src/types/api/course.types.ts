@@ -111,6 +111,28 @@ export type CoursePaymentStatus =
   | 'FAILED'
   | 'CANCELED';
 
+export interface MyCoursePaymentListItemResponse {
+  paymentId: number;
+  paymentCode: string;
+  courseId: number;
+  courseSlug: string;
+  courseTitle: string;
+  planId: number | null;
+  planCode: string;
+  planName: string;
+  amount: number;
+  status: CoursePaymentStatus;
+  paymentMethod: 'CARD' | 'VIRTUAL_ACCOUNT';
+  tossReceiptUrl: string | null;
+  virtualAccountNumber: string | null;
+  virtualAccountDueDate: string | null;
+  requestedAt: string | null;
+  paidAt: string | null;
+  canceledAt: string | null;
+  createdAt: string;
+  cancellable: boolean;
+}
+
 export interface CoursePaymentPrepareRequest {
   planCode: CoursePlanCode;
   buyerName: string;
@@ -627,8 +649,19 @@ export interface LessonQnaSidebarItem {
   createdAt: string;
 }
 
+// TODO: backend to add `builderQnas: List<BuilderQna>` to LessonQnaSidebarResponse.java
+// BuilderQna should include: qnaId, title, answerCount, createdAt, preview (content excerpt)
+export interface BuilderQnaSidebarItem {
+  qnaId: number;
+  title: string;
+  answerCount: number;
+  createdAt: string;
+  preview?: string;
+}
+
 export interface LessonQnaSidebarResponse {
   qnas: LessonQnaSidebarItem[];
+  builderQnas?: BuilderQnaSidebarItem[];
 }
 
 // ─── Gift Email ───────────────────────────────────────────────────────────────

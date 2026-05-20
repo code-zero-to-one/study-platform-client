@@ -28,7 +28,12 @@ const NAV_ITEMS: {
     icon: PenLine,
     prefixMatch: true,
   },
-  { href: '/my-inquiry', label: '1:1 문의', icon: FileEdit, prefixMatch: true },
+  {
+    href: '/my-inquiry',
+    label: '1:1 문의',
+    icon: FileEdit,
+    prefixMatch: true,
+  },
   {
     href: '/builder-letter',
     label: '빌더 레터',

@@ -63,6 +63,7 @@ const TRANSACTION_TYPE_MAP: Record<
 };
 
 export default function PaymentManagement() {
+  const router = useRouter();
   const [page, setPage] = useState<number>(1);
   const [expandedGroupStudyIds, setExpandedGroupStudyIds] = useState<
     Set<number>
@@ -112,6 +113,22 @@ export default function PaymentManagement() {
   return (
     <div className="flex flex-col gap-300">
       <div className="font-designer-20b text-text-default">결제 관리</div>
+
+      <div className="border-border-subtle flex border-b">
+        <button
+          type="button"
+          className="font-designer-14m text-text-default border-primary-500 border-b-2 px-200 pb-200"
+        >
+          스터디 결제
+        </button>
+        <button
+          type="button"
+          className="font-designer-14m text-text-subtlest px-200 pb-200"
+          onClick={() => router.push('/class-payment-management')}
+        >
+          클래스 결제
+        </button>
+      </div>
 
       {/* 날짜 선택 & 검색 */}
       <div className="flex flex-col gap-200 sm:flex-row sm:items-center sm:justify-between">
