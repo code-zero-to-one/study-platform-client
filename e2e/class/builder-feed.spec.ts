@@ -203,15 +203,20 @@ async function mockFeedDetailApis(page: Page) {
     async (route) => route.fulfill({ json: makeComments() }),
   );
 
-  // (5) like — /builder-feeds/{id}/like (checked first via LIFO)
+  // (5) like — POST /builder-feeds/{id}/like (checked first via LIFO)
   await page.route(
     (url) =>
       url.pathname.startsWith('/api/v5/builder-feeds/') &&
       url.pathname.endsWith('/like'),
-    async (route) =>
-      route.fulfill({
+    async (route) => {
+      if (route.request().method() !== 'POST') {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
         json: { content: { feedId: FEED_ID, isLiked: true, likeCount: 6 } },
-      }),
+      });
+    },
   );
 }
 
