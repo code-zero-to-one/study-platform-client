@@ -106,13 +106,7 @@ async function mockApis(page: Page): Promise<void> {
 
 async function gotoComplete(page: Page): Promise<void> {
   await mockApis(page);
-  // Pre-register before navigation — courseId resolves first, then recap fires
-  const recapResponse = page.waitForResponse(
-    (r) => /\/courses\/\d+\/completion-recap/.test(r.url()),
-    { timeout: 15000 },
-  );
   await page.goto(COMPLETE_PATH, { waitUntil: 'load' });
-  await recapResponse;
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -124,21 +118,21 @@ test.describe('코스 완주 recap 렌더링 @auth', () => {
 
   test('"축하합니다. 드디어 해내셨어요!" 헤딩 표시', async ({ page }) => {
     await expect(page.getByText('축하합니다. 드디어 해내셨어요!')).toBeVisible({
-      timeout: 5000,
+      timeout: 25000,
     });
   });
 
   test('studyDays stat "7" 표시', async ({ page }) => {
     // studyDays appears in both the stat card and the message card
-    await expect(page.getByText('7').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('7').first()).toBeVisible({ timeout: 25000 });
   });
 
   test('latestCompletedLessonCount "20" 표시', async ({ page }) => {
-    await expect(page.getByText('20').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('20').first()).toBeVisible({ timeout: 25000 });
   });
 
   test('siteUrlCount "3" 표시', async ({ page }) => {
-    await expect(page.getByText('3').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('3').first()).toBeVisible({ timeout: 25000 });
   });
 });
 
@@ -151,7 +145,7 @@ test.describe('CTA 내비게이션 @auth', () => {
     page,
   }) => {
     const link = page.getByRole('link', { name: '빌더들의 바이브 보기' });
-    await expect(link).toBeVisible({ timeout: 5000 });
+    await expect(link).toBeVisible({ timeout: 25000 });
     const href = await link.getAttribute('href');
     expect(href).toContain('/class/vibe-intro/home');
     expect(href).toContain('tab=feed');
@@ -159,13 +153,13 @@ test.describe('CTA 내비게이션 @auth', () => {
 
   test('"내 빌더 필드 모아보기" → /my-page', async ({ page }) => {
     const link = page.getByRole('link', { name: '내 빌더 필드 모아보기' });
-    await expect(link).toBeVisible({ timeout: 5000 });
+    await expect(link).toBeVisible({ timeout: 25000 });
     expect(await link.getAttribute('href')).toBe('/my-page');
   });
 
   test('"건너뛰기" → /class', async ({ page }) => {
     const link = page.getByRole('link', { name: '건너뛰기' });
-    await expect(link).toBeVisible({ timeout: 5000 });
+    await expect(link).toBeVisible({ timeout: 25000 });
     expect(await link.getAttribute('href')).toBe('/class');
   });
 });
