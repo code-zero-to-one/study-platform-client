@@ -136,7 +136,12 @@ export function LessonQnaCard({
       </div>
 
       <div className="flex flex-col gap-150">
-        <p className="font-designer-14b text-gray-1000">빌더들의 질문</p>
+        <div className="flex items-center gap-125">
+          <p className="font-designer-14b text-gray-1000">빌더들의 질문</p>
+          <span className="rounded-100 bg-gray-200 px-100 font-designer-14b text-gray-600">
+            {builderQnas.length}
+          </span>
+        </div>
 
         {builderQnas.length > 0 ? (
           <div className="flex flex-col gap-125">

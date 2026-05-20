@@ -3,7 +3,14 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type RefObject,
+  use,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import {
   useGetCourseDrawer,
@@ -41,15 +48,24 @@ export default function LessonPage({
 
   const [tab, setTab] = useState<LessonTabValue>('follow');
   const reviewRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const topBarRef = useRef<HTMLDivElement>(null);
+
+  function scrollToRef(ref: RefObject<HTMLDivElement | null>) {
+    if (!ref.current) return;
+    const headerHeight = topBarRef.current?.offsetHeight ?? 64;
+    const top =
+      ref.current.getBoundingClientRect().top +
+      window.scrollY -
+      headerHeight -
+      16;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
 
   function handleTabChange(next: LessonTabValue) {
     setTab(next);
-    if (next === 'review') {
-      reviewRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
+    if (next === 'review') scrollToRef(reviewRef);
+    else if (next === 'follow') scrollToRef(contentRef);
   }
   const [starRating, setStarRating] = useState(0);
   const [highlightAnswer, setHighlightAnswer] = useState('');
@@ -184,13 +200,15 @@ export default function LessonPage({
         courseSlug={lesson?.courseSlug ?? slug}
       />
 
-      <LessonTopBar
-        onToggleCurriculum={() => setCurriculumOpen((v) => !v)}
-        curriculumOpen={curriculumOpen}
-        currentLesson={lessonId}
-        totalLessons={totalLessons}
-        courseTitle={courseTitle}
-      />
+      <div ref={topBarRef}>
+        <LessonTopBar
+          onToggleCurriculum={() => setCurriculumOpen((v) => !v)}
+          curriculumOpen={curriculumOpen}
+          currentLesson={lessonId}
+          totalLessons={totalLessons}
+          courseTitle={courseTitle}
+        />
+      </div>
 
       <div className="mx-auto w-full max-w-[1236px] px-300">
         <div className="grid grid-cols-content-sidebar-360 items-start gap-250 pt-500">
@@ -232,7 +250,10 @@ export default function LessonPage({
               <LessonTabs value={tab} onChange={handleTabChange} />
             </div>
 
-            <div className="mt-300 min-h-[964px] rounded-150 bg-background-default p-500">
+            <div
+              ref={contentRef}
+              className="mt-300 min-h-[964px] rounded-150 bg-background-default p-500"
+            >
               {lesson?.contentMarkdown ? (
                 <MarkdownContentCore content={lesson.contentMarkdown} />
               ) : (
