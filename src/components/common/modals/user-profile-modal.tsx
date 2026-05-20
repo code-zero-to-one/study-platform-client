@@ -99,12 +99,6 @@ function UserProfileBody({
               )}
             </div>
           </div>
-
-          <div className="flex shrink-0 items-start gap-1125">
-            <StatItem label="빌더피드" count={0} />
-            <StatItem label="팔로워" count={0} />
-            <StatItem label="팔로잉" count={0} />
-          </div>
         </div>
 
         <button
@@ -144,16 +138,5 @@ function Header({ title, onClose }: { title: string; onClose: () => void }) {
         <XIcon />
       </Modal.Close>
     </Modal.Header>
-  );
-}
-
-function StatItem({ label, count }: { label: string; count: number }) {
-  return (
-    <div className="flex flex-col items-center gap-50">
-      <span className="font-designer-22m text-text-strong">
-        {count.toLocaleString()}
-      </span>
-      <span className="font-designer-14r text-text-subtle">{label}</span>
-    </div>
   );
 }

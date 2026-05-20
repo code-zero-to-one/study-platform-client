@@ -38,7 +38,7 @@ export default function CommunityAuthorNameTrigger({
     <button
       type="button"
       aria-label={`${name} 프로필 보기`}
-      className="flex cursor-pointer items-center gap-75 rounded-50 transition-colors hover:opacity-80 focus-visible:outline-none"
+      className="flex cursor-pointer items-center gap-75 rounded-50 transition-colors hover:opacity-80 focus-visible:text-text-brand focus-visible:outline-none"
     >
       <UserAvatar image={image} size={imageSize} />
       <span className={cn(className)}>{name}</span>
