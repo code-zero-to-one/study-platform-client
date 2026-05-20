@@ -3,7 +3,6 @@
 import { MoreVertical, PencilLine, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import Avatar from '@/components/common/ui/avatar';
 import FieldErrorText from '@/components/common/ui/form/field-error-text';
 import type { CommunityQnaComment } from '@/types/community/qna-domain';
 import CommunityAuthorNameTrigger from './community-author-name-trigger';
@@ -50,12 +49,6 @@ export default function CommunityQnaCommentItem({
   return (
     <article className="flex flex-col gap-150">
       <div className="flex items-start gap-150">
-        <Avatar
-          image={comment.author.profileImageUrl}
-          alt={comment.author.name}
-          size={36}
-        />
-
         <div className="min-w-0 flex-1">
           <div className="relative flex items-start gap-150">
             <div
@@ -69,6 +62,8 @@ export default function CommunityQnaCommentItem({
                 <CommunityAuthorNameTrigger
                   memberId={comment.author.memberId}
                   name={comment.author.name}
+                  image={comment.author.profileImageUrl}
+                  imageSize={36}
                   className="font-designer-14b text-text-strong"
                 />
                 <CommunityMemberRoleBadge role={comment.author.role} />
