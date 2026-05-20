@@ -53,7 +53,10 @@ export default function Sidebar() {
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/payment-management')}
-        isActive={pathname === '/payment-management'}
+        isActive={
+          pathname === '/payment-management' ||
+          pathname === '/class-payment-management'
+        }
       >
         결제 관리
       </SidebarItem>
