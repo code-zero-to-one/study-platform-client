@@ -213,17 +213,11 @@ export default function MarkdownContentCore({
     const contentWithEmbeds =
       replaceStandaloneYouTubeLinksWithEmbeds(renderableContent);
 
-    let html: string;
-
-    if (isOriginalHtml) {
-      html = contentWithEmbeds;
-    } else {
-      const rendered = marked.parse(contentWithEmbeds, {
-        breaks: true,
-        gfm: true,
-      });
-      html = typeof rendered === 'string' ? rendered : '';
-    }
+    const rendered = marked.parse(contentWithEmbeds, {
+      breaks: true,
+      gfm: true,
+    });
+    const html = typeof rendered === 'string' ? rendered : '';
 
     const sanitized = DOMPurify.sanitize(html, SANITIZE_OPTIONS);
 
