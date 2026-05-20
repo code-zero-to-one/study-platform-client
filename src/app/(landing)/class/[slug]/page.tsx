@@ -3,7 +3,6 @@
 import { Flame, History, ThumbsUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { use, useMemo, useState } from 'react';
-import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import { ClassDetailBenefitsSection } from '@/components/pages/class/class-detail-benefits-section';
 import { ClassDetailBuilderFeedSection } from '@/components/pages/class/class-detail-builder-feed-section';
 import {
@@ -274,7 +273,6 @@ export default function ClassDetailPage({
           />
         </div>
       </div>
-      <FloatingClassActionButtons />
     </div>
   );
 }
