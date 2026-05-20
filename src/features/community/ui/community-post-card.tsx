@@ -3,7 +3,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { MouseEvent } from 'react';
-import Avatar from '@/components/common/ui/avatar';
 import { buildCommunityFeedItemDetailHref } from '@/features/community/model/community-feed-item';
 import { getCommunityPostPreviewText } from '@/features/community/model/community-rich-content';
 import type { CommunityPost } from '@/types/community/domain';
@@ -64,18 +63,13 @@ export default function CommunityPostCard({
             {showBoardBadge ? (
               <CommunityBoardBadge board={post.board} showIcon={false} />
             ) : null}
-            <span className="flex items-center gap-75">
-              <Avatar
-                image={post.authorImage}
-                alt={post.authorName}
-                size={20}
-              />
-              <CommunityAuthorNameTrigger
-                memberId={post.authorMemberId}
-                name={post.authorName}
-                className="font-designer-13r text-text-default"
-              />
-            </span>
+            <CommunityAuthorNameTrigger
+              memberId={post.authorMemberId}
+              name={post.authorName}
+              image={post.authorImage}
+              imageSize={20}
+              className="font-designer-13r text-text-default"
+            />
             <CommunityMemberRoleBadge role={post.role} />
             <span className="font-designer-13r text-text-subtlest">
               {post.createdAt}

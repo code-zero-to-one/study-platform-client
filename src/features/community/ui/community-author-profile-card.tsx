@@ -1,6 +1,5 @@
 'use client';
 
-import Avatar from '@/components/common/ui/avatar';
 import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import { CommunityMemberRoleBadge } from './community-meta-badge';
@@ -16,13 +15,13 @@ export default function CommunityAuthorProfileCard({
 
   return (
     <section className="flex items-start gap-200">
-      <Avatar image={post.authorImage} alt={post.authorName} size={56} />
-
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-100">
           <CommunityAuthorNameTrigger
             memberId={post.authorMemberId}
             name={post.authorName}
+            image={post.authorImage}
+            imageSize={56}
             className="font-designer-20b text-text-strong"
           />
           <CommunityMemberRoleBadge role={post.role} />

@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import Avatar from '@/components/common/ui/avatar';
 import type {
   CommunityComment,
   CommunityCommentReactionSelection,
@@ -121,12 +120,6 @@ export default function CommunityCommentItem({
   return (
     <article className="flex flex-col gap-150">
       <div className="flex items-start gap-150">
-        <Avatar
-          image={comment.authorImage}
-          alt={comment.authorName}
-          size={36}
-        />
-
         <div className="min-w-0 flex-1">
           <div className="relative flex items-start gap-150">
             <div
@@ -139,6 +132,8 @@ export default function CommunityCommentItem({
                 <CommunityAuthorNameTrigger
                   memberId={comment.authorMemberId}
                   name={comment.authorName}
+                  image={comment.authorImage}
+                  imageSize={36}
                   className="font-designer-14b text-text-strong"
                 />
                 <CommunityMemberRoleBadge role={comment.authorRole} />

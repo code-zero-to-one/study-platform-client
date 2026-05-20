@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type MouseEvent } from 'react';
-import Avatar from '@/components/common/ui/avatar';
 import { buildCommunityQuestionHref } from '@/features/community/model/community-route';
 import {
   COMMUNITY_BOARD,
@@ -123,18 +122,13 @@ export default function CommunityQnaQuestionCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-100">
             <CommunityBoardBadge board={COMMUNITY_BOARD.QNA} showIcon={false} />
-            <span className="flex items-center gap-75">
-              <Avatar
-                image={question.author.profileImageUrl}
-                alt={question.author.name}
-                size={20}
-              />
-              <CommunityAuthorNameTrigger
-                memberId={question.author.memberId}
-                name={question.author.name}
-                className="font-designer-13r text-text-default"
-              />
-            </span>
+            <CommunityAuthorNameTrigger
+              memberId={question.author.memberId}
+              name={question.author.name}
+              image={question.author.profileImageUrl}
+              imageSize={20}
+              className="font-designer-13r text-text-default"
+            />
             <CommunityMemberRoleBadge role={question.author.role} />
             <span className="font-designer-13r text-text-subtlest">
               {question.createdAt}
