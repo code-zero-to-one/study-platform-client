@@ -4,7 +4,6 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useMemo, useRef, useState } from 'react';
-import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import {
   useGetCourseDrawer,
@@ -324,7 +323,6 @@ export default function LessonPage({
         onClose={() => setLinkModalOpen(false)}
         onConfirm={(url) => setArtifactLink(url)}
       />
-      <FloatingClassActionButtons />
     </div>
   );
 }
