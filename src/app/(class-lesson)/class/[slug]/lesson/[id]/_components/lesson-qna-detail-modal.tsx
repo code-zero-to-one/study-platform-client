@@ -8,6 +8,7 @@ import {
   ThumbsUp,
   X,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -30,6 +31,11 @@ import type {
   LessonQnaDetailResponse,
 } from '@/types/api/course.types';
 import { analyzeError } from '@/utils/error-handler';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 
 interface Props {
   qnaId: number | null;
@@ -218,7 +224,22 @@ function QuestionSection({ qna, onDeleted }: QuestionSectionProps) {
 
       {/* Author row */}
       <div className="mb-300 flex items-center gap-150">
-        <UserAvatar image={undefined} size={34} alt={qna.author.nickname} />
+        <UserProfileModal
+          memberId={qna.author.memberId}
+          trigger={
+            <button
+              type="button"
+              className="cursor-pointer"
+              aria-label={`${qna.author.nickname} 프로필 보기`}
+            >
+              <UserAvatar
+                image={undefined}
+                size={34}
+                alt={qna.author.nickname}
+              />
+            </button>
+          }
+        />
         <div className="flex flex-1 items-center gap-50">
           <p className="font-designer-14m text-gray-800">
             {qna.author.nickname}
@@ -510,7 +531,22 @@ function AnswerItem({ answer, qnaId }: AnswerItemProps) {
 
       {/* Answerer row */}
       <div className="flex items-center gap-150">
-        <UserAvatar image={undefined} size={34} alt={answer.author.nickname} />
+        <UserProfileModal
+          memberId={answer.author.memberId}
+          trigger={
+            <button
+              type="button"
+              className="cursor-pointer"
+              aria-label={`${answer.author.nickname} 프로필 보기`}
+            >
+              <UserAvatar
+                image={undefined}
+                size={34}
+                alt={answer.author.nickname}
+              />
+            </button>
+          }
+        />
         <div className="flex flex-1 items-center gap-50">
           <p className="font-designer-14m text-gray-800">
             {answer.author.nickname}

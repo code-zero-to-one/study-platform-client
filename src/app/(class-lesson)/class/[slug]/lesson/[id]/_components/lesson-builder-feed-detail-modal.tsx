@@ -1,7 +1,13 @@
 'use client';
 
 import { Heart, MessageCircle, X } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
 import {
   AuthorAvatar,
@@ -54,7 +60,18 @@ export function LessonBuilderFeedDetailModal({ feedId, onClose }: Props) {
               {/* Author row */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-150">
-                  <AuthorAvatar nickname={feed.author.nickname} />
+                  <UserProfileModal
+                    memberId={feed.author.memberId}
+                    trigger={
+                      <button
+                        type="button"
+                        className="cursor-pointer"
+                        aria-label={`${feed.author.nickname} 프로필 보기`}
+                      >
+                        <AuthorAvatar nickname={feed.author.nickname} />
+                      </button>
+                    }
+                  />
                   <div className="flex flex-col">
                     <div className="flex items-center gap-50">
                       <p className="font-designer-14b text-gray-800">
