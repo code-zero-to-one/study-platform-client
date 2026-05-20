@@ -25,6 +25,30 @@ describe('normalizeAdminCourseMarkdownContent', () => {
     expect(normalized).toContain(signedImageUrl);
   });
 
+  it('keeps markdown parsing when lesson text includes HTML examples in code fences', () => {
+    const normalized = normalizeAdminCourseMarkdownContent(
+      [
+        '#IDE #Cursor #HTML',
+        '',
+        '### 5단계. 첫 웹페이지 띄우기',
+        '',
+        '```markdown',
+        '<h1>Hello, Zero-One!</h1>',
+        '<h2>I am a Vibe Coder</h2>',
+        '<h3>Future Frontier</h3>',
+        '```',
+        '',
+        `![image.png](${signedImageUrl})`,
+      ].join('\n'),
+    );
+
+    expect(normalized).toContain('<h3>');
+    expect(normalized).toContain('<pre><code class="language-markdown">');
+    expect(normalized).toContain('&lt;h1&gt;Hello, Zero-One!&lt;/h1&gt;');
+    expect(normalized).toContain('<img');
+    expect(normalized).toContain(signedImageUrl);
+  });
+
   it('keeps normal editor HTML as HTML while stripping unsafe attributes', () => {
     const normalized = normalizeAdminCourseMarkdownContent(
       '<p class="external" onclick="alert(1)">본문</p><img src="https://example.com/a.png" style="width:100px">',

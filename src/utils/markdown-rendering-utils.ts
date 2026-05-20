@@ -14,6 +14,8 @@ const MARKDOWN_TABLE_PATTERN = /^\s*\|?.+\|.+\r?\n\s*\|?\s*:?-{3,}:?\s*\|/m;
 
 const TEXT_ONLY_HTML_TAGS = new Set(['p', 'br']);
 const HTML_TAG_PATTERN = /<\/?([a-z][a-z0-9-]*)\b[^>]*>/gi;
+const HTML_LEADING_TAG_PATTERN = /^<[a-z][a-z0-9-]*(?:\s[^<>]*?)?>/i;
+const MARKDOWN_CODE_FENCE_BLOCK_PATTERN = /```[\s\S]*?```/g;
 
 export const hasRenderableMarkdownSyntax = (content: unknown) => {
   const value = toNonEmptyTrimmedString(content);
@@ -38,6 +40,27 @@ export const renderMarkdownToHtml = (content: string) => {
   });
 
   return typeof rendered === 'string' ? rendered.trim() : '';
+};
+
+export const shouldRenderMarkdownAsMarkdown = (content: unknown) => {
+  const value = toNonEmptyTrimmedString(content);
+  if (!value || !hasRenderableMarkdownSyntax(value)) {
+    return false;
+  }
+
+  if (!isHtmlContent(value)) {
+    return true;
+  }
+
+  const contentWithoutFencedCode = value.replace(
+    MARKDOWN_CODE_FENCE_BLOCK_PATTERN,
+    '',
+  );
+  if (!isHtmlContent(contentWithoutFencedCode)) {
+    return true;
+  }
+
+  return !HTML_LEADING_TAG_PATTERN.test(value);
 };
 
 export const recoverMarkdownTextFromTextOnlyHtml = (

@@ -2,9 +2,9 @@ import { COMMUNITY_MARKDOWN_MAX_IMAGE_FILE_SIZE } from '@/types/community/markdo
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { isHtmlContent } from '@/utils/markdown-content-shared';
 import {
-  hasRenderableMarkdownSyntax,
   recoverMarkdownTextFromTextOnlyHtml,
   renderMarkdownToHtml,
+  shouldRenderMarkdownAsMarkdown,
 } from '@/utils/markdown-rendering-utils';
 
 export const ADMIN_COURSE_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS = [
@@ -138,10 +138,12 @@ export const normalizeAdminCourseMarkdownContent = (content: unknown) => {
     return normalizedContent;
   }
 
+  if (shouldRenderMarkdownAsMarkdown(normalizedContent)) {
+    return renderMarkdownToHtml(normalizedContent);
+  }
+
   if (!isHtmlContent(normalizedContent)) {
-    return hasRenderableMarkdownSyntax(normalizedContent)
-      ? renderMarkdownToHtml(normalizedContent)
-      : normalizedContent;
+    return normalizedContent;
   }
 
   const recoveredMarkdown =
