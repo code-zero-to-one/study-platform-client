@@ -1,4 +1,5 @@
 import { GoogleTagManager } from '@next/third-parties/google';
+import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import GlobalToast from '@/components/common/ui/global-toast';
 import { createAuthHydrationSession } from '@/features/auth/model/auth-hydration-session';
 import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
@@ -20,6 +21,7 @@ export default async function ClassLessonLayout({
       <MainProvider initialSession={initialHydrationSession}>
         {children}
         <GlobalToast />
+        <FloatingClassActionButtons />
       </MainProvider>
     </>
   );
