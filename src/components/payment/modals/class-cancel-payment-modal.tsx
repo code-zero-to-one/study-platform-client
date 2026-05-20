@@ -7,10 +7,12 @@ import { Modal } from '@/components/common/ui/modal';
 import { useCancelCoursePayment } from '@/hooks/queries/course/course-api';
 
 const CANCEL_REASONS = [
+  { value: 'PAYMENT_METHOD_CHANGE', label: '결제 수단 변경 후 재결제' },
+  { value: 'DUPLICATE_PURCHASE', label: '중복 결제' },
   { value: 'CHANGE_OF_MIND', label: '단순 변심' },
   { value: 'CONTENT_UNSATISFIED', label: '강의 내용 불만족' },
-  { value: 'DUPLICATE_PURCHASE', label: '중복 구매' },
-  { value: 'OTHER', label: '기타' },
+  { value: 'TECHNICAL_ISSUE', label: '기술적 문제 / 오류' },
+  { value: 'OTHER', label: '기타(상세 내용에 기재)' },
 ] as const;
 
 interface ClassCancelPaymentModalProps {
@@ -24,7 +26,6 @@ interface ClassCancelPaymentModalProps {
 export default function ClassCancelPaymentModal({
   courseId,
   paymentId,
-  paymentMethod,
   open,
   onOpenChange,
 }: ClassCancelPaymentModalProps) {
@@ -55,20 +56,19 @@ export default function ClassCancelPaymentModal({
       <Modal.Root open={open} onOpenChange={handleClose}>
         <Modal.Portal>
           <Modal.Overlay />
-          <Modal.Content size="small" className="w-[423px]">
+          <Modal.Content size="medium">
             <Modal.Header variant="alert">
-              <Modal.Title>취소 완료</Modal.Title>
+              <Modal.Title>환불이 완료되었습니다</Modal.Title>
             </Modal.Header>
 
             <Modal.Body variant="alert">
-              <div className="flex flex-col items-center gap-200 text-center">
-                <p className="font-designer-16b text-text-default">
-                  취소가 완료되었습니다
+              <div className="flex flex-col gap-100 text-center">
+                <p className="font-designer-14r text-text-default">
+                  카드 환불 시 카드사에 따라 영업일 2-3일 정도 소요될 수
+                  있습니다.
                 </p>
-                <p className="font-designer-14r text-text-subtle">
-                  {paymentMethod === 'CARD'
-                    ? '카드 결제 취소는 영업일 기준 3~5일 이내 처리됩니다.'
-                    : '무통장 입금 취소는 결제 취소 요청 즉시 처리됩니다.'}
+                <p className="font-designer-14r text-text-default">
+                  무통장 환불 시 영업일 7일 이내로 환불 예정입니다.
                 </p>
               </div>
             </Modal.Body>
@@ -93,26 +93,26 @@ export default function ClassCancelPaymentModal({
     <Modal.Root open={open} onOpenChange={handleClose}>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content size="small" className="w-[423px]">
+        <Modal.Content size="large">
           <Modal.Header variant="alert">
-            <Modal.Title>결제 취소 요청하기</Modal.Title>
+            <Modal.Title>환불 요청하기</Modal.Title>
           </Modal.Header>
 
           <Modal.Body variant="alert">
             <div className="flex flex-col gap-300">
               <p className="font-designer-14r text-text-subtle">
-                취소 요청 시 클래스에 더 이상 참여하실 수 없습니다.
+                환불 요청 시 진행하시는 클래스에 더 이상 참여하실 수 없습니다.
               </p>
 
               <div className="flex flex-col gap-100">
                 <label className="font-designer-14m text-text-default">
-                  취소 사유
+                  환불 사유
                 </label>
                 <SingleDropdown
                   options={CANCEL_REASONS}
                   value={reason}
                   onChange={setReason}
-                  placeholder="취소 사유를 선택해주세요"
+                  placeholder="사유를 선택해 주세요."
                   size="l"
                 />
               </div>
@@ -122,8 +122,8 @@ export default function ClassCancelPaymentModal({
                   상세 내용
                 </label>
                 <textarea
-                  className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest h-[120px] w-full resize-none border p-150 outline-none"
-                  placeholder="상세 내용을 입력해주세요"
+                  className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest h-1500 w-full resize-none border p-150 outline-none"
+                  placeholder="환불 이유를 간략히 적어주세요."
                   value={detail}
                   onChange={(e) => setDetail(e.target.value)}
                 />
@@ -148,7 +148,7 @@ export default function ClassCancelPaymentModal({
                 disabled={isPending}
                 onClick={handleConfirm}
               >
-                확인
+                환불하기
               </Button>
             </div>
           </Modal.Footer>
