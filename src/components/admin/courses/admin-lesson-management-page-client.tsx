@@ -735,8 +735,6 @@ export default function AdminLessonManagementPageClient({
                           'border-border-default flex items-start justify-between gap-100 border-b p-125',
                           editingLessonId === lesson.lessonId &&
                             'bg-fill-brand-subtle-default',
-                          recentlyImportedLessonIds.includes(lesson.lessonId) &&
-                            'bg-fill-success-subtle-default',
                         )}
                       >
                         <button
@@ -750,6 +748,9 @@ export default function AdminLessonManagementPageClient({
                           </span>
                           <div className="flex flex-wrap gap-50">
                             <LessonStatusBadges lesson={lesson} />
+                            {recentlyImportedLessonIds.includes(
+                              lesson.lessonId,
+                            ) && <Badge color="green">방금 생성</Badge>}
                             {dirtyLessonIdSet.has(lesson.lessonId) && (
                               <Badge color="orange">수정됨</Badge>
                             )}
