@@ -145,7 +145,7 @@ export default function ClassCancelPaymentModal({
                 color="primary"
                 size="medium"
                 className="flex-1"
-                disabled={isPending}
+                disabled={!reason || isPending}
                 onClick={handleConfirm}
               >
                 환불하기

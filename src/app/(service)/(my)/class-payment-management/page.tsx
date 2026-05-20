@@ -186,14 +186,15 @@ export default function ClassPaymentManagementPage() {
                   paymentMethod: payment.paymentMethod,
                 })
               }
-              onViewVirtualAccount={() =>
+              onViewVirtualAccount={() => {
+                if (!payment.virtualAccountNumber) return;
                 setVaModal({
                   bankName: '-',
-                  accountNumber: payment.virtualAccountNumber ?? undefined,
+                  accountNumber: payment.virtualAccountNumber,
                   customerName: undefined,
                   dueDate: payment.virtualAccountDueDate ?? undefined,
-                })
-              }
+                });
+              }}
             />
           ))}
         </div>
@@ -235,7 +236,7 @@ function PaymentCard({
   return (
     <div className="border-border-subtle rounded-200 flex gap-300 border p-300">
       {/* 썸네일 */}
-      <div className="bg-primary-500 h-[80px] w-[80px] flex-shrink-0 rounded-150 bg-gradient-to-br from-primary-500 to-rose-300" />
+      <div className="h-1000 w-1000 flex-shrink-0 rounded-150 bg-gradient-to-br from-primary-500 to-rose-300" />
 
       {/* 내용 */}
       <div className="flex flex-1 flex-col gap-100">
