@@ -6,10 +6,10 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const NAV_ITEMS = [
   { href: '/my-page', label: '프로필' },
-  { href: '/notification', label: '알림' },
-  { href: '/my-activity', label: '내 활동' },
-  { href: '/my-study', label: '마이스터디' },
-  { href: '/my-study-review', label: '스터디 후기', prefixMatch: true },
+  { href: '/my-class', label: '마이 클래스' },
+  { href: '/my-posts', label: '내가 작성한 글', prefixMatch: true },
+  { href: '/my-inquiry', label: '1:1 문의', prefixMatch: true },
+  { href: '/builder-letter', label: '빌더 레터', prefixMatch: true },
   { href: '/payment-management', label: '결제 관리' },
 ];
 
