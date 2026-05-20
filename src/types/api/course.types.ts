@@ -643,8 +643,19 @@ export interface LessonQnaSidebarItem {
   createdAt: string;
 }
 
+// TODO: backend to add `builderQnas: List<BuilderQna>` to LessonQnaSidebarResponse.java
+// BuilderQna should include: qnaId, title, answerCount, createdAt, preview (content excerpt)
+export interface BuilderQnaSidebarItem {
+  qnaId: number;
+  title: string;
+  answerCount: number;
+  createdAt: string;
+  preview?: string;
+}
+
 export interface LessonQnaSidebarResponse {
   qnas: LessonQnaSidebarItem[];
+  builderQnas?: BuilderQnaSidebarItem[];
 }
 
 // ─── Gift Email ───────────────────────────────────────────────────────────────

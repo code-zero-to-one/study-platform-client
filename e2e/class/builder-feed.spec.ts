@@ -132,12 +132,27 @@ function makeComments(): { content: BuilderFeedCommentsResponse } {
 }
 
 // ─── Route Mock Helpers ───────────────────────────────────────────────────────
+//
+// Use URL-object function predicates (url.pathname) rather than regex strings
+// so cross-origin requests to test-api.zeroone.it.kr are matched precisely.
+//
+// Registration order follows LIFO (last registered = first evaluated), so
+// more-specific handlers are registered last.
 
 async function mockFeedListApis(page: Page, feeds: FeedItem[] = []) {
-  await page.route(/\/courses\//, async (route) => {
-    const url = route.request().url();
-    if (url.includes('/courses/vibe-intro/curriculum')) {
-      await route.fulfill({
+  // (1) course detail — single path segment after /courses/
+  await page.route(
+    (url) => /\/api\/v5\/courses\/[^/]+$/.test(url.pathname),
+    async (route) => route.fulfill({ json: makeCourseDetail() }),
+  );
+
+  // (2) curriculum — /courses/{slug}/curriculum
+  await page.route(
+    (url) =>
+      url.pathname.startsWith('/api/v5/courses/') &&
+      url.pathname.endsWith('/curriculum'),
+    async (route) =>
+      route.fulfill({
         json: {
           content: {
             courseId: COURSE_ID,
@@ -147,42 +162,57 @@ async function mockFeedListApis(page: Page, feeds: FeedItem[] = []) {
             chapters: [],
           },
         },
-      });
-    } else if (url.includes('/builder-feeds')) {
-      await route.fulfill({ json: makeFeedList(feeds) });
-    } else if (url.includes('/courses/vibe-intro')) {
-      await route.fulfill({ json: makeCourseDetail() });
-    } else {
-      await route.continue();
-    }
-  });
+      }),
+  );
+
+  // (3) builder-feeds list — /courses/{courseId}/builder-feeds (checked first via LIFO)
+  await page.route(
+    (url) =>
+      url.pathname.startsWith('/api/v5/courses/') &&
+      url.pathname.includes('/builder-feeds'),
+    async (route) => route.fulfill({ json: makeFeedList(feeds) }),
+  );
 }
 
 async function mockFeedDetailApis(page: Page) {
-  // Intercept builder-feeds/* routes first (more specific)
-  await page.route(/\/builder-feeds\//, async (route) => {
-    const url = route.request().url();
-    if (url.includes('/comments')) {
-      await route.fulfill({ json: makeComments() });
-    } else if (url.includes('/like')) {
-      await route.fulfill({
+  // (1) course detail
+  await page.route(
+    (url) => /\/api\/v5\/courses\/[^/]+$/.test(url.pathname),
+    async (route) => route.fulfill({ json: makeCourseDetail() }),
+  );
+
+  // (2) builder-feeds list on course (for "더 많은 피드" section)
+  await page.route(
+    (url) =>
+      url.pathname.startsWith('/api/v5/courses/') &&
+      url.pathname.includes('/builder-feeds'),
+    async (route) => route.fulfill({ json: makeFeedList([]) }),
+  );
+
+  // (3) feed detail — /builder-feeds/{id} (exact numeric id, no sub-path)
+  await page.route(
+    (url) => /\/api\/v5\/builder-feeds\/\d+$/.test(url.pathname),
+    async (route) => route.fulfill({ json: makeFeedDetail() }),
+  );
+
+  // (4) comments — /builder-feeds/{id}/comments
+  await page.route(
+    (url) =>
+      url.pathname.startsWith('/api/v5/builder-feeds/') &&
+      url.pathname.endsWith('/comments'),
+    async (route) => route.fulfill({ json: makeComments() }),
+  );
+
+  // (5) like — /builder-feeds/{id}/like (checked first via LIFO)
+  await page.route(
+    (url) =>
+      url.pathname.startsWith('/api/v5/builder-feeds/') &&
+      url.pathname.endsWith('/like'),
+    async (route) =>
+      route.fulfill({
         json: { content: { feedId: FEED_ID, isLiked: true, likeCount: 6 } },
-      });
-    } else {
-      await route.fulfill({ json: makeFeedDetail() });
-    }
-  });
-  // Intercept /courses/* for "더 많은 피드" and course detail
-  await page.route(/\/courses\//, async (route) => {
-    const url = route.request().url();
-    if (url.includes('/builder-feeds')) {
-      await route.fulfill({ json: makeFeedList([]) });
-    } else if (url.includes('/courses/vibe-intro')) {
-      await route.fulfill({ json: makeCourseDetail() });
-    } else {
-      await route.continue();
-    }
-  });
+      }),
+  );
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -193,9 +223,10 @@ test.describe('빌더 피드 목록 @auth', () => {
   }) => {
     await mockFeedListApis(page, [makeFeedItem(FEED_ID)]);
     await page.goto(FEED_LIST_PATH, { waitUntil: 'load' });
+    await page.waitForLoadState('networkidle', { timeout: 30000 });
 
     await expect(page.getByText(/테스트 피드 내용/)).toBeVisible({
-      timeout: 25000,
+      timeout: 15000,
     });
     await expect(page.getByText('테스터').first()).toBeVisible();
   });
@@ -205,9 +236,10 @@ test.describe('빌더 피드 목록 @auth', () => {
   }) => {
     await mockFeedListApis(page, []);
     await page.goto(FEED_LIST_PATH, { waitUntil: 'load' });
+    await page.waitForLoadState('networkidle', { timeout: 30000 });
 
     await expect(page.getByText('아직 등록된 피드가 없어요.')).toBeVisible({
-      timeout: 25000,
+      timeout: 15000,
     });
   });
 });
@@ -219,9 +251,10 @@ test.describe('빌더 피드 상세 @auth', () => {
 
   test('피드 상세 렌더링 — 내용·댓글 표시', async ({ page }) => {
     await page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' });
+    await page.waitForLoadState('networkidle', { timeout: 30000 });
 
     await expect(page.getByText('피드 상세 내용입니다.')).toBeVisible({
-      timeout: 25000,
+      timeout: 15000,
     });
     await expect(page.getByText('멋진 피드네요!')).toBeVisible({
       timeout: 10000,
@@ -231,22 +264,19 @@ test.describe('빌더 피드 상세 @auth', () => {
   test('좋아요 버튼 클릭 → POST /builder-feeds/{id}/like 호출 확인', async ({
     page,
   }) => {
-    await Promise.all([
-      page.waitForResponse(
-        (r) =>
-          /\/builder-feeds\/\d+$/.test(r.url()) &&
-          r.request().method() === 'GET',
-        { timeout: 45000 },
-      ),
-      page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' }),
-    ]);
+    await page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' });
+    await page.waitForLoadState('networkidle', { timeout: 30000 });
 
-    // Like button is the first action button (Heart icon + likeCount)
+    await expect(page.getByText('피드 상세 내용입니다.')).toBeVisible({
+      timeout: 15000,
+    });
+
     const [likeResponse] = await Promise.all([
       page.waitForResponse(
         (r) =>
           r.url().includes(`/builder-feeds/${FEED_ID}/like`) &&
           r.request().method() === 'POST',
+        { timeout: 15000 },
       ),
       page.locator('button').filter({ hasText: '5' }).first().click(),
     ]);

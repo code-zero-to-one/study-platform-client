@@ -45,12 +45,12 @@ export function LessonTopBar({
       </button>
 
       <div className="flex items-center gap-350 px-350">
+        <p className="font-designer-16b text-gray-1000">{courseTitle}</p>
         <div className="flex items-center rounded-100 bg-rose-200 px-125 py-25">
           <p className="font-designer-16m text-rose-400">
             {currentLesson} / {totalLessons}
           </p>
         </div>
-        <p className="font-designer-16b text-gray-1000">{courseTitle}</p>
       </div>
 
       <div className="flex-1 px-300">
@@ -65,9 +65,7 @@ export function LessonTopBar({
       <div className="mr-400 flex h-450 items-center rounded-100 bg-gray-800 px-250">
         <p className="font-designer-16b">
           <span className="text-text-brand">{discordCount}</span>
-          <span className="text-text-inverse">
-            명과 디스코드에서 함께 공부중!
-          </span>
+          <span className="text-text-inverse">명과 함께 공부 중!</span>
         </p>
       </div>
     </div>
