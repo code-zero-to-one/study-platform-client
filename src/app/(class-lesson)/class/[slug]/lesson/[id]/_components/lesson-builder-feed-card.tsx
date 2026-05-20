@@ -94,6 +94,7 @@ export function LessonBuilderFeedCard({ feeds, onSelectFeed }: Props) {
                   type="button"
                   className="cursor-pointer"
                   aria-label={`${current.author.nickname} 프로필 보기`}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <AuthorAvatar nickname={current.author.nickname} />
                 </button>
