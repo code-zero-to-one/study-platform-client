@@ -7,6 +7,7 @@ import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import Header from '@/components/common/layout/home-header';
 import SentryInit from '@/components/common/sentry-init';
+import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import FloatingInquiryButton from '@/components/common/ui/floating-inquiry-button';
 import GlobalToast from '@/components/common/ui/global-toast';
 import { createAuthHydrationSession } from '@/features/auth/model/auth-hydration-session';
@@ -45,6 +46,7 @@ export default async function ServiceLayout({
           <main className="w-full flex-1">{children}</main>
           <FloatingInquiryButton />
         </div>
+        <FloatingClassActionButtons />
       </MainProvider>
     </>
   );
