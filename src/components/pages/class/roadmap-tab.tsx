@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import FloatingClassActionButtons from '@/components/common/ui/floating-class-action-buttons';
 import {
   LockIcon,
   LockOpenIcon,
@@ -557,8 +556,6 @@ export function RoadmapTab({ slug }: { slug: string }) {
           }}
         />
       )}
-
-      <FloatingClassActionButtons />
 
       {showPlanModal && course?.plans?.[0] && (
         <PlanSelectionModal
