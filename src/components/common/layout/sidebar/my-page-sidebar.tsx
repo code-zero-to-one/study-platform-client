@@ -1,75 +1,66 @@
 'use client';
 
+import {
+  BookOpen,
+  CreditCard,
+  FileEdit,
+  LogOut,
+  Mail,
+  PenLine,
+  User,
+  type LucideIcon,
+} from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useLogoutMutation } from '@/hooks/queries/auth/use-auth-mutation';
-import { useUserProfileQuery } from '@/hooks/queries/user/use-user-profile-query';
+
+const NAV_ITEMS: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  prefixMatch?: boolean;
+}[] = [
+  { href: '/my-page', label: '프로필', icon: User },
+  { href: '/my-class', label: '마이 클래스', icon: BookOpen },
+  {
+    href: '/my-posts',
+    label: '내가 작성한 글',
+    icon: PenLine,
+    prefixMatch: true,
+  },
+  { href: '/my-inquiry', label: '1:1 문의', icon: FileEdit, prefixMatch: true },
+  {
+    href: '/builder-letter',
+    label: '빌더 레터',
+    icon: Mail,
+    prefixMatch: true,
+  },
+  { href: '/payment-management', label: '결제 관리', icon: CreditCard },
+];
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
-
-  const { memberId } = useAuthReady();
   const { mutateAsync: logout } = useLogoutMutation();
-
-  const { data: profile } = useUserProfileQuery(memberId ?? 0);
-
-  const handleLogout = async () => {
-    await logout();
-  };
 
   return (
     <div className="border-border-subtle box-border hidden w-[300px] flex-col gap-150 border-x-1 px-300 pt-500 lg:flex">
-      <SidebarItem
-        onClick={() => router.push('/my-page')}
-        isActive={pathname === '/my-page'}
-      >
-        프로필
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/notification')}
-        isActive={pathname === '/notification'}
-      >
-        알림
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/my-activity')}
-        isActive={pathname === '/my-activity'}
-      >
-        내 활동
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/my-study')}
-        isActive={pathname === '/my-study'}
-      >
-        마이스터디
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/my-study-review')}
-        isActive={pathname.startsWith('/my-study-review')}
-      >
-        스터디 후기
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/payment-management')}
-        isActive={
-          pathname === '/payment-management' ||
-          pathname === '/class-payment-management'
-        }
-      >
-        결제 관리
-      </SidebarItem>
-      {profile?.premiumCreator && (
+      {NAV_ITEMS.map((item) => (
         <SidebarItem
-          onClick={() => router.push('/settlement-management')}
-          isActive={pathname === '/settlement-management'}
+          key={item.href}
+          onClick={() => router.push(item.href)}
+          isActive={
+            item.prefixMatch
+              ? pathname.startsWith(item.href)
+              : pathname === item.href
+          }
+          icon={item.icon}
         >
-          정산 관리
+          {item.label}
         </SidebarItem>
-      )}
+      ))}
       <div className="bg-border-subtlest h-[1px]" />
-      <SidebarItem onClick={handleLogout} isActive={false}>
+      <SidebarItem onClick={() => logout()} isActive={false} icon={LogOut}>
         로그아웃
       </SidebarItem>
     </div>
@@ -80,21 +71,26 @@ function SidebarItem({
   children,
   isActive,
   onClick,
+  icon: Icon,
 }: {
   children: React.ReactNode;
   isActive: boolean;
   onClick: () => void;
+  icon: LucideIcon;
 }) {
   return (
-    <div className="flex py-[14px] pr-150 pl-150">
+    <div className="flex py-175 pr-150 pl-150">
       <button
         type="button"
         onClick={onClick}
         className={cn(
-          'font-designer-18m text-text-default cursor-pointer',
-          isActive && 'font-designer-18b text-text-default',
+          'flex cursor-pointer items-center gap-250',
+          isActive
+            ? 'font-designer-18b text-text-default'
+            : 'font-designer-18m text-text-subtle',
         )}
       >
+        <Icon size={24} />
         {children}
       </button>
     </div>
