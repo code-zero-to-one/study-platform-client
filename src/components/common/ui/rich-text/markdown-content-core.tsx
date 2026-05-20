@@ -27,6 +27,8 @@ import {
   applyYouTubeIframeAttributes,
   replaceStandaloneYouTubeLinksWithEmbeds,
 } from '@/components/common/ui/editor/youtube-utils';
+import { isHtmlContent } from '@/lib/rich-text/markdown-utils';
+import { normalizeMarkdownForRichRendering } from '@/utils/markdown-rendering-utils';
 
 hljs.registerLanguage('kotlin', kotlin);
 hljs.registerLanguage('sql', sql);
@@ -206,7 +208,10 @@ export default function MarkdownContentCore({
       return '';
     }
 
-    const contentWithEmbeds = replaceStandaloneYouTubeLinksWithEmbeds(content);
+    const renderableContent = normalizeMarkdownForRichRendering(content);
+    const isOriginalHtml = isHtmlContent(renderableContent);
+    const contentWithEmbeds =
+      replaceStandaloneYouTubeLinksWithEmbeds(renderableContent);
 
     const rendered = marked.parse(contentWithEmbeds, {
       breaks: true,
