@@ -36,6 +36,10 @@ import { extractImageUrls } from '@/utils/markdown-content-images';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
 import {
+  hasRenderableMarkdownSyntax,
+  renderMarkdownToHtml,
+} from '@/utils/markdown-rendering-utils';
+import {
   extractClipboardImageFiles,
   hasClipboardImageHint,
   isClipboardImageOnly,
@@ -406,6 +410,20 @@ function MarkdownEditor({
         if (markdownTable) {
           event.preventDefault();
           insertMarkdownTable(editorInstance, markdownTable);
+          return true;
+        }
+
+        if (
+          !pastedHtml.trim() &&
+          !editorInstance.isActive('codeBlock') &&
+          hasRenderableMarkdownSyntax(pastedText)
+        ) {
+          event.preventDefault();
+          editorInstance
+            .chain()
+            .focus()
+            .insertContent(renderMarkdownToHtml(pastedText))
+            .run();
           return true;
         }
 
