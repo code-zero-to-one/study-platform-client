@@ -64,8 +64,8 @@ export default function QnaDetailPage({
   const { id, slug } = use(params);
   const qnaId = parseInt(id, 10);
   const router = useRouter();
-  const { roleIds } = useAuth();
-  const isAdmin = roleIds.includes(AUTH_ROLE_IDS.ADMIN);
+  const { data: authData } = useAuth();
+  const isAdmin = authData?.roleIds.includes(AUTH_ROLE_IDS.ADMIN) ?? false;
   const { data: qna, isLoading } = useGetLessonQnaDetail(qnaId);
   const showToast = useToastStore((s) => s.showToast);
 
