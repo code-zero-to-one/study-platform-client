@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   LockIcon,
@@ -27,6 +27,7 @@ import {
   mergeLessons,
   type LessonDisplayInfo,
 } from './home-constants';
+import { CurvedRoad, HorizontalRoad } from './journey-road';
 import { LessonPreviewModal } from './lesson-preview-modal';
 import { LessonStamp } from './lesson-stamp';
 import { PlanSelectionModal } from './plan-selection-modal';
@@ -80,9 +81,9 @@ export function RoadmapTab({ slug }: { slug: string }) {
   const totalLessons = progress?.totalLessons ?? 0;
   const progressRate = progress?.progressRate ?? 0;
 
-  const nextAccessibleLesson = journeyMap?.lessons.find(
-    (l) => l.status !== 'COMPLETED' && l.isAccessible,
-  );
+  const nextAccessibleLesson = [...(journeyMap?.lessons ?? [])]
+    .sort((a, b) => a.order - b.order)
+    .find((l) => l.status !== 'COMPLETED' && l.isAccessible);
 
   const nextLessonDescription =
     chapters
@@ -250,113 +251,104 @@ export function RoadmapTab({ slug }: { slug: string }) {
                         ri === 0 ? 'mt-800' : '',
                       )}
                     >
-                      {index === 0 && ri === 0 && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Image
-                            alt=""
-                            aria-hidden="true"
-                            width={795}
-                            height={10}
-                          />
-                        </div>
-                      )}
                       <div
                         className={cn(
-                          'relative z-10 flex items-center justify-center gap-2500',
+                          'relative z-10 flex items-center justify-center',
                           ri % 2 === 1 && 'flex-row-reverse',
                         )}
                       >
                         {row.map((lesson, li) => (
-                          <div key={lesson.lessonId} className="relative">
-                            {index === 0 && ri === 0 && li === 0 && (
-                              <div className="absolute bottom-full left-1/2 flex -translate-x-1/2 flex-col items-center">
-                                {isAuthenticated ? (
-                                  <Link
-                                    href={
-                                      chapters[0]?.lessons[0]
-                                        ? `/class/${slug}/lesson/${chapters[0].lessons[0].lessonId}`
-                                        : '#'
-                                    }
-                                    className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-20sb text-gray-0"
-                                  >
-                                    Start
-                                  </Link>
-                                ) : (
-                                  <LoginModal
-                                    openTrigger={
-                                      <button
-                                        type="button"
-                                        className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-gray-0"
-                                      >
-                                        Start
-                                      </button>
-                                    }
-                                  />
-                                )}
-                                <svg
-                                  aria-hidden="true"
-                                  width="21"
-                                  height="24"
-                                  viewBox="0 0 21 24"
-                                >
-                                  <polygon
-                                    points="0,0 21,0 10.5,13"
-                                    className="fill-background-brand-default"
-                                  />
-                                </svg>
-                              </div>
+                          <Fragment key={lesson.lessonId}>
+                            {li > 0 && (
+                              <HorizontalRoad
+                                isCompleted={row[li - 1].status === 'COMPLETED'}
+                              />
                             )}
-                            <LessonStamp
-                              lesson={lesson}
-                              isAuthenticated={isAuthenticated}
-                              onSelect={(l) =>
-                                setSelectedLesson({
-                                  lesson: l,
-                                  chapter,
-                                })
-                              }
-                              shouldBlink={
-                                (completedLessons === 0 &&
-                                  index === 0 &&
-                                  ri === 0 &&
-                                  li === 0) ||
-                                lesson.lessonId === blinkLessonId
-                              }
-                              learnerCount={
-                                journeyMap?.learnerCount ??
-                                course?.learnerCount ??
-                                0
-                              }
-                            />
-                          </div>
+                            <div className="relative">
+                              {index === 0 && ri === 0 && li === 0 && (
+                                <div className="absolute bottom-full left-1/2 flex -translate-x-1/2 flex-col items-center">
+                                  {isAuthenticated ? (
+                                    <Link
+                                      href={
+                                        chapters[0]?.lessons[0]
+                                          ? `/class/${slug}/lesson/${chapters[0].lessons[0].lessonId}`
+                                          : '#'
+                                      }
+                                      className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-20sb text-gray-0"
+                                    >
+                                      Start
+                                    </Link>
+                                  ) : (
+                                    <LoginModal
+                                      openTrigger={
+                                        <button
+                                          type="button"
+                                          className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-gray-0"
+                                        >
+                                          Start
+                                        </button>
+                                      }
+                                    />
+                                  )}
+                                  <svg
+                                    aria-hidden="true"
+                                    width="21"
+                                    height="24"
+                                    viewBox="0 0 21 24"
+                                  >
+                                    <polygon
+                                      points="0,0 21,0 10.5,13"
+                                      className="fill-background-brand-default"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
+                              <LessonStamp
+                                lesson={lesson}
+                                isAuthenticated={isAuthenticated}
+                                onSelect={(l) =>
+                                  setSelectedLesson({
+                                    lesson: l,
+                                    chapter,
+                                  })
+                                }
+                                shouldBlink={
+                                  (completedLessons === 0 &&
+                                    index === 0 &&
+                                    ri === 0 &&
+                                    li === 0) ||
+                                  lesson.lessonId === blinkLessonId
+                                }
+                                learnerCount={
+                                  journeyMap?.learnerCount ??
+                                  course?.learnerCount ??
+                                  0
+                                }
+                              />
+                            </div>
+                          </Fragment>
                         ))}
                       </div>
                       {ri === rows.length - 1 &&
                         index < visibleChapters.length - 1 && (
                           <div className="pointer-events-none absolute right-0 top-1/2">
-                            <Image
-                              alt=""
-                              aria-hidden="true"
-                              width={906}
+                            <CurvedRoad
                               height={398}
-                              className={cn(
-                                'max-w-none!',
-                                rows.length % 2 === 0 && '-scale-x-100',
-                              )}
+                              mirror={rows.length % 2 === 0}
+                              isCompleted={
+                                row[row.length - 1].status === 'COMPLETED'
+                              }
                             />
                           </div>
                         )}
                       {ri < rows.length - 1 && (
                         <div className="pointer-events-none absolute right-0 top-1/2">
-                          <Image
-                            alt=""
-                            aria-hidden="true"
-                            width={906}
+                          <CurvedRoad
                             height={319}
-                            className={cn(
-                              'max-w-none!',
-                              ri % 2 === 1 && '-scale-x-100',
-                            )}
+                            mirror={ri % 2 === 1}
+                            isCompleted={
+                              row[row.length - 1].status === 'COMPLETED'
+                            }
                           />
                         </div>
                       )}
@@ -420,7 +412,9 @@ export function RoadmapTab({ slug }: { slug: string }) {
 
         {/* Lesson card list */}
         {(() => {
-          const allLessons = chapters.flatMap((ch) => ch.lessons);
+          const allLessons = chapters
+            .flatMap((ch) => ch.lessons)
+            .sort((a, b) => a.order - b.order);
           const visibleLessons = allLessons.slice(0, visibleLessonCount);
           const hasMoreLessons = visibleLessonCount < allLessons.length;
 
