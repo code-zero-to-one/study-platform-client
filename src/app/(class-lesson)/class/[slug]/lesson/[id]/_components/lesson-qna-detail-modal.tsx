@@ -86,7 +86,6 @@ function HtmlContent({ html }: { html: string }) {
     <div className="tiptap-editor">
       <div
         className="tiptap font-designer-16r leading-relaxed text-gray-800"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: DOMPurify sanitized
         dangerouslySetInnerHTML={{ __html: sanitized }}
       />
     </div>
