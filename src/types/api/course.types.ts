@@ -538,6 +538,7 @@ export interface BuilderFeedDetailResponse {
   lessonId: number;
   content: string;
   imageUrls: string[];
+  artifactUrl: string | null;
   author: FeedAuthor;
   likeCount: number;
   commentCount: number;

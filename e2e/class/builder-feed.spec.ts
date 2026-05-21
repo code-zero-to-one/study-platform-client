@@ -106,6 +106,7 @@ function makeFeedDetail(): { content: BuilderFeedDetailResponse } {
       lessonId: 101,
       content: '피드 상세 내용입니다.',
       imageUrls: [],
+      artifactUrl: null,
       author: { memberId: 2, nickname: '테스터', role: 'STUDENT' },
       likeCount: 5,
       commentCount: 1,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, MessageCircle, X } from 'lucide-react';
+import { Heart, Link as LinkIcon, MessageCircle, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
@@ -20,6 +20,10 @@ import { useGetBuilderFeedDetail } from '@/hooks/queries/course/course-api';
 interface Props {
   feedId: number | null;
   onClose: () => void;
+}
+
+function isImageUrl(url: string): boolean {
+  return /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url);
 }
 
 export function LessonBuilderFeedDetailModal({ feedId, onClose }: Props) {
@@ -90,6 +94,30 @@ export function LessonBuilderFeedDetailModal({ feedId, onClose }: Props) {
                   {formatRelativeTime(feed.createdAt)}
                 </p>
               </div>
+
+              {/* Artifact — retrospective screenshot or link */}
+              {feed.artifactUrl &&
+                (isImageUrl(feed.artifactUrl) ? (
+                  <div className="relative aspect-video overflow-hidden rounded-100 bg-gray-200">
+                    <Image
+                      src={feed.artifactUrl}
+                      alt="제출 스크린샷"
+                      fill
+                      unoptimized
+                      className="object-contain"
+                    />
+                  </div>
+                ) : (
+                  <a
+                    href={feed.artifactUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-100 break-all font-designer-14m text-background-brand-default hover:underline"
+                  >
+                    <LinkIcon className="h-200 w-200 shrink-0" />
+                    {feed.artifactUrl}
+                  </a>
+                ))}
 
               {/* Content */}
               <MarkdownContentCore content={feed.content} />

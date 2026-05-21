@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Link as LinkIcon, MoreVertical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -30,6 +30,10 @@ import {
   useToggleFeedLike,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
+
+function isImageUrl(url: string): boolean {
+  return /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url);
+}
 
 export default function FeedDetailPage({
   params,
@@ -309,6 +313,30 @@ export default function FeedDetailPage({
                 ))}
               </div>
             )}
+
+            {/* Artifact — retrospective screenshot or link */}
+            {feed?.artifactUrl &&
+              (isImageUrl(feed.artifactUrl) ? (
+                <div className="relative mt-250 aspect-video overflow-hidden rounded-150 bg-gray-200">
+                  <Image
+                    src={feed.artifactUrl}
+                    alt="제출 스크린샷"
+                    fill
+                    unoptimized
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <a
+                  href={feed.artifactUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-250 flex items-center gap-100 break-all font-designer-14m text-background-brand-default hover:underline"
+                >
+                  <LinkIcon className="h-200 w-200 shrink-0" />
+                  {feed.artifactUrl}
+                </a>
+              ))}
 
             {/* Content */}
             <MarkdownContentCore
