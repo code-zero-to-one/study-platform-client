@@ -28,6 +28,8 @@ import {
   applyYouTubeIframeAttributes,
   replaceStandaloneYouTubeLinksWithEmbeds,
 } from '@/components/common/ui/editor/youtube-utils';
+import { isHtmlContent } from '@/utils/markdown-content-shared';
+import { normalizeMarkdownForRichRendering } from '@/utils/markdown-rendering-utils';
 
 hljs.registerLanguage('kotlin', kotlin);
 hljs.registerLanguage('sql', sql);
@@ -212,11 +214,15 @@ export default function MarkdownContentCore({
       replaceStandaloneYouTubeLinksWithEmbeds(content),
     );
 
-    const rendered = marked.parse(contentWithEmbeds, {
-      breaks: true,
-      gfm: true,
-    });
-    const html = typeof rendered === 'string' ? rendered : '';
+    const html = isHtmlContent(contentWithEmbeds)
+      ? contentWithEmbeds
+      : (() => {
+          const rendered = marked.parse(contentWithEmbeds, {
+            breaks: true,
+            gfm: true,
+          });
+          return typeof rendered === 'string' ? rendered : '';
+        })();
 
     const sanitized = DOMPurify.sanitize(html, SANITIZE_OPTIONS);
 
