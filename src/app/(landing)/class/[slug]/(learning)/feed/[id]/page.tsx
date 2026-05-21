@@ -251,7 +251,7 @@ export default function FeedDetailPage({
                 className="flex items-center gap-150"
               >
                 <div className="h-400 w-400 rounded-full bg-gray-200" />
-                <div className="text-left">
+                <div className="flex items-center gap-125">
                   <p className="font-designer-14b text-gray-800">
                     {feed?.author.nickname ?? ''}
                   </p>
@@ -611,7 +611,10 @@ export default function FeedDetailPage({
                                 <p className="mt-100 font-designer-14r text-gray-400">
                                   {new Date(r.createdAt).toLocaleDateString(
                                     'ko-KR',
-                                    { month: '2-digit', day: '2-digit' },
+                                    {
+                                      month: '2-digit',
+                                      day: '2-digit',
+                                    },
                                   )}
                                 </p>
                               </div>
