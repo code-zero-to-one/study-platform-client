@@ -275,14 +275,16 @@ export default function LessonPage({
             <div className="h-1000" />
           </div>
 
-          {/* RIGHT sticky sidebar */}
-          <div className="sticky top-800 z-10 flex flex-col gap-250">
-            <LessonQnaCard
-              myQnas={qnaSidebar?.qnas ?? []}
-              builderQnas={qnaSidebar?.builderQnas ?? []}
-              onAskClick={() => setSubmissionModalOpen(true)}
-              onSelectQna={setSelectedQnaId}
-            />
+          {/* RIGHT sidebar */}
+          <div className="flex flex-col gap-250">
+            <div className="sticky top-800 z-10">
+              <LessonQnaCard
+                myQnas={qnaSidebar?.qnas ?? []}
+                builderQnas={qnaSidebar?.builderQnas ?? []}
+                onAskClick={() => setSubmissionModalOpen(true)}
+                onSelectQna={setSelectedQnaId}
+              />
+            </div>
             <LessonBuilderFeedCard
               feeds={feedPreview?.feeds ?? []}
               onSelectFeed={setSelectedFeedId}
