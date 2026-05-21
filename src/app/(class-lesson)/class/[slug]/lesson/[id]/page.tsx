@@ -108,6 +108,16 @@ export default function LessonPage({
     [drawerChapters],
   );
 
+  const isLastLesson = useMemo(() => {
+    const allLessons = drawerChapters.flatMap((c) => c.lessons);
+    if (allLessons.length === 0) return false;
+    const isLast = allLessons.at(-1)?.lessonId === lessonId;
+    const allOthersCompleted = allLessons.every(
+      (l) => l.lessonId === lessonId || l.status === 'COMPLETED',
+    );
+    return isLast && allOthersCompleted;
+  }, [drawerChapters, lessonId]);
+
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
 
   function toggleChapter(chapterId: number) {
@@ -257,6 +267,7 @@ export default function LessonPage({
                 }
                 alreadySubmitted={alreadySubmitted}
                 submitting={submitRetrospective.isPending}
+                isLastLesson={isLastLesson}
                 onSubmit={handleSubmit}
               />
             ) : null}

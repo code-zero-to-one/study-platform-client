@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Link as LinkIcon, MoreVertical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -31,6 +31,10 @@ import {
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
+function isImageUrl(url: string): boolean {
+  return /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url);
+}
+
 export default function FeedDetailPage({
   params,
 }: {
@@ -48,6 +52,12 @@ export default function FeedDetailPage({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [replyingToId, setReplyingToId] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [commentMenuOpenId, setCommentMenuOpenId] = useState<number | null>(
+    null,
+  );
+  const [reportCommentId, setReportCommentId] = useState<number | null>(null);
 
   const { data: feed } = useGetBuilderFeedDetail(feedId);
   const { data: commentsData } = useGetFeedComments(feedId);
@@ -92,15 +102,39 @@ export default function FeedDetailPage({
     );
   }
 
+  function handleCreateReply() {
+    if (!replyText.trim() || replyingToId === null) return;
+    createCommentMutation.mutate(
+      {
+        feedId,
+        request: { content: replyText, parentCommentId: replyingToId },
+      },
+      {
+        onSuccess: () => {
+          setReplyText('');
+          setReplyingToId(null);
+          showToast('답글이 등록되었어요!');
+        },
+      },
+    );
+  }
+
   function handleReport() {
     if (!reportReason.trim()) return;
     reportFeedMutation.mutate(
-      { feedId, request: { reason: reportReason } },
+      {
+        feedId,
+        request: {
+          reason: reportReason,
+          commentId: reportCommentId ?? undefined,
+        },
+      },
       {
         onSuccess: () => {
           showToast('신고가 접수되었어요.');
           setShowReportModal(false);
           setReportReason('');
+          setReportCommentId(null);
         },
         onError: () => showToast('신고 접수에 실패했어요.', 'error'),
       },
@@ -128,6 +162,7 @@ export default function FeedDetailPage({
                 onClick={() => {
                   setShowReportModal(false);
                   setReportReason('');
+                  setReportCommentId(null);
                 }}
                 className="flex h-700 flex-1 items-center justify-center rounded-100 border border-border-default font-designer-16m text-gray-800"
               >
@@ -216,7 +251,7 @@ export default function FeedDetailPage({
                 className="flex items-center gap-150"
               >
                 <div className="h-400 w-400 rounded-full bg-gray-200" />
-                <div className="text-left">
+                <div className="flex items-center gap-125">
                   <p className="font-designer-14b text-gray-800">
                     {feed?.author.nickname ?? ''}
                   </p>
@@ -310,6 +345,30 @@ export default function FeedDetailPage({
               </div>
             )}
 
+            {/* Artifact — retrospective screenshot or link */}
+            {feed?.artifactUrl &&
+              (isImageUrl(feed.artifactUrl) ? (
+                <div className="relative mt-250 aspect-video overflow-hidden rounded-150 bg-gray-200">
+                  <Image
+                    src={feed.artifactUrl}
+                    alt="제출 스크린샷"
+                    fill
+                    unoptimized
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <a
+                  href={feed.artifactUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-250 flex items-center gap-100 break-all font-designer-14m text-background-brand-default hover:underline"
+                >
+                  <LinkIcon className="h-200 w-200 shrink-0" />
+                  {feed.artifactUrl}
+                </a>
+              ))}
+
             {/* Content */}
             <MarkdownContentCore
               className="mt-250"
@@ -373,37 +432,235 @@ export default function FeedDetailPage({
             {/* Comments */}
             <div className="mt-400 space-y-300">
               {(commentsData?.comments ?? []).map((c) => {
-                const isOperator = c.author.role === '운영진';
+                const isOperator =
+                  c.author.role === 'MANAGER' || c.author.role === 'ADMIN';
+                const isCommentAuthor =
+                  memberId !== undefined && c.author.memberId === memberId;
+                const isMenuOpen = commentMenuOpenId === c.commentId;
+                const isReplying = replyingToId === c.commentId;
                 return (
                   <div key={c.commentId}>
+                    {/* Comment row */}
                     <div className="flex items-start gap-150">
-                      <div className="h-350 w-350 shrink-0 rounded-full bg-gray-200" />
+                      <div className="h-425 w-425 shrink-0 rounded-full bg-gray-200" />
                       <div className="flex-1">
-                        <div className="flex items-center gap-125">
-                          <p
-                            className={cn(
-                              'font-designer-14b',
-                              isOperator ? 'text-text-brand' : 'text-gray-800',
+                        {/* Nickname + ⋮ */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-125">
+                            <p
+                              className={cn(
+                                'font-designer-14b',
+                                isOperator
+                                  ? 'text-text-brand'
+                                  : 'text-gray-800',
+                              )}
+                            >
+                              {c.author.nickname}
+                            </p>
+                            <RoleBadge role={c.author.role} />
+                          </div>
+                          {/* ⋮ menu */}
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCommentMenuOpenId(
+                                  isMenuOpen ? null : c.commentId,
+                                )
+                              }
+                              className="text-gray-400"
+                            >
+                              <MoreVertical className="h-250 w-250" />
+                            </button>
+                            {isMenuOpen && (
+                              <>
+                                <div
+                                  className="fixed inset-0 z-10"
+                                  onClick={() => setCommentMenuOpenId(null)}
+                                />
+                                <div className="absolute right-0 top-full z-20 mt-50 flex flex-col items-stretch gap-25 rounded-100 border border-gray-400 bg-background-default p-125 shadow-1">
+                                  {isCommentAuthor ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setCommentMenuOpenId(null);
+                                          showToast(
+                                            '댓글 수정 기능은 준비 중입니다.',
+                                          );
+                                        }}
+                                        className="flex items-center gap-125 whitespace-nowrap rounded-50 p-100 font-designer-18r text-gray-400 hover:bg-gray-100"
+                                      >
+                                        <FeedEditIcon className="h-300 w-300 shrink-0" />
+                                        수정
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setCommentMenuOpenId(null);
+                                          showToast(
+                                            '댓글 삭제 기능은 준비 중입니다.',
+                                          );
+                                        }}
+                                        className="flex items-center gap-125 whitespace-nowrap rounded-50 p-100 font-designer-18r text-gray-400 hover:bg-gray-100"
+                                      >
+                                        <FeedDeleteIcon className="h-300 w-300 shrink-0" />
+                                        삭제
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setCommentMenuOpenId(null);
+                                        setReportCommentId(c.commentId);
+                                        setShowReportModal(true);
+                                      }}
+                                      className="whitespace-nowrap rounded-50 p-100 font-designer-18r text-gray-400 hover:bg-gray-100"
+                                    >
+                                      신고하기
+                                    </button>
+                                  )}
+                                </div>
+                              </>
                             )}
-                          >
-                            {c.author.nickname}
-                          </p>
-                          <RoleBadge role={c.author.role} />
-                          <p className="font-designer-12r text-gray-400">
-                            {ROLE_LABELS[c.author.role] ?? c.author.role}
-                          </p>
-                          <p className="font-designer-12r text-gray-400">
+                          </div>
+                        </div>
+                        {/* Content */}
+                        <p className="mt-75 font-designer-14r leading-relaxed text-gray-800">
+                          {c.content}
+                        </p>
+                        {/* Date + 답글쓰기 — inline */}
+                        <div className="mt-100 flex items-center gap-50">
+                          <p className="font-designer-14r text-gray-400">
                             {new Date(c.createdAt).toLocaleDateString('ko-KR', {
                               month: '2-digit',
                               day: '2-digit',
                             })}
                           </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (isReplying) {
+                                setReplyingToId(null);
+                                setReplyText('');
+                              } else {
+                                setReplyingToId(c.commentId);
+                                setReplyText(`@${c.author.nickname} `);
+                              }
+                            }}
+                            className="px-100 font-designer-14r text-gray-500 hover:text-gray-800"
+                          >
+                            답글쓰기
+                          </button>
                         </div>
-                        <p className="mt-75 font-designer-14r leading-relaxed text-gray-800">
-                          {c.content}
-                        </p>
                       </div>
                     </div>
+
+                    {/* Existing replies */}
+                    {c.replies.length > 0 && (
+                      <div className="ml-575 mt-200 space-y-200">
+                        {c.replies.map((r) => {
+                          const isReplyOperator =
+                            r.author.role === 'MANAGER' ||
+                            r.author.role === 'ADMIN';
+                          const contentParts = r.content.startsWith('@')
+                            ? (() => {
+                                const spaceIdx = r.content.indexOf(' ');
+                                return spaceIdx !== -1
+                                  ? {
+                                      mention: r.content.slice(0, spaceIdx),
+                                      rest: r.content.slice(spaceIdx),
+                                    }
+                                  : null;
+                              })()
+                            : null;
+                          return (
+                            <div
+                              key={r.commentId}
+                              className="flex items-start gap-150"
+                            >
+                              <div className="h-425 w-425 shrink-0 rounded-full bg-gray-200" />
+                              <div className="flex-1">
+                                <div className="flex items-center gap-125">
+                                  <p
+                                    className={cn(
+                                      'font-designer-14b',
+                                      isReplyOperator
+                                        ? 'text-text-brand'
+                                        : 'text-gray-800',
+                                    )}
+                                  >
+                                    {r.author.nickname}
+                                  </p>
+                                  <RoleBadge role={r.author.role} />
+                                </div>
+                                <p className="mt-75 font-designer-14r leading-relaxed">
+                                  {contentParts ? (
+                                    <>
+                                      <span className="text-blue-500">
+                                        {contentParts.mention}
+                                      </span>
+                                      <span className="text-gray-800">
+                                        {contentParts.rest}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <span className="text-gray-800">
+                                      {r.content}
+                                    </span>
+                                  )}
+                                </p>
+                                <p className="mt-100 font-designer-14r text-gray-400">
+                                  {new Date(r.createdAt).toLocaleDateString(
+                                    'ko-KR',
+                                    {
+                                      month: '2-digit',
+                                      day: '2-digit',
+                                    },
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Reply input */}
+                    {isReplying && (
+                      <div className="ml-575 mt-200">
+                        <textarea
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          placeholder="답글을 남겨주세요"
+                          className="h-750 w-full resize-none rounded-100 border border-border-default p-150 font-designer-14r text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand"
+                        />
+                        <div className="mt-100 flex justify-end gap-150">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReplyingToId(null);
+                              setReplyText('');
+                            }}
+                            className="rounded-75 px-200 py-100 font-designer-13m text-gray-400 hover:bg-gray-100"
+                          >
+                            취소
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCreateReply}
+                            disabled={
+                              !replyText.trim() ||
+                              createCommentMutation.isPending
+                            }
+                            className="rounded-75 bg-background-brand-default px-200 py-100 font-designer-13m text-text-inverse disabled:opacity-50"
+                          >
+                            등록
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

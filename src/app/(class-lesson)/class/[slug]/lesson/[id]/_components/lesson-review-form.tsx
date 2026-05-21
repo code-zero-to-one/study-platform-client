@@ -38,6 +38,7 @@ interface LessonFormProps {
   artifactSubmissionRequired: boolean;
   alreadySubmitted: boolean;
   submitting: boolean;
+  isLastLesson?: boolean;
   onSubmit: (data: LessonFormData) => void;
 }
 
@@ -100,6 +101,7 @@ export function LessonReviewForm({
   artifactSubmissionRequired,
   alreadySubmitted,
   submitting,
+  isLastLesson = false,
   onSubmit,
 }: LessonFormProps) {
   const isQuiz = retrospectivePurpose === 'SUBJECTIVE_QUIZ';
@@ -348,7 +350,9 @@ export function LessonReviewForm({
           ? '이미 제출했어요'
           : submitting
             ? '제출 중...'
-            : '제출하고 다음 Lesson 하러 가기'}
+            : isLastLesson
+              ? '완주하고 축하 페이지로 가기'
+              : '제출하고 다음 Lesson 하러 가기'}
       </button>
 
       <LessonScreenshotModal

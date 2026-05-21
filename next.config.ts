@@ -145,8 +145,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname:
-          'uploaded-files-qa.32cd2fa416bea795bf67cbf65411103b.r2.cloudflarestorage.com',
+        hostname: '**.r2.cloudflarestorage.com',
         pathname: '/**',
       },
       ...(isProd
