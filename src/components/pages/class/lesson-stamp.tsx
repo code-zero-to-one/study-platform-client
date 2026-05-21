@@ -39,9 +39,9 @@ export function LessonStamp({
     >
       <Image
         src={
-          isActive
-            ? '/class/lesson-stamp-active.svg'
-            : '/class/lesson-stamp.svg'
+          isActive || isCompleted
+            ? `/class/lesson-stamp-active.svg`
+            : `/class/lesson-stamp.svg`
         }
         alt=""
         aria-hidden="true"
@@ -49,7 +49,6 @@ export function LessonStamp({
         height={132}
         className={cn(
           'absolute inset-0',
-          isCompleted && 'brightness-110 saturate-150',
           isActive &&
             'animate-[pulse_1.6s_ease-in-out_infinite] drop-shadow-[0px_3.07px_11.512px_#fecdd6]',
         )}

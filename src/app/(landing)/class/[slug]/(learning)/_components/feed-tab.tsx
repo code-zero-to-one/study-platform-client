@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { PlanSelectionModal } from '@/components/pages/class/plan-selection-modal';
 import { useAuth } from '@/features/auth/model/use-auth';
@@ -31,8 +31,6 @@ const SORT_API_MAP: Record<SortOption, 'LATEST' | 'POPULAR'> = {
   최신순: 'LATEST',
   인기순: 'POPULAR',
 };
-
-const FILTER_OPTIONS: FeedFilter[] = ['전체', '운영자 PICK', '내 피드'];
 
 const FILTER_API_MAP: Record<FeedFilter, 'ALL' | 'OPERATOR_PICK' | 'MY'> = {
   전체: 'ALL',
@@ -64,6 +62,26 @@ export function FeedTab() {
     page: currentPage,
     size: PAGE_SIZE,
   });
+
+  const { data: operatorPickProbe } = useGetBuilderFeeds({
+    courseId,
+    filter: 'OPERATOR_PICK',
+    size: 1,
+  });
+  const hasOperatorPick = (operatorPickProbe?.totalCount ?? 0) > 0;
+
+  useEffect(() => {
+    if (!hasOperatorPick && filter === '운영자 PICK') {
+      setFilter('전체');
+      setCurrentPage(0);
+    }
+  }, [hasOperatorPick, filter]);
+
+  const filterOptions: FeedFilter[] = [
+    '전체',
+    ...(hasOperatorPick ? (['운영자 PICK'] as FeedFilter[]) : []),
+    '내 피드',
+  ];
 
   const lessonOptions = useMemo(
     () =>
@@ -132,16 +150,16 @@ export function FeedTab() {
         <div className="mb-400 flex items-center justify-between">
           {/* Filter chips */}
           <div className="flex gap-225">
-            {FILTER_OPTIONS.map((f) => (
+            {filterOptions.map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => handleFilterChange(f)}
                 className={cn(
-                  'rounded-875 px-325 py-125 font-designer-20b transition-colors',
+                  'rounded-full px-325 py-125 font-designer-20b transition-colors',
                   filter === f
                     ? 'border border-background-brand-default text-background-brand-default'
-                    : 'border border-gray-400 text-gray-400',
+                    : 'border border-gray-450 text-gray-450',
                 )}
               >
                 {f}

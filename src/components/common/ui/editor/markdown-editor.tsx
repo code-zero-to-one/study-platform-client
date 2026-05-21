@@ -64,6 +64,10 @@ import {
   isHtmlTableOnlyPaste,
 } from './markdown-table-utils';
 import { normalizeRichClipboardHtml } from './rich-clipboard-normalizer';
+import {
+  hasRenderableMarkdownSyntax,
+  renderMarkdownToHtml,
+} from '@/utils/markdown-rendering-utils';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
 import { useActiveCodeBlockControl } from './use-active-code-block-control';
 import { useImageUpload } from './use-image-upload';
@@ -406,6 +410,21 @@ function MarkdownEditor({
         if (markdownTable) {
           event.preventDefault();
           insertMarkdownTable(editorInstance, markdownTable);
+          return true;
+        }
+
+        if (
+          !pastedHtml.trim() &&
+          !editorInstance.isActive('codeBlock') &&
+          pastedText.includes('\n') &&
+          hasRenderableMarkdownSyntax(pastedText)
+        ) {
+          event.preventDefault();
+          editorInstance
+            .chain()
+            .focus()
+            .insertContent(renderMarkdownToHtml(pastedText))
+            .run();
           return true;
         }
 

@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   LockIcon,
@@ -22,10 +22,10 @@ import { useToastStore } from '@/stores/use-toast-store';
 import type { CourseCurriculumChapterResponse } from '@/types/api/course.types';
 import { ChapterHeader } from './chapter-header';
 import {
-  FALLBACK_CHAPTERS,
   buildLessonMap,
-  mergeLessons,
+  FALLBACK_CHAPTERS,
   type LessonDisplayInfo,
+  mergeLessons,
 } from './home-constants';
 import { LessonPreviewModal } from './lesson-preview-modal';
 import { LessonStamp } from './lesson-stamp';
@@ -233,7 +233,10 @@ export function RoadmapTab({ slug }: { slug: string }) {
                 </div>
 
                 {rows.map((row, ri) => (
-                  <div key={ri} className="flex w-full flex-col items-center">
+                  <div
+                    key={row[0].lessonId}
+                    className="flex w-full flex-col items-center"
+                  >
                     <div
                       className={cn(
                         'relative flex items-center justify-center',
@@ -253,73 +256,88 @@ export function RoadmapTab({ slug }: { slug: string }) {
                       )}
                       <div
                         className={cn(
-                          'relative z-10 flex items-center justify-center gap-2500',
+                          'relative z-10 flex items-center justify-center',
                           ri % 2 === 1 && 'flex-row-reverse',
                         )}
                       >
                         {row.map((lesson, li) => (
-                          <div key={lesson.lessonId} className="relative">
-                            {index === 0 && ri === 0 && li === 0 && (
-                              <div className="absolute bottom-full left-1/2 flex -translate-x-1/2 flex-col items-center">
-                                {isAuthenticated ? (
-                                  <Link
-                                    href={
-                                      chapters[0]?.lessons[0]
-                                        ? `/class/${slug}/lesson/${chapters[0].lessons[0].lessonId}`
-                                        : '#'
-                                    }
-                                    className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-20sb text-gray-0"
+                          <Fragment key={lesson.lessonId}>
+                            <div className="relative">
+                              {index === 0 && ri === 0 && li === 0 && (
+                                <div className="absolute bottom-full left-1/2 flex -translate-x-1/2 flex-col items-center">
+                                  {isAuthenticated ? (
+                                    <Link
+                                      href={
+                                        chapters[0]?.lessons[0]
+                                          ? `/class/${slug}/lesson/${chapters[0].lessons[0].lessonId}`
+                                          : '#'
+                                      }
+                                      className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-20sb text-gray-0"
+                                    >
+                                      Start
+                                    </Link>
+                                  ) : (
+                                    <LoginModal
+                                      openTrigger={
+                                        <button
+                                          type="button"
+                                          className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-gray-0"
+                                        >
+                                          Start
+                                        </button>
+                                      }
+                                    />
+                                  )}
+                                  <svg
+                                    aria-hidden="true"
+                                    width="21"
+                                    height="24"
+                                    viewBox="0 0 21 24"
                                   >
-                                    Start
-                                  </Link>
-                                ) : (
-                                  <LoginModal
-                                    openTrigger={
-                                      <button
-                                        type="button"
-                                        className="flex h-450 w-1250 items-center justify-center rounded-100 bg-background-brand-default font-designer-24b text-gray-0"
-                                      >
-                                        Start
-                                      </button>
-                                    }
-                                  />
+                                    <polygon
+                                      points="0,0 21,0 10.5,13"
+                                      className="fill-background-brand-default"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
+                              <LessonStamp
+                                lesson={lesson}
+                                isAuthenticated={isAuthenticated}
+                                onSelect={(l) =>
+                                  setSelectedLesson({
+                                    lesson: l,
+                                    chapter,
+                                  })
+                                }
+                                shouldBlink={
+                                  (completedLessons === 0 &&
+                                    index === 0 &&
+                                    ri === 0 &&
+                                    li === 0) ||
+                                  lesson.lessonId === blinkLessonId
+                                }
+                                learnerCount={
+                                  journeyMap?.learnerCount ??
+                                  course?.learnerCount ??
+                                  0
+                                }
+                              />
+                            </div>
+                            {li < row.length - 1 && (
+                              <div
+                                className={cn(
+                                  'h-0 w-2500',
+                                  lessonStatusMap.get(lesson.lessonId)
+                                    ?.status === 'COMPLETED' &&
+                                    lessonStatusMap.get(row[li + 1].lessonId)
+                                      ?.status === 'COMPLETED'
+                                    ? 'border-t-2 border-rose-400'
+                                    : 'border-t-2 border-dashed border-gray-300',
                                 )}
-                                <svg
-                                  aria-hidden="true"
-                                  width="21"
-                                  height="24"
-                                  viewBox="0 0 21 24"
-                                >
-                                  <polygon
-                                    points="0,0 21,0 10.5,13"
-                                    className="fill-background-brand-default"
-                                  />
-                                </svg>
-                              </div>
+                              />
                             )}
-                            <LessonStamp
-                              lesson={lesson}
-                              isAuthenticated={isAuthenticated}
-                              onSelect={(l) =>
-                                setSelectedLesson({
-                                  lesson: l,
-                                  chapter,
-                                })
-                              }
-                              shouldBlink={
-                                (completedLessons === 0 &&
-                                  index === 0 &&
-                                  ri === 0 &&
-                                  li === 0) ||
-                                lesson.lessonId === blinkLessonId
-                              }
-                              learnerCount={
-                                journeyMap?.learnerCount ??
-                                course?.learnerCount ??
-                                0
-                              }
-                            />
-                          </div>
+                          </Fragment>
                         ))}
                       </div>
                       {ri === rows.length - 1 &&
@@ -413,7 +431,9 @@ export function RoadmapTab({ slug }: { slug: string }) {
 
         {/* Lesson card list */}
         {(() => {
-          const allLessons = chapters.flatMap((ch) => ch.lessons);
+          const allLessons = [...chapters]
+            .sort((a, b) => a.order - b.order)
+            .flatMap((ch) => [...ch.lessons].sort((a, b) => a.order - b.order));
           const visibleLessons = allLessons.slice(0, visibleLessonCount);
           const hasMoreLessons = visibleLessonCount < allLessons.length;
 

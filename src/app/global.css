@@ -82,6 +82,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-gray-275: #d1d2d4;
   --color-gray-300: #d5d7da;
   --color-gray-400: #a4a7ae;
+  --color-gray-450: #999999;
   --color-gray-500: #717680;
   --color-gray-600: #535862;
   --color-gray-700: #414651;
@@ -178,6 +179,9 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-green-700: #027a48;
   --color-green-800: #05603a;
   --color-green-900: #054f31;
+
+  --color-qna-answered: #02c76e;
+  --color-qna-answered-bg: #dafbe7;
 
   --color-yellow-50: #fffaeb;
   --color-yellow-100: #fef0c7;
@@ -402,6 +406,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-350: 28px;
   --spacing-375: 30px;
   --spacing-400: 32px;
+  --spacing-425: 34px;
   --spacing-450: 36px;
   --spacing-500: 40px;
   --spacing-525: 42px;

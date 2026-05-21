@@ -22,6 +22,14 @@ export function LessonScreenshotModal({ open, onClose, onConfirm }: Props) {
   if (!open) return null;
 
   async function handleFileSelect(file: File) {
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      showToast(
+        `이미지 파일 크기는 5MB 이하만 첨부할 수 있어요. (현재: ${(file.size / 1024 / 1024).toFixed(1)}MB)`,
+        'error',
+      );
+      return;
+    }
     setUploading(true);
     try {
       const url = await uploadCommunityMarkdownImage(file);
