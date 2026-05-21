@@ -23,7 +23,6 @@ function FadeIn({
   return (
     <m.div
       ref={ref}
-      initial={{ opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{
         duration: 0.7,
@@ -719,7 +718,7 @@ function FloatingCTABar() {
           얼리버드 혜택가로 바로 만나보세요!
         </p>
         <Link
-          href="/class/vibe-intro"
+          href="/class/vibe-intro-claude-code"
           className="shrink-0 rounded-100 bg-rose-500 px-200 py-100 text-[13px] font-semibold leading-[1.5] text-white transition-opacity hover:opacity-90 md:px-300 md:py-200 md:text-[18px] lg:text-[20px]"
         >
           바로 시작하기
