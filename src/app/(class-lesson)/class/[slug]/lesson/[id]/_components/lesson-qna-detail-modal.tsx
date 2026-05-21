@@ -67,6 +67,18 @@ function stripHtml(html: string): string {
 }
 
 function HtmlContent({ html }: { html: string }) {
+  const isHtml = /<[a-z]/i.test(html);
+
+  if (!isHtml) {
+    return (
+      <div className="tiptap-editor">
+        <div className="tiptap whitespace-pre-wrap font-designer-16r leading-relaxed text-gray-800">
+          {html}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="tiptap-editor">
       <div
