@@ -4,6 +4,7 @@ import { ChevronDown, Search } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { QnaAnsweredIcon } from '@/components/common/ui/icons/course-icons';
 import {
   useGetCourseDetail,
   useGetCourseQnas,
@@ -197,18 +198,21 @@ export function QnaTab() {
               <div className="mb-200 flex items-center gap-150">
                 <span
                   className={cn(
-                    'rounded-full border px-175 py-75 font-designer-14m',
+                    'flex items-center gap-50 rounded-full border px-250 py-125 font-designer-14m',
                     q.answerStatus === 'ANSWERED'
-                      ? 'border-rose-500 text-rose-500'
+                      ? 'border-[#02c76e] bg-[#dafbe7] text-[#02c76e]'
                       : 'border-border-subtle text-gray-500',
                   )}
                 >
+                  {q.answerStatus === 'ANSWERED' && (
+                    <QnaAnsweredIcon className="h-250 w-250" />
+                  )}
                   {q.answerStatus === 'ANSWERED' ? '답변완료' : '답변 대기'}
                 </span>
-                <span className="flex items-center gap-75 font-designer-14r text-gray-500">
+                <span className="flex items-center gap-75 rounded-full border border-border-subtle px-250 py-125 font-designer-14m text-gray-500">
                   나도 궁금해요 {q.curiousCount}
                 </span>
-                <span className="flex items-center gap-75 font-designer-14r text-gray-500">
+                <span className="flex items-center gap-75 rounded-full border border-border-subtle px-250 py-125 font-designer-14m text-gray-500">
                   유용해요 {q.usefulCount}
                 </span>
               </div>
