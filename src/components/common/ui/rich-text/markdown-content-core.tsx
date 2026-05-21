@@ -208,7 +208,6 @@ export default function MarkdownContentCore({
       return '';
     }
 
-    const isOriginalHtml = isHtmlContent(content);
     const contentWithEmbeds = replaceEmoticonShortcodes(
       replaceStandaloneYouTubeLinksWithEmbeds(content),
     );
