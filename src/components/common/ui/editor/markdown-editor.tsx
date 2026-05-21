@@ -416,6 +416,7 @@ function MarkdownEditor({
         if (
           !pastedHtml.trim() &&
           !editorInstance.isActive('codeBlock') &&
+          pastedText.includes('\n') &&
           hasRenderableMarkdownSyntax(pastedText)
         ) {
           event.preventDefault();

@@ -82,17 +82,17 @@ export function QnaTab() {
       {/* ── Controls row ── */}
       <div className="mb-500 flex flex-wrap items-center gap-200">
         {/* Filter tabs */}
-        <div className="flex items-center gap-150">
+        <div className="flex items-center gap-225">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab.value}
               type="button"
               onClick={() => setFilter(tab.value)}
               className={cn(
-                'rounded-full border px-325 py-125 font-designer-14m transition-colors',
+                'rounded-875 border px-325 py-125 font-designer-20b transition-colors',
                 filter === tab.value
-                  ? 'border-rose-500 text-rose-500'
-                  : 'border-border-subtle text-gray-500 hover:border-gray-400',
+                  ? 'border-background-brand-default text-background-brand-default'
+                  : 'border-gray-400 text-gray-400',
               )}
             >
               {tab.label}

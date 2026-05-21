@@ -57,12 +57,10 @@ export const uploadCommunityMarkdownImageFile = async ({
   uploadUrl: string;
   file: File;
 }) => {
-  const formData = new FormData();
-  formData.append('file', file);
-
   const response = await fetch(uploadUrl, {
     method: 'PUT',
-    body: formData,
+    body: file,
+    headers: { 'Content-Type': file.type },
   });
 
   if (!response.ok) {
