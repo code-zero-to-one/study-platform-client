@@ -48,7 +48,8 @@ export const SANITIZE_OPTIONS: DOMPurifyConfig = {
     'width',
   ],
   ALLOW_DATA_ATTR: false,
-  ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#|blob:)/i,
+  ALLOWED_URI_REGEXP:
+    /^(?:https?:\/\/|mailto:|tel:|\/images\/|\/emoticon\/|#|blob:)/i,
 };
 
 /**
