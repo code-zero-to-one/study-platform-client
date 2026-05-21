@@ -122,6 +122,12 @@ export default function LessonPage({
     [drawerChapters],
   );
 
+  const isLastLesson = useMemo(() => {
+    const allLessons = drawerChapters.flatMap((c) => c.lessons);
+    if (allLessons.length === 0) return false;
+    return allLessons[allLessons.length - 1].lessonId === lessonId;
+  }, [drawerChapters, lessonId]);
+
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
   const isFormValid =
     starRating > 0 &&
@@ -294,6 +300,7 @@ export default function LessonPage({
                   setArtifactImagePreviewUrl(null);
                 }}
                 onRemoveArtifactLink={() => setArtifactLink(null)}
+                isLastLesson={isLastLesson}
                 onSubmit={handleSubmit}
               />
             ) : null}

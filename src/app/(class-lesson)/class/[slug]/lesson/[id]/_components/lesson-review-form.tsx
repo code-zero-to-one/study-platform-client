@@ -40,6 +40,7 @@ interface Props {
   onAttachLink: () => void;
   onRemoveArtifactImage?: () => void;
   onRemoveArtifactLink?: () => void;
+  isLastLesson?: boolean;
   onSubmit: () => void;
 }
 
@@ -118,6 +119,7 @@ export function LessonReviewForm({
   onAttachLink,
   onRemoveArtifactImage,
   onRemoveArtifactLink,
+  isLastLesson = false,
   onSubmit,
 }: Props) {
   return (
@@ -295,7 +297,9 @@ export function LessonReviewForm({
           ? '이미 제출했어요'
           : submitting
             ? '제출 중...'
-            : '제출하고 다음 Lesson 하러 가기'}
+            : isLastLesson
+              ? '완주하고 축하 페이지로 가기'
+              : '제출하고 다음 Lesson 하러 가기'}
       </button>
     </div>
   );
