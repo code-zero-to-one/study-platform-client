@@ -1,5 +1,6 @@
 'use client';
 
+import DOMPurify from 'dompurify';
 import {
   Heart,
   HelpCircle,
@@ -79,11 +80,14 @@ function HtmlContent({ html }: { html: string }) {
     );
   }
 
+  const sanitized =
+    typeof window !== 'undefined' ? DOMPurify.sanitize(html) : html;
   return (
     <div className="tiptap-editor">
       <div
         className="tiptap font-designer-16r leading-relaxed text-gray-800"
-        dangerouslySetInnerHTML={{ __html: html }}
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: DOMPurify sanitized
+        dangerouslySetInnerHTML={{ __html: sanitized }}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { PlanSelectionModal } from '@/components/pages/class/plan-selection-modal';
 import { useAuth } from '@/features/auth/model/use-auth';
@@ -69,6 +69,13 @@ export function FeedTab() {
     size: 1,
   });
   const hasOperatorPick = (operatorPickProbe?.totalCount ?? 0) > 0;
+
+  useEffect(() => {
+    if (!hasOperatorPick && filter === '운영자 PICK') {
+      setFilter('전체');
+      setCurrentPage(0);
+    }
+  }, [hasOperatorPick, filter]);
 
   const filterOptions: FeedFilter[] = [
     '전체',

@@ -125,7 +125,11 @@ export default function LessonPage({
   const isLastLesson = useMemo(() => {
     const allLessons = drawerChapters.flatMap((c) => c.lessons);
     if (allLessons.length === 0) return false;
-    return allLessons[allLessons.length - 1].lessonId === lessonId;
+    const isLast = allLessons.at(-1)?.lessonId === lessonId;
+    const allOthersCompleted = allLessons.every(
+      (l) => l.lessonId === lessonId || l.status === 'COMPLETED',
+    );
+    return isLast && allOthersCompleted;
   }, [drawerChapters, lessonId]);
 
   const alreadySubmitted = lesson?.retrospectiveSubmitted ?? false;
