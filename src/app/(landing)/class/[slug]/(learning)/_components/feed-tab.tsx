@@ -141,7 +141,7 @@ export function FeedTab() {
                   'rounded-875 px-325 py-125 font-designer-20b transition-colors',
                   filter === f
                     ? 'border border-background-brand-default text-background-brand-default'
-                    : 'border border-gray-400 text-gray-400',
+                    : 'border border-gray-450 text-gray-450',
                 )}
               >
                 {f}
