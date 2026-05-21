@@ -89,7 +89,7 @@ export function QnaTab() {
               type="button"
               onClick={() => setFilter(tab.value)}
               className={cn(
-                'rounded-875 border px-325 py-125 font-designer-20b transition-colors',
+                'rounded-full border px-325 py-125 font-designer-20b transition-colors',
                 filter === tab.value
                   ? 'border-background-brand-default text-background-brand-default'
                   : 'border-gray-450 text-gray-450',
