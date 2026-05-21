@@ -22,10 +22,10 @@ import { useToastStore } from '@/stores/use-toast-store';
 import type { CourseCurriculumChapterResponse } from '@/types/api/course.types';
 import { ChapterHeader } from './chapter-header';
 import {
-  FALLBACK_CHAPTERS,
   buildLessonMap,
-  mergeLessons,
+  FALLBACK_CHAPTERS,
   type LessonDisplayInfo,
+  mergeLessons,
 } from './home-constants';
 import { LessonPreviewModal } from './lesson-preview-modal';
 import { LessonStamp } from './lesson-stamp';
@@ -233,7 +233,10 @@ export function RoadmapTab({ slug }: { slug: string }) {
                 </div>
 
                 {rows.map((row, ri) => (
-                  <div key={ri} className="flex w-full flex-col items-center">
+                  <div
+                    key={row[0].lessonId}
+                    className="flex w-full flex-col items-center"
+                  >
                     <div
                       className={cn(
                         'relative flex items-center justify-center',
