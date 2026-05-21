@@ -432,7 +432,8 @@ export default function FeedDetailPage({
             {/* Comments */}
             <div className="mt-400 space-y-300">
               {(commentsData?.comments ?? []).map((c) => {
-                const isOperator = c.author.role === '운영진';
+                const isOperator =
+                  c.author.role === 'MANAGER' || c.author.role === 'ADMIN';
                 const isCommentAuthor =
                   memberId !== undefined && c.author.memberId === memberId;
                 const isMenuOpen = commentMenuOpenId === c.commentId;
@@ -560,7 +561,9 @@ export default function FeedDetailPage({
                     {c.replies.length > 0 && (
                       <div className="ml-575 mt-200 space-y-200">
                         {c.replies.map((r) => {
-                          const isReplyOperator = r.author.role === '운영진';
+                          const isReplyOperator =
+                            r.author.role === 'MANAGER' ||
+                            r.author.role === 'ADMIN';
                           const contentParts = r.content.startsWith('@')
                             ? (() => {
                                 const spaceIdx = r.content.indexOf(' ');

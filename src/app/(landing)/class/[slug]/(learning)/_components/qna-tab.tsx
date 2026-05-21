@@ -200,7 +200,7 @@ export function QnaTab() {
                   className={cn(
                     'flex items-center gap-50 rounded-full border px-250 py-125 font-designer-14m',
                     q.answerStatus === 'ANSWERED'
-                      ? 'border-[#02c76e] bg-[#dafbe7] text-[#02c76e]'
+                      ? 'border-qna-answered bg-qna-answered-bg text-qna-answered'
                       : 'border-border-subtle text-gray-500',
                   )}
                 >
