@@ -23,7 +23,7 @@ const LoginModal = dynamic(
 );
 
 type SortOption = '최신순' | '인기순';
-type FeedFilter = '전체' | '내 피드';
+type FeedFilter = '전체' | '운영자 PICK' | '내 피드';
 
 const SORT_OPTIONS: SortOption[] = ['최신순', '인기순'];
 
@@ -32,10 +32,9 @@ const SORT_API_MAP: Record<SortOption, 'LATEST' | 'POPULAR'> = {
   인기순: 'POPULAR',
 };
 
-const FILTER_OPTIONS: FeedFilter[] = ['전체', '내 피드'];
-
-const FILTER_API_MAP: Record<FeedFilter, 'ALL' | 'MY'> = {
+const FILTER_API_MAP: Record<FeedFilter, 'ALL' | 'OPERATOR_PICK' | 'MY'> = {
   전체: 'ALL',
+  '운영자 PICK': 'OPERATOR_PICK',
   '내 피드': 'MY',
 };
 
@@ -64,6 +63,19 @@ export function FeedTab() {
     size: PAGE_SIZE,
   });
 
+  const { data: operatorPickProbe } = useGetBuilderFeeds({
+    courseId,
+    filter: 'OPERATOR_PICK',
+    size: 1,
+  });
+  const hasOperatorPick = (operatorPickProbe?.totalCount ?? 0) > 0;
+
+  const filterOptions: FeedFilter[] = [
+    '전체',
+    ...(hasOperatorPick ? (['운영자 PICK'] as FeedFilter[]) : []),
+    '내 피드',
+  ];
+
   const lessonOptions = useMemo(
     () =>
       curriculum?.chapters.flatMap((ch) =>
@@ -91,9 +103,11 @@ export function FeedTab() {
   const emptyMessage =
     filter === '내 피드'
       ? '아직 작성한 피드가 없어요. 첫 피드를 올려보세요!'
-      : lessonId !== null
-        ? '해당 레슨의 피드가 아직 없어요.'
-        : '아직 등록된 피드가 없어요.';
+      : filter === '운영자 PICK'
+        ? '운영자가 선택한 피드가 아직 없어요.'
+        : lessonId !== null
+          ? '해당 레슨의 피드가 아직 없어요.'
+          : '아직 등록된 피드가 없어요.';
 
   const handleFilterChange = (f: FeedFilter) => {
     setFilter(f);
@@ -129,7 +143,7 @@ export function FeedTab() {
         <div className="mb-400 flex items-center justify-between">
           {/* Filter chips */}
           <div className="flex gap-225">
-            {FILTER_OPTIONS.map((f) => (
+            {filterOptions.map((f) => (
               <button
                 key={f}
                 type="button"
