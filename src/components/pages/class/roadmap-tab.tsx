@@ -66,6 +66,16 @@ export function RoadmapTab({ slug }: { slug: string }) {
       ? curriculum.chapters
       : FALLBACK_CHAPTERS;
 
+  const lessonLookup = new Map<
+    number,
+    { lesson: LessonDisplayInfo; chapter: CourseCurriculumChapterResponse }
+  >();
+  for (const chapter of chapters) {
+    for (const lesson of mergeLessons(chapter, lessonStatusMap)) {
+      lessonLookup.set(lesson.lessonId, { lesson, chapter });
+    }
+  }
+
   const completedLessons = progress?.completedLessons ?? 0;
   const totalLessons = progress?.totalLessons ?? 0;
   const progressRate = progress?.progressRate ?? 0;
@@ -243,7 +253,6 @@ export function RoadmapTab({ slug }: { slug: string }) {
                       {index === 0 && ri === 0 && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <Image
-                            src="/class/journey-1st-load.svg"
                             alt=""
                             aria-hidden="true"
                             width={795}
@@ -326,7 +335,6 @@ export function RoadmapTab({ slug }: { slug: string }) {
                         index < visibleChapters.length - 1 && (
                           <div className="pointer-events-none absolute right-0 top-1/2">
                             <Image
-                              src="/class/journey-load.svg"
                               alt=""
                               aria-hidden="true"
                               width={906}
@@ -341,7 +349,6 @@ export function RoadmapTab({ slug }: { slug: string }) {
                       {ri < rows.length - 1 && (
                         <div className="pointer-events-none absolute right-0 top-1/2">
                           <Image
-                            src="/class/journey-load-reverse.svg"
                             alt=""
                             aria-hidden="true"
                             width={906}
@@ -493,13 +500,19 @@ export function RoadmapTab({ slug }: { slug: string }) {
                   );
 
                   if (isAccessible && l.lessonId > 0) {
+                    const entry = lessonLookup.get(l.lessonId);
                     return (
-                      <Link
+                      <div
                         key={l.lessonId}
-                        href={`/class/${slug}/lesson/${l.lessonId}`}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => entry && setSelectedLesson(entry)}
+                        onKeyDown={(e) =>
+                          e.key === 'Enter' && entry && setSelectedLesson(entry)
+                        }
                       >
                         {card}
-                      </Link>
+                      </div>
                     );
                   }
 
