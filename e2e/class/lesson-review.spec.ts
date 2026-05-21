@@ -76,7 +76,7 @@ function makeDrawer(): { content: CourseDrawerResponse } {
               title: '다음 레슨',
               isFree: true,
               isLocked: true,
-              status: 'NOT_STARTED',
+              status: 'LOCKED',
               isCurrentLesson: false,
             },
           ],
