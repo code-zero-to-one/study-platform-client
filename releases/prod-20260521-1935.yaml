@@ -1,0 +1,50 @@
+release_id: prod-20260521-1935
+env: prod
+service_version: v2.0.11
+
+summary: "[fix-markdown-to-main] fix : 빌드 에러 수정 (re-trigger)"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v2.0.11-0f1bf1e
+    commit: 0f1bf1e
+    version: v2.0.11
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.1-07cb8f6
+    commit: 07cb8f6
+    version: v1.0.1
+    changed: false
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v2.0.10-70f619f
+    backend: zeroone-backend:v1.0.1-07cb8f6
+  db_rollback_note: "DB unchanged. Use fixed app image rollback targets if needed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-21T19:35:42+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260521-1935-0f1bf1e
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: patch
+  bootstrap_mode: ""
