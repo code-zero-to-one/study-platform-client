@@ -17,6 +17,7 @@ import { use, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { RoleBadge } from '@/components/pages/class/utils/builder-feed-utils';
+import { useAuth } from '@/features/auth/model/use-auth';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import {
   useCreateLessonQnaAnswer,
@@ -30,6 +31,7 @@ import {
   useUpdateLessonQnaAnswer,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import { AUTH_ROLE_IDS } from '@/types/auth/domain';
 import { analyzeError } from '@/utils/error-handler';
 
 function formatDate(dateStr: string) {
@@ -62,6 +64,8 @@ export default function QnaDetailPage({
   const { id, slug } = use(params);
   const qnaId = parseInt(id, 10);
   const router = useRouter();
+  const { roleIds } = useAuth();
+  const isAdmin = roleIds.includes(AUTH_ROLE_IDS.ADMIN);
   const { data: qna, isLoading } = useGetLessonQnaDetail(qnaId);
   const showToast = useToastStore((s) => s.showToast);
 
@@ -101,8 +105,12 @@ export default function QnaDetailPage({
     if (!qna) return;
     setQReactions((prev) => {
       const next = new Set(prev);
-      if (next.has(type)) next.delete(type);
-      else next.add(type);
+      if (next.has(type)) {
+        next.delete(type);
+      } else {
+        next.clear();
+        next.add(type);
+      }
       return next;
     });
     reactQna.mutate(
@@ -900,16 +908,17 @@ export default function QnaDetailPage({
         )}
       </div>
 
-      {/* Floating 답변하기 button — always visible regardless of answer count */}
-      <div className="fixed bottom-400 left-1/2 z-50 -translate-x-1/2">
-        <button
-          type="button"
-          onClick={() => setShowAnswerForm((prev) => !prev)}
-          className="flex h-875 w-4500 items-center justify-center rounded-full bg-background-brand-default font-designer-24m text-text-inverse shadow-3"
-        >
-          답변하기
-        </button>
-      </div>
+      {isAdmin && (
+        <div className="fixed bottom-400 left-1/2 z-50 -translate-x-1/2">
+          <button
+            type="button"
+            onClick={() => setShowAnswerForm((prev) => !prev)}
+            className="flex h-875 w-4500 items-center justify-center rounded-full bg-background-brand-default font-designer-24m text-text-inverse shadow-3"
+          >
+            답변하기
+          </button>
+        </div>
+      )}
     </div>
   );
 }

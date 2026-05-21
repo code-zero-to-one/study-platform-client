@@ -87,7 +87,7 @@ export default function HomeHeaderClient({
           {isLoggedIn ? (
             <div className="flex items-center gap-300">
               <Button asChild size="small" className="font-designer-14m">
-                <Link href="/my-page" className="flex items-center gap-75">
+                <Link href="/my-class" className="flex items-center gap-75">
                   마이 클래스
                   <Monitor size={16} />
                 </Link>

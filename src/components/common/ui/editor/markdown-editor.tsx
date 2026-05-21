@@ -409,6 +409,21 @@ function MarkdownEditor({
           return true;
         }
 
+        if (
+          !pastedHtml.trim() &&
+          !editorInstance.isActive('codeBlock') &&
+          pastedText.includes('\n') &&
+          hasRenderableMarkdownSyntax(pastedText)
+        ) {
+          event.preventDefault();
+          editorInstance
+            .chain()
+            .focus()
+            .insertContent(renderMarkdownToHtml(pastedText))
+            .run();
+          return true;
+        }
+
         const normalizedRichClipboardHtml =
           normalizeRichClipboardHtml(pastedHtml);
 
