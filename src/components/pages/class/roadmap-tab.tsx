@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   LockIcon,
@@ -18,7 +18,6 @@ import {
   useGetCourseJourneyMap,
   useGetCourseProgress,
 } from '@/hooks/queries/course/course-api';
-import { useToastStore } from '@/stores/use-toast-store';
 import type { CourseCurriculumChapterResponse } from '@/types/api/course.types';
 import { ChapterHeader } from './chapter-header';
 import {
@@ -44,16 +43,8 @@ export function RoadmapTab({ slug }: { slug: string }) {
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
   const router = useRouter();
-  const showToast = useToastStore((s) => s.showToast);
-  const [blinkLessonId, setBlinkLessonId] = useState<number | null>(null);
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [visibleChapterCount, setVisibleChapterCount] = useState(1);
-
-  useEffect(() => {
-    if (!blinkLessonId) return;
-    const t = setTimeout(() => setBlinkLessonId(null), 5000);
-    return () => clearTimeout(t);
-  }, [blinkLessonId]);
   const [visibleLessonCount, setVisibleLessonCount] = useState(5);
   const [selectedLesson, setSelectedLesson] = useState<{
     lesson: LessonDisplayInfo;
@@ -311,11 +302,11 @@ export function RoadmapTab({ slug }: { slug: string }) {
                                   })
                                 }
                                 shouldBlink={
-                                  (completedLessons === 0 &&
-                                    index === 0 &&
-                                    ri === 0 &&
-                                    li === 0) ||
-                                  lesson.lessonId === blinkLessonId
+                                  progress !== undefined &&
+                                  completedLessons === 0 &&
+                                  index === 0 &&
+                                  ri === 0 &&
+                                  li === 0
                                 }
                                 learnerCount={
                                   journeyMap?.learnerCount ??
@@ -433,7 +424,13 @@ export function RoadmapTab({ slug }: { slug: string }) {
         {(() => {
           const allLessons = [...chapters]
             .sort((a, b) => a.order - b.order)
-            .flatMap((ch) => [...ch.lessons].sort((a, b) => a.order - b.order));
+            .flatMap((ch) =>
+              mergeLessons(ch, lessonStatusMap).map((lessonInfo) => ({
+                lesson: lessonInfo,
+                chapter: ch,
+              })),
+            )
+            .sort((a, b) => a.lesson.order - b.lesson.order);
           const visibleLessons = allLessons.slice(0, visibleLessonCount);
           const hasMoreLessons = visibleLessonCount < allLessons.length;
 
@@ -441,11 +438,9 @@ export function RoadmapTab({ slug }: { slug: string }) {
             <div className="mt-800">
               <h2 className="font-designer-28b text-gray-800">레슨 목록</h2>
               <div className="mt-400 flex flex-col gap-200">
-                {visibleLessons.map((l) => {
-                  const journeyLesson = lessonStatusMap.get(l.lessonId);
-                  const isAccessible =
-                    journeyLesson?.isAccessible ?? !l.isLocked;
-                  const isCompleted = journeyLesson?.status === 'COMPLETED';
+                {visibleLessons.map(({ lesson: l, chapter: lessonChapter }) => {
+                  const isAccessible = l.accessible;
+                  const isCompleted = l.status === 'COMPLETED';
 
                   const card = (
                     <div
@@ -514,12 +509,19 @@ export function RoadmapTab({ slug }: { slug: string }) {
 
                   if (isAccessible && l.lessonId > 0) {
                     return (
-                      <Link
+                      <button
                         key={l.lessonId}
-                        href={`/class/${slug}/lesson/${l.lessonId}`}
+                        type="button"
+                        className="w-full text-left"
+                        onClick={() =>
+                          setSelectedLesson({
+                            lesson: l,
+                            chapter: lessonChapter,
+                          })
+                        }
                       >
                         {card}
-                      </Link>
+                      </button>
                     );
                   }
 
@@ -557,21 +559,6 @@ export function RoadmapTab({ slug }: { slug: string }) {
             router.push(
               `/class/${slug}/lesson/${selectedLesson.lesson.lessonId}`,
             );
-            setSelectedLesson(null);
-          }}
-          onSkip={() => {
-            const lessons = journeyMap?.lessons
-              ? [...journeyMap.lessons].sort((a, b) => a.order - b.order)
-              : [];
-            const nextRequired = lessons.find(
-              (l) =>
-                l.order > selectedLesson.lesson.order &&
-                !l.title.toLowerCase().includes('option'),
-            );
-            setBlinkLessonId(nextRequired?.lessonId ?? null);
-            if (nextRequired) {
-              showToast('다음 레슨으로 이어가세요');
-            }
             setSelectedLesson(null);
           }}
         />
