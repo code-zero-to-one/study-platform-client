@@ -112,7 +112,11 @@ const NAV_ITEMS: {
     icon: MarkunreadIcon,
     prefixMatch: true,
   },
-  { href: '/class-payment-management', label: '결제 관리', icon: PaymentIcon },
+  {
+    href: '/class-payment-management',
+    label: '결제 관리',
+    icon: PaymentIcon,
+  },
 ];
 
 export default function Sidebar() {
@@ -167,7 +171,7 @@ function SidebarItem({
         className={cn(
           'flex cursor-pointer items-center gap-250',
           isActive
-            ? 'font-designer-18b text-text-default'
+            ? 'font-designer-18b text-text-brand'
             : 'font-designer-18m text-text-subtle',
         )}
       >
