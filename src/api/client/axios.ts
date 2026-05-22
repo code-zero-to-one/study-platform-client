@@ -57,11 +57,28 @@ export const axiosInstanceV5 = axios.create({
   withCredentials: true,
 });
 
+export const axiosInstanceForMultipartV5 = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v5/`,
+  timeout: 60000,
+  headers: {},
+  withCredentials: true,
+});
+
 attachApiLogger(axiosInstanceV5, 'client-v5-json');
+attachApiLogger(axiosInstanceForMultipartV5, 'client-v5-multipart');
 axiosInstanceV5.interceptors.request.use(attachAccessTokenToRequest);
+axiosInstanceForMultipartV5.interceptors.request.use(
+  attachAccessTokenToRequest,
+);
 axiosInstanceV5.interceptors.response.use(
   (config) => config,
   createClientAuthResponseRejectedHandler((requestConfig) =>
     axiosInstanceV5(requestConfig),
+  ),
+);
+axiosInstanceForMultipartV5.interceptors.response.use(
+  (config) => config,
+  createClientAuthResponseRejectedHandler((requestConfig) =>
+    axiosInstanceForMultipartV5(requestConfig),
   ),
 );

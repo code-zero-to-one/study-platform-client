@@ -467,7 +467,7 @@ function CourseCard({
             <span className="font-designer-16b text-text-brand">
               {course.learnerCount}
             </span>
-            {course.learnerLabel}
+            {course.learnerLabel.replace(/^\d+/, '')}
           </p>
         </div>
 

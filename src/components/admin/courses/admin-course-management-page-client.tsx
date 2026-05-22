@@ -99,13 +99,10 @@ const emptyCourseForm: AdminCourseFormValues = {
   cardHeadline: '',
   cardSummary: '',
   cardTags: '',
-  regularPrice: '',
-  discountPrice: '',
   description: '',
   thumbnailUrl: '',
   status: 'COMING_SOON',
   durationDays: '',
-  earlyBirdEndsAt: null,
 };
 
 const emptyLessonForm: AdminLessonUpsertRequest = {

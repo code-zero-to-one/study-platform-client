@@ -135,6 +135,12 @@ export interface MyCoursePaymentListItemResponse {
 
 export interface CoursePaymentPrepareRequest {
   planCode: CoursePlanCode;
+  buyerName: string;
+  buyerEmail: string;
+  buyerPhoneCountryCode: '+82';
+  buyerPhoneNumber: string;
+  agreedToTerms: true;
+  paymentMethod: 'CARD' | 'VIRTUAL_ACCOUNT';
 }
 
 export interface CoursePaymentPrepareResponse {

@@ -23,7 +23,6 @@ import xml from 'highlight.js/lib/languages/xml';
 import { marked } from 'marked';
 import { useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { replaceEmoticonShortcodes } from '@/components/common/ui/editor/emoticon-shortcode';
 import {
   applyYouTubeIframeAttributes,
   replaceStandaloneYouTubeLinksWithEmbeds,
@@ -97,8 +96,7 @@ const SANITIZE_OPTIONS: DOMPurifyConfig = {
     'width',
   ],
   ALLOW_DATA_ATTR: false,
-  ALLOWED_URI_REGEXP:
-    /^(?:https?:\/\/|mailto:|tel:|\/images\/|\/emoticon\/|#)/i,
+  ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#)/i,
 };
 
 const IMAGE_WIDTH_MIN = 80;
@@ -210,9 +208,9 @@ export default function MarkdownContentCore({
       return '';
     }
 
-    const contentWithEmbeds = replaceEmoticonShortcodes(
-      replaceStandaloneYouTubeLinksWithEmbeds(content),
-    );
+    const renderableContent = normalizeMarkdownForRichRendering(content);
+    const contentWithEmbeds =
+      replaceStandaloneYouTubeLinksWithEmbeds(renderableContent);
 
     const html = isHtmlContent(contentWithEmbeds)
       ? contentWithEmbeds
@@ -269,10 +267,6 @@ export default function MarkdownContentCore({
         '[&_a]:text-text-brand [&_a]:underline',
         '[&_iframe.youtube-embed]:mb-150 [&_iframe.youtube-embed]:block [&_iframe.youtube-embed]:aspect-video [&_iframe.youtube-embed]:w-full [&_iframe.youtube-embed]:max-w-full [&_iframe.youtube-embed]:rounded-100 [&_iframe.youtube-embed]:border [&_iframe.youtube-embed]:border-border-subtle',
         '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-150 [&_img]:block [&_img]:h-auto [&_img]:max-h-rich-text-image [&_img]:max-w-rich-text-image [&_img]:border [&_img]:object-contain',
-        '[&_img.emoticon-inline]:!inline-block [&_img.emoticon-inline]:!h-[24px] [&_img.emoticon-inline]:!w-auto [&_img.emoticon-inline]:!max-h-[24px] [&_img.emoticon-inline]:!max-w-none [&_img.emoticon-inline]:!border-0 [&_img.emoticon-inline]:!rounded-none [&_img.emoticon-inline]:!my-0 [&_img.emoticon-inline]:!mb-0 [&_img.emoticon-inline]:!align-middle',
-        '[&_img.emoticon-lg]:!inline-block [&_img.emoticon-lg]:!h-[48px] [&_img.emoticon-lg]:!w-auto [&_img.emoticon-lg]:!max-h-[48px] [&_img.emoticon-lg]:!max-w-none [&_img.emoticon-lg]:!border-0 [&_img.emoticon-lg]:!rounded-none [&_img.emoticon-lg]:!my-0 [&_img.emoticon-lg]:!mb-0 [&_img.emoticon-lg]:!align-middle',
-        '[&_img.emoticon-xl]:!inline-block [&_img.emoticon-xl]:!h-[96px] [&_img.emoticon-xl]:!w-auto [&_img.emoticon-xl]:!max-h-[96px] [&_img.emoticon-xl]:!max-w-none [&_img.emoticon-xl]:!border-0 [&_img.emoticon-xl]:!rounded-none [&_img.emoticon-xl]:!my-0 [&_img.emoticon-xl]:!mb-0 [&_img.emoticon-xl]:!align-middle',
-        '[&_img.emoticon-xxl]:!inline-block [&_img.emoticon-xxl]:!h-[150px] [&_img.emoticon-xxl]:!w-auto [&_img.emoticon-xxl]:!max-h-[150px] [&_img.emoticon-xxl]:!max-w-none [&_img.emoticon-xxl]:!border-0 [&_img.emoticon-xxl]:!rounded-none [&_img.emoticon-xxl]:!my-0 [&_img.emoticon-xxl]:!mb-0 [&_img.emoticon-xxl]:!align-middle',
         '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-25',
         '[&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-150 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100',
         '[&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_pre_code]:py-0',
