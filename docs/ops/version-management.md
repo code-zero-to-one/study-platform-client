@@ -61,13 +61,13 @@ AI agent가 운영 배포, 릴리즈 기록, release intent label, rollback meta
 `release_id`는 운영 배포 1건을 식별하는 고유 ID입니다. 사람이 언제 배포됐는지 바로 알 수 있도록 배포 시각을 포함합니다.
 
 ```txt
-prod-YYYYMMDD-HHmm
+prod-YYYYMMDD-HHmmss
 ```
 
 예시:
 
 ```txt
-prod-20260517-2100
+prod-20260517-210045
 ```
 
 이미지 태그는 불변이어야 하며 날짜를 포함하면 안 됩니다.
@@ -180,7 +180,7 @@ components:
 
 - 프론트엔드 컨테이너가 고정 프론트엔드 이미지 태그로 실행 중인지 확인합니다.
 - 백엔드 health/API 호환성을 확인합니다.
-- `releases/prod-YYYYMMDD-HHmm.yaml`이 `main`에 커밋됐는지 확인합니다.
+- `releases/prod-YYYYMMDD-HHmmss.yaml`이 `main`에 커밋됐는지 확인합니다.
 - 릴리즈 기록에 frontend, backend, database, rollback, deployed time, actor, `status: success`가 포함됐는지 확인합니다.
 
 ## 중복 및 실패 규칙

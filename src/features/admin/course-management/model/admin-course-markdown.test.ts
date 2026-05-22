@@ -43,10 +43,26 @@ describe('normalizeAdminCourseMarkdownContent', () => {
     );
 
     expect(normalized).toContain('<h3>');
-    expect(normalized).toContain('<pre><code class="language-markdown">');
+    expect(normalized).toContain('<pre><code>');
     expect(normalized).toContain('&lt;h1&gt;Hello, Zero-One!&lt;/h1&gt;');
     expect(normalized).toContain('<img');
     expect(normalized).toContain(signedImageUrl);
+  });
+
+  it('strips editor-breaking attributes from rendered markdown HTML', () => {
+    const normalized = normalizeAdminCourseMarkdownContent(
+      [
+        '### 제목',
+        '',
+        '<span class="external" data-node="x" onclick="alert(1)">본문</span>',
+      ].join('\n'),
+    );
+
+    expect(normalized).toContain('<h3>제목</h3>');
+    expect(normalized).toContain('<span>본문</span>');
+    expect(normalized).not.toContain('class=');
+    expect(normalized).not.toContain('data-node=');
+    expect(normalized).not.toContain('onclick=');
   });
 
   it('keeps normal editor HTML as HTML while stripping unsafe attributes', () => {

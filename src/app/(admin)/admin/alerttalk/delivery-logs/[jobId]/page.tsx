@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import { AdminAlerttalkDeliveryLogDetailPageClient } from '@/features/admin/alerttalk/ui/admin-alerttalk-pages';
 
 export default async function AdminAlerttalkDeliveryLogDetailPage({
@@ -6,6 +7,11 @@ export default async function AdminAlerttalkDeliveryLogDetailPage({
   params: Promise<{ jobId: string }>;
 }) {
   const { jobId } = await params;
+  const parsedJobId = Number(jobId);
 
-  return <AdminAlerttalkDeliveryLogDetailPageClient jobId={Number(jobId)} />;
+  if (!Number.isInteger(parsedJobId) || parsedJobId <= 0) {
+    notFound();
+  }
+
+  return <AdminAlerttalkDeliveryLogDetailPageClient jobId={parsedJobId} />;
 }

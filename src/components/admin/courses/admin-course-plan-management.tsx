@@ -123,6 +123,10 @@ const showValidationError = (error: unknown) => {
   }
 };
 
+const toBooleanSelectValue = (value: string): 'true' | 'false' => {
+  return value === 'false' ? 'false' : 'true';
+};
+
 const toPlanPayload = (form: PlanFormValues): AdminCoursePlanUpsertRequest => {
   if (!form.planCode.trim() || !form.name.trim()) {
     throw new Error('플랜 코드와 이름을 입력해주세요.');
@@ -203,11 +207,15 @@ export default function AdminCoursePlanManagement({
       return;
     }
 
-    await createPlanMutation.mutateAsync({
-      courseId,
-      request,
-    });
-    setCreateForm(emptyPlanForm);
+    try {
+      await createPlanMutation.mutateAsync({
+        courseId,
+        request,
+      });
+      setCreateForm(emptyPlanForm);
+    } catch {
+      // Mutation onError handles user-facing feedback.
+    }
   };
 
   const handleUpdatePlan = async (planId: number) => {
@@ -223,11 +231,15 @@ export default function AdminCoursePlanManagement({
       return;
     }
 
-    await updatePlanMutation.mutateAsync({
-      courseId,
-      planId,
-      request,
-    });
+    try {
+      await updatePlanMutation.mutateAsync({
+        courseId,
+        planId,
+        request,
+      });
+    } catch {
+      // Mutation onError handles user-facing feedback.
+    }
   };
 
   return (
@@ -384,7 +396,7 @@ function PlanEditor({
             disabled={isLocked}
             value={form.isActive}
             onChange={(event) =>
-              onChange('isActive', event.target.value as 'true' | 'false')
+              onChange('isActive', toBooleanSelectValue(event.target.value))
             }
           >
             <option value="true">활성</option>
@@ -397,7 +409,10 @@ function PlanEditor({
             disabled={isLocked}
             value={form.isRecommended}
             onChange={(event) =>
-              onChange('isRecommended', event.target.value as 'true' | 'false')
+              onChange(
+                'isRecommended',
+                toBooleanSelectValue(event.target.value),
+              )
             }
           >
             <option value="true">대표</option>

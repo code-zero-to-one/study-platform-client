@@ -57,8 +57,8 @@ export default function AdminNotionZipActionCard({
           </div>
           <p className="font-designer-13r text-text-default">{description}</p>
           <ul className="font-designer-12r text-text-subtle mt-75 flex flex-col gap-25">
-            {bullets.map((bullet) => (
-              <li key={bullet}>• {bullet}</li>
+            {bullets.map((bullet, index) => (
+              <li key={`${bullet}-${index}`}>• {bullet}</li>
             ))}
           </ul>
         </div>

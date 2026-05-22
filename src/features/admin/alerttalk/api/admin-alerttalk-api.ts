@@ -80,7 +80,10 @@ export const testSendAdminAlerttalkTemplate = async ({
 }): Promise<AdminAlerttalkTemplateTestSendResponse> => {
   const response = await axiosInstanceV5.post<
     ApiBaseResponse<AdminAlerttalkTemplateTestSendResponse>
-  >(`admin/alerttalk/templates/${templateKey}/test-send`, request);
+  >(
+    `admin/alerttalk/templates/${encodeURIComponent(templateKey)}/test-send`,
+    request,
+  );
 
   return unwrap(response);
 };

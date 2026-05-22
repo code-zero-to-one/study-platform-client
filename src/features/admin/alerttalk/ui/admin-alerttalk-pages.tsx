@@ -63,6 +63,20 @@ const formatDateTime = (value?: string) => {
   }).format(date);
 };
 
+const toDateTimeLocalInputValue = (date: Date) => {
+  const pad = (value: number) => String(value).padStart(2, '0');
+
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+    'T',
+    pad(date.getHours()),
+    ':',
+    pad(date.getMinutes()),
+  ].join('');
+};
+
 const statusLabelMap: Record<string, string> = {
   APPROVED: '승인완료',
   REJECTED: '반려',
@@ -842,7 +856,7 @@ export function AdminAlerttalkDryRunPageClient() {
   const result = mutation.data;
 
   const submit = () => {
-    const now = new Date().toISOString().slice(0, 16);
+    const now = toDateTimeLocalInputValue(new Date());
     mutation.mutate({
       templateKey,
       at: at || now,

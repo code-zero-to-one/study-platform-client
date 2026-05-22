@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       release_summary:
-        description: 'Release summary written to releases/prod-YYYYMMDD-HHmm.yaml'
+        description: 'Release summary written to releases/prod-YYYYMMDD-HHmmss.yaml'
         required: false
         default: 'Manual production frontend deployment'
       release_intent:

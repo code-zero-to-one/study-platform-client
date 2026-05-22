@@ -139,7 +139,9 @@ export const normalizeAdminCourseMarkdownContent = (content: unknown) => {
   }
 
   if (shouldRenderMarkdownAsMarkdown(normalizedContent)) {
-    return renderMarkdownToHtml(normalizedContent);
+    return stripEditorBreakingAttributes(
+      renderMarkdownToHtml(normalizedContent),
+    );
   }
 
   if (!isHtmlContent(normalizedContent)) {
@@ -149,7 +151,9 @@ export const normalizeAdminCourseMarkdownContent = (content: unknown) => {
   const recoveredMarkdown =
     recoverMarkdownTextFromTextOnlyHtml(normalizedContent);
   if (recoveredMarkdown) {
-    return renderMarkdownToHtml(recoveredMarkdown);
+    return stripEditorBreakingAttributes(
+      renderMarkdownToHtml(recoveredMarkdown),
+    );
   }
 
   return stripEditorBreakingAttributes(normalizedContent);

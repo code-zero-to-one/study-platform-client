@@ -25,7 +25,7 @@ export const toAdminLessonHydrationSnapshot = (
     chapterNumber: lesson.chapterNumber,
     lessonNumber: lesson.lessonNumber,
     title: lesson.title,
-    description: '',
+    description: lesson.description ?? '',
     content: normalizeAdminCourseMarkdownContent(lesson.content),
     estimatedMinutes: lesson.estimatedMinutes,
     retrospectivePurpose: lesson.retrospectivePurpose,

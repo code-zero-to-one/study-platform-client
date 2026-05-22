@@ -59,7 +59,7 @@ zeroone-backend:vMAJOR.MINOR.PATCH-shortCommit
 날짜/시간은 `release_id`에만 들어갑니다. 이미지 태그에는 날짜/시간을 넣지 않습니다.
 
 ```txt
-prod-YYYYMMDD-HHmm
+prod-YYYYMMDD-HHmmss
 ```
 
 ### Mutable tag
@@ -81,7 +81,7 @@ prod-YYYYMMDD-HHmm
 {
   "event_type": "backend-prod-deployed",
   "client_payload": {
-    "release_id": "prod-20260517-2100",
+    "release_id": "prod-20260517-210045",
     "env": "prod",
     "summary": "[patch] Backend release summary",
     "backend": {
@@ -150,7 +150,7 @@ releases/<release_id>.yaml
 ### 백엔드에서 시작된 기록 예시
 
 ```yaml
-release_id: prod-20260517-2100
+release_id: prod-20260517-210045
 env: prod
 service_version: v1.4.3
 
