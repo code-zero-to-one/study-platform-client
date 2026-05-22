@@ -17,7 +17,6 @@ interface LessonPreviewModalProps {
   chapter: CourseCurriculumChapterResponse;
   learnerCount: number;
   onStart: () => void;
-  onSkip: () => void;
 }
 
 export function LessonPreviewModal({
@@ -27,10 +26,7 @@ export function LessonPreviewModal({
   chapter,
   learnerCount,
   onStart,
-  onSkip,
 }: LessonPreviewModalProps) {
-  const isOptionBonus = lesson.title.toLowerCase().includes('option');
-
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-10500 sm:max-w-10500 gap-0 overflow-hidden rounded-200 border-0 bg-background-default p-0">
@@ -55,13 +51,9 @@ export function LessonPreviewModal({
         <div className="flex w-full items-start justify-between px-875 pt-375">
           <div className="flex flex-col gap-150">
             <p className="whitespace-nowrap font-designer-24b text-text-brand">
-              {isOptionBonus
-                ? 'Option Bonus'
-                : `Lesson ${String(lesson.order).padStart(2, '0')}`}
+              {`Lesson ${String(lesson.order).padStart(2, '0')}`}
             </p>
-            <p className="whitespace-nowrap font-designer-24b text-gray-800">
-              {lesson.title}
-            </p>
+            <p className="font-designer-24b text-gray-800">{lesson.title}</p>
           </div>
           <div className="flex shrink-0 items-center gap-50 rounded-full border border-gray-200 text-gray-0 px-375 py-150">
             <div className="flex items-center">
@@ -91,22 +83,13 @@ export function LessonPreviewModal({
         {/* 학습 목표 */}
         <div className="flex flex-col gap-75 px-875 pt-375">
           <p className="font-designer-18b text-gray-800">학습 목표</p>
-          <p className="font-designer-15r text-gray-800">
+          <p className="line-clamp-3 font-designer-15r text-gray-800">
             {lesson.description ??
               '이 레슨에서 무엇을 배우는지 확인하고 시작해요.'}
           </p>
         </div>
         {/* CTAs */}
         <div className="flex flex-col gap-150 px-875 pb-875 pt-375">
-          {isOptionBonus && (
-            <button
-              type="button"
-              onClick={onSkip}
-              className="h-625 w-full rounded-100 border border-background-brand-default font-designer-14b text-text-brand"
-            >
-              건너뛰기
-            </button>
-          )}
           <button
             type="button"
             onClick={onStart}
