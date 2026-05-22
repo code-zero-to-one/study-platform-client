@@ -164,6 +164,7 @@ export interface LessonDisplayInfo {
   accessible: boolean;
   estimatedMinutes: number;
   isCurrent: boolean;
+  lockReason: 'retrospective' | 'access' | 'none';
 }
 
 export function buildLessonMap(
@@ -180,19 +181,29 @@ export function mergeLessons(
 ): LessonDisplayInfo[] {
   return chapter.lessons.map((l) => {
     const journeyLesson = journeyMap.get(l.lessonId);
+    const status =
+      journeyLesson?.status ?? (l.isLocked ? 'LOCKED' : 'IN_PROGRESS');
+    const accessible = journeyLesson?.isAccessible ?? !l.isLocked;
+
+    let lockReason: LessonDisplayInfo['lockReason'] = 'none';
+    if (status === 'LOCKED') {
+      lockReason = accessible ? 'retrospective' : 'access';
+    }
+
     return {
       lessonId: l.lessonId,
       order: l.order,
       title: l.title,
       description: l.description,
       isFree: l.isFree,
-      status: journeyLesson?.status ?? (l.isLocked ? 'LOCKED' : 'IN_PROGRESS'),
-      accessible: journeyLesson?.isAccessible ?? !l.isLocked,
+      status,
+      accessible,
       estimatedMinutes: l.estimatedMinutes,
       isCurrent:
         journeyLesson !== undefined &&
         journeyLesson.status === 'IN_PROGRESS' &&
         journeyLesson.isAccessible,
+      lockReason,
     };
   });
 }
