@@ -69,11 +69,11 @@ export default function ClassDetailPage({
   const viewerStatusLabel = getCourseViewerStatusLabel(courseDetail);
   const ctaLabel = (() => {
     if (createCourseFreeEnrollment.isPending) return '등록 중...';
+    if (canFreeEnrollFromDetail) return '무료 코스 시작하기';
     if (isCoursePaidEnrolled(courseDetail)) return '학습하러 가기';
     if (isCourseFreeEnrolled(courseDetail)) return '학습 계속하기';
-    if (canFreeEnrollFromDetail) return '무료 코스 시작하기';
     if (hasFullAccessFromDetail) return '관리자 권한으로 보기';
-    return '무료 코스 시작하기';
+    return undefined;
   })();
   const { data: myGiftEmail } = useGetMyGiftEmail({
     enabled: isAuthenticated && !!courseDetail?.isPaidEnrolled,
@@ -144,8 +144,8 @@ export default function ClassDetailPage({
         showToast('무료 코스 등록이 완료되었어요.');
       } catch {
         showToast('무료 코스 등록 중 오류가 발생했어요.', 'error');
-        return;
       }
+      return;
     }
     router.push(learningHomeHref);
   }
