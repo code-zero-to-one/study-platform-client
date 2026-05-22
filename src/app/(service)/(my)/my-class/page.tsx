@@ -203,7 +203,7 @@ function AlarmCard({
             : 'bg-border-subtle text-text-subtlest',
         )}
       >
-        시간 수정하기
+        {hasTime ? '시간 수정하기' : '시간 등록하기'}
       </button>
     </div>
   );
