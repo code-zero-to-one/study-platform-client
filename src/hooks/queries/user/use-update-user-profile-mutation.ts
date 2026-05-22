@@ -21,12 +21,16 @@ export const useUpdateUserProfileMutation = (memberId: number) => {
 
   return useMutation({
     mutationKey: ['updateUserProfile', memberId],
-    mutationFn: async (
-      formData: UpdateUserProfileRequest,
-    ): Promise<UpdateUserProfileResponse> => {
+    mutationFn: async ({
+      ignoreNull = false,
+      ...formData
+    }: UpdateUserProfileRequest & {
+      ignoreNull?: boolean;
+    }): Promise<UpdateUserProfileResponse> => {
       const res = await axiosInstanceV2.patch(
         `/api/v1/members/${memberId}/profile`,
         formData,
+        { params: ignoreNull ? { 'ignore-null': true } : undefined },
       );
 
       return res.data.content;

@@ -1,5 +1,5 @@
 export interface UpdateUserProfileRequest {
-  nickname: string;
+  nickname?: string;
   birthDate?: string;
   githubLink?: string;
   blogOrSnsLink?: string;
