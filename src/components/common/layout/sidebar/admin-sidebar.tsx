@@ -17,6 +17,7 @@ export default function AdminSideBar() {
   const isMentoringManagementPath = pathname.startsWith('/admin/mentoring');
   const isMatchingManagementPath = pathname.startsWith('/admin/matching');
   const isCourseManagementPath = pathname.startsWith('/admin/courses');
+  const isAlerttalkManagementPath = pathname.startsWith('/admin/alerttalk');
 
   return (
     <aside className="border-border-subtle h-screen w-fit border-r p-200">
@@ -81,6 +82,14 @@ export default function AdminSideBar() {
           onClick={() => router.push('/admin/matching')}
         >
           <TabMenu active={isMatchingManagementPath}>1:1 매칭 관리</TabMenu>
+        </button>
+
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/alerttalk/templates')}
+        >
+          <TabMenu active={isAlerttalkManagementPath}>알림톡 관리</TabMenu>
         </button>
       </nav>
     </aside>
