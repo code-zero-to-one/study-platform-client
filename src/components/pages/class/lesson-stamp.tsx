@@ -66,16 +66,12 @@ export function LessonStamp({
         )}
         {isLocked && <Lock className="mb-25 size-300 text-gray-500" />}
         {isCompleted && (
-          <p className="mb-25 font-designer-12b text-text-brand">완료</p>
+          <p className="mb-25 font-designer-12b text-gray-0">완료</p>
         )}
         <p
           className={cn(
             'font-designer-18b',
-            isCompleted
-              ? 'text-text-brand'
-              : isActive
-                ? 'text-gray-0'
-                : 'text-gray-500',
+            isCompleted || isActive ? 'text-gray-0' : 'text-gray-500',
           )}
         >
           Lesson
@@ -83,11 +79,7 @@ export function LessonStamp({
         <p
           className={cn(
             'font-designer-18b',
-            isCompleted
-              ? 'text-text-brand'
-              : isActive
-                ? 'text-gray-0'
-                : 'text-gray-500',
+            isCompleted || isActive ? 'text-gray-0' : 'text-gray-500',
           )}
         >
           {String(lesson.order).padStart(2, '0')}
