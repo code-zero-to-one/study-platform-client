@@ -66,17 +66,64 @@ export interface AdminCourseFormValues {
   cardHeadline: string;
   cardSummary: string;
   cardTags: string;
-  regularPrice: string;
-  discountPrice: string;
   description: string;
   thumbnailUrl: string;
   status: AdminCourseStatus;
   durationDays: string;
-  earlyBirdEndsAt: string | null;
 }
 
 export interface AdminCourseCreateResponse {
   courseId: number;
+}
+
+export interface AdminCoursePlanItem {
+  itemId?: number;
+  itemCode: string | null;
+  label: string;
+  valueAmount: number | null;
+  displayOrder: number | null;
+}
+
+export interface AdminCoursePlan {
+  planId: number;
+  courseId: number;
+  planCode: string;
+  name: string;
+  subtitle: string | null;
+  description: string | null;
+  regularPrice: number;
+  discountPrice: number;
+  earlyBirdEndsAt: string | null;
+  isActive: boolean;
+  isRecommended: boolean;
+  displayOrder: number;
+  items: AdminCoursePlanItem[];
+  updatedAt: string | null;
+}
+
+export interface AdminCoursePlanItemUpsertRequest {
+  itemCode?: string | null;
+  label: string;
+  valueAmount?: number | null;
+  displayOrder?: number | null;
+}
+
+export interface AdminCoursePlanUpsertRequest {
+  planCode: string;
+  name: string;
+  subtitle?: string | null;
+  description?: string | null;
+  regularPrice: number;
+  discountPrice: number;
+  earlyBirdEndsAt?: string | null;
+  isActive: boolean;
+  isRecommended: boolean;
+  displayOrder: number;
+  items: AdminCoursePlanItemUpsertRequest[];
+}
+
+export interface AdminCoursePlanCreateResponse {
+  planId: number;
 }
 
 export interface AdminCourseDeleteResponse {

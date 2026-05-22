@@ -4,6 +4,9 @@ import {
 } from '@/api/client/axios';
 import type {
   AdminBuilderFeedCurationRequest,
+  AdminCoursePlan,
+  AdminCoursePlanCreateResponse,
+  AdminCoursePlanUpsertRequest,
   AdminLessonBatchImportResponse,
   AdminLessonBatchUpdateRequest,
   AdminLessonBatchUpdateResponse,
@@ -222,6 +225,57 @@ export const deleteAdminCourse = async (
   >(`admin/courses/${courseId}`);
 
   return normalizeDeleteResponse(unwrap(response));
+};
+
+export const getAdminCoursePlans = async (
+  courseId: number,
+): Promise<AdminCoursePlan[]> => {
+  const response = await axiosInstanceV5.get<
+    ApiBaseResponse<AdminCoursePlan[]>
+  >(`admin/courses/${courseId}/plans`);
+
+  return unwrap(response);
+};
+
+export const createAdminCoursePlan = async ({
+  courseId,
+  request,
+}: {
+  courseId: number;
+  request: AdminCoursePlanUpsertRequest;
+}): Promise<AdminCoursePlanCreateResponse> => {
+  const response = await axiosInstanceV5.post<
+    ApiBaseResponse<AdminCoursePlanCreateResponse>
+  >(`admin/courses/${courseId}/plans`, request);
+
+  return unwrap(response);
+};
+
+export const updateAdminCoursePlan = async ({
+  courseId,
+  planId,
+  request,
+}: {
+  courseId: number;
+  planId: number;
+  request: AdminCoursePlanUpsertRequest;
+}): Promise<void> => {
+  await axiosInstanceV5.put<ApiBaseResponse<void>>(
+    `admin/courses/${courseId}/plans/${planId}`,
+    request,
+  );
+};
+
+export const deactivateAdminCoursePlan = async ({
+  courseId,
+  planId,
+}: {
+  courseId: number;
+  planId: number;
+}): Promise<void> => {
+  await axiosInstanceV5.patch<ApiBaseResponse<void>>(
+    `admin/courses/${courseId}/plans/${planId}/inactive`,
+  );
 };
 
 export const getAdminCourseLessons = async (
