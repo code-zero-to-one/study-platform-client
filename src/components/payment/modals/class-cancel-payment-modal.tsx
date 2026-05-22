@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
@@ -29,6 +30,7 @@ export default function ClassCancelPaymentModal({
   open,
   onOpenChange,
 }: ClassCancelPaymentModalProps) {
+  const router = useRouter();
   const [step, setStep] = useState<'form' | 'complete'>('form');
   const [reason, setReason] = useState<string | undefined>(undefined);
   const [detail, setDetail] = useState('');
@@ -51,9 +53,17 @@ export default function ClassCancelPaymentModal({
     setDetail('');
   };
 
+  const handleCompleteClose = () => {
+    onOpenChange(false);
+    setStep('form');
+    setReason(undefined);
+    setDetail('');
+    router.push('/class-payment-management');
+  };
+
   if (step === 'complete') {
     return (
-      <Modal.Root open={open} onOpenChange={handleClose}>
+      <Modal.Root open={open} onOpenChange={handleCompleteClose}>
         <Modal.Portal>
           <Modal.Overlay />
           <Modal.Content size="medium">
@@ -78,7 +88,7 @@ export default function ClassCancelPaymentModal({
                 color="primary"
                 size="medium"
                 className="w-full"
-                onClick={handleClose}
+                onClick={handleCompleteClose}
               >
                 확인
               </Button>
