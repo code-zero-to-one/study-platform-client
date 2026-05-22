@@ -28,7 +28,7 @@ export default function WithdrawalConfirmModal({
           </Modal.Header>
 
           <Modal.Body variant="alert">
-            <ol className="flex flex-col gap-150">
+            <ol className="flex flex-col gap-150 text-left">
               <li className="flex items-start gap-150">
                 <span className="font-designer-14m text-text-subtle mt-50 shrink-0">
                   1.
@@ -80,7 +80,7 @@ export default function WithdrawalConfirmModal({
           </Modal.Body>
 
           <Modal.Footer variant="alert">
-            <div className="flex gap-200">
+            <div className="flex w-full gap-200">
               <Button
                 color="secondary"
                 size="medium"
