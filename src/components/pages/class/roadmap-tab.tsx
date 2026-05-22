@@ -425,10 +425,12 @@ export function RoadmapTab({ slug }: { slug: string }) {
           const allLessons = [...chapters]
             .sort((a, b) => a.order - b.order)
             .flatMap((ch) =>
-              mergeLessons(ch, lessonStatusMap)
-                .sort((a, b) => a.order - b.order)
-                .map((lessonInfo) => ({ lesson: lessonInfo, chapter: ch })),
-            );
+              mergeLessons(ch, lessonStatusMap).map((lessonInfo) => ({
+                lesson: lessonInfo,
+                chapter: ch,
+              })),
+            )
+            .sort((a, b) => a.lesson.order - b.lesson.order);
           const visibleLessons = allLessons.slice(0, visibleLessonCount);
           const hasMoreLessons = visibleLessonCount < allLessons.length;
 
