@@ -175,7 +175,9 @@ test.describe('결제 성공 — 가상계좌 입금 대기 @auth', () => {
     await expect(page.getByText('99,000원')).toBeVisible();
   });
 
-  test('"결제 관리로 가기" 링크 → /my-page?tab=payment', async ({ page }) => {
+  test('"결제 관리로 가기" 링크 → /class-payment-management', async ({
+    page,
+  }) => {
     await gotoSuccessPage(page);
     await expect(page.getByText('입금 대기 중입니다.')).toBeVisible({
       timeout: 10000,
@@ -183,7 +185,7 @@ test.describe('결제 성공 — 가상계좌 입금 대기 @auth', () => {
 
     const link = page.getByRole('link', { name: '결제 관리로 가기' });
     await expect(link).toBeVisible();
-    await expect(link).toHaveAttribute('href', '/my-page?tab=payment');
+    await expect(link).toHaveAttribute('href', '/class-payment-management');
   });
 
   test('"결제 취소" 클릭 → cancel API 호출 → /class/vibe-intro/home 이동', async ({
