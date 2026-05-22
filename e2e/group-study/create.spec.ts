@@ -11,6 +11,8 @@ import {
 } from '../support/study-helpers';
 
 const AUTH_FILE = 'e2e/fixtures/auth.json';
+const REMOTE_MUTATION_SKIP_REASON =
+  'Remote staging creation mutates shared data and currently does not emit a stable POST response; keep this as a local/auth smoke flow outside release CI.';
 
 interface AuthCookie {
   name: string;
@@ -69,7 +71,12 @@ test.describe('그룹스터디 개설 @auth', () => {
     }
   });
 
-  test('3단계 위저드 전체 플로우 — 제출 성공', async ({ page }) => {
+  test('3단계 위저드 전체 플로우 — 제출 성공', async ({ page, baseURL }) => {
+    test.skip(
+      Boolean(baseURL && !baseURL.startsWith('http://localhost')),
+      REMOTE_MUTATION_SKIP_REASON,
+    );
+
     await openCreateModal(page);
     await fillStep1(page, 'PROJECT');
     await page.getByRole('button', { name: '다음' }).click();
@@ -132,7 +139,12 @@ test.describe('멘토스터디 개설 @auth', () => {
     }
   });
 
-  test('PREMIUM_STUDY 가격 필드 포함 전체 제출', async ({ page }) => {
+  test('PREMIUM_STUDY 가격 필드 포함 전체 제출', async ({ page, baseURL }) => {
+    test.skip(
+      Boolean(baseURL && !baseURL.startsWith('http://localhost')),
+      REMOTE_MUTATION_SKIP_REASON,
+    );
+
     await openPremiumStudyModal(page);
     await fillStep1(page);
 

@@ -8,6 +8,11 @@ const AUTH_FILE = 'e2e/fixtures/auth.json';
 const PAYMENT_MANAGEMENT_PATH = '/payment-management';
 const PAYMENT_ID = 200;
 
+test.skip(
+  ({ baseURL }) => !baseURL?.startsWith('http://localhost'),
+  'Mocked payment-management specs require local dev server auth; remote staging redirects protected routes before page route mocks can apply.',
+);
+
 // ─── Localhost auth cookie injection ─────────────────────────────────────────
 
 test.beforeEach(async ({ context, baseURL }) => {
