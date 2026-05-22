@@ -48,7 +48,8 @@ export type ViewerStatus =
   | 'ANONYMOUS'
   | 'LOGIN_ONLY'
   | 'FREE_ENROLLED'
-  | 'PAID';
+  | 'PAID'
+  | 'ADMIN';
 
 // ─── Course List ──────────────────────────────────────────────────────────────
 
