@@ -1,5 +1,54 @@
 import { expect, type Page } from '@playwright/test';
 
+async function mockVerifiedMemberProfile(page: Page) {
+  await page.route(/\/api\/v1\/members\/\d+\/profile(?:\?.*)?$/, (route) => {
+    const url = new URL(route.request().url());
+    const memberId = Number(
+      url.pathname.match(/\/members\/(\d+)\/profile/)?.[1],
+    );
+
+    return route.fulfill({
+      json: {
+        content: {
+          memberId: Number.isFinite(memberId) ? memberId : 1,
+          autoMatching: false,
+          isVerified: true,
+          studyApplied: false,
+          memberInfo: {
+            selfIntroduction: '',
+            studyPlan: '',
+            preferredStudySubject: { studySubjectId: '1', name: '테스트' },
+            availableStudyTimes: [],
+            jobs: null,
+            career: null,
+            studyFormatTypes: null,
+            goal: '',
+          },
+          memberProfile: {
+            memberName: 'E2E 테스트',
+            tel: '01012345678',
+            nickname: 'e2e-user',
+            profileImage: { imageId: 0, resizedImages: [] },
+            simpleIntroduction: '',
+            mbti: '',
+            interests: [],
+            birthDate: '2000-01-01',
+            githubLink: undefined,
+            blogOrSnsLink: undefined,
+            techStacks: [],
+          },
+          sincerityTemp: {
+            temperature: 36.5,
+            levelId: 1,
+            levelName: '기본',
+          },
+          premiumCreator: false,
+        },
+      },
+    });
+  });
+}
+
 export function addDays(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
@@ -23,12 +72,14 @@ async function clickStudyCreateButton(page: Page) {
 }
 
 export async function openCreateModal(page: Page) {
+  await mockVerifiedMemberProfile(page);
   await page.goto('/group-study', { waitUntil: 'load' });
   await page.waitForSelector('nav', { timeout: 10000 });
   await clickStudyCreateButton(page);
 }
 
 export async function openPremiumStudyModal(page: Page) {
+  await mockVerifiedMemberProfile(page);
   await page.goto('/premium-study', { waitUntil: 'load' });
   await page.waitForSelector('nav', { timeout: 10000 });
   await clickStudyCreateButton(page);

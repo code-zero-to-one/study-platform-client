@@ -1,6 +1,11 @@
 import { COMMUNITY_MARKDOWN_MAX_IMAGE_FILE_SIZE } from '@/types/community/markdown';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { isHtmlContent } from '@/utils/markdown-content-shared';
+import {
+  recoverMarkdownTextFromTextOnlyHtml,
+  renderMarkdownToHtml,
+  shouldRenderMarkdownAsMarkdown,
+} from '@/utils/markdown-rendering-utils';
 
 export const ADMIN_COURSE_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS = [
   'jpg',
@@ -58,9 +63,49 @@ const ATTRIBUTE_ALLOWLIST_BY_TAG: Record<string, Set<string>> = {
   ul: new Set(),
 };
 
+const HTML_OPEN_TAG_PATTERN = /<([a-z][a-z0-9-]*)(\s[^<>]*?)?>/gi;
+const HTML_ATTRIBUTE_PATTERN =
+  /([^\s=/'"`<>]+)(?:\s*=\s*("[^"]*"|'[^']*'|[^\s"'=<>`]+))?/g;
+
+const stripAttributesFromOpeningTag = (tagName: string, attributes = '') => {
+  const normalizedTagName = tagName.toLowerCase();
+  const allowedAttributes =
+    ATTRIBUTE_ALLOWLIST_BY_TAG[normalizedTagName] ?? new Set();
+  const keptAttributes: string[] = [];
+
+  attributes.replace(
+    HTML_ATTRIBUTE_PATTERN,
+    (match: string, attributeName: string) => {
+      const normalizedAttributeName = attributeName.toLowerCase();
+      if (
+        !GLOBAL_DISALLOWED_ATTRIBUTES.has(normalizedAttributeName) &&
+        !normalizedAttributeName.startsWith('data-') &&
+        !normalizedAttributeName.startsWith('on') &&
+        allowedAttributes.has(normalizedAttributeName)
+      ) {
+        keptAttributes.push(match);
+      }
+
+      return '';
+    },
+  );
+
+  return keptAttributes.length > 0
+    ? `<${normalizedTagName} ${keptAttributes.join(' ')}>`
+    : `<${normalizedTagName}>`;
+};
+
+const stripEditorBreakingAttributesWithoutDom = (html: string) => {
+  return html.replace(
+    HTML_OPEN_TAG_PATTERN,
+    (_match, tagName: string, attributes: string | undefined) =>
+      stripAttributesFromOpeningTag(tagName, attributes),
+  );
+};
+
 const stripEditorBreakingAttributes = (html: string) => {
   if (typeof window === 'undefined') {
-    return html;
+    return stripEditorBreakingAttributesWithoutDom(html);
   }
 
   const document = new window.DOMParser().parseFromString(html, 'text/html');
@@ -89,8 +134,26 @@ const stripEditorBreakingAttributes = (html: string) => {
 export const normalizeAdminCourseMarkdownContent = (content: unknown) => {
   const normalizedContent = normalizeMarkdownContent(content);
 
-  if (!normalizedContent || !isHtmlContent(normalizedContent)) {
+  if (!normalizedContent) {
     return normalizedContent;
+  }
+
+  if (shouldRenderMarkdownAsMarkdown(normalizedContent)) {
+    return stripEditorBreakingAttributes(
+      renderMarkdownToHtml(normalizedContent),
+    );
+  }
+
+  if (!isHtmlContent(normalizedContent)) {
+    return normalizedContent;
+  }
+
+  const recoveredMarkdown =
+    recoverMarkdownTextFromTextOnlyHtml(normalizedContent);
+  if (recoveredMarkdown) {
+    return stripEditorBreakingAttributes(
+      renderMarkdownToHtml(recoveredMarkdown),
+    );
   }
 
   return stripEditorBreakingAttributes(normalizedContent);

@@ -4,10 +4,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { CourseCheckoutForm } from '@/components/pages/class/payment/checkout-form';
 import { PlanSelectionModal } from '@/components/pages/class/plan-selection-modal';
-import {
-  useGetCourseDetail,
-  usePrepareCoursePaymentQuery,
-} from '@/hooks/queries/course/course-api';
+import { useGetCourseDetail } from '@/hooks/queries/course/course-api';
 import type { CoursePlanCode } from '@/types/api/course.types';
 
 export default function VibeIntroPaymentPage() {
@@ -27,16 +24,11 @@ export default function VibeIntroPaymentPage() {
   const { data: course, isLoading: courseLoading } = useGetCourseDetail(slug);
   const courseId = course?.courseId ?? 0;
 
-  const { data: paymentData, isLoading: paymentLoading } =
-    usePrepareCoursePaymentQuery({
-      courseId,
-      planCode,
-      enabled: !!courseId,
-    });
+  const plan = course?.plans?.find(
+    (p) => p.planCode.replace(/-/g, '_').toUpperCase() === planCode,
+  );
 
-  const plan = course?.plans?.find((p) => p.planCode === planCode);
-
-  if (courseLoading || paymentLoading) {
+  if (courseLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="font-designer-16r text-gray-500">로딩 중...</p>
@@ -44,7 +36,7 @@ export default function VibeIntroPaymentPage() {
     );
   }
 
-  if (!plan || !paymentData) {
+  if (!plan || !courseId) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="font-designer-16r text-gray-500">
@@ -63,7 +55,7 @@ export default function VibeIntroPaymentPage() {
       <CourseCheckoutForm
         slug={slug}
         plan={plan}
-        paymentData={paymentData}
+        courseId={courseId}
         planCode={planCode}
         onChangePlan={() => setShowPlanModal(true)}
         thumbnailUrl={course?.thumbnailUrl ?? null}

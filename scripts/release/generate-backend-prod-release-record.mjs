@@ -16,7 +16,7 @@ const DEPLOY_ORDER = [
   'frontend',
   'e2e_check',
 ];
-const RELEASE_ID = /^prod-\d{8}-\d{4}$/;
+const RELEASE_ID = /^prod-\d{8}-\d{4}(?:\d{2})?$/;
 const VERSION = /^v\d+\.\d+\.\d+$/;
 const DATE_IN_TAG = /:.*\d{8}|:.*\d{4}-\d{2}-\d{2}/;
 const POINTER_TAG = /:(prod|latest-prod)$/;

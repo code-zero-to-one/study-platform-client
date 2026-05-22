@@ -1,11 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createAdminCourse,
+  createAdminCoursePlan,
+  batchUpdateAdminLessons,
   bulkUpdateAdminLessons,
   createAdminLesson,
+  createAdminLessonsFromNotionZips,
   deleteAdminCourse,
+  deactivateAdminCoursePlan,
   deleteAdminLesson,
   getAdminCourseDetail,
+  getAdminCoursePlans,
   getAdminCompletionMessage,
   getAdminCourseLessons,
   getAdminCourses,
@@ -13,7 +18,9 @@ import {
   getAdminLessonQnaDetail,
   getAdminLessonQnas,
   getAdminLessonRetrospectives,
+  importAdminLessonContentZip,
   updateAdminBuilderFeedCuration,
+  updateAdminCoursePlan,
   createAdminLessonQnaAnswer,
   getAdminLessonBuilderFeeds,
   reorderAdminLessons,
@@ -28,6 +35,7 @@ import type {
   AdminCourseListParams,
   AdminCourseUpdateRequest,
   AdminCourseUpsertRequest,
+  AdminLessonBatchUpdateRequest,
   AdminLessonUpsertRequest,
 } from '@/features/admin/course-management/model/admin-course-management-contract';
 import { parseAdminCourseCardTags } from '@/features/admin/course-management/model/admin-course-tag-utils';
@@ -40,6 +48,8 @@ export const adminCourseManagementQueryKeys = {
     [...adminCourseManagementQueryKeys.all, 'courses', params] as const,
   courseDetail: (courseId?: number) =>
     [...adminCourseManagementQueryKeys.all, 'course-detail', courseId] as const,
+  coursePlans: (courseId?: number) =>
+    [...adminCourseManagementQueryKeys.all, 'course-plans', courseId] as const,
   lessons: (courseId?: number) =>
     [...adminCourseManagementQueryKeys.all, 'lessons', courseId] as const,
   lessonDetail: (lessonId?: number) =>
@@ -79,6 +89,38 @@ const showMutationError = (error: unknown) => {
     .showToast(userMessage || '요청 처리 중 오류가 발생했습니다.', 'error');
 };
 
+const getNotionZipImportErrorMessage = (
+  error: unknown,
+  operation: 'single' | 'batch',
+) => {
+  const errorInfo = analyzeError(error);
+
+  if (errorInfo.statusCode === 404) {
+    return '대상을 찾지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.';
+  }
+
+  if (errorInfo.statusCode === 409) {
+    return operation === 'batch'
+      ? '같은 챕터에 같은 레슨 번호가 이미 있어 생성할 수 없습니다. 기존 레슨 번호를 확인해주세요.'
+      : '본문 교체 중 충돌이 발생했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.';
+  }
+
+  if (errorInfo.statusCode === 400) {
+    return '올린 ZIP 형식을 해석하지 못했습니다. Notion export ZIP인지, markdown 1개와 이미지 파일이 함께 들어있는지 확인해주세요.';
+  }
+
+  return errorInfo.userMessage || 'ZIP import 처리 중 오류가 발생했습니다.';
+};
+
+const showNotionZipImportError = (
+  error: unknown,
+  operation: 'single' | 'batch',
+) => {
+  useToastStore
+    .getState()
+    .showToast(getNotionZipImportErrorMessage(error, operation), 'error');
+};
+
 export const useAdminCoursesQuery = (params: AdminCourseListParams) =>
   useQuery({
     queryKey: adminCourseManagementQueryKeys.courses(params),
@@ -98,6 +140,14 @@ export const useAdminCourseDetailQuery = (courseId?: number) =>
   useQuery({
     queryKey: adminCourseManagementQueryKeys.courseDetail(courseId),
     queryFn: () => getAdminCourseDetail(courseId ?? 0),
+    enabled: typeof courseId === 'number',
+    staleTime: 30_000,
+  });
+
+export const useAdminCoursePlansQuery = (courseId?: number) =>
+  useQuery({
+    queryKey: adminCourseManagementQueryKeys.coursePlans(courseId),
+    queryFn: () => getAdminCoursePlans(courseId ?? 0),
     enabled: typeof courseId === 'number',
     staleTime: 30_000,
   });
@@ -202,6 +252,66 @@ export const useDeleteAdminCourseMutation = () => {
   });
 };
 
+export const useCreateAdminCoursePlanMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createAdminCoursePlan,
+    onSuccess: async (_, variables) => {
+      useToastStore.getState().showToast('플랜을 생성했습니다.', 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.coursePlans(
+          variables.courseId,
+        ),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: showMutationError,
+  });
+};
+
+export const useUpdateAdminCoursePlanMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateAdminCoursePlan,
+    onSuccess: async (_, variables) => {
+      useToastStore.getState().showToast('플랜을 저장했습니다.', 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.coursePlans(
+          variables.courseId,
+        ),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: showMutationError,
+  });
+};
+
+export const useDeactivateAdminCoursePlanMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deactivateAdminCoursePlan,
+    onSuccess: async (_, variables) => {
+      useToastStore.getState().showToast('플랜을 비활성화했습니다.', 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.coursePlans(
+          variables.courseId,
+        ),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: showMutationError,
+  });
+};
+
 export const useCreateAdminLessonMutation = () => {
   const queryClient = useQueryClient();
 
@@ -209,6 +319,90 @@ export const useCreateAdminLessonMutation = () => {
     mutationFn: createAdminLesson,
     onSuccess: async (_, variables) => {
       useToastStore.getState().showToast('레슨을 생성했습니다.', 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.lessons(variables.courseId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: showMutationError,
+  });
+};
+
+export const useImportAdminLessonContentZipMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: importAdminLessonContentZip,
+    onSuccess: async (lessonDetail) => {
+      useToastStore
+        .getState()
+        .showToast('본문을 ZIP 기준으로 교체했습니다.', 'success');
+      queryClient.setQueryData(
+        adminCourseManagementQueryKeys.lessonDetail(lessonDetail.lessonId),
+        lessonDetail,
+      );
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.lessonDetail(
+          lessonDetail.lessonId,
+        ),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: (error) => showNotionZipImportError(error, 'single'),
+  });
+};
+
+export const useCreateAdminLessonsFromNotionZipsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createAdminLessonsFromNotionZips,
+    onSuccess: async (response, variables) => {
+      useToastStore
+        .getState()
+        .showToast(`${response.lessonCount}개 레슨을 생성했습니다.`, 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.lessons(variables.courseId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: (error) => showNotionZipImportError(error, 'batch'),
+  });
+};
+
+export const useBatchUpdateAdminLessonsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      courseId,
+      request,
+    }: {
+      courseId: number;
+      request: AdminLessonBatchUpdateRequest;
+    }) => batchUpdateAdminLessons({ courseId, request }),
+    onSuccess: async (response, variables) => {
+      useToastStore
+        .getState()
+        .showToast(
+          `${response.updatedCount}개 레슨을 저장했습니다.`,
+          'success',
+        );
+      await Promise.all(
+        response.lessons.map((lesson) =>
+          queryClient.invalidateQueries({
+            queryKey: adminCourseManagementQueryKeys.lessonDetail(
+              lesson.lessonId,
+            ),
+          }),
+        ),
+      );
       await queryClient.invalidateQueries({
         queryKey: adminCourseManagementQueryKeys.lessons(variables.courseId),
       });

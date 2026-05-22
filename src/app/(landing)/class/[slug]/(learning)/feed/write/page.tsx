@@ -116,7 +116,10 @@ export default function FeedWritePage() {
       updateFeed.mutate(
         {
           feedId: editFeedId,
-          request: { content: text, imageKeys: images.map((i) => i.key) },
+          request: {
+            content: text,
+            imageKeys: images.map((i) => i.key),
+          },
         },
         {
           onSuccess: () => {
@@ -200,7 +203,7 @@ export default function FeedWritePage() {
       <div className="w-full pb-800">
         <div className="mx-auto max-w-page px-600 pt-500">
           <Link
-            href={backHref}
+            href={`/class/${slug}/home?tab=feed`}
             className="inline-flex items-center gap-125 font-designer-14m text-gray-800"
           >
             <ArrowLeft className="h-300 w-300" />

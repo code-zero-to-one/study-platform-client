@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import AdminCourseField from '@/components/admin/courses/admin-course-field';
 import AdminCourseMarkdownEditor from '@/components/admin/courses/admin-course-markdown-editor';
+import AdminNotionZipActionCard from '@/components/admin/courses/admin-notion-zip-action-card';
+import { ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE } from '@/components/admin/courses/admin-notion-zip-import-button';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
@@ -11,6 +13,7 @@ import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import { BaseInput, NativeSelect } from '@/components/common/ui/input';
 import { CLASS_INPUT_LIMITS } from '@/features/admin/course-management/model/admin-class-input-policy';
 import type {
+  AdminLessonBatchUpdateItem,
   AdminLessonSummary,
   AdminLessonUpsertRequest,
   AdminRetrospectivePurpose,
@@ -21,8 +24,10 @@ import {
 } from '@/features/admin/course-management/model/admin-course-presentation';
 import {
   readAdminDraft,
+  removeAdminDraft,
   useAdminLocalDraft,
 } from '@/features/admin/course-management/model/admin-draft-storage';
+import { toAdminLessonForm } from '@/features/admin/course-management/model/admin-lesson-form-mapper';
 import {
   getAdminLessonPayloadValidationError,
   toAdminLessonPayload,
@@ -31,8 +36,11 @@ import {
   useAdminLessonDetailQuery,
   useAdminLessonQnasQuery,
   useAdminLessonRetrospectivesQuery,
+  useBatchUpdateAdminLessonsMutation,
   useCreateAdminLessonMutation,
   useDeleteAdminLessonMutation,
+  useCreateAdminLessonsFromNotionZipsMutation,
+  useImportAdminLessonContentZipMutation,
   useReorderAdminLessonsMutation,
   useUpdateAdminLessonMutation,
 } from '@/features/admin/course-management/model/use-admin-course-management-query';
@@ -156,7 +164,7 @@ export default function AdminLessonManagementPageClient({
   courseId: number;
 }) {
   const lessonsQuery = useAdminCourseLessonsQuery(courseId);
-  const lessons = lessonsQuery.data ?? [];
+  const lessons = useMemo(() => lessonsQuery.data ?? [], [lessonsQuery.data]);
   const [lessonSearch, setLessonSearch] = useState('');
   const [chapterFilter, setChapterFilter] = useState<'ALL' | string>('ALL');
   const [publishedFilter, setPublishedFilter] = useState<
@@ -171,9 +179,16 @@ export default function AdminLessonManagementPageClient({
   );
   const [lessonForm, setLessonForm] =
     useState<AdminLessonUpsertRequest>(emptyLessonForm);
+  const [dirtyLessonFormsById, setDirtyLessonFormsById] = useState<
+    Record<number, AdminLessonUpsertRequest>
+  >({});
+  const [dirtyLessonIds, setDirtyLessonIds] = useState<number[]>([]);
   const [hydratedLessonId, setHydratedLessonId] = useState<
     number | undefined
   >();
+  const [recentlyImportedLessonIds, setRecentlyImportedLessonIds] = useState<
+    number[]
+  >([]);
   const [editorVersion, setEditorVersion] = useState(0);
   const draftKey = `lesson:${courseId}:${lessonFormMode}:${editingLessonId ?? 'new'}`;
   // edit 모드에서는 server hydration이 끝난 뒤에만 draft 자동저장을 활성화한다.
@@ -191,7 +206,12 @@ export default function AdminLessonManagementPageClient({
     enabled: isLessonHydrated,
   });
 
+  const batchUpdateLessonsMutation = useBatchUpdateAdminLessonsMutation();
   const createLessonMutation = useCreateAdminLessonMutation();
+  const createLessonsFromNotionZipsMutation =
+    useCreateAdminLessonsFromNotionZipsMutation();
+  const importLessonContentZipMutation =
+    useImportAdminLessonContentZipMutation();
   const updateLessonMutation = useUpdateAdminLessonMutation();
   const deleteLessonMutation = useDeleteAdminLessonMutation();
   const reorderLessonsMutation = useReorderAdminLessonsMutation();
@@ -243,13 +263,53 @@ export default function AdminLessonManagementPageClient({
   );
   const isLessonFormLocked =
     createLessonMutation.isPending ||
+    createLessonsFromNotionZipsMutation.isPending ||
+    importLessonContentZipMutation.isPending ||
     updateLessonMutation.isPending ||
+    batchUpdateLessonsMutation.isPending ||
     lessonDetailQuery.isFetching;
   const isListFiltered =
     Boolean(lessonSearch.trim()) ||
     chapterFilter !== 'ALL' ||
     publishedFilter !== 'ALL' ||
     accessFilter !== 'ALL';
+
+  const dirtyLessonIdSet = useMemo(
+    () => new Set(dirtyLessonIds),
+    [dirtyLessonIds],
+  );
+
+  const clearDirtyLessons = (lessonIds: number[]) => {
+    setDirtyLessonIds((prev) =>
+      prev.filter((lessonId) => !lessonIds.includes(lessonId)),
+    );
+    setDirtyLessonFormsById((prev) => {
+      const next = { ...prev };
+      lessonIds.forEach((lessonId) => {
+        delete next[lessonId];
+        removeAdminDraft(`lesson:${courseId}:edit:${lessonId}`);
+      });
+      return next;
+    });
+  };
+
+  const updateLessonForm = (patch: Partial<AdminLessonUpsertRequest>) => {
+    setLessonForm((prev) => {
+      const next = { ...prev, ...patch };
+      if (lessonFormMode === 'edit' && editingLessonId) {
+        setDirtyLessonFormsById((prevForms) => ({
+          ...prevForms,
+          [editingLessonId]: next,
+        }));
+        setDirtyLessonIds((prevIds) =>
+          prevIds.includes(editingLessonId)
+            ? prevIds
+            : [...prevIds, editingLessonId],
+        );
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (
@@ -285,38 +345,40 @@ export default function AdminLessonManagementPageClient({
       return;
     }
 
-    const serverLessonForm = {
-      chapterNumber: lessonDetailQuery.data.chapterNumber,
-      lessonNumber: lessonDetailQuery.data.lessonNumber,
-      title: lessonDetailQuery.data.title,
-      description: lessonDetailQuery.data.description ?? '',
-      content: lessonDetailQuery.data.content,
-      estimatedMinutes: lessonDetailQuery.data.estimatedMinutes,
-      retrospectivePurpose: lessonDetailQuery.data.retrospectivePurpose,
-      isFree: lessonDetailQuery.data.isFree,
-      isPublished: lessonDetailQuery.data.isPublished,
-    };
-    const draft = normalizeLessonDraft(
+    const lessonId = lessonDetailQuery.data.lessonId;
+    const serverLessonForm = toAdminLessonForm(lessonDetailQuery.data);
+    const memoryDraft = dirtyLessonFormsById[lessonId];
+    const localDraft = normalizeLessonDraft(
       readAdminDraft<AdminLessonUpsertRequest>(
-        `lesson:${courseId}:edit:${lessonDetailQuery.data.lessonId}`,
+        `lesson:${courseId}:edit:${lessonId}`,
       ),
     );
     // server에 본문이 있는데 draft의 본문이 비어 있으면 race condition으로 저장된 빈 form이므로
     // 무시하고 server data를 사용한다.
-    const isMeaningfulDraft =
-      draft !== undefined &&
-      (draft.content?.trim() ||
+    const isMeaningfulLocalDraft =
+      localDraft !== undefined &&
+      (localDraft.content?.trim() ||
         (!serverLessonForm.content?.trim() &&
-          (draft.title?.trim() || draft.lessonNumber !== undefined)));
+          (localDraft.title?.trim() || localDraft.lessonNumber !== undefined)));
+    const restoredDraft =
+      memoryDraft ?? (isMeaningfulLocalDraft ? localDraft : undefined);
 
-    setLessonForm(isMeaningfulDraft ? draft : serverLessonForm);
-    if (isMeaningfulDraft) {
+    setLessonForm(restoredDraft ?? serverLessonForm);
+    if (restoredDraft) {
       setLessonDraftStatus('restored');
+      setDirtyLessonFormsById((prev) => ({
+        ...prev,
+        [lessonId]: restoredDraft,
+      }));
+      setDirtyLessonIds((prev) =>
+        prev.includes(lessonId) ? prev : [...prev, lessonId],
+      );
     }
-    setHydratedLessonId(lessonDetailQuery.data.lessonId);
+    setHydratedLessonId(lessonId);
     setEditorVersion((prev) => prev + 1);
   }, [
     courseId,
+    dirtyLessonFormsById,
     hydratedLessonId,
     lessonDetailQuery.data,
     setLessonDraftStatus,
@@ -353,17 +415,19 @@ export default function AdminLessonManagementPageClient({
     setLessonFormMode('edit');
     setEditingLessonId(lesson.lessonId);
     setHydratedLessonId(undefined);
-    setLessonForm({
-      chapterNumber: lesson.chapterNumber,
-      lessonNumber: lesson.lessonNumber,
-      title: lesson.title,
-      description: '',
-      content: '',
-      estimatedMinutes: 30,
-      retrospectivePurpose: lesson.retrospectivePurpose,
-      isFree: lesson.isFree,
-      isPublished: lesson.isPublished,
-    });
+    setLessonForm(
+      dirtyLessonFormsById[lesson.lessonId] ?? {
+        chapterNumber: lesson.chapterNumber,
+        lessonNumber: lesson.lessonNumber,
+        title: lesson.title,
+        description: '',
+        content: '',
+        estimatedMinutes: 30,
+        retrospectivePurpose: lesson.retrospectivePurpose,
+        isFree: lesson.isFree,
+        isPublished: lesson.isPublished,
+      },
+    );
     setEditorVersion((prev) => prev + 1);
   };
 
@@ -397,7 +461,87 @@ export default function AdminLessonManagementPageClient({
         lessonId: editingLessonId,
         request: payload,
       },
-      { onSuccess: clearLessonDraft },
+      {
+        onSuccess: () => {
+          clearLessonDraft();
+          clearDirtyLessons([editingLessonId]);
+        },
+      },
+    );
+  };
+
+  const handleSubmitDirtyLessons = () => {
+    const lessonsToSave = dirtyLessonIds
+      .map((lessonId) => ({
+        lessonId,
+        form: dirtyLessonFormsById[lessonId],
+      }))
+      .filter(
+        (item): item is { lessonId: number; form: AdminLessonUpsertRequest } =>
+          item.form !== undefined,
+      );
+
+    if (lessonsToSave.length === 0) return;
+
+    const lessons: AdminLessonBatchUpdateItem[] = [];
+    for (const item of lessonsToSave) {
+      const payload = toAdminLessonPayload(item.form);
+      const validationError = getAdminLessonPayloadValidationError(payload);
+      if (validationError) {
+        useToastStore
+          .getState()
+          .showToast(`레슨 #${item.lessonId}: ${validationError}`, 'info');
+        return;
+      }
+      lessons.push({ lessonId: item.lessonId, ...payload });
+    }
+
+    batchUpdateLessonsMutation.mutate(
+      { courseId, request: { lessons } },
+      {
+        onSuccess: (response) => {
+          clearDirtyLessons(response.lessons.map((lesson) => lesson.lessonId));
+        },
+      },
+    );
+  };
+
+  const handleCreateLessonsFromNotionZips = (zipFiles: File[]) => {
+    if (zipFiles.length === 0 || isLessonFormLocked) return;
+
+    createLessonsFromNotionZipsMutation.mutate(
+      { courseId, files: zipFiles },
+      {
+        onSuccess: (response) => {
+          setLessonSearch('');
+          setChapterFilter('ALL');
+          setPublishedFilter('ALL');
+          setAccessFilter('ALL');
+          setRecentlyImportedLessonIds(
+            response.lessons.map((lesson) => lesson.lessonId),
+          );
+        },
+      },
+    );
+  };
+
+  const handleImportNotionZip = (files: File[]) => {
+    const [file] = files;
+    if (!file || isLessonFormLocked || !editingLessonId) {
+      return;
+    }
+
+    importLessonContentZipMutation.mutate(
+      { lessonId: editingLessonId, file },
+      {
+        onSuccess: (lessonDetail) => {
+          clearLessonDraft();
+          setLessonForm(toAdminLessonForm(lessonDetail));
+          clearDirtyLessons([lessonDetail.lessonId]);
+          setHydratedLessonId(lessonDetail.lessonId);
+          setEditorVersion((prev) => prev + 1);
+        },
+      },
     );
   };
 
@@ -420,7 +564,7 @@ export default function AdminLessonManagementPageClient({
             return;
           }
 
-          setLessonForm((prev) => ({ ...prev, isPublished: false }));
+          updateLessonForm({ isPublished: false });
         },
       },
     );
@@ -467,6 +611,17 @@ export default function AdminLessonManagementPageClient({
               새 레슨 추가
             </Button>
           )}
+          {dirtyLessonIds.length > 0 && (
+            <Button
+              color="secondary"
+              size="small"
+              disabled={isLessonFormLocked}
+              loading={batchUpdateLessonsMutation.isPending}
+              onClick={handleSubmitDirtyLessons}
+            >
+              변경사항 모두 저장 {dirtyLessonIds.length}
+            </Button>
+          )}
           <Button
             size="small"
             disabled={isLessonFormLocked}
@@ -475,13 +630,32 @@ export default function AdminLessonManagementPageClient({
             }
             onClick={handleSubmitLesson}
           >
-            {lessonFormMode === 'create' ? '새 레슨 생성' : '변경사항 저장'}
+            {lessonFormMode === 'create' ? '새 레슨 생성' : '현재 레슨 저장'}
           </Button>
         </div>
       </header>
 
       <section className="grid min-h-screen grid-cols-2 gap-200">
         <div className="border-border-default bg-background-default rounded-150 min-h-screen overflow-auto border p-200">
+          <div className="mb-150">
+            <AdminNotionZipActionCard
+              multiple
+              badgeLabel="즉시 생성"
+              buttonLabel="Notion ZIP 업로드"
+              description="Notion export ZIP을 업로드하면 선택한 코스 아래에 레슨이 바로 생성됩니다."
+              bullets={[
+                'ZIP 1개당 레슨 1개가 생성됩니다.',
+                '파일 선택창에서 ZIP 1개 또는 여러 개를 한 번에 선택할 수 있습니다.',
+                '제목과 설명은 ZIP 내용에서 자동 추출됩니다.',
+                '챕터와 레슨 번호는 기존 마지막 레슨 뒤로 자동 배치됩니다.',
+              ]}
+              disabled={isLessonFormLocked}
+              loading={createLessonsFromNotionZipsMutation.isPending}
+              title="Notion ZIP으로 레슨 생성"
+              onSelectFiles={handleCreateLessonsFromNotionZips}
+            />
+          </div>
+
           <div className="mb-150 flex flex-wrap items-end gap-100">
             <AdminCourseField label="레슨 검색">
               <BaseInput
@@ -572,7 +746,15 @@ export default function AdminLessonManagementPageClient({
                             {lesson.chapterNumber}-{lesson.lessonNumber}.{' '}
                             {lesson.title}
                           </span>
-                          <LessonStatusBadges lesson={lesson} />
+                          <div className="flex flex-wrap gap-50">
+                            <LessonStatusBadges lesson={lesson} />
+                            {recentlyImportedLessonIds.includes(
+                              lesson.lessonId,
+                            ) && <Badge color="green">방금 생성</Badge>}
+                            {dirtyLessonIdSet.has(lesson.lessonId) && (
+                              <Badge color="orange">수정됨</Badge>
+                            )}
+                          </div>
                           <span className="font-designer-12r text-text-subtlest">
                             돌아보기 {lesson.retrospectiveCount}건 · 수정{' '}
                             {formatDateTime(lesson.updatedAt)}
@@ -647,6 +829,18 @@ export default function AdminLessonManagementPageClient({
             </div>
           )}
 
+          {dirtyLessonIds.length > 0 && (
+            <div className="border-border-warning bg-fill-warning-subtle-default mb-150 rounded-125 border px-150 py-125">
+              <p className="font-designer-14b text-text-warning">
+                저장되지 않은 레슨 {dirtyLessonIds.length}개가 있습니다.
+              </p>
+              <p className="font-designer-12r text-text-subtle mt-50">
+                레슨을 이동해도 수정분은 유지됩니다. 상단의 변경사항 모두 저장을
+                눌러야 서버에 반영됩니다.
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-3 gap-150">
             <AdminCourseField label="챕터" helper="필수 · 1 이상의 정수">
               <BaseInput
@@ -657,10 +851,7 @@ export default function AdminLessonManagementPageClient({
                 disabled={isLessonFormLocked}
                 value={String(lessonForm.chapterNumber)}
                 onValueChange={(chapterNumber) =>
-                  setLessonForm((prev) => ({
-                    ...prev,
-                    chapterNumber: Number(chapterNumber),
-                  }))
+                  updateLessonForm({ chapterNumber: Number(chapterNumber) })
                 }
               />
             </AdminCourseField>
@@ -676,10 +867,7 @@ export default function AdminLessonManagementPageClient({
                 disabled={isLessonFormLocked}
                 value={String(lessonForm.lessonNumber)}
                 onValueChange={(lessonNumber) =>
-                  setLessonForm((prev) => ({
-                    ...prev,
-                    lessonNumber: Number(lessonNumber),
-                  }))
+                  updateLessonForm({ lessonNumber: Number(lessonNumber) })
                 }
               />
             </AdminCourseField>
@@ -695,10 +883,9 @@ export default function AdminLessonManagementPageClient({
                 disabled={isLessonFormLocked}
                 value={String(lessonForm.estimatedMinutes)}
                 onValueChange={(estimatedMinutes) =>
-                  setLessonForm((prev) => ({
-                    ...prev,
+                  updateLessonForm({
                     estimatedMinutes: Number(estimatedMinutes),
-                  }))
+                  })
                 }
               />
             </AdminCourseField>
@@ -715,9 +902,7 @@ export default function AdminLessonManagementPageClient({
                 value={lessonForm.title}
                 placeholder="1일차 오리엔테이션"
                 maxLength={CLASS_INPUT_LIMITS.lesson.titleMax}
-                onValueChange={(title) =>
-                  setLessonForm((prev) => ({ ...prev, title }))
-                }
+                onValueChange={(title) => updateLessonForm({ title })}
               />
             </AdminCourseField>
             <AdminCourseField
@@ -730,10 +915,7 @@ export default function AdminLessonManagementPageClient({
                 placeholder="레슨 한 줄 소개와 핵심 모먼트를 2줄로 정리해주세요."
                 maxLength={CLASS_INPUT_LIMITS.lesson.descriptionMax}
                 onChange={(event) =>
-                  setLessonForm((prev) => ({
-                    ...prev,
-                    description: event.target.value,
-                  }))
+                  updateLessonForm({ description: event.target.value })
                 }
                 className="border-border-default focus:border-border-brand-default font-designer-14r text-text-default min-h-800 w-full rounded-100 border bg-background-default px-150 py-100 outline-none disabled:bg-background-disabled"
                 rows={2}
@@ -747,11 +929,10 @@ export default function AdminLessonManagementPageClient({
                 disabled={isLessonFormLocked}
                 value={lessonForm.retrospectivePurpose}
                 onChange={(event) =>
-                  setLessonForm((prev) => ({
-                    ...prev,
+                  updateLessonForm({
                     retrospectivePurpose: event.target
                       .value as AdminRetrospectivePurpose,
-                  }))
+                  })
                 }
               >
                 {ADMIN_RETROSPECTIVE_PURPOSE_OPTIONS.map((option) => (
@@ -770,10 +951,7 @@ export default function AdminLessonManagementPageClient({
                   disabled={isLessonFormLocked}
                   value={lessonForm.isFree ? 'true' : 'false'}
                   onChange={(event) =>
-                    setLessonForm((prev) => ({
-                      ...prev,
-                      isFree: event.target.value === 'true',
-                    }))
+                    updateLessonForm({ isFree: event.target.value === 'true' })
                   }
                 >
                   <option value="false">유료 레슨</option>
@@ -788,10 +966,9 @@ export default function AdminLessonManagementPageClient({
                   disabled={isLessonFormLocked}
                   value={lessonForm.isPublished ? 'true' : 'false'}
                   onChange={(event) =>
-                    setLessonForm((prev) => ({
-                      ...prev,
+                    updateLessonForm({
                       isPublished: event.target.value === 'true',
-                    }))
+                    })
                   }
                 >
                   <option value="false">비게시</option>
@@ -830,7 +1007,7 @@ export default function AdminLessonManagementPageClient({
       </section>
 
       <section className="min-h-screen">
-        <div className="mb-125 flex items-center justify-between gap-100">
+        <div className="mb-125 flex items-start justify-between gap-100">
           <div>
             <h2 className="font-designer-24b text-text-default">본문 작성</h2>
             <p className="font-designer-14r text-text-subtle mt-50">
@@ -855,6 +1032,27 @@ export default function AdminLessonManagementPageClient({
             <span>라인 {getLineCount(lessonForm.content)}</span>
           </div>
         </div>
+
+        {lessonFormMode === 'edit' && (
+          <div className="mb-125">
+            <AdminNotionZipActionCard
+              badgeLabel="본문 교체"
+              buttonLabel="Notion ZIP import"
+              confirmMessage={ADMIN_NOTION_ZIP_SINGLE_IMPORT_CONFIRM_MESSAGE}
+              description="Notion export ZIP 1개를 업로드하면 현재 레슨의 본문만 교체됩니다."
+              bullets={[
+                '제목, 설명, 챕터, 레슨 번호는 유지됩니다.',
+                'ZIP 기준 본문으로 에디터 값이 즉시 갱신됩니다.',
+                '일반 이미지 수동 업로드 기능은 기존처럼 그대로 사용할 수 있습니다.',
+              ]}
+              disabled={isLessonFormLocked || !editingLessonId}
+              loading={importLessonContentZipMutation.isPending}
+              title="현재 레슨 본문 교체"
+              tone="warning"
+              onSelectFiles={handleImportNotionZip}
+            />
+          </div>
+        )}
 
         <div className="grid min-h-screen grid-cols-2 gap-200">
           <div className="border-border-default bg-background-default rounded-150 min-h-screen overflow-hidden border">
@@ -905,9 +1103,7 @@ export default function AdminLessonManagementPageClient({
                     lessonId={editingLessonId}
                     value={lessonForm.content}
                     placeholder="레슨 본문을 작성하세요. 이미지, 코드블록, 표, 링크를 사용할 수 있습니다."
-                    onChange={(content) =>
-                      setLessonForm((prev) => ({ ...prev, content }))
-                    }
+                    onChange={(content) => updateLessonForm({ content })}
                   />
                 )}
               </div>

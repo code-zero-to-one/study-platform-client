@@ -2,7 +2,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const RELEASE_ID = /^prod-\d{8}-\d{4}$/;
+const RELEASE_ID = /^prod-\d{8}-\d{4}(?:\d{2})?$/;
 const DATE_IN_TAG = /:.*\d{8}|:.*\d{4}-\d{2}-\d{2}/;
 const POINTER_TAG = /:(prod|latest-prod)$/;
 const FRONTEND_IMAGE =

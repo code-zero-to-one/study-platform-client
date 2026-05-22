@@ -7,10 +7,10 @@ import { useEffect, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { usePrepareCoursePayment } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
 import type {
-  CoursePaymentPrepareResponse,
   CoursePlanCode,
   CoursePlanResponse,
 } from '@/types/api/course.types';
@@ -42,7 +42,7 @@ interface NavigationGuardHandlers {
 interface CourseCheckoutFormProps {
   slug: string;
   plan: CoursePlanResponse;
-  paymentData: CoursePaymentPrepareResponse;
+  courseId: number;
   planCode: CoursePlanCode;
   onChangePlan: () => void;
   thumbnailUrl: string | null;
@@ -51,13 +51,14 @@ interface CourseCheckoutFormProps {
 export function CourseCheckoutForm({
   slug,
   plan,
-  paymentData,
+  courseId,
   planCode,
   onChangePlan,
   thumbnailUrl,
 }: CourseCheckoutFormProps) {
   const { memberId, memberName, tel } = useUserStore();
   const showToast = useToastStore((s) => s.showToast);
+  const prepareCoursePayment = usePrepareCoursePayment();
 
   const [paymentMethod, setPaymentMethod] = useState('CARD' as PaymentMethod);
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
@@ -143,17 +144,37 @@ export function CourseCheckoutForm({
       setPaymentFailed(false);
       setPaymentErrorMsg(null);
 
+      let prepareData;
+      try {
+        prepareData = await prepareCoursePayment.mutateAsync({
+          courseId,
+          request: {
+            planCode,
+            buyerName: values.buyerName,
+            buyerEmail: values.buyerEmail,
+            buyerPhoneCountryCode: '+82',
+            buyerPhoneNumber: values.buyerPhone,
+            agreedToTerms: true,
+            paymentMethod,
+          },
+        });
+      } catch {
+        showToast(
+          '결제 준비 중 오류가 발생했습니다. 다시 시도해주세요.',
+          'error',
+        );
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const baseParams = {
-          amount: {
-            currency: 'KRW' as const,
-            value: paymentData.amount,
-          },
-          orderId: paymentData.tossOrderId,
-          orderName: paymentData.orderName,
+          amount: { currency: 'KRW' as const, value: prepareData.amount },
+          orderId: prepareData.tossOrderId,
+          orderName: prepareData.orderName,
           successUrl:
             `${window.location.origin}/class/${slug}/payment/success` +
-            `?paymentId=${paymentData.paymentId}&method=${paymentMethod}`,
+            `?paymentId=${prepareData.paymentId}&method=${paymentMethod}`,
           failUrl: `${window.location.origin}/class/${slug}/payment?planCode=${planCode}`,
           customerName: values.buyerName,
           customerMobilePhone: values.buyerPhone,

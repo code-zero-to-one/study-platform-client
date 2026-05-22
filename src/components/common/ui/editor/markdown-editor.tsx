@@ -36,6 +36,10 @@ import { extractImageUrls } from '@/utils/markdown-content-images';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
 import {
+  hasRenderableMarkdownSyntax,
+  renderMarkdownToHtml,
+} from '@/utils/markdown-rendering-utils';
+import {
   extractClipboardImageFiles,
   hasClipboardImageHint,
   isClipboardImageOnly,
@@ -64,10 +68,6 @@ import {
   isHtmlTableOnlyPaste,
 } from './markdown-table-utils';
 import { normalizeRichClipboardHtml } from './rich-clipboard-normalizer';
-import {
-  hasRenderableMarkdownSyntax,
-  renderMarkdownToHtml,
-} from '@/utils/markdown-rendering-utils';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
 import { useActiveCodeBlockControl } from './use-active-code-block-control';
 import { useImageUpload } from './use-image-upload';
@@ -519,15 +519,6 @@ function MarkdownEditor({
 
   useEffect(() => {
     editorRef.current = editor ?? null;
-  }, [editor]);
-
-  useEffect(() => {
-    if (!editor || editor.isDestroyed) return;
-    const dom = editor.view.dom as HTMLElement & { __tiptap?: unknown };
-    dom.__tiptap = editor;
-    return () => {
-      delete dom.__tiptap;
-    };
   }, [editor]);
 
   useEffect(() => {

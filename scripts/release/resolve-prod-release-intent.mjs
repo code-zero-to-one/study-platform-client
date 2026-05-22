@@ -325,11 +325,12 @@ const releaseId = `prod-${new Intl.DateTimeFormat('sv-SE', {
   day: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
+  second: '2-digit',
   hour12: false,
 })
   .format(new Date())
   .replace(/[-: ]/g, '')
-  .replace(/(\d{8})(\d{4})/, '$1-$2')}`;
+  .replace(/(\d{8})(\d{6})/, '$1-$2')}`;
 const deployedAt = new Intl.DateTimeFormat('sv-SE', {
   timeZone: 'Asia/Seoul',
   year: 'numeric',
