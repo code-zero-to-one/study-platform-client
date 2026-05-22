@@ -120,7 +120,7 @@ export function CoursePaymentPending({
       </div>
 
       <Link
-        href="/my-page?tab=payment"
+        href="/class-payment-management"
         className="mt-600 flex h-750 w-full max-w-5950 items-center justify-center rounded-100 bg-background-brand-default font-designer-16b text-gray-0"
       >
         결제 관리로 가기
