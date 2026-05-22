@@ -25,7 +25,11 @@ function pad(n: number) {
 export default function MyClassPage() {
   const { data: courses = [] } = useGetCourseList();
   const { data: giftEmail } = useGetMyGiftEmail();
-  const { data: notificationSetting } = useGetNotificationSetting();
+  const {
+    data: notificationSetting,
+    isError: isNotificationSettingError,
+    isLoading: isNotificationSettingLoading,
+  } = useGetNotificationSetting();
   const [alarmModalOpen, setAlarmModalOpen] = useState(false);
 
   const isEnabled = notificationSetting?.isEnabled ?? false;
@@ -46,6 +50,8 @@ export default function MyClassPage() {
             isEnabled={isEnabled}
             notifyHour={notificationSetting?.notifyHour}
             notifyMinute={notificationSetting?.notifyMinute}
+            isLoading={isNotificationSettingLoading}
+            isError={isNotificationSettingError}
             onOpenModal={() => setAlarmModalOpen(true)}
           />
           <GiftEmailCard
@@ -122,21 +128,25 @@ function AlarmCard({
   isEnabled,
   notifyHour,
   notifyMinute,
+  isLoading,
+  isError,
   onOpenModal,
 }: {
   isEnabled: boolean;
   notifyHour?: number;
   notifyMinute?: number;
+  isLoading: boolean;
+  isError: boolean;
   onOpenModal: () => void;
 }) {
   const hasTime =
-    notifyHour !== null &&
-    notifyHour !== undefined &&
-    notifyMinute !== null &&
-    notifyMinute !== undefined;
-  const timeText = hasTime
-    ? `${pad(notifyHour!)}:${pad(notifyMinute!)}`
-    : '현재 지정된 시간이 없습니다.';
+    typeof notifyHour === 'number' && typeof notifyMinute === 'number';
+  const timeText = (() => {
+    if (isLoading) return '알림 시간을 불러오는 중입니다.';
+    if (isError) return '알림 시간 조회에 실패했습니다.';
+    if (hasTime) return `${pad(notifyHour)}:${pad(notifyMinute)}`;
+    return '현재 지정된 시간이 없습니다.';
+  })();
 
   return (
     <div

@@ -27,21 +27,23 @@ export default function LearningNotificationModal({
 }: LearningNotificationModalProps) {
   const showToast = useToastStore((s) => s.showToast);
   const { data: setting } = useGetNotificationSetting();
-  const { mutateAsync: updateSetting } = useUpdateNotificationSetting();
+  const updateSettingMutation = useUpdateNotificationSetting();
 
   const [hour, setHour] = useState(8);
   const [minute, setMinute] = useState(0);
 
   useEffect(() => {
-    if (setting?.notifyHour !== null && setting?.notifyHour !== undefined)
-      setHour(setting.notifyHour);
-    if (setting?.notifyMinute !== null && setting?.notifyMinute !== undefined)
+    if (typeof setting?.notifyHour === 'number') setHour(setting.notifyHour);
+    if (typeof setting?.notifyMinute === 'number')
       setMinute(setting.notifyMinute);
   }, [setting]);
 
   const handleSave = async () => {
     try {
-      await updateSetting({ notifyHour: hour, notifyMinute: minute });
+      await updateSettingMutation.mutateAsync({
+        notifyHour: hour,
+        notifyMinute: minute,
+      });
       showToast('알림 시간이 저장되었습니다.', 'success');
       onOpenChange(false);
     } catch {
@@ -131,9 +133,10 @@ export default function LearningNotificationModal({
                 color="primary"
                 size="medium"
                 className="flex-1 whitespace-nowrap"
+                disabled={updateSettingMutation.isPending}
                 onClick={handleSave}
               >
-                저장하기
+                {updateSettingMutation.isPending ? '저장 중...' : '저장하기'}
               </Button>
             </div>
           </Modal.Footer>
