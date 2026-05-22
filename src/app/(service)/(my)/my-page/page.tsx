@@ -68,7 +68,7 @@ export default function MyPage() {
   const handleSaveNickname = async () => {
     if (!memberId) return;
     try {
-      await updateProfile({ nickname, simpleIntroduction: intro });
+      await updateProfile({ nickname, ignoreNull: true });
       showToast('닉네임이 저장되었습니다.', 'success');
     } catch {
       showToast('저장에 실패했습니다.', 'error');
@@ -78,7 +78,7 @@ export default function MyPage() {
   const handleSaveIntro = async () => {
     if (!memberId) return;
     try {
-      await updateProfile({ nickname, simpleIntroduction: intro });
+      await updateProfile({ simpleIntroduction: intro, ignoreNull: true });
       showToast('자기소개가 저장되었습니다.', 'success');
     } catch {
       showToast('저장에 실패했습니다.', 'error');
