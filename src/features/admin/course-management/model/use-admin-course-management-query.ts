@@ -1,13 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createAdminCourse,
+  createAdminCoursePlan,
   batchUpdateAdminLessons,
   bulkUpdateAdminLessons,
   createAdminLesson,
   createAdminLessonsFromNotionZips,
   deleteAdminCourse,
+  deactivateAdminCoursePlan,
   deleteAdminLesson,
   getAdminCourseDetail,
+  getAdminCoursePlans,
   getAdminCompletionMessage,
   getAdminCourseLessons,
   getAdminCourses,
@@ -17,6 +20,7 @@ import {
   getAdminLessonRetrospectives,
   importAdminLessonContentZip,
   updateAdminBuilderFeedCuration,
+  updateAdminCoursePlan,
   createAdminLessonQnaAnswer,
   getAdminLessonBuilderFeeds,
   reorderAdminLessons,
@@ -44,6 +48,8 @@ export const adminCourseManagementQueryKeys = {
     [...adminCourseManagementQueryKeys.all, 'courses', params] as const,
   courseDetail: (courseId?: number) =>
     [...adminCourseManagementQueryKeys.all, 'course-detail', courseId] as const,
+  coursePlans: (courseId?: number) =>
+    [...adminCourseManagementQueryKeys.all, 'course-plans', courseId] as const,
   lessons: (courseId?: number) =>
     [...adminCourseManagementQueryKeys.all, 'lessons', courseId] as const,
   lessonDetail: (lessonId?: number) =>
@@ -134,6 +140,14 @@ export const useAdminCourseDetailQuery = (courseId?: number) =>
   useQuery({
     queryKey: adminCourseManagementQueryKeys.courseDetail(courseId),
     queryFn: () => getAdminCourseDetail(courseId ?? 0),
+    enabled: typeof courseId === 'number',
+    staleTime: 30_000,
+  });
+
+export const useAdminCoursePlansQuery = (courseId?: number) =>
+  useQuery({
+    queryKey: adminCourseManagementQueryKeys.coursePlans(courseId),
+    queryFn: () => getAdminCoursePlans(courseId ?? 0),
     enabled: typeof courseId === 'number',
     staleTime: 30_000,
   });
@@ -230,6 +244,66 @@ export const useDeleteAdminCourseMutation = () => {
             : '수강 이력이 있어 코스를 삭제하지 않고 비공개 처리했습니다.',
           'success',
         );
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: showMutationError,
+  });
+};
+
+export const useCreateAdminCoursePlanMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createAdminCoursePlan,
+    onSuccess: async (_, variables) => {
+      useToastStore.getState().showToast('플랜을 생성했습니다.', 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.coursePlans(
+          variables.courseId,
+        ),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: showMutationError,
+  });
+};
+
+export const useUpdateAdminCoursePlanMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateAdminCoursePlan,
+    onSuccess: async (_, variables) => {
+      useToastStore.getState().showToast('플랜을 저장했습니다.', 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.coursePlans(
+          variables.courseId,
+        ),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.all,
+      });
+    },
+    onError: showMutationError,
+  });
+};
+
+export const useDeactivateAdminCoursePlanMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deactivateAdminCoursePlan,
+    onSuccess: async (_, variables) => {
+      useToastStore.getState().showToast('플랜을 비활성화했습니다.', 'success');
+      await queryClient.invalidateQueries({
+        queryKey: adminCourseManagementQueryKeys.coursePlans(
+          variables.courseId,
+        ),
+      });
       await queryClient.invalidateQueries({
         queryKey: adminCourseManagementQueryKeys.all,
       });

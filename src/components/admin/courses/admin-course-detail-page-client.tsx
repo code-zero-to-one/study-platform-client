@@ -8,6 +8,7 @@ import {
   AdminCourseCompletionMessageContent,
   AdminCourseFormContent,
 } from '@/components/admin/courses/admin-course-form-sections';
+import AdminCoursePlanManagement from '@/components/admin/courses/admin-course-plan-management';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import MarkdownContent from '@/components/common/ui/editor/markdown-content';
@@ -57,13 +58,10 @@ const emptyCourseForm: AdminCourseFormValues = {
   cardHeadline: '',
   cardSummary: '',
   cardTags: '',
-  regularPrice: '',
-  discountPrice: '',
   description: '',
   thumbnailUrl: '',
   status: 'COMING_SOON',
   durationDays: '',
-  earlyBirdEndsAt: null,
 };
 
 const COURSE_THUMBNAIL_INPUT_ACCEPT =
@@ -104,8 +102,6 @@ const toAdminCourseFormValues = (
   cardHeadline: courseDetail.cardHeadline ?? '',
   cardSummary: courseDetail.cardSummary ?? '',
   cardTags: courseDetail.cardTags.join(', '),
-  regularPrice: '',
-  discountPrice: '',
   description: courseDetail.description ?? '',
   thumbnailUrl: courseDetail.thumbnailUrl ?? '',
   status: courseDetail.status,
@@ -113,7 +109,6 @@ const toAdminCourseFormValues = (
     typeof courseDetail.durationDays === 'number'
       ? String(courseDetail.durationDays)
       : '',
-  earlyBirdEndsAt: null,
 });
 
 const CoursePreviewPanel = ({
@@ -705,6 +700,12 @@ export default function AdminCourseDetailPageClient({
               />
             </AdminCourseField>
           </div>
+
+          {!isCreateMode && courseId && (
+            <div className="mt-200">
+              <AdminCoursePlanManagement courseId={courseId} />
+            </div>
+          )}
         </div>
 
         <CoursePreviewPanel
