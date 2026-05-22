@@ -70,7 +70,7 @@ async function mockTransactionsApi(
   page: Page,
   transactions: UserTransactionListResponse[],
 ) {
-  await page.route(/\/mypage\/transactions/, async (route) => {
+  await page.route('**/api/v1/mypage/transactions**', async (route) => {
     if (route.request().method() === 'GET') {
       await route.fulfill({ json: makeTransactionPage(transactions) });
     } else {
@@ -94,10 +94,7 @@ async function mockCancelPaymentApi(page: Page, status = 200) {
 }
 
 async function gotoPaymentManagement(page: Page) {
-  await Promise.all([
-    page.waitForResponse((r) => r.url().includes('/mypage/transactions')),
-    page.goto(PAYMENT_MANAGEMENT_PATH, { waitUntil: 'load' }),
-  ]);
+  await page.goto(PAYMENT_MANAGEMENT_PATH, { waitUntil: 'load' });
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
