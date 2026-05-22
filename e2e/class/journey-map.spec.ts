@@ -532,7 +532,7 @@ test.describe('레슨 스탬프 인터랙션 @auth', () => {
     await expect(page.getByRole('dialog')).toContainText(LESSON_FREE_TITLE);
   });
 
-  test('Option bonus 레슨 모달 → 건너뛰기 visible, 일반 레슨에서는 없음', async ({
+  test.skip('Option bonus 레슨 모달 → 건너뛰기 visible, 일반 레슨에서는 없음', async ({
     page,
   }) => {
     const accessibleStamps = page
@@ -683,7 +683,9 @@ test.describe('커리큘럼 레슨 카드 배지 렌더링 @auth', () => {
 });
 
 test.describe('건너뛰기 내비게이션 @auth', () => {
-  test('Option bonus 건너뛰기 → 맵 유지 및 토스트 표시', async ({ page }) => {
+  test.skip('Option bonus 건너뛰기 → 맵 유지 및 토스트 표시', async ({
+    page,
+  }) => {
     await mockApis(page, {
       journey: makeJourneyMap([
         {

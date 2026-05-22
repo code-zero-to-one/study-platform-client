@@ -28,13 +28,17 @@ export function LessonStamp({
 }: LessonStampProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCompleted = lesson.status === 'COMPLETED';
-  const isLocked = lesson.status === 'LOCKED' && !lesson.accessible;
+  const isLocked = lesson.status === 'LOCKED';
   const isActive = lesson.isCurrent || shouldBlink;
 
   const stampContent = (
     <div
       className="relative flex size-1650 shrink-0 flex-col items-center justify-center"
-      onMouseEnter={() => !isCompleted && setShowTooltip(true)}
+      onMouseEnter={() =>
+        ((!isLocked && !isCompleted) ||
+          (isLocked && lesson.lockReason === 'retrospective')) &&
+        setShowTooltip(true)
+      }
       onMouseLeave={() => setShowTooltip(false)}
     >
       <Image
@@ -66,16 +70,12 @@ export function LessonStamp({
         )}
         {isLocked && <Lock className="mb-25 size-300 text-gray-500" />}
         {isCompleted && (
-          <p className="mb-25 font-designer-12b text-text-brand">완료</p>
+          <p className="mb-25 font-designer-12b text-gray-0">완료</p>
         )}
         <p
           className={cn(
             'font-designer-18b',
-            isCompleted
-              ? 'text-text-brand'
-              : isActive
-                ? 'text-gray-0'
-                : 'text-gray-500',
+            isCompleted || isActive ? 'text-gray-0' : 'text-gray-500',
           )}
         >
           Lesson
@@ -83,24 +83,28 @@ export function LessonStamp({
         <p
           className={cn(
             'font-designer-18b',
-            isCompleted
-              ? 'text-text-brand'
-              : isActive
-                ? 'text-gray-0'
-                : 'text-gray-500',
+            isCompleted || isActive ? 'text-gray-0' : 'text-gray-500',
           )}
         >
           {String(lesson.order).padStart(2, '0')}
         </p>
       </div>
-      {showTooltip && (
-        <div className="absolute -top-400 left-1/2 flex -translate-x-1/2 items-center gap-75 whitespace-nowrap rounded-100 bg-gray-900 px-150 py-75">
-          <Users className="size-200 text-gray-0" />
-          <span className="font-designer-12r text-gray-0">
-            {learnerCount}명이 함께 달리는 중
-          </span>
-        </div>
-      )}
+      {showTooltip &&
+        (isLocked && lesson.lockReason === 'retrospective' ? (
+          <div className="absolute -top-400 left-1/2 flex -translate-x-1/2 items-center gap-75 whitespace-nowrap rounded-100 bg-gray-900 px-150 py-75">
+            <Lock className="size-200 text-gray-0" />
+            <span className="font-designer-12r text-gray-0">
+              이전 레슨을 완료해야 진입할 수 있어요
+            </span>
+          </div>
+        ) : (
+          <div className="absolute -top-400 left-1/2 flex -translate-x-1/2 items-center gap-75 whitespace-nowrap rounded-100 bg-gray-900 px-150 py-75">
+            <Users className="size-200 text-gray-0" />
+            <span className="font-designer-12r text-gray-0">
+              {learnerCount}명이 함께 달리는 중
+            </span>
+          </div>
+        ))}
     </div>
   );
 
