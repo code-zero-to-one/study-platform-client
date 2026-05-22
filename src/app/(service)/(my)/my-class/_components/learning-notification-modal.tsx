@@ -65,10 +65,14 @@ export default function LearningNotificationModal({
               </p>
               <div className="flex items-center justify-center gap-200">
                 <div className="flex flex-col gap-100">
-                  <label className="font-designer-12r text-text-subtle text-center">
+                  <label
+                    htmlFor="notify-hour"
+                    className="font-designer-12r text-text-subtle text-center"
+                  >
                     시
                   </label>
                   <select
+                    id="notify-hour"
                     value={hour}
                     onChange={(e) => setHour(Number(e.target.value))}
                     className="border-border-default rounded-100 font-designer-16m text-text-default w-1250 border px-200 py-150 outline-none"
@@ -86,10 +90,14 @@ export default function LearningNotificationModal({
                 </span>
 
                 <div className="flex flex-col gap-100">
-                  <label className="font-designer-12r text-text-subtle text-center">
+                  <label
+                    htmlFor="notify-minute"
+                    className="font-designer-12r text-text-subtle text-center"
+                  >
                     분
                   </label>
                   <select
+                    id="notify-minute"
                     value={minute}
                     onChange={(e) => setMinute(Number(e.target.value))}
                     className="border-border-default rounded-100 font-designer-16m text-text-default w-1250 border px-200 py-150 outline-none"

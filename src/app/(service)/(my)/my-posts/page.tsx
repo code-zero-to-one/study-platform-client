@@ -26,7 +26,8 @@ export default function MyPostsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const activeTab = (searchParams.get('tab') as Tab) ?? 'feed';
+  const tabParam = searchParams.get('tab');
+  const activeTab: Tab = tabParam === 'question' ? 'question' : 'feed';
 
   const setTab = (tab: Tab) => {
     const params = new URLSearchParams(searchParams.toString());

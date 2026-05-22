@@ -102,6 +102,8 @@ function InquiryCard({ inquiry }: { inquiry: InquiryItem }) {
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
+        aria-expanded={expanded}
+        aria-controls={`inquiry-panel-${inquiry.id}`}
         className="flex w-full items-start justify-between gap-200 p-300 text-left"
       >
         <div className="flex flex-col gap-100">
@@ -128,7 +130,10 @@ function InquiryCard({ inquiry }: { inquiry: InquiryItem }) {
       </button>
 
       {expanded && (
-        <div className="border-border-subtle flex flex-col gap-300 border-t p-300">
+        <div
+          id={`inquiry-panel-${inquiry.id}`}
+          className="border-border-subtle flex flex-col gap-300 border-t p-300"
+        >
           <div className="flex flex-col gap-100">
             <span className="font-designer-12b text-primary-500">
               문의 내용

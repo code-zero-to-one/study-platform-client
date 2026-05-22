@@ -125,7 +125,7 @@ export default function Sidebar() {
   const { mutateAsync: logout } = useLogoutMutation();
 
   return (
-    <div className="border-border-subtle box-border hidden w-[300px] flex-col gap-150 border-x-1 px-300 pt-500 lg:flex">
+    <div className="border-border-subtle box-border hidden w-3750 flex-col gap-150 border-x-1 px-300 pt-500 lg:flex">
       {NAV_ITEMS.map((item) => (
         <SidebarItem
           key={item.href}
@@ -140,7 +140,7 @@ export default function Sidebar() {
           {item.label}
         </SidebarItem>
       ))}
-      <div className="bg-border-subtlest h-[1px]" />
+      <div className="border-border-subtlest border-t" />
       <SidebarItem
         onClick={() => logout()}
         isActive={false}

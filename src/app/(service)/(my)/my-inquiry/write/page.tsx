@@ -27,7 +27,14 @@ export default function MyInquiryWritePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleBack = () => {
-    if (title || content) {
+    const hasDraft =
+      Boolean(type) ||
+      Boolean(title.trim()) ||
+      Boolean(content.trim()) ||
+      images.length > 0 ||
+      notifyEmail ||
+      notifyKakao;
+    if (hasDraft) {
       setCancelDialogOpen(true);
     } else {
       router.push('/my-inquiry');
@@ -79,6 +86,7 @@ export default function MyInquiryWritePage() {
         <button
           type="button"
           onClick={handleBack}
+          aria-label="문의 목록으로 돌아가기"
           className="flex items-center gap-100 text-text-subtle hover:text-text-default"
         >
           <ArrowLeft size={20} />

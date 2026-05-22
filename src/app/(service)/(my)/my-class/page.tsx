@@ -100,6 +100,7 @@ function Toggle({
   return (
     <button
       type="button"
+      aria-label="학습 알림 설정 열기"
       aria-pressed={enabled}
       onClick={onClick}
       className={cn(
@@ -282,7 +283,7 @@ function CourseCard({ course }: { course: CourseSummaryResponse }) {
             />
           </div>
           <p className="font-designer-14r text-text-subtle">
-            진행율 : {progressPercent}%
+            진행률 : {progressPercent}%
           </p>
         </div>
       </div>
