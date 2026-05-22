@@ -1,0 +1,50 @@
+release_id: prod-20260522-0853
+env: prod
+service_version: v2.1.1
+
+summary: "[cherry-pick] LessonReviewForm 리팩토링 및 3-type 버그 수정"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v2.1.1-366a17f
+    commit: 366a17f
+    version: v2.1.1
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.1-07cb8f6
+    commit: 07cb8f6
+    version: v1.0.1
+    changed: false
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v2.1.0-377564a
+    backend: zeroone-backend:v1.0.1-07cb8f6
+  db_rollback_note: "DB unchanged. Use fixed app image rollback targets if needed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-22T08:53:27+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260522-0853-366a17f
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: patch
+  bootstrap_mode: ""
