@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useLogoutMutation } from '@/hooks/queries/auth/use-auth-mutation';
+import { useToastStore } from '@/stores/use-toast-store';
 
 interface IconProps {
   className?: string;
@@ -91,6 +92,7 @@ const NAV_ITEMS: {
   label: string;
   icon: React.FC<IconProps>;
   prefixMatch?: boolean;
+  comingSoon?: boolean;
 }[] = [
   { href: '/my-page', label: '프로필', icon: PersonOutlineIcon },
   { href: '/my-class', label: '마이 클래스', icon: ClassIcon },
@@ -107,10 +109,11 @@ const NAV_ITEMS: {
     prefixMatch: true,
   },
   {
-    href: '/builder-letter',
-    label: '빌더 레터',
+    href: '/builder-ticket',
+    label: '빌더 티켓',
     icon: MarkunreadIcon,
     prefixMatch: true,
+    comingSoon: true,
   },
   {
     href: '/class-payment-management',
@@ -123,13 +126,20 @@ export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const { mutateAsync: logout } = useLogoutMutation();
+  const showToast = useToastStore((state) => state.showToast);
 
   return (
     <div className="border-border-subtle box-border hidden w-3750 flex-col gap-150 border-x-1 px-300 pt-500 lg:flex">
       {NAV_ITEMS.map((item) => (
         <SidebarItem
           key={item.href}
-          onClick={() => router.push(item.href)}
+          onClick={() => {
+            if (item.comingSoon) {
+              showToast('준비중인 기능입니다.', 'info');
+              return;
+            }
+            router.push(item.href);
+          }}
           isActive={
             item.prefixMatch
               ? pathname.startsWith(item.href)
