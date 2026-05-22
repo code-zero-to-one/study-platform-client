@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: '/my-posts', label: '내가 작성한 글', prefixMatch: true },
   { href: '/my-inquiry', label: '1:1 문의', prefixMatch: true },
   { href: '/builder-letter', label: '빌더 레터', prefixMatch: true },
-  { href: '/payment-management', label: '결제 관리' },
+  { href: '/class-payment-management', label: '결제 관리' },
 ];
 
 export default function MyPageMobileNav() {
