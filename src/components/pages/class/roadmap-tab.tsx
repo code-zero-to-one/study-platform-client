@@ -21,6 +21,12 @@ import {
 import type { CourseCurriculumChapterResponse } from '@/types/api/course.types';
 import { ChapterHeader } from './chapter-header';
 import {
+  hasCourseFullAccess,
+  isAdminViewer,
+  isCourseFreeEnrolled,
+  isCoursePaidEnrolled,
+} from './course-viewer-status';
+import {
   buildLessonMap,
   FALLBACK_CHAPTERS,
   type LessonDisplayInfo,
@@ -60,6 +66,11 @@ export function RoadmapTab({ slug }: { slug: string }) {
   const completedLessons = progress?.completedLessons ?? 0;
   const totalLessons = progress?.totalLessons ?? 0;
   const progressRate = progress?.progressRate ?? 0;
+  const isFreeEnrolled = isCourseFreeEnrolled(course);
+  const isPaidEnrolled = isCoursePaidEnrolled(course);
+  const hasFullAccess = hasCourseFullAccess(course);
+  const isAdminPreview =
+    isAdminViewer(course) && !isFreeEnrolled && !isPaidEnrolled;
 
   const nextAccessibleLesson = journeyMap?.lessons.find(
     (l) => l.status !== 'COMPLETED' && l.isAccessible,
@@ -108,6 +119,11 @@ export function RoadmapTab({ slug }: { slug: string }) {
           <p className="font-designer-20r">
             매 레슨을 완료하면 다음 길이 열려요.
           </p>
+          {isAdminPreview ? (
+            <p className="font-designer-16m text-text-brand">
+              관리자 권한으로 미리보기 중
+            </p>
+          ) : null}
         </div>
 
         {/* Progress */}
@@ -139,7 +155,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
         </div>
 
         {/* 안내창 — State 1: 최초 접속 (no progress yet) */}
-        {course?.viewerStatus === 'FREE_ENROLLED' && completedLessons === 0 ? (
+        {isFreeEnrolled && !hasFullAccess && completedLessons === 0 ? (
           <div className="mt-300 flex flex-col gap-75 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
             <p className="font-designer-20b text-gray-800">
               Chapter3까지 무료 코스! 마음껏 학습하세요.
@@ -149,7 +165,8 @@ export function RoadmapTab({ slug }: { slug: string }) {
             </p>
           </div>
         ) : /* State 2: free lessons exhausted → payment CTA */
-        course?.viewerStatus === 'FREE_ENROLLED' &&
+        isFreeEnrolled &&
+          !hasFullAccess &&
           completedLessons >= (course.freeLessonCount ?? 0) &&
           course?.canPurchase ? (
           <div className="mt-300 flex flex-col gap-150 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
@@ -172,8 +189,8 @@ export function RoadmapTab({ slug }: { slug: string }) {
           </div>
         ) : /* State 3: mid-progress free or paid → next lesson info */
         nextAccessibleLesson &&
-          (course?.viewerStatus === 'PAID' ||
-            (course?.viewerStatus === 'FREE_ENROLLED' &&
+          (hasFullAccess ||
+            (isFreeEnrolled &&
               completedLessons > 0 &&
               completedLessons < (course.freeLessonCount ?? 0))) ? (
           <div className="mt-300 flex items-center gap-300 rounded-200 border border-gray-300 bg-gray-100 px-350 py-300">
@@ -574,7 +591,8 @@ export function RoadmapTab({ slug }: { slug: string }) {
       )}
 
       {/* Sticky payment CTA for free-enrolled users */}
-      {course?.viewerStatus === 'FREE_ENROLLED' &&
+      {isFreeEnrolled &&
+        !hasFullAccess &&
         course?.canPurchase &&
         course?.plans?.[0]?.planCode && (
           <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle bg-background-default px-600 py-300 shadow-3">

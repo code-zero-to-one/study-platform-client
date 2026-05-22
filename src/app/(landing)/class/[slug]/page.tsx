@@ -19,6 +19,13 @@ import { ClassDetailInstructorSection } from '@/components/pages/class/class-det
 import { ClassDetailRoadmapSection } from '@/components/pages/class/class-detail-roadmap-section';
 import { ClassDetailSidebar } from '@/components/pages/class/class-detail-sidebar';
 import { ClassDetailTabNav } from '@/components/pages/class/class-detail-tab-nav';
+import {
+  canShowCourseFreeEnrollCta,
+  getCourseViewerStatusLabel,
+  hasCourseFullAccess,
+  isCourseFreeEnrolled,
+  isCoursePaidEnrolled,
+} from '@/components/pages/class/course-viewer-status';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useCreateCourseFreeEnrollment,
@@ -51,15 +58,21 @@ export default function ClassDetailPage({
 
   // 커리큘럼은 DB에서 가져오되, 코스가 없으면 하드코딩된 CHAPTERS로 fallback.
   const { data: curriculum } = useGetCourseCurriculum(slug);
-  const { data: courseDetail } = useGetCourseDetail(slug);
+  const { data: courseDetail, refetch: refetchCourseDetail } =
+    useGetCourseDetail(slug);
   const courseId = courseDetail?.courseId ?? 0;
   const { data: builderFeedShowcase } = useGetBuilderFeedShowcase(courseId);
   const createCourseFreeEnrollment = useCreateCourseFreeEnrollment();
   const createStudyWithMeSubscription = useCreateStudyWithMeSubscription();
+  const canFreeEnrollFromDetail = canShowCourseFreeEnrollCta(courseDetail);
+  const hasFullAccessFromDetail = hasCourseFullAccess(courseDetail);
+  const viewerStatusLabel = getCourseViewerStatusLabel(courseDetail);
   const ctaLabel = (() => {
     if (createCourseFreeEnrollment.isPending) return '등록 중...';
-    if (courseDetail?.viewerStatus === 'PAID') return '학습하러 가기';
-    if (courseDetail?.viewerStatus === 'FREE_ENROLLED') return '학습 계속하기';
+    if (isCoursePaidEnrolled(courseDetail)) return '학습하러 가기';
+    if (isCourseFreeEnrolled(courseDetail)) return '학습 계속하기';
+    if (canFreeEnrollFromDetail) return '무료 코스 시작하기';
+    if (hasFullAccessFromDetail) return '관리자 권한으로 보기';
     return '무료 코스 시작하기';
   })();
   const { data: myGiftEmail } = useGetMyGiftEmail({
@@ -124,12 +137,10 @@ export default function ClassDetailPage({
       showToast('코스 정보를 불러오는 중입니다.', 'info');
       return;
     }
-    if (
-      courseDetail.viewerStatus === 'LOGIN_ONLY' &&
-      courseDetail.canFreeEnroll
-    ) {
+    if (canShowCourseFreeEnrollCta(courseDetail)) {
       try {
         await createCourseFreeEnrollment.mutateAsync(courseDetail.courseId);
+        await refetchCourseDetail();
         showToast('무료 코스 등록이 완료되었어요.');
       } catch {
         showToast('무료 코스 등록 중 오류가 발생했어요.', 'error');
@@ -262,6 +273,7 @@ export default function ClassDetailPage({
             courseDetail={courseDetail}
             isAuthenticated={isAuthenticated}
             ctaLabel={ctaLabel}
+            viewerStatusLabel={viewerStatusLabel}
             isEnrolling={createCourseFreeEnrollment.isPending}
             onShare={handleShare}
             onStartCourse={handleStartCourse}

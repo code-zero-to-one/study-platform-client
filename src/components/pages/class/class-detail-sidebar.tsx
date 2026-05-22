@@ -15,6 +15,7 @@ interface ClassDetailSidebarProps {
   courseDetail: CourseDetailResponse | undefined;
   isAuthenticated: boolean;
   ctaLabel: string;
+  viewerStatusLabel: string | undefined;
   isEnrolling: boolean;
   onShare: () => void;
   onStartCourse: () => void;
@@ -29,6 +30,7 @@ export function ClassDetailSidebar({
   courseDetail,
   isAuthenticated,
   ctaLabel,
+  viewerStatusLabel,
   isEnrolling,
   onShare,
   onStartCourse,
@@ -59,6 +61,12 @@ export function ClassDetailSidebar({
             {courseDetail?.description ??
               '바이브 코딩 막막함 이젠 여기서 끝내세요!\nZERO-ONE의 빌더들과 함께 뿌셔보세요!'}
           </p>
+
+          {viewerStatusLabel ? (
+            <span className="mt-150 inline-block rounded-50 bg-gray-100 px-75 py-25 font-designer-12r text-gray-800">
+              {viewerStatusLabel}
+            </span>
+          ) : null}
 
           <span className="mt-150 inline-block rounded-50 bg-gray-400 px-75 py-25 font-designer-12r text-text-inverse">
             혜택
