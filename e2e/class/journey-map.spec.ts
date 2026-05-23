@@ -61,6 +61,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 function makeCourseDetail(overrides: Partial<CourseDetailResponse> = {}): {
   content: CourseDetailResponse;
 } {
+  const viewerStatus = overrides.viewerStatus ?? 'FREE_ENROLLED';
   const base: CourseDetailResponse = {
     courseId: COURSE_ID,
     slug: 'vibe-intro',
@@ -86,11 +87,11 @@ function makeCourseDetail(overrides: Partial<CourseDetailResponse> = {}): {
     ],
     earlyBirdEndsAt: null,
     canFreeEnroll: null,
-    isFreeEnrolled: true,
+    isFreeEnrolled: viewerStatus === 'FREE_ENROLLED',
     freeLessonCount: 3,
     journeyMapAvailable: true,
-    hasFullAccess: false,
-    isPaidEnrolled: false,
+    hasFullAccess: viewerStatus === 'PAID',
+    isPaidEnrolled: viewerStatus === 'PAID',
     canPurchase: true,
   };
   return { content: { ...base, ...overrides } };
