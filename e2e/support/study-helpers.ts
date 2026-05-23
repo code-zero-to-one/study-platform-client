@@ -70,18 +70,7 @@ export async function fillStep1(page: Page, type: StudyType = 'PROJECT') {
   await page.locator('input[type="date"]').nth(1).fill(addDays(42));
 }
 
-const PNG_1x1 = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ' +
-    'AAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-  'base64',
-);
-
 export async function fillStep2(page: Page, title: string) {
-  await page.setInputFiles('input[type="file"]', {
-    name: 'test-image.png',
-    mimeType: 'image/png',
-    buffer: PNG_1x1,
-  });
   await page.locator('input[placeholder*="제목"]').fill(title);
   await page
     .locator('input[placeholder*="요약"], textarea[placeholder*="요약"]')
