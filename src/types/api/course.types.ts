@@ -134,6 +134,75 @@ export interface MyCoursePaymentListItemResponse {
   cancellable: boolean;
 }
 
+export interface AdminCoursePaymentListItemResponse {
+  paymentId: number;
+  paymentCode: string;
+  memberId: number;
+  memberLoginId: string;
+  memberName: string | null;
+  courseId: number;
+  courseSlug: string;
+  courseTitle: string;
+  planId: number | null;
+  planCode: string;
+  planName: string;
+  amount: number;
+  status: CoursePaymentStatus;
+  paymentMethod: string | null;
+  requestedAt: string | null;
+  paidAt: string | null;
+  canceledAt: string | null;
+  createdAt: string;
+}
+
+export interface CoursePaymentTimelineEventResponse {
+  source: string;
+  eventType: string;
+  eventName: string;
+  status: string | null;
+  occurredAt: string | null;
+  processedAt: string | null;
+  referenceCode: string | null;
+}
+
+export interface AdminCoursePaymentDetailResponse
+  extends AdminCoursePaymentListItemResponse {
+  regularPrice: number | null;
+  discountPrice: number | null;
+  giftEligible: boolean | null;
+  currency: string;
+  pgProvider: string | null;
+  pgTransactionId: string | null;
+  tossOrderId: string | null;
+  tossReceiptUrl: string | null;
+  virtualAccountNumber: string | null;
+  virtualBankCode: string | null;
+  virtualBankName: string | null;
+  virtualAccountDueDate: string | null;
+  virtualAccountHolderName: string | null;
+  updatedAt: string;
+  timeline: CoursePaymentTimelineEventResponse[];
+}
+
+export interface AdminCoursePaymentSearchParams {
+  courseId?: number;
+  memberId?: number;
+  status?: CoursePaymentStatus;
+  paymentCode?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface CoursePaymentPageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export interface CoursePaymentPrepareRequest {
   planCode: CoursePlanCode;
   buyerName: string;

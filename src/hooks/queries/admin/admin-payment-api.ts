@@ -14,6 +14,7 @@ interface TransactionsForAdminParams {
   type?: PaymentSearchConditionTypeEnum;
   page?: number;
   size?: number;
+  enabled?: boolean;
 }
 
 export const useGetTransactionsForAdmin = ({
@@ -24,6 +25,7 @@ export const useGetTransactionsForAdmin = ({
   paymentCode,
   page = 0,
   size = 20,
+  enabled = true,
 }: TransactionsForAdminParams) => {
   return useQuery({
     queryKey: [
@@ -60,6 +62,7 @@ export const useGetTransactionsForAdmin = ({
 
       return data.content;
     },
+    enabled,
   });
 };
 
