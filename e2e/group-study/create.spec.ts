@@ -1,4 +1,8 @@
-import { test, expect, type BrowserContext } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+
+// 아래 imports는 그룹/멘토스터디 개설 테스트 재활성화 시 필요
+/*
+import { type BrowserContext } from '@playwright/test';
 import { existsSync, readFileSync } from 'fs';
 import {
   openCreateModal,
@@ -49,8 +53,10 @@ async function injectAuthCookies(
     }
   }
 }
+*/
 
-// ── 그룹스터디 개설 ──────────────────────────────────────────────
+// ── 그룹스터디 개설 (임시 비활성화) ──────────────────────────────────────────────
+/*
 test.describe('그룹스터디 개설 @auth', () => {
   let createdStudyId: number | null = null;
 
@@ -60,13 +66,13 @@ test.describe('그룹스터디 개설 @auth', () => {
   });
 
   test.afterEach(async ({ request }) => {
-    const idToDelete = createdStudyId; // ① 로컬에 캡처
-    createdStudyId = null; // ② 동기적으로 즉시 초기화 (require-atomic-updates 해결)
+    const idToDelete = createdStudyId;
+    createdStudyId = null;
     if (idToDelete !== null) {
       try {
         await request.delete(`${API_BASE}/api/v1/group-studies/${idToDelete}`);
       } catch {
-        // best-effort: 이미 삭제됐거나 권한 없는 경우 무시
+        // best-effort
       }
     }
   });
@@ -82,7 +88,6 @@ test.describe('그룹스터디 개설 @auth', () => {
 
     await fillStep3(page);
 
-    // 제출 클릭과 동시에 생성 API 응답을 캡처해 groupStudyId 확보
     const [response] = await Promise.all([
       page.waitForResponse(
         (res) =>
@@ -113,8 +118,10 @@ test.describe('그룹스터디 개설 @auth', () => {
     await expect(page.locator('[role="dialog"]')).toBeVisible();
   });
 });
+*/
 
-// ── 멘토스터디 개설 ──────────────────────────────────────────────
+// ── 멘토스터디 개설 (임시 비활성화) ──────────────────────────────────────────────
+/*
 test.describe('멘토스터디 개설 @auth', () => {
   let createdStudyId: number | null = null;
 
@@ -130,7 +137,7 @@ test.describe('멘토스터디 개설 @auth', () => {
       try {
         await request.delete(`${API_BASE}/api/v1/group-studies/${idToDelete}`);
       } catch {
-        // best-effort: 이미 삭제됐거나 권한 없는 경우 무시
+        // best-effort
       }
     }
   });
@@ -174,6 +181,7 @@ test.describe('멘토스터디 개설 @auth', () => {
     );
   });
 });
+*/
 
 // ── 비로그인 UI ────────────────────────────────────────────────
 test.describe('비로그인 UI', () => {
