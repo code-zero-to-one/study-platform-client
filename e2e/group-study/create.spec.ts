@@ -7,6 +7,7 @@ import {
   fillStep2,
   fillStep3,
   assertCreationSuccess,
+  mockThumbnailUpload,
   API_BASE,
 } from '../support/study-helpers';
 
@@ -53,8 +54,9 @@ async function injectAuthCookies(
 test.describe('그룹스터디 개설 @auth', () => {
   let createdStudyId: number | null = null;
 
-  test.beforeEach(async ({ context, baseURL }) => {
+  test.beforeEach(async ({ page, context, baseURL }) => {
     await injectAuthCookies(context, baseURL);
+    await mockThumbnailUpload(page);
   });
 
   test.afterEach(async ({ request }) => {
@@ -116,8 +118,9 @@ test.describe('그룹스터디 개설 @auth', () => {
 test.describe('멘토스터디 개설 @auth', () => {
   let createdStudyId: number | null = null;
 
-  test.beforeEach(async ({ context, baseURL }) => {
+  test.beforeEach(async ({ page, context, baseURL }) => {
     await injectAuthCookies(context, baseURL);
+    await mockThumbnailUpload(page);
   });
 
   test.afterEach(async ({ request }) => {
