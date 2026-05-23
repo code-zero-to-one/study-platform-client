@@ -26,7 +26,6 @@ interface HomeHeaderClientProps {
   initialUserImg?: string;
   initialNickname?: string;
   initialLevelName?: string;
-  initialShowDeveloperRegistrationEntry: boolean;
 }
 
 export default function HomeHeaderClient({
@@ -35,7 +34,6 @@ export default function HomeHeaderClient({
   initialUserImg,
   initialNickname,
   initialLevelName,
-  initialShowDeveloperRegistrationEntry,
 }: HomeHeaderClientProps) {
   const {
     isHydrated,
@@ -53,14 +51,6 @@ export default function HomeHeaderClient({
   const currentMemberId = isHydrated
     ? hydratedMemberId
     : initialAuthenticatedMemberId;
-  const isInitialMemberSession =
-    currentMemberId !== undefined &&
-    currentMemberId === initialAuthenticatedMemberId;
-  const showDeveloperRegistrationEntry = isLoggedIn
-    ? isHydrated
-      ? initialShowDeveloperRegistrationEntry && isInitialMemberSession
-      : initialShowDeveloperRegistrationEntry
-    : false;
   const userImg =
     isLoggedIn && currentMemberId && storedMemberId === currentMemberId
       ? (storedProfileImageUrl ?? initialUserImg)
@@ -92,16 +82,6 @@ export default function HomeHeaderClient({
                   <Monitor size={16} />
                 </Link>
               </Button>
-              {showDeveloperRegistrationEntry ? (
-                <Button
-                  asChild
-                  size="small"
-                  color="outlined"
-                  className="font-designer-14m whitespace-nowrap"
-                >
-                  <Link href="/developer-registration">개발자 등록</Link>
-                </Button>
-              ) : null}
               <HeaderUserDropdown
                 userImg={userImg}
                 nickname={nickname ?? undefined}
@@ -122,11 +102,7 @@ export default function HomeHeaderClient({
 
       <div className="flex items-center gap-100 lg:hidden">
         {/* {isLoggedIn ? <NotificationDropdown /> : null} */}
-        <MobileMenuDrawer
-          isLoggedIn={isLoggedIn}
-          userImg={userImg}
-          showDeveloperRegistrationEntry={showDeveloperRegistrationEntry}
-        />
+        <MobileMenuDrawer isLoggedIn={isLoggedIn} userImg={userImg} />
       </div>
     </>
   );

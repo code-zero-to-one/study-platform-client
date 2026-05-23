@@ -7,7 +7,6 @@ import {
 import HomeHeaderClient from '@/components/common/layout/home-header-client';
 import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
 import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
-import { tryGetMyDeveloperRegistrationInServer } from '@/features/developer/api/developer-registration-api.server';
 
 export default async function Header() {
   const { sessionState, authenticatedMemberId: memberId } =
@@ -15,17 +14,10 @@ export default async function Header() {
   const isLoggedIn = isAuthenticatedMemberSessionState(sessionState);
 
   let userProfile = null;
-  let developerRegistration = null;
 
   if (isLoggedIn && memberId) {
-    const [profileSettled, developerRegistrationResult] =
-      await Promise.allSettled([
-        tryGetUserProfileInServer(memberId),
-        tryGetMyDeveloperRegistrationInServer(),
-      ]);
-
-    if (profileSettled.status === 'fulfilled') {
-      const profileResult = profileSettled.value;
+    try {
+      const profileResult = await tryGetUserProfileInServer(memberId);
 
       if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
         userProfile = profileResult.profile;
@@ -37,19 +29,10 @@ export default async function Header() {
           profileResult.error,
         );
       }
-    } else {
+    } catch (error) {
       console.error(
         `[Header] Failed to fetch user profile for memberId=${memberId}`,
-        profileSettled.reason,
-      );
-    }
-
-    if (developerRegistrationResult.status === 'fulfilled') {
-      developerRegistration = developerRegistrationResult.value;
-    } else {
-      console.error(
-        `[Header] Failed to fetch developer registration for memberId=${memberId}`,
-        developerRegistrationResult.reason,
+        error,
       );
     }
   }
@@ -60,8 +43,6 @@ export default async function Header() {
     : undefined;
   const initialNickname = userInfo?.nickname ?? undefined;
   const initialLevelName = userProfile?.sincerityTemp?.levelName ?? undefined;
-  const showDeveloperRegistrationEntry =
-    isLoggedIn && developerRegistration?.registered === false;
 
   return (
     <header className="relative z-10 w-full bg-background-default py-125 mix-blend-multiply">
@@ -87,7 +68,6 @@ export default async function Header() {
           initialUserImg={userImg}
           initialNickname={initialNickname}
           initialLevelName={initialLevelName}
-          initialShowDeveloperRegistrationEntry={showDeveloperRegistrationEntry}
         />
       </div>
     </header>
