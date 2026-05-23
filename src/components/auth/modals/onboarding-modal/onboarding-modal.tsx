@@ -1,6 +1,6 @@
 'use client';
 
-import { X } from 'lucide-react';
+import { ChevronLeft, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -116,7 +116,7 @@ export function OnboardingModal() {
               className="rounded-100 p-100 text-gray-500 transition-colors hover:bg-gray-100"
               aria-label="이전"
             >
-              <X className="h-300 w-300 rotate-[135deg]" />
+              <ChevronLeft className="h-300 w-300" />
             </button>
           ) : (
             <div className="size-500" />

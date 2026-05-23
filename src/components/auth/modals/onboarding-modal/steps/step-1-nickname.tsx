@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -122,7 +122,14 @@ export function Step1Nickname({
             onClick={() => fileInputRef.current?.click()}
             className="absolute right-0 bottom-0 flex size-425 items-center justify-center rounded-full bg-gray-200 transition-colors hover:bg-gray-300"
           >
-            <RefreshCw className="h-200 w-200 text-gray-600" />
+            <svg
+              viewBox="0 0 17.58 18.5892"
+              className="h-200 w-200 text-gray-600"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M3.79 4.29462H13.79V6.08462C13.79 6.53462 14.33 6.75462 14.64 6.43462L17.43 3.64462C17.63 3.44462 17.63 3.13462 17.43 2.93462L14.64 0.144618C14.33 -0.165382 13.79 0.0546185 13.79 0.504618V2.29462H2.79C2.24 2.29462 1.79 2.74462 1.79 3.29462V7.29462C1.79 7.84462 2.24 8.29462 2.79 8.29462C3.34 8.29462 3.79 7.84462 3.79 7.29462V4.29462ZM13.79 14.2946H3.79V12.5046C3.79 12.0546 3.25 11.8346 2.94 12.1546L0.15 14.9446C-0.05 15.1446 -0.05 15.4546 0.15 15.6546L2.94 18.4446C3.25 18.7546 3.79 18.5346 3.79 18.0846V16.2946H14.79C15.34 16.2946 15.79 15.8446 15.79 15.2946V11.2946C15.79 10.7446 15.34 10.2946 14.79 10.2946C14.24 10.2946 13.79 10.7446 13.79 11.2946V14.2946Z" />
+            </svg>
           </button>
         </div>
         <input
@@ -132,6 +139,16 @@ export function Step1Nickname({
           className="hidden"
           onChange={handleImageChange}
         />
+      </div>
+
+      {/* Nickname title */}
+      <div className="flex flex-col gap-100">
+        <p className="font-designer-18b text-gray-800">
+          반가워요! 닉네임을 정해주세요.
+        </p>
+        <p className="font-designer-14r text-gray-500">
+          ZERO-ONE에서 사용할 이름입니다.
+        </p>
       </div>
 
       {/* Nickname input */}
@@ -195,22 +212,22 @@ export function Step1Nickname({
         {CONSENTS.map((consent) => (
           <div
             key={consent.key}
-            className="flex cursor-pointer items-center gap-150"
+            className="flex cursor-pointer items-center gap-125"
             onClick={() => toggleConsent(consent.key as keyof Step1Data)}
           >
-            <div
-              className={cn(
-                'flex size-250 shrink-0 items-center justify-center rounded-50 border transition-colors',
-                data[consent.key]
-                  ? 'border-rose-500 bg-rose-500'
-                  : 'border-gray-300 bg-white',
-              )}
-            >
-              {data[consent.key] && (
-                <Check className="h-150 w-150 text-white" />
-              )}
-            </div>
-            <span className="flex-1 font-designer-14m text-gray-800">
+            {data[consent.key] ? (
+              <svg
+                viewBox="0 0 20 20"
+                className="size-300 shrink-0 text-rose-500"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM10 13.5L5.5 9L6.92 7.59L10 10.67L13.08 7.59L14.5 9L10 13.5Z" />
+              </svg>
+            ) : (
+              <div className="size-300 shrink-0 rounded-full border border-gray-300" />
+            )}
+            <span className="flex-1 font-designer-16b text-gray-800">
               {consent.label}
             </span>
             <button
@@ -225,6 +242,16 @@ export function Step1Nickname({
             </button>
           </div>
         ))}
+      </div>
+
+      {/* Career title */}
+      <div className="flex flex-col gap-100">
+        <p className="font-designer-18b text-gray-800">
+          바이브 코딩, 어디까지 해보셨나요?
+        </p>
+        <p className="font-designer-14r text-gray-500">
+          신규 코스 기획에 활용될 예정입니다.
+        </p>
       </div>
 
       {/* Career options */}

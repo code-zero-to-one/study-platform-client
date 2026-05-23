@@ -70,75 +70,80 @@ export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
     <div className="flex flex-col gap-500">
       {/* Job section */}
       <div className="flex flex-col gap-150">
-        <p className="font-designer-18b text-gray-800">직무를 선택해주세요.</p>
+        <p className="font-designer-18b text-gray-800">
+          해당되는 직무를 선택해주세요.
+        </p>
         <p className="font-designer-14r text-gray-500">
-          해당하는 직무를 선택해주세요.
+          신규 코스 기획에 활용될 예정입니다.
         </p>
         <div className="flex flex-wrap gap-150 pt-150">
-          {jobs.map((jobItem: JobResponse) => {
-            const selected = data.job === jobItem.job;
-            return (
-              <button
-                key={jobItem.job}
-                type="button"
-                onClick={() => handleJobSelect(jobItem.job)}
-                className={cn(
-                  'rounded-full px-250 py-125 font-designer-16r transition-colors',
-                  selected
-                    ? 'bg-rose-500 text-white'
-                    : 'border border-gray-300 text-gray-500 hover:border-rose-300',
-                )}
-              >
-                {jobItem.description}
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={handleEtcClick}
-            className={cn(
-              'rounded-full px-250 py-125 font-designer-16r transition-colors',
-              isEtcActive
-                ? 'bg-rose-500 text-white'
-                : 'border border-gray-300 text-gray-500 hover:border-rose-300',
-            )}
-          >
-            기타+
-          </button>
+          {jobs
+            .filter((j: JobResponse) => j.description !== '기타+')
+            .map((jobItem: JobResponse) => {
+              const selected = data.job === jobItem.job;
+              return (
+                <button
+                  key={jobItem.job}
+                  type="button"
+                  onClick={() => handleJobSelect(jobItem.job)}
+                  className={cn(
+                    'rounded-full px-250 py-125 font-designer-16r transition-colors',
+                    selected
+                      ? 'bg-rose-500 text-white'
+                      : 'border border-rose-500 text-rose-500 hover:bg-rose-50',
+                  )}
+                >
+                  {jobItem.description}
+                </button>
+              );
+            })}
+          {etcMode ? (
+            <div className="flex items-center gap-125 rounded-full border border-rose-500 px-250 py-125">
+              <input
+                type="text"
+                value={etcInput}
+                onChange={(e) => setEtcInput(e.target.value)}
+                placeholder="입력해주세요"
+                autoFocus
+                className="min-w-0 flex-1 bg-transparent font-designer-16r text-rose-500 outline-none placeholder:text-rose-300"
+              />
+              <div className="flex shrink-0 items-center gap-75">
+                <button
+                  type="button"
+                  onClick={handleEtcAdd}
+                  disabled={!etcInput.trim()}
+                  className="rounded-50 bg-rose-500 px-100 py-50 font-designer-14m text-white disabled:opacity-50"
+                >
+                  추가
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEtcCancel}
+                  className="rounded-50 bg-rose-100 px-100 py-50 font-designer-14m text-rose-500"
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleEtcClick}
+              className="rounded-full border border-gray-300 px-250 py-125 font-designer-16r text-gray-500 transition-colors hover:border-rose-300"
+            >
+              기타+
+            </button>
+          )}
         </div>
-        {etcMode && (
-          <div className="flex gap-150">
-            <input
-              type="text"
-              value={etcInput}
-              onChange={(e) => setEtcInput(e.target.value)}
-              placeholder="직무를 입력해주세요"
-              className="flex-1 rounded-150 border border-rose-500 px-250 py-125 font-designer-14r text-gray-800 outline-none placeholder:text-gray-500"
-            />
-            <button
-              type="button"
-              onClick={handleEtcAdd}
-              disabled={!etcInput.trim()}
-              className="rounded-150 bg-rose-500 px-200 py-125 font-designer-14m text-white disabled:opacity-50"
-            >
-              추가
-            </button>
-            <button
-              type="button"
-              onClick={handleEtcCancel}
-              className="rounded-150 bg-rose-50 px-200 py-125 font-designer-14m text-rose-500"
-            >
-              취소
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Career section */}
       <div className="flex flex-col gap-150">
-        <p className="font-designer-18b text-gray-800">경력을 선택해주세요.</p>
+        <p className="font-designer-18b text-gray-800">
+          해당되는 경력을 선택해주세요.
+        </p>
         <p className="font-designer-14r text-gray-500">
-          현재 개발 경력 수준을 선택해주세요.
+          신규 코스 기획에 활용될 예정입니다.
         </p>
         <div className="flex flex-col gap-150 pt-150">
           {careers.map((careerItem: CareerResponse) => (
