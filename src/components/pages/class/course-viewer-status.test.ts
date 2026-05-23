@@ -48,6 +48,18 @@ describe('course viewer status helpers', () => {
     );
   });
 
+  it('shows free enrollment CTA solely from canFreeEnroll', () => {
+    const course = {
+      ...baseCourse,
+      viewerStatus: 'ADMIN',
+      hasFullAccess: true,
+      canFreeEnroll: true,
+      isFreeEnrolled: true,
+    } satisfies CourseDetailResponse;
+
+    expect(canShowCourseFreeEnrollCta(course)).toBe(true);
+  });
+
   it('ADMIN free enrollment keeps ADMIN status and becomes a real free learner', () => {
     const course = {
       ...baseCourse,
@@ -58,7 +70,6 @@ describe('course viewer status helpers', () => {
     } satisfies CourseDetailResponse;
 
     expect(isCourseFreeEnrolled(course)).toBe(true);
-    expect(canShowCourseFreeEnrollCta(course)).toBe(false);
     expect(getCourseViewerStatusLabel(course)).toBe('무료수강중');
   });
 

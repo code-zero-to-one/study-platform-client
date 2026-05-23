@@ -5,33 +5,21 @@ export function isAdminViewer(course?: CourseDetailResponse): boolean {
 }
 
 export function isCourseFreeEnrolled(course?: CourseDetailResponse): boolean {
-  return (
-    course?.isFreeEnrolled === true || course?.viewerStatus === 'FREE_ENROLLED'
-  );
+  return course?.isFreeEnrolled === true;
 }
 
 export function isCoursePaidEnrolled(course?: CourseDetailResponse): boolean {
-  return course?.isPaidEnrolled === true || course?.viewerStatus === 'PAID';
+  return course?.isPaidEnrolled === true;
 }
 
 export function hasCourseFullAccess(course?: CourseDetailResponse): boolean {
-  return (
-    course?.hasFullAccess === true ||
-    isAdminViewer(course) ||
-    isCoursePaidEnrolled(course)
-  );
+  return course?.hasFullAccess === true;
 }
 
 export function canShowCourseFreeEnrollCta(
   course?: CourseDetailResponse,
 ): boolean {
-  if (course?.canFreeEnroll !== true) return false;
-  if (isCourseFreeEnrolled(course) || isCoursePaidEnrolled(course)) {
-    return false;
-  }
-  return (
-    course.viewerStatus === 'LOGIN_ONLY' || course.viewerStatus === 'ADMIN'
-  );
+  return course?.canFreeEnroll === true;
 }
 
 export function getCourseViewerStatusLabel(

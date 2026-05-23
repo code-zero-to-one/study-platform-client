@@ -14,7 +14,7 @@ const LoginModal = dynamic(
 interface ClassDetailSidebarProps {
   courseDetail: CourseDetailResponse | undefined;
   isAuthenticated: boolean;
-  ctaLabel: string;
+  ctaLabel: string | undefined;
   viewerStatusLabel: string | undefined;
   isEnrolling: boolean;
   onShare: () => void;
@@ -135,27 +135,29 @@ export function ClassDetailSidebar({
             >
               공유하기
             </button>
-            {isAuthenticated ? (
-              <button
-                type="button"
-                onClick={onStartCourse}
-                disabled={isEnrolling}
-                className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
-              >
-                {ctaLabel}
-              </button>
-            ) : (
-              <LoginModal
-                openTrigger={
+            {isAuthenticated
+              ? ctaLabel && (
                   <button
                     type="button"
+                    onClick={onStartCourse}
+                    disabled={isEnrolling}
                     className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
                   >
-                    무료 코스 시작하기
+                    {ctaLabel}
                   </button>
-                }
-              />
-            )}
+                )
+              : courseDetail?.canFreeEnroll === true && (
+                  <LoginModal
+                    openTrigger={
+                      <button
+                        type="button"
+                        className="flex h-550 w-full items-center justify-center rounded-100 bg-background-brand-default font-designer-14b text-text-inverse"
+                      >
+                        무료 코스 시작하기
+                      </button>
+                    }
+                  />
+                )}
           </div>
 
           {isAuthenticated && courseDetail?.isPaidEnrolled && (
