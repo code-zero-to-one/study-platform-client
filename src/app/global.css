@@ -429,6 +429,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-1375: 110px;
   --spacing-1400: 112px;
   --spacing-1500: 120px;
+  --spacing-1600: 128px;
   --spacing-1625: 130px;
   --spacing-1650: 132px;
   --spacing-1750: 140px;
@@ -442,6 +443,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-6750: 540px;
   --spacing-9250: 740px;
   --spacing-7125: 570px;
+  --spacing-7500: 600px;
   --spacing-10500: 840px;
   --spacing-3400: 272px;
   --spacing-3500: 280px;
