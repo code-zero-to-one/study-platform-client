@@ -5,31 +5,37 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
+import {
+  useCreateMyOneToOneInquiry,
+  useSaveDraftOneToOneInquiry,
+  type InquiryCategory,
+} from '@/hooks/queries/my-inquiry/inquiry-api';
 import { useToastStore } from '@/stores/use-toast-store';
-
-// TODO: 1:1 문의 작성 API not yet available — wire POST /api/v1/inquiries when backend adds it
-type InquiryType = '결제' | '클래스' | '운영' | '건의' | '고민';
-
-const INQUIRY_TYPES: InquiryType[] = ['결제', '클래스', '운영', '건의', '고민'];
+import {
+  INQUIRY_CATEGORIES,
+  INQUIRY_CATEGORY_LABELS,
+} from '@/types/schemas/inquiry.schema';
 
 export default function MyInquiryWritePage() {
   const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [type, setType] = useState<InquiryType | ''>('');
-  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState<InquiryCategory | ''>('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<File[]>([]);
   const [notifyEmail, setNotifyEmail] = useState(false);
   const [notifyKakao, setNotifyKakao] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { mutateAsync: createInquiry, isPending: isSubmitting } =
+    useCreateMyOneToOneInquiry();
+  const { mutateAsync: saveDraft, isPending: isSavingDraft } =
+    useSaveDraftOneToOneInquiry();
 
   const handleBack = () => {
     const hasDraft =
-      Boolean(type) ||
-      Boolean(title.trim()) ||
+      Boolean(category) ||
       Boolean(content.trim()) ||
       images.length > 0 ||
       notifyEmail ||
@@ -47,18 +53,28 @@ export default function MyInquiryWritePage() {
     e.target.value = '';
   };
 
-  const handleDraft = () => {
-    // TODO: POST /api/v1/inquiries/draft
-    showToast('임시저장 기능은 준비 중입니다.', 'error');
+  const handleDraft = async () => {
+    if (!category && !content.trim()) {
+      showToast('내용을 입력 후 임시저장할 수 있습니다.', 'error');
+      return;
+    }
+    try {
+      await saveDraft({
+        id: 0,
+        request: {
+          inquiryCategory: category || undefined,
+          inquiryContent: content.trim() || undefined,
+        },
+      });
+      showToast('임시저장되었습니다.', 'success');
+    } catch {
+      showToast('임시저장에 실패했습니다.', 'error');
+    }
   };
 
   const handleSubmit = async () => {
-    if (!type) {
+    if (!category) {
       showToast('문의 유형을 선택해 주세요.', 'error');
-      return;
-    }
-    if (!title.trim()) {
-      showToast('제목을 입력해 주세요.', 'error');
       return;
     }
     if (!content.trim()) {
@@ -66,16 +82,18 @@ export default function MyInquiryWritePage() {
       return;
     }
 
-    setIsSubmitting(true);
     try {
-      // TODO: POST /api/v1/inquiries { type, title, content, imageKeys, notifyEmail, notifyKakao }
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await createInquiry({
+        inquiryCategory: category,
+        inquiryContent: content.trim(),
+        inquiryAttachmentKeys: [],
+        replyEmailOptIn: notifyEmail,
+        replyAlerttalkOptIn: notifyKakao,
+      });
       showToast('문의가 등록되었습니다.', 'success');
       router.push('/my-inquiry');
     } catch {
       showToast('문의 등록에 실패했습니다.', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -102,32 +120,19 @@ export default function MyInquiryWritePage() {
             유형 선택 <span className="text-red-500">*</span>
           </label>
           <select
-            value={type}
-            onChange={(e) => setType(e.target.value as InquiryType | '')}
+            value={category}
+            onChange={(e) =>
+              setCategory(e.target.value as InquiryCategory | '')
+            }
             className="border-border-default rounded-100 font-designer-14r text-text-default border px-200 py-150 outline-none"
           >
             <option value="">유형을 선택해 주세요</option>
-            {INQUIRY_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
+            {INQUIRY_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {INQUIRY_CATEGORY_LABELS[c]}
               </option>
             ))}
           </select>
-        </div>
-
-        {/* 제목 */}
-        <div className="flex flex-col gap-100">
-          <label className="font-designer-14m text-text-default">
-            제목 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            maxLength={100}
-            placeholder="제목을 입력해 주세요."
-            className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest border px-200 py-150 outline-none"
-          />
         </div>
 
         {/* 내용 */}
@@ -238,9 +243,10 @@ export default function MyInquiryWritePage() {
           color="secondary"
           size="medium"
           className="flex-1"
+          disabled={isSavingDraft}
           onClick={handleDraft}
         >
-          임시저장
+          {isSavingDraft ? '저장 중...' : '임시저장'}
         </Button>
         <Button
           color="primary"
