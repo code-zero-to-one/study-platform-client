@@ -82,3 +82,22 @@ axiosInstanceForMultipartV5.interceptors.response.use(
     axiosInstanceForMultipartV5(requestConfig),
   ),
 );
+
+// v6 MyPage API 전용 인스턴스
+export const axiosInstanceV6 = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v6/`,
+  timeout: 60000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
+
+attachApiLogger(axiosInstanceV6, 'client-v6-json');
+axiosInstanceV6.interceptors.request.use(attachAccessTokenToRequest);
+axiosInstanceV6.interceptors.response.use(
+  (config) => config,
+  createClientAuthResponseRejectedHandler((requestConfig) =>
+    axiosInstanceV6(requestConfig),
+  ),
+);
