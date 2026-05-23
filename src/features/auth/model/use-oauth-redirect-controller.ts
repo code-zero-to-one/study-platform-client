@@ -98,7 +98,7 @@ export const useOAuthRedirectController = (
           accessToken: redirectResult.accessToken,
           profileImageUrl: redirectResult.profileImageUrl,
         });
-        router.replace(AUTH_ROUTE_PATHS.SIGN_UP);
+        router.replace('/class?onboarding=true');
         router.refresh();
 
         return;
