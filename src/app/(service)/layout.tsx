@@ -2,7 +2,9 @@ import '../global.css';
 
 import { GoogleTagManager } from '@next/third-parties/google';
 import type { Metadata } from 'next';
-import React from 'react';
+import React, { Suspense } from 'react';
+import { OnboardingModal } from '@/components/auth/modals/onboarding-modal/onboarding-modal';
+import { OnboardingTrigger } from '@/components/auth/modals/onboarding-modal/onboarding-trigger';
 import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import Header from '@/components/common/layout/home-header';
@@ -39,6 +41,10 @@ export default async function ServiceLayout({
       <SentryInit />
       <MainProvider initialSession={initialHydrationSession}>
         <GlobalToast />
+        <OnboardingModal />
+        <Suspense>
+          <OnboardingTrigger />
+        </Suspense>
         <ClarityInit projectId={CLARITY_PROJECT_ID} />
         <PageViewTracker />
         <div className="flex min-h-screen w-full flex-col overflow-x-hidden">

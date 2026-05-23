@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { writeAccessTokenSession } from '@/features/auth/model/client-auth-session';
 import {
@@ -42,6 +43,7 @@ export function Step4Completion({
   data,
   onSubmittingChange,
 }: Step4CompletionProps) {
+  const router = useRouter();
   const { close } = useOnboardingStore();
   const { mutate: signUp, isPending } = useSignUpMutation();
   const { mutateAsync: uploadImage } = useUploadProfileImageMutation();
@@ -78,6 +80,7 @@ export function Step4Completion({
         } finally {
           close();
           onSubmittingChange(false);
+          router.push('/class');
         }
       },
       onError: () => {

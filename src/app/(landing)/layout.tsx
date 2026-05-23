@@ -2,6 +2,9 @@ import '../global.css';
 
 import { GoogleTagManager } from '@next/third-parties/google';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { OnboardingModal } from '@/components/auth/modals/onboarding-modal/onboarding-modal';
+import { OnboardingTrigger } from '@/components/auth/modals/onboarding-modal/onboarding-trigger';
 import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import { Footer } from '@/components/common/layout/footer';
@@ -78,6 +81,10 @@ export default async function LandingPageLayout({
         }}
       />
       <MainProvider initialSession={initialHydrationSession}>
+        <OnboardingModal />
+        <Suspense>
+          <OnboardingTrigger />
+        </Suspense>
         <ClarityInit projectId={CLARITY_PROJECT_ID} />
         <PageViewTracker />
         <div className="min-h-screen w-full">

@@ -3,15 +3,12 @@
 import { ChevronDown, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
-import { OnboardingModal } from '@/components/auth/modals/onboarding-modal/onboarding-modal';
+import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   useCreateOpenAlertSubscription,
   useGetCourseList,
 } from '@/hooks/queries/course/course-api';
-import { useOnboardingStore } from '@/stores/use-onboarding-store';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { CourseSummaryResponse } from '@/types/api/course.types';
 
@@ -531,21 +528,6 @@ function CourseCard({
   );
 }
 
-function OnboardingTrigger(): null {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const openOnboarding = useOnboardingStore((s) => s.open);
-
-  useEffect(() => {
-    if (searchParams.get('onboarding') === 'true') {
-      openOnboarding();
-      router.replace('/class');
-    }
-  }, [searchParams, openOnboarding, router]);
-
-  return null;
-}
-
 export default function ClassPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>('최신순');
@@ -556,10 +538,6 @@ export default function ClassPage() {
 
   return (
     <div className="w-full">
-      <OnboardingModal />
-      <Suspense>
-        <OnboardingTrigger />
-      </Suspense>
       <NotifyModal
         open={notifyModalOpen}
         courseId={notifyCourseId}
