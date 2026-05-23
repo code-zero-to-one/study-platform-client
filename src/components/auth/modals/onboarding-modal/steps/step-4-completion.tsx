@@ -59,9 +59,9 @@ export function Step4Completion({
         : {}),
     };
 
+    onSubmittingChange(true);
     signUp(request, {
       onSuccess: async (response) => {
-        onSubmittingChange(true);
         const newToken = response?.content?.accessToken;
         if (newToken) writeAccessTokenSession(newToken);
         const uploadUrl = response?.content?.uploadUrl;
@@ -77,9 +77,12 @@ export function Step4Completion({
             .showToast('프로필 이미지 업로드에 실패했어요.', 'error');
         } finally {
           close();
+          onSubmittingChange(false);
         }
       },
-      onSettled: () => onSubmittingChange(false),
+      onError: () => {
+        onSubmittingChange(false);
+      },
     });
   };
 
