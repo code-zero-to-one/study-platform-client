@@ -128,7 +128,7 @@ export function Step1Nickname({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpg,image/png,image/gif,image/webp"
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
           className="hidden"
           onChange={handleImageChange}
         />
@@ -170,7 +170,7 @@ export function Step1Nickname({
         </div>
         <p
           className={cn(
-            'min-h-[18px] font-designer-12r transition-colors',
+            'min-h-225 font-designer-12r transition-colors',
             showTaken
               ? 'text-text-error'
               : showAvailable
@@ -217,7 +217,7 @@ export function Step1Nickname({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(consent.link, '_blank');
+                window.open(consent.link, '_blank', 'noopener,noreferrer');
               }}
               className="shrink-0 font-designer-14m text-gray-500 underline underline-offset-2 transition-colors hover:text-gray-700"
             >
