@@ -139,20 +139,6 @@ export function AdminCourseFormContent({
           />
         </AdminCourseField>
         <AdminCourseField
-          label="가격/얼리버드"
-          helper="플랜 가격, 할인가, 추천 수, 탐색 수는 서버에서 자동 계산됩니다."
-        >
-          <div className="border-border-default bg-background-alternative rounded-100 border px-125 py-100">
-            <p className="font-designer-13m text-text-default">
-              자동 계산 항목
-            </p>
-            <p className="font-designer-12r text-text-subtle mt-50">
-              카드 인원, 학습 수, 추천 수, 탐색 수, 가격/얼리버드 값은 현재 API
-              요청 본문에 포함하지 않습니다.
-            </p>
-          </div>
-        </AdminCourseField>
-        <AdminCourseField
           label="기간(일)"
           helper="선택 · 1 이상의 정수 · 생성 시 미입력하면 기본 5일"
         >
@@ -197,14 +183,6 @@ export function AdminCourseFormContent({
             value={courseForm.cardTags}
             onChange={(cardTags) => updateCourseFormField('cardTags', cardTags)}
           />
-          <div className="border-border-subtle bg-background-alternative rounded-100 mt-100 border p-125">
-            <p className="font-designer-13b text-text-default">
-              자동 계산 항목
-            </p>
-            <p className="font-designer-13r text-text-subtle mt-50">
-              카드 인원, 학습 수, 추천 수, 탐색 수는 서버에서 자동 계산됩니다.
-            </p>
-          </div>
         </AdminCourseField>
         <AdminCourseField
           label="설명"

@@ -1,5 +1,6 @@
 'use client';
 
+import { Plus, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { BaseInput, NativeSelect } from '@/components/common/ui/input';
@@ -27,7 +28,14 @@ interface PlanFormValues {
   isActive: 'true' | 'false';
   isRecommended: 'true' | 'false';
   displayOrder: string;
-  itemsText: string;
+  items: PlanItemFormValue[];
+}
+
+interface PlanItemFormValue {
+  itemCode: string;
+  label: string;
+  valueAmount: string;
+  displayOrder: string;
 }
 
 const emptyPlanForm: PlanFormValues = {
@@ -41,7 +49,14 @@ const emptyPlanForm: PlanFormValues = {
   isActive: 'true',
   isRecommended: 'false',
   displayOrder: '0',
-  itemsText: '',
+  items: [],
+};
+
+const emptyPlanItemForm: PlanItemFormValue = {
+  itemCode: '',
+  label: '',
+  valueAmount: '',
+  displayOrder: '',
 };
 
 const toDateTimeLocalValue = (value: string | null) => {
@@ -54,18 +69,7 @@ const toKstOffsetDateTime = (value: string) => {
   return `${value.length === 16 ? `${value}:00` : value}+09:00`;
 };
 
-const serializePlanItems = (items: AdminCoursePlan['items']) => {
-  return items
-    .map((item, index) =>
-      [
-        item.itemCode ?? '',
-        item.label,
-        item.valueAmount ?? 0,
-        item.displayOrder ?? index,
-      ].join(' | '),
-    )
-    .join('\n');
-};
+const isDigitsOnly = (value: string) => /^\d+$/.test(value);
 
 const toPlanFormValues = (plan: AdminCoursePlan): PlanFormValues => ({
   planCode: plan.planCode,
@@ -78,44 +82,65 @@ const toPlanFormValues = (plan: AdminCoursePlan): PlanFormValues => ({
   isActive: plan.isActive ? 'true' : 'false',
   isRecommended: plan.isRecommended ? 'true' : 'false',
   displayOrder: String(plan.displayOrder),
-  itemsText: serializePlanItems(plan.items),
+  items: plan.items.map((item) => ({
+    itemCode: item.itemCode ?? '',
+    label: item.label,
+    valueAmount:
+      item.valueAmount === null || item.valueAmount === undefined
+        ? ''
+        : String(item.valueAmount),
+    displayOrder:
+      item.displayOrder === null || item.displayOrder === undefined
+        ? ''
+        : String(item.displayOrder),
+  })),
 });
 
-const parseRequiredNumber = (value: string, fieldName: string) => {
-  const parsed = Number(value.trim());
-  if (!Number.isFinite(parsed)) {
+const parseRequiredPositiveNumber = (value: string, fieldName: string) => {
+  const trimmed = value.trim();
+  const parsed = Number(trimmed);
+  if (!isDigitsOnly(trimmed) || !Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(`${fieldName} 양수 숫자를 입력해주세요.`);
+  }
+  return parsed;
+};
+
+const parseRequiredNonNegativeNumber = (value: string, fieldName: string) => {
+  const trimmed = value.trim();
+  const parsed = Number(trimmed);
+  if (!isDigitsOnly(trimmed) || !Number.isFinite(parsed) || parsed < 0) {
     throw new Error(`${fieldName} 숫자를 입력해주세요.`);
   }
   return parsed;
 };
 
+const parseOptionalNonNegativeNumber = (value: string, fieldName: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return parseRequiredNonNegativeNumber(trimmed, fieldName);
+};
+
 const parsePlanItems = (
-  itemsText: string,
+  items: PlanItemFormValue[],
 ): AdminCoursePlanItemUpsertRequest[] =>
-  itemsText
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line, index) => {
-      const [itemCode, label, valueAmount, displayOrder] = line
-        .split('|')
-        .map((part) => part.trim());
+  items.map((item, index) => {
+    const label = item.label.trim();
 
-      if (!label) {
-        throw new Error('플랜 구성 항목 label을 입력해주세요.');
-      }
+    if (!label) {
+      throw new Error(`구성 항목 ${index + 1}의 항목명을 입력해주세요.`);
+    }
 
-      return {
-        itemCode: itemCode || null,
-        label,
-        valueAmount: valueAmount
-          ? parseRequiredNumber(valueAmount, '항목 금액')
-          : 0,
-        displayOrder: displayOrder
-          ? parseRequiredNumber(displayOrder, '항목 순서')
-          : index,
-      };
-    });
+    return {
+      itemCode: item.itemCode.trim() || null,
+      label,
+      valueAmount: parseOptionalNonNegativeNumber(
+        item.valueAmount,
+        '항목 금액',
+      ),
+      displayOrder:
+        parseOptionalNonNegativeNumber(item.displayOrder, '항목 순서') ?? index,
+    };
+  });
 
 const showValidationError = (error: unknown) => {
   if (error instanceof Error) {
@@ -128,18 +153,31 @@ const toPlanPayload = (form: PlanFormValues): AdminCoursePlanUpsertRequest => {
     throw new Error('플랜 코드와 이름을 입력해주세요.');
   }
 
+  const regularPrice = parseRequiredPositiveNumber(form.regularPrice, '정가');
+  const discountPrice = parseRequiredPositiveNumber(
+    form.discountPrice,
+    '얼리버드 할인가',
+  );
+
+  if (discountPrice > regularPrice) {
+    throw new Error('얼리버드 할인가는 정가보다 클 수 없습니다.');
+  }
+
   return {
     planCode: form.planCode.trim(),
     name: form.name.trim(),
     subtitle: form.subtitle.trim() || null,
     description: form.description.trim() || null,
-    regularPrice: parseRequiredNumber(form.regularPrice, '정가'),
-    discountPrice: parseRequiredNumber(form.discountPrice, '할인가'),
+    regularPrice,
+    discountPrice,
     earlyBirdEndsAt: toKstOffsetDateTime(form.earlyBirdEndsAt),
     isActive: form.isActive === 'true',
     isRecommended: form.isRecommended === 'true',
-    displayOrder: parseRequiredNumber(form.displayOrder, '노출 순서'),
-    items: parsePlanItems(form.itemsText),
+    displayOrder: parseRequiredNonNegativeNumber(
+      form.displayOrder,
+      '노출 순서',
+    ),
+    items: parsePlanItems(form.items),
   };
 };
 
@@ -193,8 +231,30 @@ export default function AdminCoursePlanManagement({
     }));
   };
 
+  const hasRecommendedPlanConflict = (
+    targetForm: PlanFormValues,
+    targetPlanId?: number,
+  ) => {
+    if (targetForm.isRecommended !== 'true') return false;
+
+    return (
+      plansQuery.data?.some((plan) => {
+        if (plan.planId === targetPlanId) return false;
+        const planForm = editForms[plan.planId] ?? toPlanFormValues(plan);
+        return planForm.isRecommended === 'true';
+      }) ?? false
+    );
+  };
+
   const handleCreatePlan = async () => {
     let request: AdminCoursePlanUpsertRequest;
+
+    if (hasRecommendedPlanConflict(createForm)) {
+      useToastStore
+        .getState()
+        .showToast('대표 플랜은 코스당 하나만 저장할 수 있습니다.', 'info');
+      return;
+    }
 
     try {
       request = toPlanPayload(createForm);
@@ -215,6 +275,13 @@ export default function AdminCoursePlanManagement({
     if (!form) return;
 
     let request: AdminCoursePlanUpsertRequest;
+
+    if (hasRecommendedPlanConflict(form, planId)) {
+      useToastStore
+        .getState()
+        .showToast('대표 플랜은 코스당 하나만 저장할 수 있습니다.', 'info');
+      return;
+    }
 
     try {
       request = toPlanPayload(form);
@@ -311,14 +378,19 @@ function PlanEditor({
         <h3 className="font-designer-16b text-text-default">{title}</h3>
         <div className="flex gap-75">
           {onDeactivate && (
-            <Button
-              color="outlined"
-              size="xsmall"
-              disabled={isLocked || form.isActive === 'false'}
-              onClick={onDeactivate}
-            >
-              비활성화
-            </Button>
+            <div className="flex items-center gap-75">
+              <p className="font-designer-12r text-text-subtle">
+                신규 결제에서 제외되며 기존 결제에는 영향이 없습니다.
+              </p>
+              <Button
+                color="outlined"
+                size="xsmall"
+                disabled={isLocked || form.isActive === 'false'}
+                onClick={onDeactivate}
+              >
+                비활성화
+              </Button>
+            </div>
           )}
           <Button size="xsmall" disabled={isLocked} onClick={onSave}>
             저장
@@ -405,16 +477,146 @@ function PlanEditor({
           </NativeSelect>
         </label>
       </div>
-      <label className="font-designer-13m text-text-subtle mt-100 flex flex-col gap-50">
-        구성 항목
-        <textarea
-          className="border-border-default rounded-100 min-h-260 border bg-background-default px-100 py-75 font-designer-13r text-text-default"
-          disabled={isLocked}
-          value={form.itemsText}
-          placeholder="itemCode | label | valueAmount | displayOrder"
-          onChange={(event) => onChange('itemsText', event.target.value)}
-        />
-      </label>
+      <PlanItemsEditor
+        disabled={isLocked}
+        items={form.items}
+        onChange={(items) => onChange('items', items)}
+      />
+    </div>
+  );
+}
+
+function PlanItemsEditor({
+  disabled,
+  items,
+  onChange,
+}: {
+  disabled: boolean;
+  items: PlanItemFormValue[];
+  onChange: (items: PlanItemFormValue[]) => void;
+}) {
+  const updateItem = <FieldName extends keyof PlanItemFormValue>(
+    index: number,
+    field: FieldName,
+    value: PlanItemFormValue[FieldName],
+  ) => {
+    onChange(
+      items.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item,
+      ),
+    );
+  };
+
+  const addItem = () => {
+    onChange([...items, { ...emptyPlanItemForm }]);
+  };
+
+  const removeItem = (index: number) => {
+    onChange(items.filter((_, itemIndex) => itemIndex !== index));
+  };
+
+  return (
+    <div className="mt-150 flex flex-col gap-75">
+      <div className="flex items-center justify-between gap-100">
+        <p className="font-designer-13m text-text-subtle">구성 항목</p>
+        <Button
+          color="outlined"
+          size="xsmall"
+          disabled={disabled}
+          icon={<Plus />}
+          onClick={addItem}
+        >
+          구성 항목 추가
+        </Button>
+      </div>
+      <div className="border-border-default rounded-100 overflow-hidden border">
+        <div className="bg-background-alternative grid grid-cols-12 gap-75 px-100 py-75">
+          <span className="font-designer-12m text-text-subtle col-span-3">
+            항목 코드
+          </span>
+          <span className="font-designer-12m text-text-subtle col-span-4">
+            항목명
+          </span>
+          <span className="font-designer-12m text-text-subtle col-span-2">
+            항목 금액
+          </span>
+          <span className="font-designer-12m text-text-subtle col-span-2">
+            노출 순서
+          </span>
+          <span className="font-designer-12m text-text-subtle col-span-1">
+            제거
+          </span>
+        </div>
+        {items.length === 0 ? (
+          <div className="px-100 py-125">
+            <p className="font-designer-13r text-text-subtle">
+              구성 항목이 없습니다.
+            </p>
+          </div>
+        ) : (
+          items.map((item, index) => (
+            <div
+              key={index}
+              className="border-border-subtle grid grid-cols-12 items-start gap-75 border-t px-100 py-75"
+            >
+              <div className="col-span-3">
+                <BaseInput
+                  disabled={disabled}
+                  size="m"
+                  value={item.itemCode}
+                  placeholder="learning"
+                  onValueChange={(value) =>
+                    updateItem(index, 'itemCode', value)
+                  }
+                />
+              </div>
+              <div className="col-span-4">
+                <BaseInput
+                  disabled={disabled}
+                  size="m"
+                  value={item.label}
+                  placeholder="학습 콘텐츠"
+                  onValueChange={(value) => updateItem(index, 'label', value)}
+                />
+              </div>
+              <div className="col-span-2">
+                <BaseInput
+                  disabled={disabled}
+                  min={0}
+                  size="m"
+                  type="number"
+                  value={item.valueAmount}
+                  onValueChange={(value) =>
+                    updateItem(index, 'valueAmount', value)
+                  }
+                />
+              </div>
+              <div className="col-span-2">
+                <BaseInput
+                  disabled={disabled}
+                  min={0}
+                  size="m"
+                  type="number"
+                  value={item.displayOrder}
+                  onValueChange={(value) =>
+                    updateItem(index, 'displayOrder', value)
+                  }
+                />
+              </div>
+              <div className="col-span-1 flex justify-end">
+                <Button
+                  aria-label="구성 항목 제거"
+                  color="outlined"
+                  size="xsmall"
+                  disabled={disabled}
+                  icon={<Trash2 />}
+                  onClick={() => removeItem(index)}
+                />
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
