@@ -2,11 +2,16 @@
 
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useNicknameCheckQuery } from '@/hooks/queries/auth/use-nickname-check';
 import { useCareersQuery } from '@/hooks/queries/user/use-update-user-profile-mutation';
 import type { CareerResponse } from '@/types/api/my-page.types';
+
+const AVATAR_PATHS = Array.from(
+  { length: 8 },
+  (_, i) => `/onboarding/avatars/avatar-${i + 1}.png`,
+);
 
 interface Step1Data {
   nickname: string;
@@ -49,7 +54,6 @@ export function Step1Nickname({
   updateData,
   onNext,
 }: Step1NicknameProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCheckRequested, setIsCheckRequested] = useState(false);
 
   const isValidFormat = isValidNicknameFormat(data.nickname);
@@ -82,14 +86,23 @@ export function Step1Nickname({
     setIsCheckRequested(true);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleRandomAvatar = async () => {
     if (data.profileImageUrl?.startsWith('blob:')) {
       URL.revokeObjectURL(data.profileImageUrl);
     }
-    updateData('profileImageUrl', URL.createObjectURL(file));
-    updateData('profileImageFile', file);
+    const path = AVATAR_PATHS[Math.floor(Math.random() * AVATAR_PATHS.length)];
+    updateData('profileImageUrl', path);
+    updateData('profileImageFile', undefined);
+    try {
+      const res = await fetch(path);
+      const blob = await res.blob();
+      const file = new File([blob], path.split('/').pop()!, {
+        type: 'image/png',
+      });
+      updateData('profileImageFile', file);
+    } catch {
+      updateData('profileImageUrl', undefined);
+    }
   };
 
   const toggleConsent = (key: keyof Step1Data) => {
@@ -119,7 +132,7 @@ export function Step1Nickname({
           <button
             type="button"
             aria-label="프로필 이미지 변경"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={handleRandomAvatar}
             className="absolute right-0 bottom-0 flex size-425 items-center justify-center rounded-full bg-gray-200 transition-colors hover:bg-gray-300"
           >
             <svg
@@ -132,13 +145,6 @@ export function Step1Nickname({
             </svg>
           </button>
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-          className="hidden"
-          onChange={handleImageChange}
-        />
       </div>
 
       {/* Nickname title */}

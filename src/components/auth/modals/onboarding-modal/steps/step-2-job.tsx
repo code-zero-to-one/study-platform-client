@@ -78,7 +78,7 @@ export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
         </p>
         <div className="flex flex-wrap gap-150 pt-150">
           {jobs
-            .filter((j: JobResponse) => j.description !== '기타+')
+            .filter((j: JobResponse) => j.description.trim() !== '기타+')
             .map((jobItem: JobResponse) => {
               const selected = data.job === jobItem.job;
               return (

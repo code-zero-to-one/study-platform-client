@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { writeAccessTokenSession } from '@/features/auth/model/client-auth-session';
 import {
@@ -47,6 +48,7 @@ export function Step4Completion({
   const { close } = useOnboardingStore();
   const { mutate: signUp, isPending } = useSignUpMutation();
   const { mutateAsync: uploadImage } = useUploadProfileImageMutation();
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFinish = () => {
     const request: SignUpRequest = {
@@ -69,6 +71,7 @@ export function Step4Completion({
         const uploadUrl = response?.content?.uploadUrl;
         try {
           if (uploadUrl && data.profileImageFile) {
+            setIsUploading(true);
             const formData = new FormData();
             formData.append('file', data.profileImageFile);
             await uploadImage({ uploadUrl, file: formData });
@@ -78,6 +81,7 @@ export function Step4Completion({
             .getState()
             .showToast('프로필 이미지 업로드에 실패했어요.', 'error');
         } finally {
+          setIsUploading(false);
           close();
           onSubmittingChange(false);
           router.push('/class');
@@ -111,10 +115,10 @@ export function Step4Completion({
       <button
         type="button"
         onClick={handleFinish}
-        disabled={isPending}
+        disabled={isPending || isUploading}
         className={cn(
           'h-700 w-full rounded-100 font-designer-16b transition-colors',
-          isPending
+          isPending || isUploading
             ? 'cursor-not-allowed bg-gray-200 text-gray-400'
             : 'bg-rose-500 text-white hover:bg-rose-600',
         )}
