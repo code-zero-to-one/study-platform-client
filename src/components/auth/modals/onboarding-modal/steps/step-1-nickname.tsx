@@ -193,36 +193,36 @@ export function Step1Nickname({
       {/* Consent checkboxes */}
       <div className="flex flex-col gap-425">
         {CONSENTS.map((consent) => (
-          <div
-            key={consent.key}
-            className="flex cursor-pointer items-center gap-150"
-            onClick={() => toggleConsent(consent.key as keyof Step1Data)}
-          >
-            <div
-              className={cn(
-                'flex size-250 shrink-0 items-center justify-center rounded-50 border transition-colors',
-                data[consent.key]
-                  ? 'border-rose-500 bg-rose-500'
-                  : 'border-gray-300 bg-white',
-              )}
-            >
-              {data[consent.key] && (
-                <Check className="h-150 w-150 text-white" />
-              )}
-            </div>
-            <span className="flex-1 font-designer-14m text-gray-800">
-              {consent.label}
-            </span>
+          <div key={consent.key} className="flex items-center gap-150">
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(consent.link, '_blank', 'noopener,noreferrer');
-              }}
+              className="flex flex-1 items-center gap-150 text-left"
+              onClick={() => toggleConsent(consent.key as keyof Step1Data)}
+            >
+              <div
+                className={cn(
+                  'flex size-250 shrink-0 items-center justify-center rounded-50 border transition-colors',
+                  data[consent.key]
+                    ? 'border-rose-500 bg-rose-500'
+                    : 'border-gray-300 bg-white',
+                )}
+              >
+                {data[consent.key] && (
+                  <Check className="h-150 w-150 text-white" />
+                )}
+              </div>
+              <span className="font-designer-14m text-gray-800">
+                {consent.label}
+              </span>
+            </button>
+            <a
+              href={consent.link}
+              target="_blank"
+              rel="noopener noreferrer"
               className="shrink-0 font-designer-14m text-gray-500 underline underline-offset-2 transition-colors hover:text-gray-700"
             >
               보기
-            </button>
+            </a>
           </div>
         ))}
       </div>

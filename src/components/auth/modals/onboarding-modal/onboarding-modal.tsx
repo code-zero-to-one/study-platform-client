@@ -113,6 +113,7 @@ export function OnboardingModal() {
             <button
               type="button"
               onClick={handleBack}
+              disabled={isSubmitting}
               className="rounded-100 p-100 text-gray-500 transition-colors hover:bg-gray-100"
               aria-label="이전"
             >
@@ -139,6 +140,7 @@ export function OnboardingModal() {
           <button
             type="button"
             onClick={close}
+            disabled={isSubmitting}
             className="rounded-100 p-100 text-gray-500 transition-colors hover:bg-gray-100"
             aria-label="닫기"
           >

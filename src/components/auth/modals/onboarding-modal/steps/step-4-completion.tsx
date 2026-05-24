@@ -81,6 +81,12 @@ export function Step4Completion({
         }
       },
       onError: () => {
+        useToastStore
+          .getState()
+          .showToast(
+            '회원가입에 실패했어요. 잠시 후 다시 시도해주세요.',
+            'error',
+          );
         onSubmittingChange(false);
       },
     });

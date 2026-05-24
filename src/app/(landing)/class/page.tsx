@@ -539,7 +539,9 @@ function OnboardingTrigger(): null {
   useEffect(() => {
     if (searchParams.get('onboarding') === 'true') {
       openOnboarding();
-      router.replace('/class');
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('onboarding');
+      router.replace(params.size ? `/class?${params}` : '/class');
     }
   }, [searchParams, openOnboarding, router]);
 
