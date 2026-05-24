@@ -123,7 +123,11 @@ function makeComments(): { content: BuilderFeedCommentsResponse } {
         {
           commentId: 1,
           content: '멋진 피드네요!',
-          author: { memberId: 3, nickname: '댓글러', role: 'STUDENT' },
+          author: {
+            memberId: 3,
+            nickname: '댓글러',
+            role: 'STUDENT',
+          },
           createdAt: '2025-05-01T13:00:00.000Z',
           replies: [],
         },
@@ -215,7 +219,9 @@ async function mockFeedDetailApis(page: Page) {
         return;
       }
       await route.fulfill({
-        json: { content: { feedId: FEED_ID, isLiked: true, likeCount: 6 } },
+        json: {
+          content: { feedId: FEED_ID, isLiked: true, likeCount: 6 },
+        },
       });
     },
   );
@@ -228,11 +234,13 @@ test.describe('빌더 피드 목록 @auth', () => {
     page,
   }) => {
     await mockFeedListApis(page, [makeFeedItem(FEED_ID)]);
-    await page.goto(FEED_LIST_PATH, { waitUntil: 'load' });
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
+    await Promise.all([
+      page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
+      page.goto(FEED_LIST_PATH, { waitUntil: 'load' }),
+    ]);
 
     await expect(page.getByText(/테스트 피드 내용/)).toBeVisible({
-      timeout: 15000,
+      timeout: 5000,
     });
     await expect(page.getByText('테스터').first()).toBeVisible();
   });
@@ -241,11 +249,13 @@ test.describe('빌더 피드 목록 @auth', () => {
     page,
   }) => {
     await mockFeedListApis(page, []);
-    await page.goto(FEED_LIST_PATH, { waitUntil: 'load' });
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
+    await Promise.all([
+      page.waitForResponse((r) => /\/courses\/vibe-intro$/.test(r.url())),
+      page.goto(FEED_LIST_PATH, { waitUntil: 'load' }),
+    ]);
 
     await expect(page.getByText('아직 등록된 피드가 없어요.')).toBeVisible({
-      timeout: 15000,
+      timeout: 5000,
     });
   });
 });
@@ -256,11 +266,17 @@ test.describe('빌더 피드 상세 @auth', () => {
   });
 
   test('피드 상세 렌더링 — 내용·댓글 표시', async ({ page }) => {
-    await page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' });
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          /\/builder-feeds\/\d+$/.test(r.url()) &&
+          r.request().method() === 'GET',
+      ),
+      page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' }),
+    ]);
 
     await expect(page.getByText('피드 상세 내용입니다.')).toBeVisible({
-      timeout: 15000,
+      timeout: 5000,
     });
     await expect(page.getByText('멋진 피드네요!')).toBeVisible({
       timeout: 10000,
@@ -270,12 +286,14 @@ test.describe('빌더 피드 상세 @auth', () => {
   test('좋아요 버튼 클릭 → POST /builder-feeds/{id}/like 호출 확인', async ({
     page,
   }) => {
-    await page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' });
-    await page.waitForLoadState('networkidle', { timeout: 30000 });
-
-    await expect(page.getByText('피드 상세 내용입니다.')).toBeVisible({
-      timeout: 15000,
-    });
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          /\/builder-feeds\/\d+$/.test(r.url()) &&
+          r.request().method() === 'GET',
+      ),
+      page.goto(FEED_DETAIL_PATH, { waitUntil: 'load' }),
+    ]);
 
     const [likeResponse] = await Promise.all([
       page.waitForResponse(
