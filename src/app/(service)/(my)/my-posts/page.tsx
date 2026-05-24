@@ -17,9 +17,13 @@ import {
   useDeleteBuilderFeed,
   useGetMyBuilderFeeds,
   useGetMyBuilderFeedStats,
+  useGetMyDraftBuilderFeeds,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import type { MyBuilderFeedItemResponse } from '@/types/api/course.types';
+import type {
+  MyBuilderFeedItemResponse,
+  MyDraftBuilderFeedItemResponse,
+} from '@/types/api/course.types';
 
 type Tab = 'feed' | 'question';
 
@@ -46,9 +50,12 @@ export default function MyPostsPage() {
 
   const { data: feedStats } = useGetMyBuilderFeedStats();
   const { data: feedsData, isLoading: feedsLoading } = useGetMyBuilderFeeds();
+  const { data: draftData, isLoading: draftLoading } =
+    useGetMyDraftBuilderFeeds();
 
   const feeds = feedsData?.feeds ?? [];
   const totalCount = feedsData?.totalCount ?? 0;
+  const draftFeeds = draftData?.feeds ?? [];
 
   const STATS = [
     { label: '올린 피드 수', value: feedStats?.feedCount ?? 0 },
@@ -161,6 +168,28 @@ export default function MyPostsPage() {
               ))}
             </div>
           )}
+
+          {/* 임시 저장 */}
+          <p className="font-designer-18b text-text-default">임시 저장</p>
+          {draftLoading ? (
+            <div className="flex items-center justify-center py-600">
+              <p className="font-designer-14r text-text-subtle">
+                불러오는 중...
+              </p>
+            </div>
+          ) : draftFeeds.length === 0 ? (
+            <div className="flex flex-col items-center gap-200 py-600">
+              <p className="font-designer-16b text-text-default">
+                임시저장된 피드가 없어요
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-400 sm:grid-cols-2 lg:grid-cols-3">
+              {draftFeeds.map((feed) => (
+                <FeedCard key={feed.feedId} feed={feed} isDraft />
+              ))}
+            </div>
+          )}
         </>
       )}
 
@@ -180,7 +209,13 @@ export default function MyPostsPage() {
   );
 }
 
-function FeedCard({ feed }: { feed: MyBuilderFeedItemResponse }) {
+function FeedCard({
+  feed,
+  isDraft = false,
+}: {
+  feed: MyBuilderFeedItemResponse | MyDraftBuilderFeedItemResponse;
+  isDraft?: boolean;
+}) {
   const [imgError, setImgError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -200,6 +235,11 @@ function FeedCard({ feed }: { feed: MyBuilderFeedItemResponse }) {
 
   const handleDelete = () => {
     setMenuOpen(false);
+    if (isDraft) {
+      // TODO: connect to draft delete API when backend is ready
+      showToast('준비 중입니다.', 'error');
+      return;
+    }
     deleteFeed(feed.feedId, {
       onSuccess: () => showToast('피드가 삭제되었습니다.', 'success'),
       onError: () => showToast('피드 삭제에 실패했습니다.', 'error'),
@@ -268,14 +308,18 @@ function FeedCard({ feed }: { feed: MyBuilderFeedItemResponse }) {
             {plainText}
           </p>
           <div className="flex items-center gap-200">
-            <span className="font-designer-12r text-text-subtle flex items-center gap-50">
-              <Heart size={12} />
-              {feed.likeCount}
-            </span>
-            <span className="font-designer-12r text-text-subtle flex items-center gap-50">
-              <MessageSquare size={12} />
-              {feed.commentCount}
-            </span>
+            {!isDraft && 'likeCount' in feed && (
+              <>
+                <span className="font-designer-12r text-text-subtle flex items-center gap-50">
+                  <Heart size={12} />
+                  {feed.likeCount}
+                </span>
+                <span className="font-designer-12r text-text-subtle flex items-center gap-50">
+                  <MessageSquare size={12} />
+                  {feed.commentCount}
+                </span>
+              </>
+            )}
             <span className="font-designer-12r text-text-subtlest ml-auto">
               {formatDate(feed.createdAt)}
             </span>
