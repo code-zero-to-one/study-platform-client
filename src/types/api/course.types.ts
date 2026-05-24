@@ -132,6 +132,33 @@ export interface MyCoursePaymentListItemResponse {
   canceledAt: string | null;
   createdAt: string;
   cancellable: boolean;
+  canRequestRefund?: boolean;
+  canCancelPayment?: boolean;
+}
+
+// ─── Course Payment Detail ────────────────────────────────────────────────────
+
+export interface CoursePaymentDetailResponse {
+  paymentId: number;
+  virtualAccountNumber: string | null;
+  virtualBankName: string | null;
+  virtualAccountHolderName: string | null;
+  virtualAccountDueDate: string | null;
+}
+
+// ─── Course Refund ────────────────────────────────────────────────────────────
+
+export type CourseRefundReasonCode =
+  | 'REPAYMENT_AFTER_METHOD_CHANGE'
+  | 'DUPLICATE_PAYMENT'
+  | 'CHANGE_OF_MIND'
+  | 'UNSATISFIED_CONTENT'
+  | 'TECHNICAL_ISSUE'
+  | 'OTHER';
+
+export interface CourseRefundCreateRequest {
+  reasonCode: CourseRefundReasonCode;
+  detail?: string;
 }
 
 export interface AdminCoursePaymentListItemResponse {
@@ -740,6 +767,17 @@ export interface LessonQnaSidebarResponse {
 export interface GiftEmailResponse {
   isRegistered: boolean;
   email?: string;
+}
+
+// ─── My Draft Builder Feeds ───────────────────────────────────────────────────
+
+export interface MyDraftBuilderFeedItemResponse {
+  feedId: number;
+  courseId: number;
+  lessonId: number;
+  content: string;
+  thumbnailUrl: string | null;
+  createdAt: string;
 }
 
 // ─── Builder Feed Mutations ───────────────────────────────────────────────────
