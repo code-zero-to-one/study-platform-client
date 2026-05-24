@@ -1,0 +1,50 @@
+release_id: prod-20260524-1848
+env: prod
+service_version: v2.5.0
+
+summary: "레슨 피드백 textarea 글자수 제한 완화, 피드 이미지 안보이는 이슈 수정"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v2.5.0-51f472e
+    commit: 51f472e
+    version: v2.5.0
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.1-07cb8f6
+    commit: 07cb8f6
+    version: v1.0.1
+    changed: false
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v2.4.0-c808b4f
+    backend: zeroone-backend:v1.0.1-07cb8f6
+  db_rollback_note: "DB unchanged. Use fixed app image rollback targets if needed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-24T18:48:41+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260524-1848-51f472e
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: minor
+  bootstrap_mode: ""
