@@ -350,7 +350,6 @@ export default function FeedWritePage() {
                   ? '내용을 수정해주세요.'
                   : '코딩을 하며 다양한 순간을 글로 작성해보세요! 이번 레슨에서 배운 것, 새롭게 알게 된 것을 자유롭게 작성해보세요.'
               }
-              uploadImage={uploadCommunityMarkdownImage}
             />
 
             {/* CTAs */}
