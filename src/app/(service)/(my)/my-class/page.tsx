@@ -5,18 +5,27 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { ToggleSwitch } from '@/components/common/ui/toggle/switch';
 import {
   useGetCourseJourneyMap,
   useGetCourseList,
   useGetMyGiftEmail,
 } from '@/hooks/queries/course/course-api';
 import { useGetNotificationSetting } from '@/hooks/queries/notification/use-notification-setting';
+import { useToastStore } from '@/stores/use-toast-store';
 import type { CourseSummaryResponse } from '@/types/api/course.types';
 
 const LearningNotificationModal = dynamic(
   () => import('./_components/learning-notification-modal'),
   { ssr: false },
 );
+
+const DisableNotificationModal = dynamic(
+  () => import('./_components/disable-notification-modal'),
+  { ssr: false },
+);
+
+const NOTIFICATION_DISABLE_KEY = 'zeroone:notification:disabled';
 
 function pad(n: number) {
   return String(n).padStart(2, '0');
@@ -31,8 +40,28 @@ export default function MyClassPage() {
     isLoading: isNotificationSettingLoading,
   } = useGetNotificationSetting();
   const [alarmModalOpen, setAlarmModalOpen] = useState(false);
+  const [disableModalOpen, setDisableModalOpen] = useState(false);
+  const [locallyDisabled, setLocallyDisabled] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      localStorage.getItem(NOTIFICATION_DISABLE_KEY) === 'true',
+  );
+  const showToast = useToastStore((s) => s.showToast);
 
-  const isEnabled = notificationSetting?.isEnabled ?? false;
+  const isEnabled =
+    (notificationSetting?.isEnabled ?? false) && !locallyDisabled;
+
+  const handleDisableConfirm = () => {
+    localStorage.setItem(NOTIFICATION_DISABLE_KEY, 'true');
+    setLocallyDisabled(true);
+    setDisableModalOpen(false);
+    showToast('알림톡이 해제되었습니다.', 'success');
+  };
+
+  const handleAlarmSuccess = () => {
+    localStorage.removeItem(NOTIFICATION_DISABLE_KEY);
+    setLocallyDisabled(false);
+  };
 
   return (
     <div className="flex flex-col gap-600">
@@ -42,7 +71,15 @@ export default function MyClassPage() {
       <section className="flex flex-col gap-300">
         <div className="flex items-center gap-200">
           <h2 className="font-designer-18m text-text-default">알림</h2>
-          <Toggle enabled={isEnabled} onClick={() => setAlarmModalOpen(true)} />
+          <ToggleSwitch.Root
+            checked={isEnabled}
+            onClick={() =>
+              isEnabled ? setDisableModalOpen(true) : setAlarmModalOpen(true)
+            }
+            onCheckedChange={() => {}}
+            size="lg"
+            className="bg-border-subtle data-[state=checked]:bg-fill-brand-default-default"
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-400 md:grid-cols-2">
@@ -64,6 +101,13 @@ export default function MyClassPage() {
       <LearningNotificationModal
         open={alarmModalOpen}
         onOpenChange={setAlarmModalOpen}
+        onSuccess={handleAlarmSuccess}
+      />
+
+      <DisableNotificationModal
+        open={disableModalOpen}
+        onOpenChange={setDisableModalOpen}
+        onConfirm={handleDisableConfirm}
       />
 
       <section className="flex flex-col gap-400">
@@ -93,34 +137,6 @@ export default function MyClassPage() {
         </p>
       </section>
     </div>
-  );
-}
-
-function Toggle({
-  enabled,
-  onClick,
-}: {
-  enabled: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label="학습 알림 설정 열기"
-      aria-pressed={enabled}
-      onClick={onClick}
-      className={cn(
-        'relative flex h-300 w-650 cursor-pointer items-center rounded-full transition-colors duration-200',
-        enabled ? 'bg-primary-500' : 'bg-border-subtle',
-      )}
-    >
-      <span
-        className={cn(
-          'absolute size-250 rounded-full bg-white shadow-sm transition-transform duration-200',
-          enabled ? 'translate-x-375' : 'translate-x-25',
-        )}
-      />
-    </button>
   );
 }
 
@@ -209,7 +225,7 @@ function AlarmCard({
         className={cn(
           'w-fit rounded-100 px-300 py-150 font-designer-14m',
           isEnabled
-            ? 'bg-primary-500 text-white'
+            ? 'bg-[#D5D7DA] text-gray-0'
             : 'bg-border-subtle text-text-subtlest',
         )}
       >
@@ -227,7 +243,7 @@ function GiftEmailCard({
   email?: string;
 }) {
   return (
-    <div className="flex flex-col gap-200 rounded-200 border border-rose-200 bg-rose-50 p-400">
+    <div className="flex flex-col gap-200 rounded-200 border border-[#D5D7DA] bg-[#FAFAFA] p-400">
       <div className="flex flex-col gap-100">
         <h3 className="font-designer-16b text-text-default">
           Claude Pro Gift 메일

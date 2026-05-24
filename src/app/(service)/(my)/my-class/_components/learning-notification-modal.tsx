@@ -12,6 +12,7 @@ import { useToastStore } from '@/stores/use-toast-store';
 interface LearningNotificationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -24,6 +25,7 @@ function pad(n: number) {
 export default function LearningNotificationModal({
   open,
   onOpenChange,
+  onSuccess,
 }: LearningNotificationModalProps) {
   const showToast = useToastStore((s) => s.showToast);
   const { data: setting } = useGetNotificationSetting();
@@ -46,6 +48,7 @@ export default function LearningNotificationModal({
       });
       showToast('알림 시간이 저장되었습니다.', 'success');
       onOpenChange(false);
+      onSuccess?.();
     } catch {
       showToast('알림 시간 저장에 실패했습니다.', 'error');
     }
