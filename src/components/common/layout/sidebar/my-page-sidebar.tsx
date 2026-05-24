@@ -186,7 +186,7 @@ function SidebarItem({
         )}
       >
         <Icon
-          className={cn(isActive ? 'text-primary-500' : 'text-text-subtle')}
+          className={cn(isActive ? 'text-text-brand' : 'text-text-subtle')}
         />
         {children}
       </button>

@@ -28,7 +28,7 @@ export default function MyPageMobileNav() {
             (item.prefixMatch
               ? pathname.startsWith(item.href)
               : pathname === item.href) &&
-              'border-b-2 border-primary-500 text-text-brand',
+              'border-b-2 border-border-brand text-text-brand',
           )}
         >
           {item.label}

@@ -45,7 +45,7 @@ export default function MyInquiryPage() {
         <button
           type="button"
           onClick={() => router.push('/my-inquiry/write')}
-          className="flex items-center gap-100 rounded-100 bg-primary-500 px-300 py-150 font-designer-14m text-white"
+          className="flex items-center gap-100 rounded-100 bg-fill-brand-default-default px-300 py-150 font-designer-14m text-text-inverse"
         >
           <PenLine size={16} />
           문의 작성하기
@@ -141,7 +141,7 @@ function InquiryCard({ inquiry }: { inquiry: OneToOneInquiryListItem }) {
           ) : detail ? (
             <>
               <div className="flex flex-col gap-100">
-                <span className="font-designer-12b text-primary-500">
+                <span className="font-designer-12b text-text-brand">
                   문의 내용
                 </span>
                 <p className="font-designer-14r text-text-default">

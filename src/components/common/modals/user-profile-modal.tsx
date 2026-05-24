@@ -87,7 +87,7 @@ function UserProfileBody({
                   {nickname}
                 </span>
                 {isBuilder && (
-                  <span className="font-designer-12b bg-brand-primary-500 inline-flex h-250 w-250 shrink-0 items-center justify-center rounded-full text-white">
+                  <span className="font-designer-12b bg-fill-brand-default-default inline-flex h-250 w-250 shrink-0 items-center justify-center rounded-full text-white">
                     B
                   </span>
                 )}
@@ -104,7 +104,7 @@ function UserProfileBody({
         <button
           type="button"
           disabled
-          className="bg-brand-primary-500 font-designer-16b h-775 w-full cursor-not-allowed rounded-100 text-white opacity-60"
+          className="bg-fill-brand-default-default font-designer-16b h-775 w-full cursor-not-allowed rounded-100 text-white opacity-60"
         >
           팔로우
         </button>

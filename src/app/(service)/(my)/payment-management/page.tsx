@@ -117,7 +117,7 @@ export default function PaymentManagement() {
       <div className="border-border-subtle flex border-b">
         <button
           type="button"
-          className="font-designer-14m text-text-default border-primary-500 border-b-2 px-200 pb-200"
+          className="font-designer-14m text-text-default border-border-brand border-b-2 px-200 pb-200"
         >
           스터디 결제
         </button>
