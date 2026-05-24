@@ -35,7 +35,7 @@ export default function WithdrawalConfirmModal({
                 </span>
                 <span className="font-designer-14r text-text-subtle">
                   탈퇴하기 클릭 시,{' '}
-                  <span className="font-bold text-primary-500">
+                  <span className="font-bold text-text-brand">
                     ZERO-ONE 서비스에서 탈퇴 처리
                   </span>{' '}
                   됩니다.

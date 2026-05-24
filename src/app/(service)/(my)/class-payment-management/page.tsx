@@ -110,7 +110,7 @@ export default function ClassPaymentManagementPage() {
         </button>
         <button
           type="button"
-          className="font-designer-14m text-text-default border-primary-500 border-b-2 px-200 pb-200"
+          className="font-designer-14m text-text-default border-border-brand border-b-2 px-200 pb-200"
         >
           클래스 결제
         </button>
@@ -236,7 +236,7 @@ function PaymentCard({
   return (
     <div className="border-border-subtle rounded-200 flex gap-300 border p-300">
       {/* 썸네일 */}
-      <div className="h-1000 w-1000 flex-shrink-0 rounded-150 bg-gradient-to-br from-primary-500 to-rose-300" />
+      <div className="h-1000 w-1000 flex-shrink-0 rounded-150 bg-gradient-to-br from-rose-500 to-rose-300" />
 
       {/* 내용 */}
       <div className="flex flex-1 flex-col gap-100">

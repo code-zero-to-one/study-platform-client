@@ -216,7 +216,7 @@ export default function MyInquiryWritePage() {
                 type="checkbox"
                 checked={notifyEmail}
                 onChange={(e) => setNotifyEmail(e.target.checked)}
-                className="h-400 w-400 rounded-50 accent-primary-500"
+                className="h-400 w-400 rounded-50 accent-rose-500"
               />
               <span className="font-designer-14r text-text-default">
                 이메일 알림
@@ -227,7 +227,7 @@ export default function MyInquiryWritePage() {
                 type="checkbox"
                 checked={notifyKakao}
                 onChange={(e) => setNotifyKakao(e.target.checked)}
-                className="h-400 w-400 rounded-50 accent-primary-500"
+                className="h-400 w-400 rounded-50 accent-rose-500"
               />
               <span className="font-designer-14r text-text-default">
                 카카오톡 알림
