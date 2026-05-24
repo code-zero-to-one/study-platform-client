@@ -662,6 +662,31 @@ export interface BuilderFeedStatsResponse {
   totalCommentCount: number;
 }
 
+// ─── My Builder Feed Management (v6) ─────────────────────────────────────────
+
+export interface MyBuilderFeedManagementItemResponse {
+  feedId: number;
+  courseId: number;
+  courseTitle: string;
+  lessonId: number | null;
+  lessonTitle: string | null;
+  feedContent: string;
+  thumbnailUrl: string | null;
+  likeCount: number;
+  commentCount: number;
+  status: 'PUBLISHED' | 'DRAFT';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MyBuilderFeedManagementResponse {
+  myBuilderFeeds: MyBuilderFeedManagementItemResponse[];
+  filterOptions: {
+    availableCourses: { courseId: number; courseTitle: string }[];
+    availableLessons: { lessonId: number; lessonTitle: string }[];
+  };
+}
+
 // ─── Lesson Q&A Sidebar ───────────────────────────────────────────────────────
 
 export interface LessonQnaSidebarItem {
