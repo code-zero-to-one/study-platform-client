@@ -317,12 +317,18 @@ export function LessonReviewForm({
             ))}
           </div>
         </div>
-        <textarea
-          value={feedbackText}
-          onChange={(e) => setFeedbackText(e.target.value)}
-          placeholder="어떠한 피드백도 좋아요! 간략히 적어주세요! (선택사항)"
-          className="h-1625 w-full resize-none rounded-200 border border-gray-300 bg-background-default px-300 py-250 font-designer-16m text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand"
-        />
+        <div className="flex flex-col gap-75">
+          <textarea
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+            maxLength={1000}
+            placeholder="어떠한 피드백도 좋아요! 간략히 적어주세요! (선택사항)"
+            className="h-1625 w-full resize-none rounded-200 border border-gray-300 bg-background-default px-300 py-250 font-designer-16m text-gray-800 outline-none placeholder:text-gray-400 focus:border-border-brand"
+          />
+          <p className="text-right font-designer-12r text-gray-400">
+            {feedbackText.length}/1000
+          </p>
+        </div>
       </div>
 
       {/* Submit */}
