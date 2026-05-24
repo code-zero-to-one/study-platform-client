@@ -58,7 +58,6 @@ import type {
   MyCoursePaymentListItemResponse,
   MyBuilderFeedsResponse,
   MyBuilderFeedManagementResponse,
-  MyDraftBuilderFeedItemResponse,
   MyCourseFreeEnrollmentResponse,
   OpenAlertSubscriptionRequest,
   OpenAlertSubscriptionResponse,
@@ -966,24 +965,6 @@ export const useGetMyBuilderFeeds = () => {
       }>('members/me/builder-feeds');
       return data.content;
     },
-  });
-};
-
-// TODO: backend endpoint not yet available
-// Future endpoint: GET /api/v*/members/me/builder-feeds/draft
-export const useGetMyDraftBuilderFeeds = () => {
-  return useQuery({
-    queryKey: ['myDraftBuilderFeeds'],
-    queryFn: async (): Promise<{
-      feeds: MyDraftBuilderFeedItemResponse[];
-      totalCount: number;
-    }> => {
-      // TODO: replace with real API call when backend is ready
-      // const { data } = await axiosInstanceV5.get('members/me/builder-feeds/draft');
-      // return data.content;
-      return { feeds: [], totalCount: 0 };
-    },
-    enabled: false,
   });
 };
 
