@@ -209,15 +209,16 @@ export default function FeedWritePage() {
         showToast('내용을 입력해주세요.', 'error');
         return;
       }
-      const onPublishSuccess = () => {
+      const navigateToPublished = (feedId: number) => {
         localStorage.removeItem(`course-feed-draft-${slug}`);
         showToast('피드가 등록되었어요!');
-        router.push(`/class/${slug}/home?tab=feed`);
+        router.push(`/class/${slug}/feed/${feedId}`);
       };
       if (draftFeedIdRef.current) {
+        const feedId = draftFeedIdRef.current;
         updateFeed.mutate(
           {
-            feedId: draftFeedIdRef.current,
+            feedId,
             request: {
               content: text,
               imageKeys: images.map((img) => img.key),
@@ -225,7 +226,7 @@ export default function FeedWritePage() {
             },
           },
           {
-            onSuccess: onPublishSuccess,
+            onSuccess: () => navigateToPublished(feedId),
             onError: () => showToast('등록에 실패했어요.', 'error'),
           },
         );
@@ -240,7 +241,7 @@ export default function FeedWritePage() {
             },
           },
           {
-            onSuccess: onPublishSuccess,
+            onSuccess: (data) => navigateToPublished(data.feedId),
             onError: () => showToast('등록에 실패했어요.', 'error'),
           },
         );
