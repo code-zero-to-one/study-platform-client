@@ -590,6 +590,7 @@ export interface BuilderFeedCreateRequest {
   lessonId: number;
   content: string;
   imageKeys?: string[];
+  status?: 'DRAFT' | 'PUBLISHED';
 }
 
 export interface BuilderFeedCommentCreateRequest {
@@ -718,22 +719,12 @@ export interface GiftEmailResponse {
   email?: string;
 }
 
-// ─── My Draft Builder Feeds ───────────────────────────────────────────────────
-
-export interface MyDraftBuilderFeedItemResponse {
-  feedId: number;
-  courseId: number;
-  lessonId: number;
-  content: string;
-  thumbnailUrl: string | null;
-  createdAt: string;
-}
-
 // ─── Builder Feed Mutations ───────────────────────────────────────────────────
 
 export interface BuilderFeedUpdateRequest {
   content: string;
   imageKeys?: string[];
+  status?: 'DRAFT' | 'PUBLISHED';
 }
 
 export interface GiftEmailCreateRequest {
