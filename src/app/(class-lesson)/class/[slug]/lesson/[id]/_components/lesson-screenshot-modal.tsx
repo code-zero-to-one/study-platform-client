@@ -3,6 +3,7 @@
 import { ImagePlus, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
+import { normalizeImageFileForUpload } from '@/components/common/ui/editor/image-utils';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import { useToastStore } from '@/stores/use-toast-store';
 
@@ -32,8 +33,9 @@ export function LessonScreenshotModal({ open, onClose, onConfirm }: Props) {
     }
     setUploading(true);
     try {
-      const url = await uploadCommunityMarkdownImage(file);
-      const preview = URL.createObjectURL(file);
+      const normalizedFile = await normalizeImageFileForUpload(file);
+      const url = await uploadCommunityMarkdownImage(normalizedFile);
+      const preview = URL.createObjectURL(normalizedFile);
       setImageUrl(url);
       setPreviewUrl(preview);
     } catch {
