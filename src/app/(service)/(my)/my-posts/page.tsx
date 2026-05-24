@@ -17,13 +17,9 @@ import {
   useDeleteBuilderFeed,
   useGetMyBuilderFeedManagement,
   useGetMyBuilderFeedStats,
-  useGetMyDraftBuilderFeeds,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import type {
-  MyBuilderFeedManagementItemResponse,
-  MyDraftBuilderFeedItemResponse,
-} from '@/types/api/course.types';
+import type { MyBuilderFeedManagementItemResponse } from '@/types/api/course.types';
 
 type Tab = 'feed' | 'question';
 
@@ -52,8 +48,8 @@ export default function MyPostsPage() {
   };
 
   const { data: feedStats } = useGetMyBuilderFeedStats();
-  const { data: draftData, isLoading: draftLoading } =
-    useGetMyDraftBuilderFeeds();
+  const { data: draftRawData, isLoading: draftLoading } =
+    useGetMyBuilderFeedManagement({ status: 'DRAFT' });
 
   // Base query: provides course dropdown options (always no filter)
   const { data: baseData, isLoading: baseLoading } =
@@ -72,7 +68,7 @@ export default function MyPostsPage() {
   const feedsLoading = isFiltering ? filteredLoading : baseLoading;
 
   const feeds = displayData?.myBuilderFeeds ?? [];
-  const draftFeeds = draftData?.feeds ?? [];
+  const draftFeeds = draftRawData?.myBuilderFeeds ?? [];
 
   const availableCourses = baseData?.filterOptions.availableCourses ?? [];
   const availableLessons =
@@ -427,7 +423,7 @@ function FeedCard({ feed }: { feed: MyBuilderFeedManagementItemResponse }) {
 
         <div className="flex flex-col gap-150 p-200">
           <p className="font-designer-14r text-text-default line-clamp-2">
-            {feed.feedContent}
+            {feed.feedContent.replace(/<[^>]*>/g, '')}
           </p>
           <div className="flex items-center gap-200">
             <span className="font-designer-12r text-text-subtle flex items-center gap-50">
@@ -448,12 +444,22 @@ function FeedCard({ feed }: { feed: MyBuilderFeedManagementItemResponse }) {
   );
 }
 
-function DraftFeedCard({ feed }: { feed: MyDraftBuilderFeedItemResponse }) {
+function DraftFeedCard({
+  feed,
+}: {
+  feed: MyBuilderFeedManagementItemResponse;
+}) {
   const [imgError, setImgError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const showToast = useToastStore((state) => state.showToast);
-  const plainText = feed.content.replace(/<[^>]*>/g, '');
+  const { mutate: deleteFeed, isPending: isDeleting } = useDeleteBuilderFeed();
+  // TODO: courseSlug not in API response — using courseId as slug placeholder
+  const editHref =
+    feed.lessonId !== null
+      ? `/class/${feed.courseId}/lesson/${feed.lessonId}?feedId=${feed.feedId}`
+      : `/class/${feed.courseId}`;
+  const plainText = feed.feedContent.replace(/<[^>]*>/g, '');
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -464,6 +470,16 @@ function DraftFeedCard({ feed }: { feed: MyDraftBuilderFeedItemResponse }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleDelete = () => {
+    deleteFeed(feed.feedId, {
+      onSuccess: () => {
+        setMenuOpen(false);
+        showToast('임시저장 피드가 삭제되었어요.');
+      },
+      onError: () => showToast('삭제에 실패했어요.', 'error'),
+    });
+  };
 
   return (
     <div className="border-border-subtle relative flex flex-col overflow-hidden rounded-200 border">
@@ -479,7 +495,7 @@ function DraftFeedCard({ feed }: { feed: MyDraftBuilderFeedItemResponse }) {
         {menuOpen && (
           <div className="border-border-subtle absolute right-0 top-full mt-50 flex flex-col rounded-100 border bg-white py-100 shadow-sm">
             <Link
-              href={`/class/${feed.courseId}/lesson/${feed.lessonId}?feedId=${feed.feedId}`}
+              href={editHref}
               onClick={() => setMenuOpen(false)}
               className="flex items-center gap-150 px-200 py-100 font-designer-14r text-text-subtle hover:text-text-default"
             >
@@ -488,12 +504,9 @@ function DraftFeedCard({ feed }: { feed: MyDraftBuilderFeedItemResponse }) {
             </Link>
             <button
               type="button"
-              onClick={() => {
-                setMenuOpen(false);
-                // TODO: connect to draft delete API when backend is ready
-                showToast('준비 중입니다.', 'error');
-              }}
-              className="flex items-center gap-150 px-200 py-100 font-designer-14r text-text-subtle hover:text-red-500"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex items-center gap-150 px-200 py-100 font-designer-14r text-text-subtle hover:text-red-500 disabled:opacity-50"
             >
               <Trash2 size={16} />
               삭제
@@ -502,10 +515,7 @@ function DraftFeedCard({ feed }: { feed: MyDraftBuilderFeedItemResponse }) {
         )}
       </div>
 
-      <Link
-        href={`/class/${feed.courseId}/lesson/${feed.lessonId}?feedId=${feed.feedId}`}
-        className="flex flex-col"
-      >
+      <Link href={editHref} className="flex flex-col">
         <div className="relative aspect-[3/2] w-full bg-gray-100">
           {feed.thumbnailUrl && !imgError ? (
             <Image
