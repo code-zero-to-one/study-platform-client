@@ -25,10 +25,12 @@ import type {
   CourseFreeEnrollmentResponse,
   CourseJourneyMapResponse,
   CoursePaymentConfirmResponse,
+  CoursePaymentDetailResponse,
   CoursePaymentPrepareRequest,
   CoursePaymentPrepareResponse,
   CoursePaymentStatus,
   CourseProgressResponse,
+  CourseRefundCreateRequest,
   CourseSummaryResponse,
   CourseTossPaymentConfirmRequest,
   GiftEmailCreateRequest,
@@ -55,6 +57,7 @@ import type {
   LessonRetrospectiveResponse,
   MyCoursePaymentListItemResponse,
   MyBuilderFeedsResponse,
+  MyDraftBuilderFeedItemResponse,
   MyCourseFreeEnrollmentResponse,
   OpenAlertSubscriptionRequest,
   OpenAlertSubscriptionResponse,
@@ -283,6 +286,44 @@ export const useGetMyCoursePayments = (
         content: { content: MyCoursePaymentListItemResponse[] };
       }>('mypage/course-payments', { params });
       return data.content.content;
+    },
+  });
+};
+
+export const useGetMyCoursePaymentDetail = (
+  paymentId: number,
+  options?: { enabled?: boolean },
+): UseQueryResult<CoursePaymentDetailResponse> => {
+  return useQuery({
+    queryKey: ['myCoursePaymentDetail', paymentId],
+    queryFn: async () => {
+      const { data } = await axiosInstanceV5.get<{
+        content: CoursePaymentDetailResponse;
+      }>(`mypage/course-payments/${paymentId}`);
+      return data.content;
+    },
+    enabled: (options?.enabled ?? true) && !!paymentId,
+  });
+};
+
+export const useRequestCourseRefund = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      paymentId,
+      request,
+    }: {
+      paymentId: number;
+      request: CourseRefundCreateRequest;
+    }) => {
+      await axiosInstanceV5.post(
+        `course-payments/${paymentId}/refunds`,
+        request,
+      );
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['myCoursePayments'] });
     },
   });
 };
@@ -918,6 +959,24 @@ export const useGetMyBuilderFeeds = () => {
       }>('members/me/builder-feeds');
       return data.content;
     },
+  });
+};
+
+// TODO: backend endpoint not yet available
+// Future endpoint: GET /api/v*/members/me/builder-feeds/draft
+export const useGetMyDraftBuilderFeeds = () => {
+  return useQuery({
+    queryKey: ['myDraftBuilderFeeds'],
+    queryFn: async (): Promise<{
+      feeds: MyDraftBuilderFeedItemResponse[];
+      totalCount: number;
+    }> => {
+      // TODO: replace with real API call when backend is ready
+      // const { data } = await axiosInstanceV5.get('members/me/builder-feeds/draft');
+      // return data.content;
+      return { feeds: [], totalCount: 0 };
+    },
+    enabled: false,
   });
 };
 
