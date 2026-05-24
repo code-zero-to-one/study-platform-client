@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { ToggleSwitch } from '@/components/common/ui/toggle/switch';
 import {
@@ -39,11 +39,13 @@ export default function MyClassPage() {
   } = useGetNotificationSetting();
   const [alarmModalOpen, setAlarmModalOpen] = useState(false);
   const [disableModalOpen, setDisableModalOpen] = useState(false);
-  const [locallyDisabled, setLocallyDisabled] = useState(
-    () =>
-      typeof window !== 'undefined' &&
+  const [locallyDisabled, setLocallyDisabled] = useState(false);
+
+  useEffect(() => {
+    setLocallyDisabled(
       localStorage.getItem(NOTIFICATION_DISABLE_KEY) === 'true',
-  );
+    );
+  }, []);
   const showToast = useToastStore((s) => s.showToast);
 
   const isEnabled =
@@ -71,10 +73,13 @@ export default function MyClassPage() {
           <h2 className="font-designer-18m text-text-default">알림</h2>
           <ToggleSwitch.Root
             checked={isEnabled}
-            onClick={() =>
-              isEnabled ? setDisableModalOpen(true) : setAlarmModalOpen(true)
-            }
-            onCheckedChange={() => {}}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                setAlarmModalOpen(true);
+              } else {
+                setDisableModalOpen(true);
+              }
+            }}
             size="lg"
             className="bg-border-subtle data-[state=checked]:bg-fill-brand-default-default"
           />

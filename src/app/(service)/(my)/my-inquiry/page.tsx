@@ -36,7 +36,7 @@ function formatDate(dateStr: string) {
 
 export default function MyInquiryPage() {
   const router = useRouter();
-  const { data: inquiries, isLoading } = useGetMyOneToOneInquiries();
+  const { data: inquiries, isLoading, isError } = useGetMyOneToOneInquiries();
 
   return (
     <div className="flex flex-col gap-500">
@@ -48,7 +48,7 @@ export default function MyInquiryPage() {
           className="flex items-center gap-100 rounded-100 bg-fill-brand-default-default px-300 py-150 font-designer-14m text-text-inverse"
         >
           <PenLine size={16} />
-          문의 작성하기
+          문의글 작성하기
         </button>
       </div>
 
@@ -66,7 +66,13 @@ export default function MyInquiryPage() {
       </div>
 
       {/* 문의 목록 */}
-      {isLoading ? (
+      {isError ? (
+        <div className="flex items-center justify-center py-600">
+          <p className="font-designer-14r text-text-subtle">
+            문의 내역을 불러오지 못했습니다.
+          </p>
+        </div>
+      ) : isLoading ? (
         <div className="flex items-center justify-center py-600">
           <p className="font-designer-14r text-text-subtle">불러오는 중...</p>
         </div>
