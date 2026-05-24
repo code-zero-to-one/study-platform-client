@@ -484,6 +484,7 @@ test.describe('안내창 상태 렌더링 @auth', () => {
         viewerStatus: 'LOGIN_ONLY',
         canPurchase: true,
         freeLessonCount: 0,
+        isFreeEnrolled: false,
       }),
       progress: makeProgress(0),
     });
