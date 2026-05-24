@@ -1,8 +1,8 @@
 'use client';
 
-import { ArrowLeft, ImagePlus } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import {
@@ -19,11 +19,8 @@ import {
 export default function MyInquiryWritePage() {
   const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [category, setCategory] = useState<InquiryCategory | ''>('');
   const [content, setContent] = useState('');
-  const [images, setImages] = useState<File[]>([]);
   const [notifyEmail, setNotifyEmail] = useState(false);
   const [notifyKakao, setNotifyKakao] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -37,7 +34,6 @@ export default function MyInquiryWritePage() {
     const hasDraft =
       Boolean(category) ||
       Boolean(content.trim()) ||
-      images.length > 0 ||
       notifyEmail ||
       notifyKakao;
     if (hasDraft) {
@@ -45,12 +41,6 @@ export default function MyInquiryWritePage() {
     } else {
       router.push('/my-inquiry');
     }
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    setImages((prev) => [...prev, ...files].slice(0, 5));
-    e.target.value = '';
   };
 
   const handleDraft = async () => {
@@ -151,58 +141,6 @@ export default function MyInquiryWritePage() {
           <p className="font-designer-12r text-text-subtlest text-right">
             {content.length}/2000
           </p>
-        </div>
-
-        {/* 이미지 첨부 */}
-        <div className="flex flex-col gap-100">
-          <label className="font-designer-14m text-text-default">
-            이미지 첨부{' '}
-            <span className="font-designer-12r text-text-subtle">
-              (최대 5장)
-            </span>
-          </label>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={handleImageChange}
-          />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={images.length >= 5}
-            className="border-border-default rounded-150 flex h-1500 w-full flex-col items-center justify-center gap-100 border border-dashed hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <ImagePlus size={24} className="text-text-subtlest" />
-            <p className="font-designer-14r text-text-subtle">
-              클릭하여 이미지 업로드
-            </p>
-          </button>
-          {images.length > 0 && (
-            <div className="flex flex-wrap gap-150">
-              {images.map((file, index) => (
-                <div
-                  key={index}
-                  className="border-border-subtle rounded-100 flex items-center gap-100 border px-200 py-100"
-                >
-                  <span className="font-designer-12r text-text-subtle max-w-1500 truncate">
-                    {file.name}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setImages((prev) => prev.filter((_, i) => i !== index))
-                    }
-                    className="font-designer-12r text-text-subtlest hover:text-red-500"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* 알림 설정 */}
