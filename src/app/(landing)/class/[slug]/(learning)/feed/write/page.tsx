@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { normalizeImageFileForUpload } from '@/components/common/ui/editor/image-utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import {
@@ -85,9 +86,10 @@ export default function FeedWritePage() {
     }
     setIsUploadingImage(true);
     try {
-      const publicUrl = await uploadCommunityMarkdownImage(file);
+      const normalizedFile = await normalizeImageFileForUpload(file);
+      const publicUrl = await uploadCommunityMarkdownImage(normalizedFile);
       const key = new URL(publicUrl).pathname.slice(1);
-      const previewUrl = URL.createObjectURL(file);
+      const previewUrl = URL.createObjectURL(normalizedFile);
       setImages((prev) => [...prev, { previewUrl, key }]);
     } catch {
       showToast('이미지 업로드에 실패했습니다.', 'error');
@@ -348,7 +350,6 @@ export default function FeedWritePage() {
                   ? '내용을 수정해주세요.'
                   : '코딩을 하며 다양한 순간을 글로 작성해보세요! 이번 레슨에서 배운 것, 새롭게 알게 된 것을 자유롭게 작성해보세요.'
               }
-              uploadImage={uploadCommunityMarkdownImage}
             />
 
             {/* CTAs */}
