@@ -20,6 +20,7 @@ import {
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { MyBuilderFeedManagementItemResponse } from '@/types/api/course.types';
+import { stripHtml } from '@/utils/markdown-content-text';
 
 type Tab = 'feed' | 'question';
 
@@ -423,7 +424,7 @@ function FeedCard({ feed }: { feed: MyBuilderFeedManagementItemResponse }) {
 
         <div className="flex flex-col gap-150 p-200">
           <p className="font-designer-14r text-text-default line-clamp-2">
-            {feed.feedContent.replace(/<[^>]*>/g, '')}
+            {stripHtml(feed.feedContent)}
           </p>
           <div className="flex items-center gap-200">
             <span className="font-designer-12r text-text-subtle flex items-center gap-50">
@@ -459,7 +460,7 @@ function DraftFeedCard({
     feed.lessonId !== null
       ? `/class/${feed.courseId}/lesson/${feed.lessonId}?feedId=${feed.feedId}`
       : `/class/${feed.courseId}`;
-  const plainText = feed.feedContent.replace(/<[^>]*>/g, '');
+  const plainText = stripHtml(feed.feedContent);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

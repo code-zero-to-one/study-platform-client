@@ -265,7 +265,8 @@ export default function QnaWritePage() {
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="flex h-775 flex-1 items-center justify-center rounded-100 border border-rose-400 font-designer-16m text-rose-500"
+              disabled={createQna.isPending}
+              className="flex h-775 flex-1 items-center justify-center rounded-100 border border-rose-400 font-designer-16m text-rose-500 disabled:opacity-50"
             >
               임시저장
             </button>

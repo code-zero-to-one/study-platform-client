@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import { Modal } from '@/components/common/ui/modal';
@@ -40,6 +40,11 @@ export default function ClassRefundRequestModal({
   const [detail, setDetail] = useState('');
 
   const { mutate: requestRefund, isPending } = useRequestCourseRefund();
+  const closedRef = useRef(false);
+
+  useEffect(() => {
+    if (open) closedRef.current = false;
+  }, [open]);
 
   const handleConfirm = () => {
     if (!reason) return;
@@ -52,12 +57,15 @@ export default function ClassRefundRequestModal({
         },
       },
       {
-        onSuccess: () => setStep('complete'),
+        onSuccess: () => {
+          if (!closedRef.current) setStep('complete');
+        },
       },
     );
   };
 
   const handleClose = () => {
+    closedRef.current = true;
     onOpenChange(false);
     setStep('form');
     setReason(undefined);
