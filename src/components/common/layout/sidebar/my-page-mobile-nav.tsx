@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { href: '/my-page', label: '프로필' },
   { href: '/my-class', label: '마이 클래스' },
   { href: '/my-posts', label: '내가 작성한 글', prefixMatch: true },
-  { href: 'http://pf.kakao.com/_VmCYn', label: '1:1 문의' },
+  { href: 'https://pf.kakao.com/_VmCYn', label: '1:1 문의' },
   { href: '/builder-letter', label: '빌더 레터', prefixMatch: true },
   { href: '/class-payment-management', label: '결제 관리' },
 ];

@@ -103,7 +103,7 @@ const NAV_ITEMS: {
     prefixMatch: true,
   },
   {
-    href: 'http://pf.kakao.com/_VmCYn',
+    href: 'https://pf.kakao.com/_VmCYn',
     label: '1:1 문의',
     icon: EditNoteIcon,
   },
