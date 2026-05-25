@@ -15,10 +15,7 @@ import {
   FeedShareIcon,
 } from '@/components/common/ui/icons/course-icons';
 import MarkdownContentCore from '@/components/common/ui/rich-text/markdown-content-core';
-import {
-  ROLE_LABELS,
-  RoleBadge,
-} from '@/components/pages/class/utils/builder-feed-utils';
+import { RoleBadge } from '@/components/pages/class/utils/builder-feed-utils';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
   useCreateFeedComment,
@@ -30,6 +27,7 @@ import {
   useToggleFeedLike,
 } from '@/hooks/queries/course/course-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import { stripHtml } from '@/utils/markdown-content-text';
 
 function isImageUrl(url: string): boolean {
   return /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url);
@@ -691,7 +689,7 @@ export default function FeedDetailPage({
                     </div>
                     <div className="p-200">
                       <p className="line-clamp-2 font-designer-14r text-gray-800">
-                        {f.content}
+                        {stripHtml(f.content)}
                       </p>
                       <div className="mt-100 flex items-center gap-75">
                         <FeedHeartIcon className="h-200 w-200 text-gray-400" />
