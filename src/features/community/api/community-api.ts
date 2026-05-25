@@ -31,7 +31,7 @@ const unwrap = <T>(response: { data: CommunityBaseResponse<T> }) =>
 
 const COMMUNITY_IMAGE_EXTENSION_BY_MIME = {
   'image/gif': 'gif',
-  'image/jpeg': 'jpeg',
+  'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
 } as const;
