@@ -15,3 +15,11 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    networks:
+      - default
+      - backend-shared
+
+networks:
+  backend-shared:
+    name: ${BACKEND_SHARED_NETWORK:-zeroone-net-prod}
+    external: true
