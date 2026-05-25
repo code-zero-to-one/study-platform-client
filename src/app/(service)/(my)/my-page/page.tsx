@@ -23,7 +23,7 @@ function ProfileRow({
 }) {
   return (
     <div className="flex gap-400">
-      <span className="font-designer-14m text-text-subtle w-2125 shrink-0 pt-150">
+      <span className="font-designer-16b text-gray-800 w-2125 shrink-0 pt-150">
         {label}
       </span>
       <div className="flex-1">{children}</div>
@@ -78,7 +78,10 @@ export default function MyPage() {
   const handleSaveIntro = async () => {
     if (!memberId) return;
     try {
-      await updateProfile({ simpleIntroduction: intro, ignoreNull: true });
+      await updateProfile({
+        simpleIntroduction: intro,
+        ignoreNull: true,
+      });
       showToast('자기소개가 저장되었습니다.', 'success');
     } catch {
       showToast('저장에 실패했습니다.', 'error');
@@ -149,7 +152,7 @@ export default function MyPage() {
                   checkingNickname
                 }
                 onClick={() => setNicknameToCheck(nickname)}
-                className="rounded-100 border border-primary-500 px-300 py-150 font-designer-14m text-primary-500 disabled:border-gray-300 disabled:text-gray-400"
+                className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
               >
                 {checkingNickname ? '확인 중...' : '중복 확인'}
               </button>
@@ -161,7 +164,7 @@ export default function MyPage() {
                   !(nicknameAvailable && nicknameToCheck === nickname)
                 }
                 onClick={handleSaveNickname}
-                className="rounded-100 border border-primary-500 px-300 py-150 font-designer-14m text-primary-500 disabled:border-gray-300 disabled:text-gray-400"
+                className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
               >
                 저장
               </button>
@@ -196,7 +199,7 @@ export default function MyPage() {
               type="button"
               disabled={isPending}
               onClick={handleSaveIntro}
-              className="rounded-100 border border-primary-500 px-300 py-150 font-designer-14m text-primary-500 disabled:opacity-50"
+              className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:opacity-50"
             >
               저장
             </button>
@@ -335,37 +338,54 @@ export default function MyPage() {
       <hr className="border-border-subtle" />
 
       {/* Section C: 배너 */}
-      <section className="flex flex-col gap-300">
+      <section className="flex gap-250">
         <a
-          href="https://discord.gg/zeroone"
+          href="https://discord.gg/z66gzHnKp"
           target="_blank"
           rel="noopener noreferrer"
-          className="border-border-subtle rounded-200 flex items-center gap-300 border bg-gray-50 p-300 transition-colors hover:bg-gray-100"
+          className="border-border-subtle rounded-200 flex flex-1 items-center justify-center gap-175 overflow-hidden border bg-gray-50 py-250 transition-colors hover:bg-gray-100"
         >
-          <div className="flex size-1000 shrink-0 items-center justify-center rounded-full bg-indigo-100">
-            <span className="font-designer-16b text-indigo-600">D</span>
+          <div className="relative h-675 w-675 shrink-0 overflow-hidden rounded-150">
+            <Image
+              src="/my-page/discord-icon.png"
+              alt="Discord"
+              fill
+              className="object-cover"
+            />
           </div>
           <div>
-            <p className="font-designer-14b text-text-default">
-              Discord 커뮤니티
+            <p className="font-designer-20sb">
+              <span className="text-text-brand">디스코드에서 함께 공부</span>
+              <span className="text-text-strong">해요</span>
             </p>
-            <p className="font-designer-12r text-text-subtle">
-              ZeroOne Discord 서버 참여하기
+            <p className="font-designer-16r text-text-strong">
+              빌더들과 실시간 소통할 수 있어요!
             </p>
           </div>
         </a>
 
         <a
           href="/builder-feed"
-          className="border-primary-500 rounded-200 flex items-center gap-300 border bg-white p-300 transition-colors hover:bg-gray-50"
+          className="border-border-brand rounded-200 flex flex-1 items-center justify-center gap-175 overflow-hidden border bg-white py-250 transition-colors hover:bg-gray-50"
         >
-          <div className="bg-primary-100 flex size-1000 shrink-0 items-center justify-center rounded-full">
-            <span className="font-designer-16b text-primary-600">B</span>
+          <div className="relative h-675 w-675 shrink-0 overflow-hidden">
+            <div className="absolute inset-[12.5%]">
+              <Image
+                src="/my-page/feed-icon.svg"
+                alt="빌더 피드"
+                fill
+                className="object-contain"
+                unoptimized
+              />
+            </div>
           </div>
           <div>
-            <p className="font-designer-14b text-text-default">빌더 피드</p>
-            <p className="font-designer-12r text-text-subtle">
-              나의 학습 기록 공유하기
+            <p className="font-designer-20sb">
+              <span className="text-text-brand">빌더 피드</span>
+              <span className="text-text-strong"> 확인하러 가기</span>
+            </p>
+            <p className="font-designer-16r text-text-strong">
+              다른 빌더들과 결과물을 공유하며 소통해보세요!
             </p>
           </div>
         </a>

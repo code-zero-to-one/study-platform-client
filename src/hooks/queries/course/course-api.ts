@@ -5,7 +5,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { axiosInstanceV5 } from '@/api/client/axios';
+import { axiosInstanceV5, axiosInstanceV6 } from '@/api/client/axios';
 import { useToastStore } from '@/stores/use-toast-store';
 import type {
   BuilderFeedCommentCreateRequest,
@@ -25,10 +25,12 @@ import type {
   CourseFreeEnrollmentResponse,
   CourseJourneyMapResponse,
   CoursePaymentConfirmResponse,
+  CoursePaymentDetailResponse,
   CoursePaymentPrepareRequest,
   CoursePaymentPrepareResponse,
   CoursePaymentStatus,
   CourseProgressResponse,
+  CourseRefundCreateRequest,
   CourseSummaryResponse,
   CourseTossPaymentConfirmRequest,
   GiftEmailCreateRequest,
@@ -55,6 +57,7 @@ import type {
   LessonRetrospectiveResponse,
   MyCoursePaymentListItemResponse,
   MyBuilderFeedsResponse,
+  MyBuilderFeedManagementResponse,
   MyCourseFreeEnrollmentResponse,
   OpenAlertSubscriptionRequest,
   OpenAlertSubscriptionResponse,
@@ -284,6 +287,44 @@ export const useGetMyCoursePayments = (
         content: { content: MyCoursePaymentListItemResponse[] };
       }>('mypage/course-payments', { params });
       return data.content.content;
+    },
+  });
+};
+
+export const useGetMyCoursePaymentDetail = (
+  paymentId: number,
+  options?: { enabled?: boolean },
+): UseQueryResult<CoursePaymentDetailResponse> => {
+  return useQuery({
+    queryKey: ['myCoursePaymentDetail', paymentId],
+    queryFn: async () => {
+      const { data } = await axiosInstanceV5.get<{
+        content: CoursePaymentDetailResponse;
+      }>(`mypage/course-payments/${paymentId}`);
+      return data.content;
+    },
+    enabled: (options?.enabled ?? true) && !!paymentId,
+  });
+};
+
+export const useRequestCourseRefund = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      paymentId,
+      request,
+    }: {
+      paymentId: number;
+      request: CourseRefundCreateRequest;
+    }) => {
+      await axiosInstanceV5.post(
+        `course-payments/${paymentId}/refunds`,
+        request,
+      );
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['myCoursePayments'] });
     },
   });
 };
@@ -839,6 +880,9 @@ export const useDeleteBuilderFeed = () => {
       await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
       await queryClient.invalidateQueries({ queryKey: ['myBuilderFeeds'] });
       await queryClient.invalidateQueries({ queryKey: ['myBuilderFeedStats'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['myBuilderFeedManagement'],
+      });
     },
   });
 };
@@ -864,6 +908,9 @@ export const useUpdateBuilderFeed = () => {
       });
       await queryClient.invalidateQueries({ queryKey: ['builderFeeds'] });
       await queryClient.invalidateQueries({ queryKey: ['myBuilderFeeds'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['myBuilderFeedManagement'],
+      });
     },
   });
 };
@@ -917,6 +964,34 @@ export const useGetMyBuilderFeeds = () => {
       const { data } = await axiosInstanceV5.get<{
         content: MyBuilderFeedsResponse;
       }>('members/me/builder-feeds');
+      return data.content;
+    },
+  });
+};
+
+export const useGetMyBuilderFeedManagement = (params?: {
+  courseId?: number | null;
+  lessonId?: number | null;
+  status?: string;
+}): UseQueryResult<MyBuilderFeedManagementResponse> => {
+  const { courseId, lessonId, status } = params ?? {};
+  return useQuery({
+    queryKey: [
+      'myBuilderFeedManagement',
+      courseId ?? null,
+      lessonId ?? null,
+      status ?? null,
+    ],
+    queryFn: async () => {
+      const { data } = await axiosInstanceV6.get<{
+        content: MyBuilderFeedManagementResponse;
+      }>('mypage/class/my-builder-feeds', {
+        params: {
+          ...(courseId !== null && courseId !== undefined && { courseId }),
+          ...(lessonId !== null && lessonId !== undefined && { lessonId }),
+          ...(status !== null && status !== undefined && { status }),
+        },
+      });
       return data.content;
     },
   });

@@ -2,14 +2,23 @@
 
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { VirtualAccountInfo } from '@/api/openapi/models';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useGetMyCoursePayments } from '@/hooks/queries/course/course-api';
+import Badge from '@/components/common/ui/badge';
+import {
+  useGetMyCoursePaymentDetail,
+  useGetMyCoursePayments,
+} from '@/hooks/queries/course/course-api';
 import type { MyCoursePaymentListItemResponse } from '@/types/api/course.types';
 
 const ClassCancelPaymentModal = dynamic(
   () => import('@/components/payment/modals/class-cancel-payment-modal'),
+  { ssr: false },
+);
+
+const ClassRefundRequestModal = dynamic(
+  () => import('@/components/payment/modals/class-refund-request-modal'),
   { ssr: false },
 );
 
@@ -23,32 +32,17 @@ type PeriodMonths = 1 | 3 | 6 | 12;
 
 const STATUS_CONFIG: Record<
   MyCoursePaymentListItemResponse['status'],
-  { label: string; className: string }
+  {
+    label: string;
+    color: 'blue' | 'orange' | 'green' | 'red' | 'gray';
+  }
 > = {
-  REQUESTED: {
-    label: '결제 요청',
-    className: 'bg-blue-50 text-blue-600',
-  },
-  PENDING: {
-    label: '결제 중',
-    className: 'bg-blue-50 text-blue-600',
-  },
-  WAITING_FOR_DEPOSIT: {
-    label: '입금 대기',
-    className: 'bg-yellow-50 text-yellow-600',
-  },
-  SUCCESS: {
-    label: '결제 완료',
-    className: 'bg-green-50 text-green-600',
-  },
-  FAILED: {
-    label: '결제 실패',
-    className: 'bg-red-50 text-red-600',
-  },
-  CANCELED: {
-    label: '취소 완료',
-    className: 'bg-gray-100 text-gray-500',
-  },
+  REQUESTED: { label: '결제 요청', color: 'blue' },
+  PENDING: { label: '결제 중', color: 'blue' },
+  WAITING_FOR_DEPOSIT: { label: '입금 대기', color: 'orange' },
+  SUCCESS: { label: '결제 완료', color: 'green' },
+  FAILED: { label: '결제 실패', color: 'red' },
+  CANCELED: { label: '취소 완료', color: 'gray' },
 };
 
 function filterByPeriod(
@@ -86,11 +80,31 @@ export default function ClassPaymentManagementPage() {
     paymentId: number;
     paymentMethod: 'CARD' | 'VIRTUAL_ACCOUNT';
   } | null>(null);
+  const [refundModal, setRefundModal] = useState<{ paymentId: number } | null>(
+    null,
+  );
   const [vaModal, setVaModal] = useState<VirtualAccountInfo | null>(null);
+  const [selectedVaPaymentId, setSelectedVaPaymentId] = useState<number | null>(
+    null,
+  );
 
   const { data: allPayments = [], isLoading } = useGetMyCoursePayments();
   const { data: canceledPayments = [], isLoading: canceledLoading } =
     useGetMyCoursePayments({ status: 'CANCELED' });
+  const { data: vaDetail } = useGetMyCoursePaymentDetail(
+    selectedVaPaymentId ?? 0,
+    { enabled: !!selectedVaPaymentId },
+  );
+
+  useEffect(() => {
+    if (!vaDetail) return;
+    setVaModal({
+      bankName: vaDetail.virtualBankName ?? '-',
+      accountNumber: vaDetail.virtualAccountNumber ?? '-',
+      customerName: vaDetail.virtualAccountHolderName ?? undefined,
+      dueDate: vaDetail.virtualAccountDueDate ?? undefined,
+    });
+  }, [vaDetail]);
 
   const rawList = activeTab === 'refunds' ? canceledPayments : allPayments;
   const filtered = filterByPeriod(rawList, periodMonths);
@@ -110,7 +124,7 @@ export default function ClassPaymentManagementPage() {
         </button>
         <button
           type="button"
-          className="font-designer-14m text-text-default border-primary-500 border-b-2 px-200 pb-200"
+          className="font-designer-14m text-text-default border-border-brand border-b-2 px-200 pb-200"
         >
           클래스 결제
         </button>
@@ -186,15 +200,12 @@ export default function ClassPaymentManagementPage() {
                   paymentMethod: payment.paymentMethod,
                 })
               }
-              onViewVirtualAccount={() => {
-                if (!payment.virtualAccountNumber) return;
-                setVaModal({
-                  bankName: '-',
-                  accountNumber: payment.virtualAccountNumber,
-                  customerName: undefined,
-                  dueDate: payment.virtualAccountDueDate ?? undefined,
-                });
-              }}
+              onRequestRefund={() =>
+                setRefundModal({ paymentId: payment.paymentId })
+              }
+              onViewVirtualAccount={(paymentId) =>
+                setSelectedVaPaymentId(paymentId)
+              }
             />
           ))}
         </div>
@@ -210,11 +221,24 @@ export default function ClassPaymentManagementPage() {
         />
       )}
 
+      {refundModal && (
+        <ClassRefundRequestModal
+          paymentId={refundModal.paymentId}
+          open
+          onOpenChange={(open) => !open && setRefundModal(null)}
+        />
+      )}
+
       {vaModal && (
         <VirtualAccountInfoModal
           virtualAccountInfo={vaModal}
           open
-          onOpenChange={(open) => !open && setVaModal(null)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setVaModal(null);
+              setSelectedVaPaymentId(null);
+            }
+          }}
         />
       )}
     </div>
@@ -224,11 +248,13 @@ export default function ClassPaymentManagementPage() {
 function PaymentCard({
   payment,
   onCancel,
+  onRequestRefund,
   onViewVirtualAccount,
 }: {
   payment: MyCoursePaymentListItemResponse;
   onCancel: () => void;
-  onViewVirtualAccount: () => void;
+  onRequestRefund: () => void;
+  onViewVirtualAccount: (paymentId: number) => void;
 }) {
   const status = STATUS_CONFIG[payment.status];
   const dateStr = formatDate(payment.paidAt ?? payment.createdAt);
@@ -236,19 +262,12 @@ function PaymentCard({
   return (
     <div className="border-border-subtle rounded-200 flex gap-300 border p-300">
       {/* 썸네일 */}
-      <div className="h-1000 w-1000 flex-shrink-0 rounded-150 bg-gradient-to-br from-primary-500 to-rose-300" />
+      <div className="h-1000 w-1000 flex-shrink-0 rounded-150 bg-gradient-to-br from-rose-500 to-rose-300" />
 
       {/* 내용 */}
       <div className="flex flex-1 flex-col gap-100">
         <div className="flex items-center gap-100">
-          <span
-            className={cn(
-              'font-designer-12m rounded-50 px-100 py-50',
-              status.className,
-            )}
-          >
-            {status.label}
-          </span>
+          <Badge color={status.color}>{status.label}</Badge>
           <span className="font-designer-12r text-gray-400">{dateStr}</span>
         </div>
 
@@ -277,21 +296,32 @@ function PaymentCard({
           <button
             type="button"
             className="font-designer-14m text-text-brand hover:text-text-brand-pressed"
-            onClick={onViewVirtualAccount}
+            onClick={() => onViewVirtualAccount(payment.paymentId)}
           >
             입금계좌 확인하기
           </button>
         )}
 
-        {payment.cancellable && (
+        {payment.canRequestRefund && (
           <button
             type="button"
             className="font-designer-14m text-text-subtle hover:text-text-default"
-            onClick={onCancel}
+            onClick={onRequestRefund}
           >
-            취소 요청
+            환불 요청
           </button>
         )}
+
+        {(payment.canCancelPayment ?? payment.cancellable) &&
+          !payment.canRequestRefund && (
+            <button
+              type="button"
+              className="font-designer-14m text-text-subtle hover:text-text-default"
+              onClick={onCancel}
+            >
+              결제취소
+            </button>
+          )}
       </div>
     </div>
   );

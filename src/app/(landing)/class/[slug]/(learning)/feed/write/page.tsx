@@ -19,6 +19,11 @@ import {
 import { useToastStore } from '@/stores/use-toast-store';
 import { extractPlainTextFromHtml } from '@/utils/markdown-content';
 
+const FEED_NOTICE = [
+  '작성한 피드는 언제든지 수정하거나 삭제할 수 있습니다.',
+  '다른 수강생에게 불쾌감을 줄 수 있는 내용은 운영 정책에 따라 삭제될 수 있습니다.',
+];
+
 interface AttachedImage {
   previewUrl: string;
   key: string;
@@ -41,11 +46,11 @@ export default function FeedWritePage() {
   const [selectedLessonId, setSelectedLessonId] = useState<number | null>(null);
   const [lessonOpen, setLessonOpen] = useState(false);
   const [text, setText] = useState('');
-  const [showCancelModal, setShowCancelModal] = useState(false);
   const [images, setImages] = useState<AttachedImage[]>([]);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const draftFeedIdRef = useRef<number | null>(null);
 
   const { data: courseData } = useGetCourseDetail(slug);
   const courseId = courseData?.courseId ?? 0;
@@ -66,6 +71,20 @@ export default function FeedWritePage() {
     );
     setInitialized(true);
   }, [existingFeed, initialized, isEditMode]);
+
+  useEffect(() => {
+    if (isEditMode) return;
+    const draft = localStorage.getItem(`course-feed-draft-${slug}`);
+    if (!draft) return;
+    try {
+      const { content: c, lessonId: l, feedId: f } = JSON.parse(draft);
+      if (c) setText(c);
+      if (l) setSelectedLessonId(l);
+      if (typeof f === 'number') draftFeedIdRef.current = f;
+    } catch {
+      // malformed draft — ignore
+    }
+  }, [slug, isEditMode]);
 
   const allLessons =
     curriculum?.chapters.flatMap((ch) =>
@@ -109,6 +128,57 @@ export default function FeedWritePage() {
     });
   }
 
+  function handleSaveDraft() {
+    if (!selectedLessonId) {
+      showToast('레슨을 선택해주세요.', 'error');
+      return;
+    }
+    if (!extractPlainTextFromHtml(text)) {
+      showToast('내용을 입력해주세요.', 'error');
+      return;
+    }
+    const persistDraft = (feedId: number) => {
+      draftFeedIdRef.current = feedId;
+      localStorage.setItem(
+        `course-feed-draft-${slug}`,
+        JSON.stringify({ content: text, lessonId: selectedLessonId, feedId }),
+      );
+      showToast('임시저장되었어요.');
+    };
+    if (draftFeedIdRef.current) {
+      updateFeed.mutate(
+        {
+          feedId: draftFeedIdRef.current,
+          request: {
+            content: text,
+            imageKeys: images.map((img) => img.key),
+            status: 'DRAFT',
+          },
+        },
+        {
+          onSuccess: () => persistDraft(draftFeedIdRef.current!),
+          onError: () => showToast('임시저장에 실패했어요.', 'error'),
+        },
+      );
+    } else {
+      createFeed.mutate(
+        {
+          courseId,
+          request: {
+            lessonId: selectedLessonId,
+            content: text,
+            imageKeys: images.map((img) => img.key),
+            status: 'DRAFT',
+          },
+        },
+        {
+          onSuccess: (data) => persistDraft(data.feedId),
+          onError: () => showToast('임시저장에 실패했어요.', 'error'),
+        },
+      );
+    }
+  }
+
   function handleSubmit() {
     if (isEditMode) {
       if (!extractPlainTextFromHtml(text)) {
@@ -118,7 +188,11 @@ export default function FeedWritePage() {
       updateFeed.mutate(
         {
           feedId: editFeedId,
-          request: { content: text, imageKeys: images.map((i) => i.key) },
+          request: {
+            content: text,
+            imageKeys: images.map((i) => i.key),
+            status: 'PUBLISHED',
+          },
         },
         {
           onSuccess: () => {
@@ -137,23 +211,43 @@ export default function FeedWritePage() {
         showToast('내용을 입력해주세요.', 'error');
         return;
       }
-      createFeed.mutate(
-        {
-          courseId,
-          request: {
-            lessonId: selectedLessonId,
-            content: text,
-            imageKeys: images.map((img) => img.key),
+      const navigateToPublished = (feedId: number) => {
+        localStorage.removeItem(`course-feed-draft-${slug}`);
+        showToast('피드가 등록되었어요!');
+        router.push(`/class/${slug}/feed/${feedId}`);
+      };
+      if (draftFeedIdRef.current) {
+        const feedId = draftFeedIdRef.current;
+        updateFeed.mutate(
+          {
+            feedId,
+            request: {
+              content: text,
+              imageKeys: images.map((img) => img.key),
+              status: 'PUBLISHED',
+            },
           },
-        },
-        {
-          onSuccess: () => {
-            showToast('피드가 등록되었어요!');
-            router.push(`/class/${slug}/home?tab=feed`);
+          {
+            onSuccess: () => navigateToPublished(feedId),
+            onError: () => showToast('등록에 실패했어요.', 'error'),
           },
-          onError: () => showToast('등록에 실패했어요.', 'error'),
-        },
-      );
+        );
+      } else {
+        createFeed.mutate(
+          {
+            courseId,
+            request: {
+              lessonId: selectedLessonId,
+              content: text,
+              imageKeys: images.map((img) => img.key),
+            },
+          },
+          {
+            onSuccess: (data) => navigateToPublished(data.feedId),
+            onError: () => showToast('등록에 실패했어요.', 'error'),
+          },
+        );
+      }
     }
   }
 
@@ -164,41 +258,10 @@ export default function FeedWritePage() {
   const submitLabel = isEditMode ? '수정하기' : '등록하기';
   const submitPending = isEditMode
     ? updateFeed.isPending
-    : createFeed.isPending;
+    : createFeed.isPending || updateFeed.isPending;
 
   return (
     <>
-      {/* Cancel confirmation modal — create mode only */}
-      {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="flex w-5000 flex-col items-center gap-300 rounded-200 bg-background-default p-500">
-            <div className="text-center">
-              <p className="font-designer-20b text-gray-800">
-                피드 등록을 취소하시겠습니까?
-              </p>
-              <p className="mt-150 font-designer-16r text-gray-500">
-                작성된 내용은 저장되지 않습니다.
-              </p>
-            </div>
-            <div className="flex w-full gap-200">
-              <button
-                type="button"
-                onClick={() => setShowCancelModal(false)}
-                className="flex h-700 flex-1 items-center justify-center rounded-100 border border-border-default font-designer-16m text-gray-800"
-              >
-                계속 작성
-              </button>
-              <Link
-                href={`/class/${slug}/home?tab=feed`}
-                className="flex h-700 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-16m text-text-inverse"
-              >
-                확인
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="w-full pb-800">
         <div className="mx-auto max-w-page px-600 pt-500">
           <Link
@@ -292,7 +355,7 @@ export default function FeedWritePage() {
                 {images.map((img, i) => (
                   <div
                     key={img.key}
-                    className="relative h-1625 w-1625 shrink-0"
+                    className="relative h-1500 w-1500 shrink-0"
                   >
                     <Image
                       src={img.previewUrl}
@@ -317,7 +380,7 @@ export default function FeedWritePage() {
                     disabled={isUploadingImage}
                     onClick={() => fileInputRef.current?.click()}
                     className={cn(
-                      'flex h-1625 w-1625 shrink-0 flex-col items-center justify-center gap-75 rounded-150 border border-border-default bg-gray-200',
+                      'flex h-1500 w-1500 shrink-0 flex-col items-center justify-center gap-75 rounded-150 border border-border-default bg-gray-200',
                       isUploadingImage
                         ? 'cursor-not-allowed opacity-50'
                         : 'hover:border-rose-400',
@@ -352,6 +415,16 @@ export default function FeedWritePage() {
               }
             />
 
+            {/* Notice */}
+            <div className="rounded-200 border border-gray-200 p-200">
+              <p className="mb-100 font-designer-16m text-gray-400">유의사항</p>
+              <ul className="list-disc space-y-75 pl-300 font-designer-13r text-gray-400">
+                {FEED_NOTICE.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
             {/* CTAs */}
             <div className="flex gap-200">
               {isEditMode ? (
@@ -360,15 +433,16 @@ export default function FeedWritePage() {
                   onClick={() =>
                     router.push(`/class/${slug}/feed/${editFeedId}`)
                   }
-                  className="flex h-700 flex-1 items-center justify-center rounded-100 border border-border-default font-designer-16m text-gray-800"
+                  className="flex h-775 flex-1 items-center justify-center rounded-100 border border-border-default font-designer-16m text-gray-800"
                 >
                   취소
                 </button>
               ) : (
                 <button
                   type="button"
-                  onClick={() => setShowCancelModal(true)}
-                  className="flex h-700 flex-1 items-center justify-center rounded-100 border border-border-default font-designer-16m text-gray-800"
+                  onClick={handleSaveDraft}
+                  disabled={createFeed.isPending || updateFeed.isPending}
+                  className="flex h-775 flex-1 items-center justify-center rounded-100 border border-rose-400 font-designer-16m text-rose-500 disabled:opacity-50"
                 >
                   임시저장
                 </button>
@@ -377,7 +451,7 @@ export default function FeedWritePage() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitPending}
-                className="flex h-700 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-16m text-text-inverse disabled:bg-gray-300"
+                className="flex h-775 flex-1 items-center justify-center rounded-100 bg-background-brand-default font-designer-16m text-text-inverse disabled:bg-gray-300"
               >
                 {submitLabel}
               </button>

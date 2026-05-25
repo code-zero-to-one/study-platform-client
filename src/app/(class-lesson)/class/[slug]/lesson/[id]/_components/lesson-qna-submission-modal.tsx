@@ -286,11 +286,11 @@ export function LessonQnaSubmissionModal({
         </div>
 
         {/* Footer */}
-        <div className="flex shrink-0 items-center justify-center gap-200 px-750 py-300">
+        <div className="flex shrink-0 items-center gap-200 px-750 py-300">
           <button
             type="button"
             onClick={handleDraftSave}
-            className="w-full rounded-100 border border-rose-400 px-400 py-200 font-designer-18b text-rose-500 hover:opacity-80"
+            className="flex h-700 flex-1 items-center justify-center rounded-100 border border-rose-400 font-designer-18b text-rose-500 hover:opacity-80"
           >
             임시저장
           </button>
@@ -299,7 +299,7 @@ export function LessonQnaSubmissionModal({
             onClick={handleSubmit}
             disabled={createQna.isPending}
             className={cn(
-              'w-full rounded-100 px-400 py-200 font-designer-18b text-text-inverse transition-opacity',
+              'flex h-700 flex-1 items-center justify-center rounded-100 font-designer-18b text-text-inverse transition-opacity',
               createQna.isPending
                 ? 'cursor-not-allowed bg-gray-300'
                 : 'bg-rose-500 hover:opacity-90',

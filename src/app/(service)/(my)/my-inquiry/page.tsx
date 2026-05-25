@@ -4,26 +4,26 @@ import { ChevronDown, ChevronUp, PenLine } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import {
+  useGetMyOneToOneInquiries,
+  useGetMyOneToOneInquiryDetail,
+  type OneToOneInquiryListItem,
+} from '@/hooks/queries/my-inquiry/inquiry-api';
 
-// TODO: 1:1 문의 API not yet available — wire GET /api/v1/inquiries when backend adds it
-type InquiryStatus = 'WAITING' | 'ANSWERED';
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  ACCEPTED: {
+    label: '답변 대기',
+    className: 'bg-gray-100 text-text-subtle',
+  },
+  ANSWER_COMPLETED: {
+    label: '답변 완료',
+    className: 'bg-rose-50 text-rose-500 border border-rose-200',
+  },
+};
 
-interface InquiryItem {
-  id: number;
-  title: string;
-  status: InquiryStatus;
-  createdAt: string;
-  content: string;
-  answer?: string;
-  answeredAt?: string;
-}
-
-const STATUS_CONFIG: Record<
-  InquiryStatus,
-  { label: string; className: string }
-> = {
-  WAITING: { label: '답변 대기', className: 'bg-yellow-50 text-yellow-600' },
-  ANSWERED: { label: '답변 완료', className: 'bg-green-50 text-green-600' },
+const DEFAULT_STATUS = {
+  label: '처리 중',
+  className: 'bg-gray-100 text-text-subtle',
 };
 
 function formatDate(dateStr: string) {
@@ -36,10 +36,7 @@ function formatDate(dateStr: string) {
 
 export default function MyInquiryPage() {
   const router = useRouter();
-
-  // TODO: replace with useQuery when API is available
-  const inquiries: InquiryItem[] = [];
-  const isLoading = false;
+  const { data: inquiries, isLoading, isError } = useGetMyOneToOneInquiries();
 
   return (
     <div className="flex flex-col gap-500">
@@ -48,10 +45,10 @@ export default function MyInquiryPage() {
         <button
           type="button"
           onClick={() => router.push('/my-inquiry/write')}
-          className="flex items-center gap-100 rounded-100 bg-primary-500 px-300 py-150 font-designer-14m text-white"
+          className="flex items-center gap-100 rounded-100 bg-fill-brand-default-default px-300 py-150 font-designer-14m text-text-inverse"
         >
           <PenLine size={16} />
-          문의 작성하기
+          문의글 작성하기
         </button>
       </div>
 
@@ -69,11 +66,17 @@ export default function MyInquiryPage() {
       </div>
 
       {/* 문의 목록 */}
-      {isLoading ? (
+      {isError ? (
+        <div className="flex items-center justify-center py-600">
+          <p className="font-designer-14r text-text-subtle">
+            문의 내역을 불러오지 못했습니다.
+          </p>
+        </div>
+      ) : isLoading ? (
         <div className="flex items-center justify-center py-600">
           <p className="font-designer-14r text-text-subtle">불러오는 중...</p>
         </div>
-      ) : inquiries.length === 0 ? (
+      ) : !inquiries || inquiries.length === 0 ? (
         <div className="flex flex-col items-center gap-200 py-600">
           <p className="font-designer-16b text-text-default">
             아직 작성한 문의가 없어요
@@ -85,7 +88,7 @@ export default function MyInquiryPage() {
       ) : (
         <div className="flex flex-col gap-200">
           {inquiries.map((inquiry) => (
-            <InquiryCard key={inquiry.id} inquiry={inquiry} />
+            <InquiryCard key={inquiry.oneToOneInquiryId} inquiry={inquiry} />
           ))}
         </div>
       )}
@@ -93,9 +96,12 @@ export default function MyInquiryPage() {
   );
 }
 
-function InquiryCard({ inquiry }: { inquiry: InquiryItem }) {
+function InquiryCard({ inquiry }: { inquiry: OneToOneInquiryListItem }) {
   const [expanded, setExpanded] = useState(false);
-  const status = STATUS_CONFIG[inquiry.status];
+  const { data: detail, isLoading: detailLoading } =
+    useGetMyOneToOneInquiryDetail(expanded ? inquiry.oneToOneInquiryId : null);
+
+  const status = STATUS_CONFIG[inquiry.inquiryStatus] ?? DEFAULT_STATUS;
 
   return (
     <div className="border-border-subtle overflow-hidden rounded-200 border">
@@ -103,11 +109,13 @@ function InquiryCard({ inquiry }: { inquiry: InquiryItem }) {
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
         aria-expanded={expanded}
-        aria-controls={`inquiry-panel-${inquiry.id}`}
+        aria-controls={`inquiry-panel-${inquiry.oneToOneInquiryId}`}
         className="flex w-full items-start justify-between gap-200 p-300 text-left"
       >
         <div className="flex flex-col gap-100">
-          <p className="font-designer-14b text-text-default">{inquiry.title}</p>
+          <p className="font-designer-14b text-text-default line-clamp-2">
+            {inquiry.inquiryPreviewText}
+          </p>
           <div className="flex items-center gap-200">
             <span
               className={cn(
@@ -131,31 +139,44 @@ function InquiryCard({ inquiry }: { inquiry: InquiryItem }) {
 
       {expanded && (
         <div
-          id={`inquiry-panel-${inquiry.id}`}
+          id={`inquiry-panel-${inquiry.oneToOneInquiryId}`}
           className="border-border-subtle flex flex-col gap-300 border-t p-300"
         >
-          <div className="flex flex-col gap-100">
-            <span className="font-designer-12b text-primary-500">
-              문의 내용
-            </span>
-            <p className="font-designer-14r text-text-default">
-              {inquiry.content}
-            </p>
-          </div>
-
-          {inquiry.answer && (
-            <div className="flex flex-col gap-100">
-              <span className="font-designer-12b text-rose-500">답변 내용</span>
-              <p className="font-designer-14r text-text-default">
-                {inquiry.answer}
-              </p>
-              {inquiry.answeredAt && (
-                <p className="font-designer-12r text-text-subtlest">
-                  {formatDate(inquiry.answeredAt)}
+          {detailLoading ? (
+            <p className="font-designer-14r text-text-subtle">불러오는 중...</p>
+          ) : detail ? (
+            <>
+              <div className="flex flex-col gap-100">
+                <span className="font-designer-12b text-text-brand">
+                  문의 내용
+                </span>
+                <p className="font-designer-14r text-text-default">
+                  {detail.inquiryContent}
                 </p>
+              </div>
+
+              {detail.replies.length > 0 && (
+                <div className="flex flex-col gap-200">
+                  {detail.replies.map((reply) => (
+                    <div
+                      key={reply.oneToOneInquiryReplyId}
+                      className="flex flex-col gap-100"
+                    >
+                      <span className="font-designer-12b text-rose-500">
+                        답변 내용
+                      </span>
+                      <p className="font-designer-14r text-text-default">
+                        {reply.replyContent}
+                      </p>
+                      <p className="font-designer-12r text-text-subtlest">
+                        {formatDate(reply.createdAt)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               )}
-            </div>
-          )}
+            </>
+          ) : null}
         </div>
       )}
     </div>
