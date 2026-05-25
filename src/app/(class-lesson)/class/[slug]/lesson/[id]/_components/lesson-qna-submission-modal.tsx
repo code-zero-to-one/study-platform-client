@@ -4,6 +4,7 @@ import { ImagePlus, Info, X } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { normalizeImageFileForUpload } from '@/components/common/ui/editor/image-utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { uploadCommunityMarkdownImage } from '@/features/community/model/community-markdown-image-upload';
 import { useCreateLessonQna } from '@/hooks/queries/course/course-api';
@@ -89,9 +90,10 @@ export function LessonQnaSubmissionModal({
     }
     setIsUploadingImage(true);
     try {
-      const publicUrl = await uploadCommunityMarkdownImage(file);
+      const normalizedFile = await normalizeImageFileForUpload(file);
+      const publicUrl = await uploadCommunityMarkdownImage(normalizedFile);
       const key = new URL(publicUrl).pathname.slice(1);
-      const previewUrl = URL.createObjectURL(file);
+      const previewUrl = URL.createObjectURL(normalizedFile);
       setImages((prev) => [...prev, { previewUrl, key }]);
     } catch {
       showToast('이미지 업로드에 실패했습니다.', 'error');

@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { use, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { normalizeImageFileForUpload } from '@/components/common/ui/editor/image-utils';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import { RoleBadge } from '@/components/pages/class/utils/builder-feed-utils';
 import { useAuth } from '@/features/auth/model/use-auth';
@@ -34,14 +35,11 @@ import {
 import { useToastStore } from '@/stores/use-toast-store';
 import { AUTH_ROLE_IDS } from '@/types/auth/domain';
 import { analyzeError } from '@/utils/error-handler';
+import { stripHtml } from '@/utils/markdown-content-text';
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
   return `${d.getMonth() + 1}월 ${d.getDate()}일`;
-}
-
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').trim();
 }
 
 function HtmlContent({ html }: { html: string }) {
@@ -268,9 +266,10 @@ export default function QnaDetailPage({
     }
     setIsUploadingAnswerImage(true);
     try {
-      const publicUrl = await uploadCommunityMarkdownImage(file);
+      const normalizedFile = await normalizeImageFileForUpload(file);
+      const publicUrl = await uploadCommunityMarkdownImage(normalizedFile);
       const key = new URL(publicUrl).pathname.slice(1);
-      const previewUrl = URL.createObjectURL(file);
+      const previewUrl = URL.createObjectURL(normalizedFile);
       setAnswerImages((prev) => [...prev, { previewUrl, key }]);
     } catch {
       showToast('이미지 업로드에 실패했습니다.', 'error');
