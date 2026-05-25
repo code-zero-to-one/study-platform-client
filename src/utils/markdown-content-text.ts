@@ -38,3 +38,6 @@ export const getRichContentVisibleText = (content: unknown): string => {
 export const getRichContentVisibleTextLength = (content: unknown): number => {
   return getRichContentVisibleText(content).length;
 };
+
+export const stripHtml = (html: string): string =>
+  getRichContentVisibleText(html);
