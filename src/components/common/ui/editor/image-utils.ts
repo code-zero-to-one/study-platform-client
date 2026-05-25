@@ -37,15 +37,6 @@ export const MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS = [
   'heif',
 ] as const;
 
-const IMAGE_MIME_TO_EXT = {
-  'image/gif': 'gif',
-  'image/heic': 'heic',
-  'image/heif': 'heif',
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-} as const;
-
 const IMAGE_MIME_TO_EXTS = {
   'image/gif': ['gif'],
   'image/heic': ['heic'],
@@ -123,7 +114,9 @@ const normalizeImageMimeType = (
 export const getExtensionFromMime = (mimeType: string): string => {
   const normalizedMimeType = normalizeImageMimeType(mimeType);
   return (
-    (normalizedMimeType ? IMAGE_MIME_TO_EXT[normalizedMimeType] : undefined) ??
+    (normalizedMimeType
+      ? IMAGE_MIME_TO_EXTS[normalizedMimeType][0]
+      : undefined) ??
     mimeType.split('/')[1]?.toLowerCase() ??
     ''
   );
@@ -245,20 +238,17 @@ const convertHeicImageFileToJpeg = async (file: File) => {
 };
 
 export const normalizeImageFileForUpload = async (file: File) => {
-  const detectedMimeType = detectImageMimeTypeFromHeader(
-    new Uint8Array(await file.slice(0, IMAGE_HEADER_BYTE_LENGTH).arrayBuffer()),
+  const headerBytes = new Uint8Array(
+    await file.slice(0, IMAGE_HEADER_BYTE_LENGTH).arrayBuffer(),
   );
+  const detectedMimeType = detectImageMimeTypeFromHeader(headerBytes);
   const reportedMimeType = normalizeImageMimeType(file.type);
-
-  if (isHeicLikeImageMimeType(detectedMimeType)) {
-    return convertHeicImageFileToJpeg(file);
-  }
-
-  if (!detectedMimeType && isHeicLikeImageMimeType(reportedMimeType)) {
-    return convertHeicImageFileToJpeg(file);
-  }
-
   const resolvedMimeType = detectedMimeType ?? reportedMimeType;
+
+  if (isHeicLikeImageMimeType(resolvedMimeType)) {
+    return convertHeicImageFileToJpeg(file);
+  }
+
   if (!resolvedMimeType) {
     return file;
   }
@@ -273,10 +263,7 @@ export const normalizeImageFileForUpload = async (file: File) => {
   return new File(
     [file],
     replaceFileExtension(file.name, getExtensionFromMime(resolvedMimeType)),
-    {
-      type: resolvedMimeType,
-      lastModified: file.lastModified,
-    },
+    { type: resolvedMimeType, lastModified: file.lastModified },
   );
 };
 
@@ -298,8 +285,13 @@ export const getImageFileNormalizationErrorMessage = (
  * toImageInputAccept(['jpg', 'png', 'webp']) // '.jpg,.png,.webp'
  */
 export const toImageInputAccept = (extensions: readonly string[]) => {
-  const mimeTypes = Object.entries(IMAGE_MIME_TO_EXT)
-    .filter(([, ext]) => extensions.includes(ext))
+  const mimeTypes = (
+    Object.entries(IMAGE_MIME_TO_EXTS) as [
+      SupportedImageMimeType,
+      readonly string[],
+    ][]
+  )
+    .filter(([, exts]) => exts.some((ext) => extensions.includes(ext)))
     .map(([mime]) => mime);
 
   const extensionParts = extensions.map((extension) => `.${extension}`);
