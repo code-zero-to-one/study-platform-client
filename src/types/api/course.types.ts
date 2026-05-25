@@ -132,6 +132,33 @@ export interface MyCoursePaymentListItemResponse {
   canceledAt: string | null;
   createdAt: string;
   cancellable: boolean;
+  canRequestRefund?: boolean;
+  canCancelPayment?: boolean;
+}
+
+// ─── Course Payment Detail ────────────────────────────────────────────────────
+
+export interface CoursePaymentDetailResponse {
+  paymentId: number;
+  virtualAccountNumber: string | null;
+  virtualBankName: string | null;
+  virtualAccountHolderName: string | null;
+  virtualAccountDueDate: string | null;
+}
+
+// ─── Course Refund ────────────────────────────────────────────────────────────
+
+export type CourseRefundReasonCode =
+  | 'REPAYMENT_AFTER_METHOD_CHANGE'
+  | 'DUPLICATE_PAYMENT'
+  | 'CHANGE_OF_MIND'
+  | 'UNSATISFIED_CONTENT'
+  | 'TECHNICAL_ISSUE'
+  | 'OTHER';
+
+export interface CourseRefundCreateRequest {
+  reasonCode: CourseRefundReasonCode;
+  detail?: string;
 }
 
 export interface AdminCoursePaymentListItemResponse {
@@ -639,6 +666,7 @@ export interface BuilderFeedCreateRequest {
   lessonId: number;
   content: string;
   imageKeys?: string[];
+  status?: 'DRAFT' | 'PUBLISHED';
 }
 
 export interface BuilderFeedCommentCreateRequest {
@@ -711,6 +739,31 @@ export interface BuilderFeedStatsResponse {
   totalCommentCount: number;
 }
 
+// ─── My Builder Feed Management (v6) ─────────────────────────────────────────
+
+export interface MyBuilderFeedManagementItemResponse {
+  feedId: number;
+  courseId: number;
+  courseTitle: string;
+  lessonId: number | null;
+  lessonTitle: string | null;
+  feedContent: string;
+  thumbnailUrl: string | null;
+  likeCount: number;
+  commentCount: number;
+  status: 'PUBLISHED' | 'DRAFT';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MyBuilderFeedManagementResponse {
+  myBuilderFeeds: MyBuilderFeedManagementItemResponse[];
+  filterOptions: {
+    availableCourses: { courseId: number; courseTitle: string }[];
+    availableLessons: { lessonId: number; lessonTitle: string }[];
+  };
+}
+
 // ─── Lesson Q&A Sidebar ───────────────────────────────────────────────────────
 
 export interface LessonQnaSidebarItem {
@@ -747,6 +800,7 @@ export interface GiftEmailResponse {
 export interface BuilderFeedUpdateRequest {
   content: string;
   imageKeys?: string[];
+  status?: 'DRAFT' | 'PUBLISHED';
 }
 
 export interface GiftEmailCreateRequest {

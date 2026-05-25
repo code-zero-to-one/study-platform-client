@@ -5,7 +5,6 @@ export interface NotificationSettingResponse {
   notifyHour?: number;
   notifyMinute?: number;
   isEnabled?: boolean;
-  saved?: boolean;
 }
 
 export interface NotificationSettingUpdateRequest {

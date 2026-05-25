@@ -94,7 +94,7 @@ const NAV_ITEMS: {
   prefixMatch?: boolean;
   comingSoon?: boolean;
 }[] = [
-  { href: '/my-page', label: '프로필', icon: PersonOutlineIcon },
+  { href: '/my-page', label: '빌더 프로필', icon: PersonOutlineIcon },
   { href: '/my-class', label: '마이 클래스', icon: ClassIcon },
   {
     href: '/my-posts',
@@ -186,7 +186,7 @@ function SidebarItem({
         )}
       >
         <Icon
-          className={cn(isActive ? 'text-primary-500' : 'text-text-subtle')}
+          className={cn(isActive ? 'text-text-brand' : 'text-text-subtle')}
         />
         {children}
       </button>

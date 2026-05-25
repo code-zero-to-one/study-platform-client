@@ -107,9 +107,9 @@ jobs:
       - name: Build Storybook
         run: yarn build-storybook
 
-  # Playwright E2E: 스테이징 환경 대상 실행
-  # E2E_AUTH_JSON secret 설정 시 @auth 태그 포함 전체 스위트 실행
-  # secret 누락/만료 시 비인증 테스트만 실행 (fallback)
+  # Playwright E2E:
+  # - non-@auth 테스트: CI 내 로컬 서버(localhost:3000) 대상 항상 실행 (스테이징 의존 없음)
+  # - @auth 테스트: 스테이징 접속 가능 시에만 실행, 불가 시 경고 후 스킵
   # 갱신 절차: yarn e2e:save-auth → GitHub Secret E2E_AUTH_JSON 업데이트
   e2e:
     runs-on: ubuntu-latest
@@ -170,15 +170,41 @@ jobs:
         if: env.E2E_AUTH_JSON == ''
         run: echo "::warning::E2E_AUTH_JSON not set — skipping @auth tests"
 
-      - name: Run E2E tests (full suite, with auth)
-        if: env.E2E_AUTH_JSON != '' && env.AUTH_EXPIRED != 'true'
-        run: yarn e2e
+      - name: Build Next.js app
+        run: yarn build
         env:
-          E2E_BASE_URL: https://test.zeroone.it.kr
+          NEXT_PUBLIC_API_BASE_URL: https://test-api.zeroone.it.kr
 
-      - name: Run E2E tests (non-auth only)
-        if: env.E2E_AUTH_JSON == '' || env.AUTH_EXPIRED == 'true'
+      - name: Start local server
+        run: |
+          NEXT_PUBLIC_API_BASE_URL=https://test-api.zeroone.it.kr yarn start &
+          for i in $(seq 1 30); do
+            if curl -sf --max-time 5 http://localhost:3000/ > /dev/null 2>&1; then
+              echo "Local server ready"
+              break
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+
+      - name: Run E2E tests (non-auth, local server)
         run: yarn e2e --grep-invert @auth
+        env:
+          E2E_BASE_URL: http://localhost:3000
+
+      - name: Check staging connectivity
+        run: |
+          STATUS=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" https://test.zeroone.it.kr/ 2>/dev/null || true)
+          if [[ "$STATUS" =~ ^[2-4][0-9][0-9]$ ]]; then
+            echo "Staging reachable (HTTP $STATUS)"
+          else
+            echo "::warning::Staging https://test.zeroone.it.kr unreachable — skipping @auth tests"
+            echo "STAGING_DOWN=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Run E2E tests (auth suite, staging)
+        if: env.E2E_AUTH_JSON != '' && env.AUTH_EXPIRED != 'true' && env.STAGING_DOWN != 'true'
+        run: yarn e2e --grep @auth
         env:
           E2E_BASE_URL: https://test.zeroone.it.kr
 
