@@ -110,6 +110,7 @@ jobs:
   # Playwright E2E: 스테이징 환경 대상 실행
   # E2E_AUTH_JSON secret 설정 시 @auth 태그 포함 전체 스위트 실행
   # secret 누락/만료 시 비인증 테스트만 실행 (fallback)
+  # 스테이징 서버 응답 없을 시 E2E 전체 스킵 (STAGING_DOWN=true)
   # 갱신 절차: yarn e2e:save-auth → GitHub Secret E2E_AUTH_JSON 업데이트
   e2e:
     runs-on: ubuntu-latest
@@ -170,14 +171,24 @@ jobs:
         if: env.E2E_AUTH_JSON == ''
         run: echo "::warning::E2E_AUTH_JSON not set — skipping @auth tests"
 
+      - name: Check staging connectivity
+        run: |
+          STATUS=$(curl -s --max-time 10 -o /dev/null -w "%{http_code}" https://test.zeroone.it.kr/ 2>/dev/null || true)
+          if [[ "$STATUS" =~ ^[2-4][0-9][0-9]$ ]]; then
+            echo "Staging reachable (HTTP $STATUS)"
+          else
+            echo "::warning::Staging https://test.zeroone.it.kr unreachable (HTTP status: ${STATUS:-000}) — skipping E2E"
+            echo "STAGING_DOWN=true" >> "$GITHUB_ENV"
+          fi
+
       - name: Run E2E tests (full suite, with auth)
-        if: env.E2E_AUTH_JSON != '' && env.AUTH_EXPIRED != 'true'
+        if: env.E2E_AUTH_JSON != '' && env.AUTH_EXPIRED != 'true' && env.STAGING_DOWN != 'true'
         run: yarn e2e
         env:
           E2E_BASE_URL: https://test.zeroone.it.kr
 
       - name: Run E2E tests (non-auth only)
-        if: env.E2E_AUTH_JSON == '' || env.AUTH_EXPIRED == 'true'
+        if: (env.E2E_AUTH_JSON == '' || env.AUTH_EXPIRED == 'true') && env.STAGING_DOWN != 'true'
         run: yarn e2e --grep-invert @auth
         env:
           E2E_BASE_URL: https://test.zeroone.it.kr
