@@ -184,6 +184,10 @@ jobs:
               break
             fi
             echo "Waiting for server... ($i/30)"
+            if [[ "$i" == "30" ]]; then
+              echo "::error::Local server failed to start after 60s"
+              exit 1
+            fi
             sleep 2
           done
 
