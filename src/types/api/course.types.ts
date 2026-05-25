@@ -354,6 +354,7 @@ export interface LessonDetailResponse {
   videoUrl: string | null;
   learnerCount: number;
   viewCount: number;
+  tags?: string[];
   retrospectivePurpose: LessonRetrospectivePurpose;
   retrospectivePrompt: string;
   artifactSubmissionRequired: boolean;

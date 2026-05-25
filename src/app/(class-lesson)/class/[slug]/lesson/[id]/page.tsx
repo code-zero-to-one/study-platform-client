@@ -200,53 +200,66 @@ export default function LessonPage({
       </div>
 
       <div className="mx-auto w-full max-w-[1236px] px-300">
-        <div className="flex items-start gap-250">
-          {/* LEFT */}
-          <div className="min-w-0 flex-1 flex flex-col h-[calc(100vh-var(--spacing-800))]">
-            {/* Fixed header: back link, title, description, tabs — never scrolls */}
-            <div className="shrink-0 pt-500">
-              <Link
-                href={`/class/${lesson?.courseSlug ?? slug}/home`}
-                className="inline-flex items-center gap-125 rounded-full border border-gray-200 bg-background-default px-200 py-100"
-              >
-                <ArrowLeft className="h-250 w-250 text-gray-800" />
-                <span className="font-designer-14m text-gray-1000">
-                  학습 여정 맵 돌아가기
+        <div className="flex h-[calc(100vh-var(--spacing-800))] flex-col">
+          {/* Header section — full-width, never scrolls */}
+          <div className="w-full shrink-0 pt-500">
+            <Link
+              href={`/class/${lesson?.courseSlug ?? slug}/home`}
+              className="inline-flex items-center gap-125 rounded-full border border-gray-200 bg-background-default px-200 py-100"
+            >
+              <ArrowLeft className="h-250 w-250 text-gray-800" />
+              <span className="font-designer-14m text-gray-1000">
+                학습 여정 맵 돌아가기
+              </span>
+            </Link>
+
+            <div className="mt-300 flex items-center justify-between">
+              <div className="flex items-center gap-200">
+                <span className="rounded-100 bg-rose-200 px-125 py-25 font-designer-14m text-rose-400">
+                  Lesson {String(lessonId).padStart(2, '0')}
                 </span>
-              </Link>
-
-              <div className="mt-300 flex items-center justify-between">
-                <div className="flex items-center gap-200">
-                  <span className="rounded-100 bg-rose-200 px-125 py-25 font-designer-14m text-rose-400">
-                    Lesson {String(lessonId).padStart(2, '0')}
-                  </span>
-                  <h1 className="font-designer-32b text-gray-800">
-                    {lesson?.title ?? 'AI 처음 만나는 날'}
-                  </h1>
-                </div>
-                <p className="font-designer-16m text-gray-500">
-                  {lesson?.estimatedMinutes
-                    ? `약 ${lesson.estimatedMinutes}분 소요`
-                    : ''}
-                </p>
+                <h1 className="font-designer-32b text-gray-800">
+                  {lesson?.title ?? 'AI 처음 만나는 날'}
+                </h1>
               </div>
-
-              {lesson?.description ? (
-                <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-700">
-                  {lesson.description}
-                </p>
-              ) : null}
-
-              <div className="mt-300 bg-gray-100">
-                <LessonTabs value={tab} onChange={handleTabChange} />
-              </div>
+              <p className="font-designer-16m text-gray-500">
+                {lesson?.estimatedMinutes
+                  ? `약 ${lesson.estimatedMinutes}분 소요`
+                  : ''}
+              </p>
             </div>
 
-            {/* Scroll area: content + review form only */}
-            <div ref={leftColRef} className="flex-1 overflow-y-auto">
+            {lesson?.description ? (
+              <p className="mt-150 whitespace-pre-line font-designer-16r text-gray-700">
+                {lesson.description}
+              </p>
+            ) : null}
+
+            {lesson?.tags?.length ? (
+              <div className="mt-150 flex flex-wrap gap-100">
+                {lesson.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="font-designer-14r text-gray-500"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="mt-300 bg-gray-100">
+              <LessonTabs value={tab} onChange={handleTabChange} />
+            </div>
+          </div>
+
+          {/* 2-column: content + sidebar — aligned to the same top edge */}
+          <div className="mt-300 flex flex-1 min-h-0 items-start gap-250">
+            {/* LEFT — scrollable content */}
+            <div ref={leftColRef} className="min-w-0 flex-1 h-full overflow-y-auto">
               <div
                 ref={contentRef}
-                className="mt-300 min-h-[964px] rounded-150 bg-background-default p-500"
+                className="min-h-[964px] rounded-150 bg-background-default p-500"
               >
                 {lesson?.contentMarkdown ? (
                   <MarkdownContentCore content={lesson.contentMarkdown} />
@@ -279,21 +292,21 @@ export default function LessonPage({
 
               <div className="h-1000" />
             </div>
-          </div>
 
-          {/* RIGHT sidebar — stays put while left column scrolls */}
-          <div className="w-4500 shrink-0 pt-500">
-            <div className="flex flex-col gap-250">
-              <LessonQnaCard
-                myQnas={qnaSidebar?.qnas ?? []}
-                builderQnas={qnaSidebar?.builderQnas ?? []}
-                onAskClick={() => setSubmissionModalOpen(true)}
-                onSelectQna={setSelectedQnaId}
-              />
-              <LessonBuilderFeedCard
-                feeds={feedPreview?.feeds ?? []}
-                onSelectFeed={setSelectedFeedId}
-              />
+            {/* RIGHT sidebar — top-aligned with content */}
+            <div className="w-4500 shrink-0">
+              <div className="flex flex-col gap-250">
+                <LessonQnaCard
+                  myQnas={qnaSidebar?.qnas ?? []}
+                  builderQnas={qnaSidebar?.builderQnas ?? []}
+                  onAskClick={() => setSubmissionModalOpen(true)}
+                  onSelectQna={setSelectedQnaId}
+                />
+                <LessonBuilderFeedCard
+                  feeds={feedPreview?.feeds ?? []}
+                  onSelectFeed={setSelectedFeedId}
+                />
+              </div>
             </div>
           </div>
         </div>
