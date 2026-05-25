@@ -1,0 +1,50 @@
+release_id: prod-20260525-1132
+env: prod
+service_version: v2.6.0
+
+summary: "[cherry-pick] 마이페이지 기능 구현 및 디자인 개선"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v2.6.0-538e149
+    commit: 538e149
+    version: v2.6.0
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.1-07cb8f6
+    commit: 07cb8f6
+    version: v1.0.1
+    changed: false
+
+database:
+  changed: false
+  migration_version: N/A
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v2.5.0-51f472e
+    backend: zeroone-backend:v1.0.1-07cb8f6
+  db_rollback_note: "DB unchanged. Use fixed app image rollback targets if needed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-25T11:32:46+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260525-1132-538e149
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: minor
+  bootstrap_mode: ""
