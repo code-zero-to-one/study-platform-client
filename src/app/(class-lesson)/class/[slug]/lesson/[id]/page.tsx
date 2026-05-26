@@ -200,9 +200,9 @@ export default function LessonPage({
       </div>
 
       <div className="mx-auto w-full max-w-[1236px] px-300">
-        <div className="flex items-start gap-250">
+        <div className="flex flex-col md:flex-row md:items-start md:gap-250">
           {/* LEFT */}
-          <div className="min-w-0 flex-1 flex flex-col h-[calc(100vh-var(--spacing-800))]">
+          <div className="min-w-0 flex-1 flex flex-col md:h-[calc(100vh-var(--spacing-800))]">
             {/* Fixed header: back link, title, description, tabs — never scrolls */}
             <div className="shrink-0 pt-500">
               <Link
@@ -281,8 +281,8 @@ export default function LessonPage({
             </div>
           </div>
 
-          {/* RIGHT sidebar — stays put while left column scrolls */}
-          <div className="w-4500 shrink-0 pt-500">
+          {/* RIGHT sidebar — hidden on mobile */}
+          <div className="hidden md:block md:w-4500 md:shrink-0 md:pt-500">
             <div className="flex flex-col gap-250">
               <LessonQnaCard
                 myQnas={qnaSidebar?.qnas ?? []}

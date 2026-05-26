@@ -147,19 +147,19 @@ export function FeedTab() {
         </div>
 
         {/* Controls */}
-        <div className="mb-400 flex items-center justify-between">
+        <div className="mb-400 flex flex-col gap-200 sm:flex-row sm:items-center sm:justify-between">
           {/* Filter chips */}
-          <div className="flex gap-225">
+          <div className="flex gap-150">
             {filterOptions.map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => handleFilterChange(f)}
                 className={cn(
-                  'rounded-full px-325 py-125 font-designer-20b transition-colors',
+                  'shrink-0 whitespace-nowrap rounded-full px-250 py-100 font-designer-14m transition-colors',
                   filter === f
                     ? 'border border-background-brand-default text-background-brand-default'
-                    : 'border border-gray-450 text-gray-450',
+                    : 'border border-gray-450 text-gray-450 active:bg-gray-100',
                 )}
               >
                 {f}
@@ -167,29 +167,29 @@ export function FeedTab() {
             ))}
           </div>
 
-          <div className="flex items-center gap-150">
+          <div className="flex flex-wrap items-center gap-150">
             {/* Sort dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 type="button"
                 onClick={() => {
                   setSortOpen((p) => !p);
                   setFilterOpen(false);
                 }}
-                className="flex items-center gap-75 rounded-full border border-gray-800 px-250 py-125 font-designer-16m text-gray-800"
+                className="flex items-center gap-75 whitespace-nowrap rounded-full border border-gray-800 px-250 py-125 font-designer-16m text-gray-800"
               >
                 {sort}
                 <ChevronDown className="h-250 w-250" />
               </button>
               {sortOpen && (
-                <div className="absolute right-0 top-full z-10 mt-75 flex flex-col rounded-150 border border-border-default bg-background-default p-125 shadow-1">
+                <div className="absolute left-0 top-full z-10 mt-75 flex flex-col rounded-150 border border-border-default bg-background-default p-125 shadow-1">
                   {SORT_OPTIONS.map((o) => (
                     <button
                       key={o}
                       type="button"
                       onClick={() => handleSortChange(o)}
                       className={cn(
-                        'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
+                        'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100 active:bg-gray-100',
                         o === sort && 'font-designer-16b',
                       )}
                     >
@@ -201,25 +201,25 @@ export function FeedTab() {
             </div>
 
             {/* Lesson filter dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 type="button"
                 onClick={() => {
                   setFilterOpen((p) => !p);
                   setSortOpen(false);
                 }}
-                className="flex items-center gap-75 rounded-full border border-gray-800 px-250 py-125 font-designer-16m text-gray-800"
+                className="flex items-center gap-75 whitespace-nowrap rounded-full border border-gray-800 px-250 py-125 font-designer-16m text-gray-800"
               >
                 {lessonLabel}
                 <ChevronDown className="h-250 w-250" />
               </button>
               {filterOpen && (
-                <div className="absolute right-0 top-full z-10 mt-75 flex max-h-4000 min-w-2000 flex-col overflow-y-auto rounded-150 border border-border-default bg-background-default p-125 shadow-1">
+                <div className="absolute left-0 top-full z-10 mt-75 flex max-h-4000 w-max max-w-[90vw] flex-col overflow-y-auto rounded-150 border border-border-default bg-background-default p-125 shadow-1">
                   <button
                     type="button"
                     onClick={() => handleLessonChange(null)}
                     className={cn(
-                      'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
+                      'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100 active:bg-gray-100',
                       lessonId === null && 'font-designer-16b',
                     )}
                   >
@@ -231,7 +231,7 @@ export function FeedTab() {
                       type="button"
                       onClick={() => handleLessonChange(o.lessonId)}
                       className={cn(
-                        'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100',
+                        'rounded-100 px-200 py-100 text-left font-designer-16r text-gray-800 hover:bg-gray-100 active:bg-gray-100',
                         o.lessonId === lessonId && 'font-designer-16b',
                       )}
                     >
@@ -246,7 +246,7 @@ export function FeedTab() {
             {isAuthenticated ? (
               <Link
                 href={`/class/${slug}/feed/write`}
-                className="rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
+                className="ml-auto shrink-0 whitespace-nowrap rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
               >
                 피드 올리기
               </Link>
@@ -255,7 +255,7 @@ export function FeedTab() {
                 openTrigger={
                   <button
                     type="button"
-                    className="rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
+                    className="ml-auto shrink-0 whitespace-nowrap rounded-100 bg-background-brand-default px-250 py-125 font-designer-16m text-text-inverse"
                   >
                     피드 올리기
                   </button>

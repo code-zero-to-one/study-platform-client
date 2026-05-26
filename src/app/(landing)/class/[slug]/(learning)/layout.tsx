@@ -176,7 +176,7 @@ function BannerSlideContent({ tab }: { tab: TabParam }) {
         </div>
       </div>
       <div className="flex flex-col">
-        <p className="whitespace-nowrap text-[22px] font-semibold tracking-[-0.418px] text-gray-800">
+        <p className="text-[18px] sm:text-[22px] font-semibold tracking-[-0.418px] text-gray-800">
           {title}
         </p>
         <p className="font-designer-16r text-gray-800">{subtitle}</p>
@@ -302,7 +302,7 @@ function TabNavigation() {
             key={t.tabParam}
             href={t.href}
             className={cn(
-              'flex h-875 w-6000 flex-col items-center justify-center gap-125',
+              'flex h-875 flex-1 min-w-0 flex-col items-center justify-center gap-125 text-center',
               isActive
                 ? 'font-designer-18b text-text-brand'
                 : 'font-designer-18r text-gray-400',

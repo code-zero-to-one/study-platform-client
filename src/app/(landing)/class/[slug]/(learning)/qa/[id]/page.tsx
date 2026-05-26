@@ -490,7 +490,7 @@ export default function QnaDetailPage({
                   type="button"
                   onClick={() => toggleQReaction('USEFUL')}
                   className={cn(
-                    'flex items-center gap-100 rounded-full border px-250 py-150 font-designer-14m transition-colors',
+                    'flex items-center gap-100 whitespace-nowrap rounded-full border px-250 py-150 font-designer-14m transition-colors',
                     qReactions.has('USEFUL')
                       ? 'border-rose-500 text-rose-500'
                       : 'border-border-default text-gray-500 hover:border-gray-400',
@@ -508,7 +508,7 @@ export default function QnaDetailPage({
                   type="button"
                   onClick={() => toggleQReaction('CURIOUS')}
                   className={cn(
-                    'flex items-center gap-100 rounded-full border px-250 py-150 font-designer-14m transition-colors',
+                    'flex items-center gap-100 whitespace-nowrap rounded-full border px-250 py-150 font-designer-14m transition-colors',
                     qReactions.has('CURIOUS')
                       ? 'border-[#02c76e] text-[#02c76e]'
                       : 'border-border-default text-gray-500 hover:border-gray-400',
@@ -781,7 +781,7 @@ export default function QnaDetailPage({
                               )
                             }
                             className={cn(
-                              'flex items-center gap-100 rounded-full border px-250 py-150 font-designer-13m transition-colors',
+                              'flex items-center gap-100 whitespace-nowrap rounded-full border px-250 py-150 font-designer-13m transition-colors',
                               myAReaction?.has('HELPFUL')
                                 ? 'border-rose-500 text-rose-500'
                                 : 'border-border-default text-gray-500 hover:border-gray-400',
@@ -800,7 +800,7 @@ export default function QnaDetailPage({
                               )
                             }
                             className={cn(
-                              'flex items-center gap-100 rounded-full border px-250 py-150 font-designer-13m transition-colors',
+                              'flex items-center gap-100 whitespace-nowrap rounded-full border px-250 py-150 font-designer-13m transition-colors',
                               myAReaction?.has('NOT_HELPFUL')
                                 ? 'border-gray-800 text-gray-800'
                                 : 'border-border-default text-gray-500 hover:border-gray-400',

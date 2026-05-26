@@ -81,19 +81,19 @@ export function QnaTab() {
   return (
     <div className="mx-auto w-full max-w-page px-600 py-750">
       {/* ── Controls row ── */}
-      <div className="mb-500 flex flex-wrap items-center gap-200">
+      <div className="mb-500 flex flex-col gap-200 sm:flex-row sm:flex-wrap sm:items-center">
         {/* Filter tabs */}
-        <div className="flex items-center gap-225">
+        <div className="flex items-center gap-150 overflow-x-auto pb-50 [&::-webkit-scrollbar]:hidden">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab.value}
               type="button"
               onClick={() => setFilter(tab.value)}
               className={cn(
-                'rounded-full border px-325 py-125 font-designer-20b transition-colors',
+                'shrink-0 whitespace-nowrap rounded-full border px-250 py-100 font-designer-14m transition-colors',
                 filter === tab.value
                   ? 'border-background-brand-default text-background-brand-default'
-                  : 'border-gray-450 text-gray-450',
+                  : 'border-gray-450 text-gray-450 active:bg-gray-100',
               )}
             >
               {tab.label}
@@ -101,13 +101,26 @@ export function QnaTab() {
           ))}
         </div>
 
-        <div className="ml-auto flex items-center gap-200">
+        {/* Search bar — full width on mobile */}
+        <div className="flex items-center gap-100 rounded-full border border-border-subtle px-300 py-125 focus-within:border-gray-400">
+          <Search className="h-200 w-200 shrink-0 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="질문 검색"
+            className="flex-1 min-w-0 bg-transparent font-designer-14r text-gray-800 placeholder:text-gray-400 focus:outline-none"
+          />
+        </div>
+
+        {/* Sort + 질문하기 */}
+        <div className="flex items-center justify-between">
           {/* Sort dropdown */}
-          <div ref={sortRef} className="relative">
+          <div ref={sortRef} className="relative shrink-0">
             <button
               type="button"
               onClick={() => setSortOpen((v) => !v)}
-              className="flex items-center gap-75 rounded-full border border-border-subtle px-300 py-125 font-designer-14m text-gray-600 hover:border-gray-400"
+              className="flex items-center gap-75 whitespace-nowrap rounded-full border border-border-subtle px-300 py-125 font-designer-14m text-gray-600 hover:border-gray-400 active:border-gray-400"
             >
               {currentSortLabel}
               <ChevronDown className="h-200 w-200" />
@@ -123,7 +136,7 @@ export function QnaTab() {
                       setSortOpen(false);
                     }}
                     className={cn(
-                      'w-full px-300 py-200 text-left font-designer-14r hover:bg-gray-100',
+                      'w-full px-300 py-200 text-left font-designer-14r hover:bg-gray-100 active:bg-gray-100',
                       sort === opt.value
                         ? 'font-designer-14m text-rose-500'
                         : 'text-gray-700',
@@ -136,23 +149,11 @@ export function QnaTab() {
             )}
           </div>
 
-          {/* Search bar */}
-          <div className="flex items-center gap-100 rounded-full border border-border-subtle px-300 py-125 focus-within:border-gray-400">
-            <Search className="h-200 w-200 shrink-0 text-gray-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="질문 검색"
-              className="w-1750 bg-transparent font-designer-14r text-gray-800 placeholder:text-gray-400 focus:outline-none"
-            />
-          </div>
-
           {/* 질문하기 button */}
           <button
             type="button"
             onClick={() => router.push(`/class/${slug}/qa/write`)}
-            className="rounded-full bg-rose-500 px-325 py-150 font-designer-14m text-white hover:bg-rose-600"
+            className="shrink-0 rounded-full bg-rose-500 px-325 py-150 font-designer-14m text-white hover:bg-rose-600 active:bg-rose-600"
           >
             질문하기
           </button>
@@ -177,7 +178,7 @@ export function QnaTab() {
               key={q.qnaId}
               type="button"
               onClick={() => router.push(`/class/${slug}/qa/${q.qnaId}`)}
-              className="w-full border-b border-border-subtle py-300 text-left"
+              className="w-full border-b border-border-subtle py-300 text-left transition-colors hover:bg-gray-50 active:bg-gray-50"
             >
               {/* Lesson category */}
               <p className="mb-125 font-designer-14r text-gray-500">
@@ -195,7 +196,7 @@ export function QnaTab() {
               </p>
 
               {/* Badges row */}
-              <div className="mb-200 flex items-center gap-150">
+              <div className="mb-200 flex flex-wrap items-center gap-150">
                 <span
                   className={cn(
                     'flex items-center gap-50 rounded-full border px-250 py-125 font-designer-14m',
