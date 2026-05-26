@@ -18,7 +18,7 @@ export default function MyPageMobileNav() {
   const router = useRouter();
 
   return (
-    <nav className="flex overflow-x-auto border-b border-border-subtle lg:hidden">
+    <nav className="flex overflow-x-auto border-b border-border-subtle lg:hidden [&::-webkit-scrollbar]:hidden">
       {NAV_ITEMS.map((item) => (
         <button
           key={item.href}

@@ -3,7 +3,7 @@ import Image from 'next/image';
 export function Footer() {
   return (
     <footer className="w-full border-t border-gray-300 bg-gray-100">
-      <div className="mx-auto flex max-w-page items-start justify-between px-600 py-800">
+      <div className="mx-auto flex max-w-page flex-col gap-600 px-600 pt-800 pb-1250 sm:pb-800 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-300">
           <Image
             src="/icons/logo_title.svg"
@@ -17,16 +17,16 @@ export function Footer() {
             <span>1:1 문의하기</span>
           </div>
           <div className="flex flex-col gap-75 font-designer-14r text-gray-800">
-            <div className="flex gap-400">
+            <div className="flex flex-wrap gap-x-400 gap-y-100">
               <span>대표이사 : 조성진</span>
               <span>상호명: 정성컴퍼니</span>
               <span>사업자등록번호 : 798-31-01774</span>
             </div>
-            <div className="flex gap-400">
+            <div className="flex flex-wrap gap-x-400 gap-y-100">
               <span>호스팅 제공자 : ZERO-ONE</span>
               <span>주소 : 서울시 강남구 역삼동 620-17 203호</span>
             </div>
-            <div className="flex gap-400">
+            <div className="flex flex-wrap gap-x-400 gap-y-100">
               <span>이메일 : code0to1@gmail.com</span>
               <span>개인정보보호 책임자 : 윤동주</span>
             </div>
