@@ -3,20 +3,21 @@
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
+import { useWithdrawMemberMutation } from '@/hooks/queries/user/use-withdraw-member-mutation';
 
 interface WithdrawalConfirmModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-// TODO: withdrawal API not yet available — wire DELETE /api/v1/members/me when added
 export default function WithdrawalConfirmModal({
   open,
   onOpenChange,
 }: WithdrawalConfirmModalProps) {
-  const handleConfirm = async () => {
-    // TODO: call DELETE /api/v1/members/me and redirect to /
-    onOpenChange(false);
+  const { mutate: withdraw, isPending } = useWithdrawMemberMutation();
+
+  const handleConfirm = () => {
+    withdraw();
   };
 
   return (
@@ -88,6 +89,7 @@ export default function WithdrawalConfirmModal({
                 color="secondary"
                 size="medium"
                 className="flex-1"
+                disabled={isPending}
                 onClick={() => onOpenChange(false)}
               >
                 취소
@@ -96,9 +98,10 @@ export default function WithdrawalConfirmModal({
                 color="primary"
                 size="medium"
                 className="flex-1"
+                disabled={isPending}
                 onClick={handleConfirm}
               >
-                탈퇴하기
+                {isPending ? '탈퇴 중...' : '탈퇴하기'}
               </Button>
             </div>
           </Modal.Footer>
