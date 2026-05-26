@@ -2,6 +2,8 @@
 
 This is the shared production release-record contract between `study-platform-mvp` backend and `study-platform-client` frontend.
 
+Direct pushes to `main` without a PR and its `release:major|minor|patch` label are not valid production release inputs.
+
 It fixes two schemas:
 
 1. the backend-to-frontend release payload schema, and
