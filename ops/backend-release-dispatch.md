@@ -104,7 +104,7 @@ The frontend workflow that receives this event is:
 ## Optional fields
 
 - `summary`
-- `metadata.previous_deploy_image`
+- `metadata.previous_deploy_image` - backend Jenkins resolves the image behind the registry `latest-prod`/`prod` pointer before the new deploy
 - `metadata.pull_request_number`
 - `metadata.pull_request_labels`
 
