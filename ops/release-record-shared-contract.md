@@ -132,6 +132,7 @@ The frontend script also accepts the inner `client_payload` object directly when
 
 - `summary`
 - `metadata.previous_deploy_image` - backend Jenkins resolves the image behind the registry `latest-prod`/`prod` pointer before the new deploy
+- The release record is still the audit trail; the registry pointer only helps backend Jenkins recover the previous immutable backend image before dispatch.
 - `metadata.pull_request_number`
 - `metadata.pull_request_labels`
 
