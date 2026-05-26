@@ -1,0 +1,56 @@
+release_id: prod-20260527-0708
+env: prod
+service_version: v1.0.2
+
+summary: "[patch] release - dev 전체 변경을 main production 후보로 승격한다 (#1132)"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v2.8.0-5c28bee
+    commit: 5c28bee
+    version: v2.8.0
+    changed: false
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.2-6826fcf
+    commit: 6826fcf
+    version: v1.0.2
+    changed: true
+
+database:
+  changed: true
+  migration_version: V56
+  migration_files:
+    - src/main/resources/db/migration/V40__create_course_plan_and_migrate_pricing.sql
+    - src/main/resources/db/migration/V53__grant_admin_v5_notification_setting_permission.sql
+    - src/main/resources/db/migration/V54__add_builder_feed_status.sql
+    - src/main/resources/db/migration/V55__migrate_retrospective_purpose_to_3type.sql
+    - src/main/resources/db/migration/V56__allow_policy_completion_credited_lesson_progress.sql
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v2.8.0-5c28bee
+    backend: zeroone-backend:v1.0.1-07cb8f6
+  db_rollback_note: "Verify compatibility before app rollback if DB changed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-27T07:12:23+09:00
+deployed_by: automation
+status: success
+
+metadata:
+  backend_deploy_id: backend-prod-70
+  release_intent: patch
+  bootstrap_mode: false
+  previous_deploy_image: zeroone-backend:v1.0.1-07cb8f6
+  pull_request_number: 1132
+  pull_request_labels:
+    - release:patch
