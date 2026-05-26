@@ -237,7 +237,7 @@ export default function ClassDetailPage({
       <ClassDetailTabNav activeTab={activeTab} onTabClick={handleTabClick} />
 
       <div className="mx-auto max-w-page px-600 pt-500">
-        <div className="grid grid-cols-content-sidebar-360 items-start gap-500">
+        <div className="grid grid-cols-1 items-start gap-500 lg:grid-cols-content-sidebar-360">
           <div className="min-w-0 space-y-800">
             <ClassDetailRoadmapSection />
             <ClassDetailBuilderFeedSection

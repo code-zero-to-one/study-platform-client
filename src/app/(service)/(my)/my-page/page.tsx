@@ -22,8 +22,8 @@ function ProfileRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex gap-400">
-      <span className="font-designer-16b text-gray-800 w-2125 shrink-0 pt-150">
+    <div className="flex flex-col gap-100 sm:flex-row sm:gap-400">
+      <span className="font-designer-16b text-gray-800 sm:w-2125 sm:shrink-0 sm:pt-150">
         {label}
       </span>
       <div className="flex-1">{children}</div>
@@ -131,7 +131,7 @@ export default function MyPage() {
 
         <ProfileRow label="닉네임">
           <div className="flex flex-col gap-100">
-            <div className="flex gap-200">
+            <div className="flex flex-wrap gap-200">
               <input
                 type="text"
                 value={nickname}

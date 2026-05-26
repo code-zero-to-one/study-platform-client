@@ -75,7 +75,7 @@ function CourseThumbnail({
       >
         {/* "Vibe Coding" — top center */}
         <p
-          className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[50px] font-extrabold leading-normal text-gray-1000"
+          className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[32px] sm:text-[50px] font-extrabold leading-normal text-gray-1000"
           style={{ top: '10.62%', letterSpacing: '-0.95px' }}
         >
           Vibe Coding
@@ -94,7 +94,7 @@ function CourseThumbnail({
         </div>
         {/* "Basic" — bottom center */}
         <p
-          className="absolute left-1/2 w-[49.34%] -translate-x-1/2 text-center text-[50px] font-extrabold leading-normal text-gray-1000"
+          className="absolute left-1/2 w-[49.34%] -translate-x-1/2 text-center text-[32px] sm:text-[50px] font-extrabold leading-normal text-gray-1000"
           style={{ top: '64.73%', letterSpacing: '-0.95px' }}
         >
           Basic
@@ -254,7 +254,7 @@ function CourseThumbnail({
       }}
     >
       <p
-        className="whitespace-nowrap text-[50px] font-extrabold leading-normal text-gray-500"
+        className="whitespace-nowrap text-[32px] sm:text-[50px] font-extrabold leading-normal text-gray-500"
         style={{ letterSpacing: '-0.95px' }}
       >
         Coming soon
@@ -432,7 +432,7 @@ function CourseCard({
 
   return (
     <div className="flex flex-col overflow-hidden rounded-200 border border-border-default">
-      <div className="h-[292px] shrink-0">
+      <div className="h-3650 shrink-0">
         <CourseThumbnail variant={thumbnailVariant} course={course} />
       </div>
       <div className="flex flex-1 flex-col bg-background-default p-375 pt-300">
@@ -830,7 +830,7 @@ export default function ClassPage() {
           className="relative z-10 flex flex-col items-center justify-center"
           style={{ minHeight: 'var(--min-h-hero-section)' }}
         >
-          <h1 className="font-designer-62b text-center text-gray-1000">
+          <h1 className="font-designer-36b text-center text-gray-1000 sm:font-designer-62b">
             따라만 하면 완성되는
             <br />
             바이브 코딩 코스

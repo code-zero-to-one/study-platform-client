@@ -30,6 +30,10 @@ import { LessonPreviewModal } from './lesson-preview-modal';
 import { LessonStamp } from './lesson-stamp';
 import { PlanSelectionModal } from './plan-selection-modal';
 
+const ASSET_SLUG_OVERRIDE: Record<string, string> = {
+  'vibe-intro-claude-code': 'vibe-intro',
+};
+
 const LoginModal = dynamic(
   () => import('@/components/auth/modals/login-modal'),
 );
@@ -43,6 +47,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
   const { data: journeyMap } = useGetCourseJourneyMap(courseId);
   const { data: progress } = useGetCourseProgress(courseId);
   const router = useRouter();
+  const assetSlug = ASSET_SLUG_OVERRIDE[slug] ?? slug;
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [visibleChapterCount, setVisibleChapterCount] = useState(1);
   const [visibleLessonCount, setVisibleLessonCount] = useState(5);
@@ -114,16 +119,21 @@ export function RoadmapTab({ slug }: { slug: string }) {
         <div className="mt-300 flex items-center gap-300">
           <div className="relative shrink-0">
             <Image
-              src="/class/chapter-progress.svg"
+              src={`/class/${assetSlug}/chapter-progress.svg`}
               alt="진도 표시"
               width={173}
               height={61}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.visibility = 'hidden';
+              }}
             />
-            <p className="absolute left-1/2 top-2/5 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-center font-designer-16sb text-text-brand">
-              {completedLessons === 0
-                ? `Chapter 01  시작!`
-                : `${completedLessons}개 완료!`}
-            </p>
+            <div className="absolute inset-0 flex items-center justify-center pb-175">
+              <p className="px-100 text-center font-designer-16sb text-text-brand">
+                {completedLessons === 0
+                  ? `Chapter 01  시작!`
+                  : `${completedLessons}개 완료!`}
+              </p>
+            </div>
           </div>
           <div className="flex-1">
             <div className="relative h-250 overflow-hidden rounded-full bg-gray-200">
@@ -197,7 +207,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
         ) : null}
 
         {/* Journey map */}
-        <div className="mt-500 flex flex-col items-center">
+        <div className="mt-500 hidden flex-col items-center md:flex">
           {visibleChapters.map((chapter, index) => {
             const lessons = mergeLessons(chapter, lessonStatusMap);
 
@@ -237,7 +247,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                       {index === 0 && ri === 0 && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <Image
-                            src="/class/journey-1st-load.svg"
+                            src={`/class/${assetSlug}/journey-1st-load.svg`}
                             alt=""
                             aria-hidden="true"
                             width={795}
@@ -335,7 +345,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                         index < visibleChapters.length - 1 && (
                           <div className="pointer-events-none absolute right-0 top-1/2">
                             <Image
-                              src="/class/journey-load.svg"
+                              src={`/class/${assetSlug}/journey-load.svg`}
                               alt=""
                               aria-hidden="true"
                               width={906}
@@ -350,7 +360,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                       {ri < rows.length - 1 && (
                         <div className="pointer-events-none absolute right-0 top-1/2">
                           <Image
-                            src="/class/journey-load-reverse.svg"
+                            src={`/class/${assetSlug}/journey-load-reverse.svg`}
                             alt=""
                             aria-hidden="true"
                             width={906}
@@ -379,7 +389,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                     Math.min(prev + 2, chapters.length),
                   )
                 }
-                className="h-750 w-7125 rounded-100 border border-gray-400 font-designer-16r text-gray-800"
+                className="h-750 w-7125 rounded-100 border border-gray-400 font-designer-16r text-gray-800 hover:bg-gray-50 active:bg-gray-50"
               >
                 더보기
               </button>
@@ -447,11 +457,11 @@ export function RoadmapTab({ slug }: { slug: string }) {
                       className={cn(
                         'flex h-1250 items-center justify-between rounded-200 border px-500 transition-colors',
                         isAccessible
-                          ? 'group cursor-pointer border-gray-300 bg-gray-50 hover:border-border-brand hover:text-border-brand'
+                          ? 'group cursor-pointer border-gray-300 bg-gray-50 hover:border-border-brand hover:text-border-brand active:border-border-brand active:text-border-brand'
                           : 'cursor-not-allowed border-gray-300 bg-gray-50 opacity-60',
                       )}
                     >
-                      <div className="flex items-center gap-300">
+                      <div className="flex min-w-0 flex-1 items-center gap-300">
                         <div
                           className={cn(
                             'flex size-550 shrink-0 items-center justify-center rounded-50 font-designer-16b text-gray-0',
@@ -462,10 +472,10 @@ export function RoadmapTab({ slug }: { slug: string }) {
                         >
                           {String(l.order).padStart(2, '0')}
                         </div>
-                        <div className="flex flex-col gap-50">
+                        <div className="min-w-0 flex-1 flex flex-col gap-50">
                           <p
                             className={cn(
-                              'font-designer-16b',
+                              'truncate font-designer-16b',
                               isCompleted ? 'text-text-brand' : 'text-gray-800',
                             )}
                           >
@@ -498,7 +508,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                           </div>
                         </div>
                       </div>
-                      <div className="flex shrink-0 items-center gap-25 text-gray-400 group-hover:text-border-brand">
+                      <div className="hidden sm:flex shrink-0 items-center gap-25 text-gray-400 group-hover:text-border-brand group-active:text-border-brand">
                         <TimerIcon className="size-300" />
                         <span className="font-designer-14r">
                           약 {l.estimatedMinutes}분 소요
@@ -537,7 +547,7 @@ export function RoadmapTab({ slug }: { slug: string }) {
                         Math.min(prev + 10, allLessons.length),
                       )
                     }
-                    className="h-750 w-7125 rounded-100 border border-gray-400 font-designer-16r text-gray-800"
+                    className="h-750 w-7125 rounded-100 border border-gray-400 font-designer-16r text-gray-800 hover:bg-gray-50 active:bg-gray-50"
                   >
                     더보기
                   </button>
@@ -577,7 +587,12 @@ export function RoadmapTab({ slug }: { slug: string }) {
       {course?.viewerStatus === 'FREE_ENROLLED' &&
         course?.canPurchase &&
         course?.plans?.[0]?.planCode && (
-          <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle bg-background-default px-600 py-300 shadow-3">
+          <div
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle bg-background-default px-600 pt-300 shadow-3"
+            style={{
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
+            }}
+          >
             <div className="mx-auto flex max-w-page items-center justify-between gap-300">
               <div className="flex flex-col gap-25">
                 <p className="font-designer-16b text-gray-1000">

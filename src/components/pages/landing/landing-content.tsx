@@ -225,7 +225,7 @@ const SPEECH_BUBBLES = [
 
 export default function LandingContent() {
   return (
-    <div className="relative w-full">
+    <div className="relative w-full pb-3000">
       <HeroSection />
       <CheckSection />
       <ResultsSection />
@@ -395,7 +395,7 @@ function CheckSection() {
 
       <div className={cn(SECTION_INNER, 'relative z-10')}>
         {/* Badge */}
-        <FadeIn className="flex justify-center">
+        <FadeIn className="flex flex-col items-center gap-75 text-center">
           <span className="rounded-[40px] bg-rose-300 px-250 py-125 text-[20px] font-medium leading-[1.5] text-white md:text-[24px]">
             Check
           </span>
@@ -458,7 +458,7 @@ function ResultsSection() {
     <section className="w-full overflow-hidden bg-gray-100 pb-1000 pt-1000 md:pb-1250 md:pt-1625">
       <div className={SECTION_INNER}>
         {/* Badge */}
-        <FadeIn className="flex justify-center">
+        <FadeIn className="flex flex-col items-center gap-75 text-center">
           <span className="rounded-[40px] bg-rose-300 px-250 py-125 text-[20px] font-medium leading-[1.5] text-white md:text-[24px]">
             베타 수강생 결과물
           </span>
@@ -712,7 +712,10 @@ function FAQSection() {
 
 function FloatingCTABar() {
   return (
-    <div className="fixed bottom-1250 left-1/2 z-50 -translate-x-1/2 w-[calc(100vw-2rem)] max-w-9250 overflow-hidden rounded-2000 bg-gray-200 px-500 py-300 md:px-750">
+    <div
+      className="fixed bottom-0 left-0 z-50 w-full overflow-hidden rounded-none bg-gray-200 px-500 pt-300 sm:bottom-1250 sm:left-1/2 sm:w-[calc(100vw-2rem)] sm:-translate-x-1/2 sm:max-w-9250 sm:rounded-2000 md:px-750"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}
+    >
       <div className="flex items-center justify-between gap-300">
         <p className="text-[14px] font-semibold leading-[1.5] text-gray-800 md:text-[20px] lg:text-[24px]">
           얼리버드 혜택가로 바로 만나보세요!
