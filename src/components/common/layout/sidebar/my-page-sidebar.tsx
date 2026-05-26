@@ -103,10 +103,9 @@ const NAV_ITEMS: {
     prefixMatch: true,
   },
   {
-    href: '/my-inquiry',
+    href: 'https://pf.kakao.com/_VmCYn',
     label: '1:1 문의',
     icon: EditNoteIcon,
-    prefixMatch: true,
   },
   {
     href: '/builder-ticket',
@@ -136,6 +135,10 @@ export default function Sidebar() {
           onClick={() => {
             if (item.comingSoon) {
               showToast('준비중인 기능입니다.', 'info');
+              return;
+            }
+            if (item.href.startsWith('http')) {
+              window.open(item.href, '_blank', 'noopener,noreferrer');
               return;
             }
             router.push(item.href);
