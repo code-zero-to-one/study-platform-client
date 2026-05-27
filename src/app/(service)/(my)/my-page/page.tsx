@@ -367,7 +367,7 @@ export default function MyPage() {
           href="https://discord.gg/z66gzHnKp"
           target="_blank"
           rel="noopener noreferrer"
-          className="border-border-subtle rounded-200 flex flex-1 items-center justify-center gap-175 overflow-hidden border bg-gray-50 py-250 transition-colors hover:bg-gray-100"
+          className="border-[#D5D7DA] rounded-200 flex flex-1 items-center justify-center gap-175 overflow-hidden border bg-gray-50 py-250 transition-colors hover:bg-gray-100"
         >
           <div className="relative h-675 w-675 shrink-0 overflow-hidden rounded-150">
             <Image
