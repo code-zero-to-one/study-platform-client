@@ -19,8 +19,7 @@ export function ClassDetailRoadmapSection() {
 
       <div className="mt-400">
         <div className="relative">
-          {/* TODO: h-[354px] uses a banned px arbitrary value — add --spacing-4425 token */}
-          <div className="mx-[10.35%] flex h-[354px] items-center justify-center overflow-hidden rounded-100 bg-gray-300">
+          <div className="mx-[10.35%] flex h-4425 items-center justify-center overflow-hidden rounded-100 bg-gray-300">
             <p className="font-designer-18r text-black">
               커리큘럼 미리보기 이미지
             </p>
@@ -28,14 +27,14 @@ export function ClassDetailRoadmapSection() {
           <button
             type="button"
             aria-label="이전"
-            className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+            className="absolute left-0 top-1/2 -translate-y-1/2 flex min-h-550 min-w-550 items-center justify-center rounded-full border border-border-default bg-background-default p-200"
           >
             <ChevronLeft className="h-250 w-250" />
           </button>
           <button
             type="button"
             aria-label="다음"
-            className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full border border-border-default bg-background-default p-150"
+            className="absolute right-0 top-1/2 -translate-y-1/2 flex min-h-550 min-w-550 items-center justify-center rounded-full border border-border-default bg-background-default p-200"
           >
             <ChevronRight className="h-250 w-250" />
           </button>
@@ -56,11 +55,11 @@ export function ClassDetailRoadmapSection() {
       <h3 className="mt-500 font-designer-24b text-gray-800">
         이런 분들이 들으면 좋아요!
       </h3>
-      <div className="mt-300 grid grid-cols-3 gap-250">
+      <div className="mt-300 grid grid-cols-2 gap-150 sm:grid-cols-3 sm:gap-250">
         {TARGET_AUDIENCE.map((a) => (
           <div
             key={a.title}
-            className="flex h-[140px] flex-col items-center justify-center gap-125 overflow-hidden rounded-200 bg-gray-200 px-200 text-center"
+            className="flex min-h-1750 h-auto flex-col items-center justify-center gap-125 overflow-hidden rounded-200 bg-gray-200 px-200 text-center"
           >
             <p className="font-designer-18b text-gray-1000">{a.title}</p>
             <p className="whitespace-pre-line font-designer-16r text-gray-1000">
@@ -73,7 +72,7 @@ export function ClassDetailRoadmapSection() {
       <h3 className="mt-500 font-designer-24b text-gray-800">
         이 코스를 완주하면 이런 걸 만들 수 있어요!
       </h3>
-      <div className="relative mt-300 h-[150px] w-full overflow-hidden rounded-100">
+      <div className="relative mt-300 h-1875 w-full overflow-hidden rounded-100">
         <Image
           src="/class/detail/result-showcase.png"
           alt="코스 완주 결과물 예시"

@@ -8,7 +8,7 @@ export default function FloatingClassActionButtons() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <div className="fixed bottom-600 right-1375 z-50 flex flex-col items-center gap-400">
+    <div className="fixed bottom-1500 right-600 z-50 flex flex-col items-center gap-400 sm:bottom-2500">
       <a
         href={KAKAO_CHANNEL_URL}
         target="_blank"

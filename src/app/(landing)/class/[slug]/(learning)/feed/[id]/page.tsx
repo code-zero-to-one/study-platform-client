@@ -144,7 +144,7 @@ export default function FeedDetailPage({
       {/* Report modal */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="flex w-5000 flex-col gap-300 rounded-200 bg-background-default p-500">
+          <div className="flex w-full max-w-5000 flex-col gap-300 rounded-200 bg-background-default p-500">
             <p className="font-designer-20b text-gray-800">
               신고 사유를 입력해주세요
             </p>
@@ -182,7 +182,7 @@ export default function FeedDetailPage({
       {/* Delete confirm modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="flex w-5000 flex-col items-center gap-300 rounded-200 bg-background-default p-500">
+          <div className="flex w-full max-w-5000 flex-col items-center gap-300 rounded-200 bg-background-default p-500">
             <div className="text-center">
               <p className="font-designer-20b text-gray-800">
                 피드를 삭제하시겠습니까?
