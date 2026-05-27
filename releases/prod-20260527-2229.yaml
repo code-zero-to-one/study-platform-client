@@ -1,0 +1,50 @@
+release_id: prod-20260527-2229
+env: prod
+service_version: v1.1.0
+
+summary: "[cherry-pick] 혜택 섹션 캐릭터 비율 수정 및 SEO 메타태그 업데이트"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v1.1.0-c2ae7c2
+    commit: c2ae7c2
+    version: v1.1.0
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.2-6826fcf
+    commit: 6826fcf
+    version: v1.0.2
+    changed: false
+
+database:
+  changed: false
+  migration_version: V56
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v2.8.0-5c28bee
+    backend: zeroone-backend:v1.0.2-6826fcf
+  db_rollback_note: "Verify compatibility before app rollback if DB changed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-05-27T22:29:18+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260527-2229-c2ae7c2
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: minor
+  bootstrap_mode: ""
