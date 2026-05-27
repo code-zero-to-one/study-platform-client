@@ -78,14 +78,14 @@ export function BenefitScrollCharacter({ activeIndex }: Props) {
     }
   }, [reducedMotion]);
 
-  // Pause when off-screen
+  // Pause when off-screen; re-evaluates when reducedMotion changes
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !videoRef.current) return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!videoRef.current) return;
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !reducedMotion) {
           videoRef.current.play().catch(() => {});
         } else {
           videoRef.current.pause();
@@ -95,7 +95,7 @@ export function BenefitScrollCharacter({ activeIndex }: Props) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <div
@@ -107,10 +107,7 @@ export function BenefitScrollCharacter({ activeIndex }: Props) {
         className="pointer-events-none absolute right-300 top-0"
       >
         {/* Left outer shadow */}
-        <div
-          className="absolute"
-          style={{ left: 42, top: 290, width: 76, height: 9 }}
-        >
+        <div className="absolute left-525 top-3625 h-112 w-950">
           <div
             style={{
               position: 'absolute',
@@ -129,10 +126,7 @@ export function BenefitScrollCharacter({ activeIndex }: Props) {
           </div>
         </div>
         {/* Left inner shadow */}
-        <div
-          className="absolute"
-          style={{ left: 56, top: 290, width: 47, height: 9 }}
-        >
+        <div className="absolute left-700 top-3625 h-112 w-587">
           <div
             style={{
               position: 'absolute',
@@ -151,10 +145,7 @@ export function BenefitScrollCharacter({ activeIndex }: Props) {
           </div>
         </div>
         {/* Right outer shadow */}
-        <div
-          className="absolute"
-          style={{ left: 133, top: 290, width: 76, height: 9 }}
-        >
+        <div className="absolute left-1662 top-3625 h-112 w-950">
           <div
             style={{
               position: 'absolute',
@@ -173,10 +164,7 @@ export function BenefitScrollCharacter({ activeIndex }: Props) {
           </div>
         </div>
         {/* Right inner shadow */}
-        <div
-          className="absolute"
-          style={{ left: 147, top: 290, width: 47, height: 9 }}
-        >
+        <div className="absolute left-1837 top-3625 h-112 w-587">
           <div
             style={{
               position: 'absolute',
