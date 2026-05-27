@@ -15,8 +15,7 @@ import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE - 1:1 기상 스터디 플랫폼',
-  description:
-    '매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼. 현직 멘토와 함께 성장하세요.',
+  description: '코딩 몰라도 OK. 따라만 하면 나도 AI 시대의 경쟁력.',
   keywords: ['스터디', '기상', '멘토링', '1:1 스터디', '개발자', '면접 준비'],
   icons: {
     icon: '/favicon.ico',
@@ -34,7 +33,7 @@ export const metadata: Metadata = {
     url: 'https://www.zeroone.it.kr',
     siteName: 'ZERO-ONE',
     title: 'ZERO-ONE - 1:1 기상 스터디 플랫폼',
-    description: '매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼',
+    description: '코딩 몰라도 OK. 따라만 하면 나도 AI 시대의 경쟁력.',
     images: [
       {
         url: 'https://www.zeroone.it.kr/images/banner.png',
