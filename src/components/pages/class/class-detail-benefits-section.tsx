@@ -1,9 +1,69 @@
+'use client';
+
 import Image from 'next/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { BenefitScrollCharacter } from './benefit-scroll-character';
 
+const CARDS_COUNT = 4;
+const SCROLL_THROTTLE = 700;
+
 export function ClassDetailBenefitsSection() {
+  const [activeCard, setActiveCard] = useState(0);
+  const activeCardRef = useRef(0);
+  const isHovering = useRef(false);
+  const lastScrollTime = useRef(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const handleWheel = useCallback((e: WheelEvent) => {
+    const now = Date.now();
+    const cur = activeCardRef.current;
+
+    if (e.deltaY > 0) {
+      if (cur < CARDS_COUNT - 1) {
+        e.preventDefault();
+        if (now - lastScrollTime.current >= SCROLL_THROTTLE) {
+          lastScrollTime.current = now;
+          activeCardRef.current = cur + 1;
+          setActiveCard(cur + 1);
+        }
+      }
+    } else if (e.deltaY < 0) {
+      if (cur > 0) {
+        e.preventDefault();
+        if (now - lastScrollTime.current >= SCROLL_THROTTLE) {
+          lastScrollTime.current = now;
+          activeCardRef.current = cur - 1;
+          setActiveCard(cur - 1);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const onEnter = () => {
+      isHovering.current = true;
+    };
+    const onLeave = () => {
+      isHovering.current = false;
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (isHovering.current) handleWheel(e);
+    };
+    el.addEventListener('mouseenter', onEnter);
+    el.addEventListener('mouseleave', onLeave);
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('mouseenter', onEnter);
+      el.removeEventListener('mouseleave', onLeave);
+      el.removeEventListener('wheel', onWheel);
+    };
+  }, [handleWheel]);
+
   return (
-    <section id="benefits">
+    <section id="benefits" ref={sectionRef}>
       <h2 className="font-designer-24b text-gray-800">
         ZERO-ONE에서 드리는 입문자 코스 혜택!
       </h2>
@@ -140,7 +200,7 @@ export function ClassDetailBenefitsSection() {
           </div>
         </div>
 
-        <BenefitScrollCharacter />
+        <BenefitScrollCharacter activeIndex={activeCard} />
       </div>
     </section>
   );
