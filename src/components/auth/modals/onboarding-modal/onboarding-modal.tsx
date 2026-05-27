@@ -5,6 +5,12 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useOnboardingStore } from '@/stores/use-onboarding-store';
+import type {
+  ClassOnboardingCareer,
+  ClassOnboardingInterest,
+  ClassOnboardingJob,
+  VibeCodingExperienceLevel,
+} from '@/types/api/class-onboarding.types';
 import { Step1Nickname } from './steps/step-1-nickname';
 import { Step2Job } from './steps/step-2-job';
 import { Step3Goals } from './steps/step-3-goals';
@@ -16,27 +22,32 @@ interface OnboardingData {
   nickname: string;
   profileImageUrl?: string;
   profileImageFile?: File;
-  career?: string;
-  job?: string;
-  goals: string[];
-  goalEtcText?: string;
-  termsAgreed: boolean;
-  privacyAgreed: boolean;
-  marketingAgreed: boolean;
+  vibeCodingExperienceLevel?: VibeCodingExperienceLevel;
+  jobs: ClassOnboardingJob[];
+  jobEtcText?: string;
+  career?: ClassOnboardingCareer;
+  interests: ClassOnboardingInterest[];
+  interestEtcText?: string;
+  privacyConsent: boolean;
+  termsConsent: boolean;
+  marketingConsent: boolean;
 }
+
+const initialData: OnboardingData = {
+  nickname: '',
+  jobs: [],
+  interests: [],
+  privacyConsent: false,
+  termsConsent: false,
+  marketingConsent: false,
+};
 
 export function OnboardingModal() {
   const { isOpen, close } = useOnboardingStore();
   const [mounted, setMounted] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [data, setData] = useState<OnboardingData>({
-    nickname: '',
-    goals: [],
-    termsAgreed: false,
-    privacyAgreed: false,
-    marketingAgreed: false,
-  });
+  const [data, setData] = useState<OnboardingData>(initialData);
 
   useEffect(() => {
     setMounted(true);
@@ -46,13 +57,7 @@ export function OnboardingModal() {
   useEffect(() => {
     if (isOpen) {
       setCurrentStep(1);
-      setData({
-        nickname: '',
-        goals: [],
-        termsAgreed: false,
-        privacyAgreed: false,
-        marketingAgreed: false,
-      });
+      setData(initialData);
     }
   }, [isOpen]);
 
@@ -78,20 +83,29 @@ export function OnboardingModal() {
             data={data}
             updateData={updateData}
             onNext={handleNext}
+            onSubmittingChange={setIsSubmitting}
           />
         );
       case 2:
         return (
-          <Step2Job data={data} updateData={updateData} onNext={handleNext} />
+          <Step2Job
+            data={data}
+            updateData={updateData}
+            onNext={handleNext}
+            onSubmittingChange={setIsSubmitting}
+          />
         );
       case 3:
         return (
-          <Step3Goals data={data} updateData={updateData} onNext={handleNext} />
+          <Step3Goals
+            data={data}
+            updateData={updateData}
+            onNext={handleNext}
+            onSubmittingChange={setIsSubmitting}
+          />
         );
       case 4:
-        return (
-          <Step4Completion data={data} onSubmittingChange={setIsSubmitting} />
-        );
+        return <Step4Completion nickname={data.nickname} />;
     }
   };
 
@@ -105,7 +119,7 @@ export function OnboardingModal() {
       />
 
       {/* Modal panel */}
-      <div className="relative flex max-h-[90vh] w-full max-w-7500 flex-col overflow-hidden rounded-200 bg-white">
+      <div className="relative flex max-h-modal w-full max-w-7500 flex-col overflow-hidden rounded-200 bg-white">
         {/* Header */}
         <div className="flex items-center justify-between px-500 pt-400 pb-300">
           {/* Back button */}
@@ -116,7 +130,7 @@ export function OnboardingModal() {
               className="rounded-100 p-100 text-gray-500 transition-colors hover:bg-gray-100"
               aria-label="이전"
             >
-              <X className="h-300 w-300 rotate-[135deg]" />
+              <X className="h-300 w-300 rotate-135" />
             </button>
           ) : (
             <div className="size-500" />

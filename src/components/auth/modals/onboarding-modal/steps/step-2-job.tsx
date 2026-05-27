@@ -1,69 +1,99 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useClassOnboardingStep2Mutation } from '@/hooks/queries/class-onboarding/use-class-onboarding-mutation';
 import {
-  useCareersQuery,
-  useJobsQuery,
-} from '@/hooks/queries/user/use-update-user-profile-mutation';
-import type { CareerResponse, JobResponse } from '@/types/api/my-page.types';
+  CAREER_OPTIONS,
+  JOB_OPTIONS,
+  type ClassOnboardingCareer,
+  type ClassOnboardingJob,
+} from '@/types/api/class-onboarding.types';
 
 interface Step2Data {
-  job?: string;
-  career?: string;
+  jobs: ClassOnboardingJob[];
+  jobEtcText?: string;
+  career?: ClassOnboardingCareer;
 }
 
 interface Step2JobProps {
   data: Step2Data;
   updateData: (field: keyof Step2Data, value: unknown) => void;
   onNext: () => void;
+  onSubmittingChange: (v: boolean) => void;
 }
 
-export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
-  const { data: jobs = [] } = useJobsQuery();
-  const { data: careers = [] } = useCareersQuery();
-
+export function Step2Job({
+  data,
+  updateData,
+  onNext,
+  onSubmittingChange,
+}: Step2JobProps) {
+  const { mutate: saveStep2, isPending } = useClassOnboardingStep2Mutation();
   const [etcInput, setEtcInput] = useState('');
   const [etcMode, setEtcMode] = useState(false);
-  const initializedRef = useRef(false);
 
-  useEffect(() => {
-    if (jobs.length === 0 || initializedRef.current) return;
-    initializedRef.current = true;
-    const jobKeys = jobs.map((j: JobResponse) => j.job);
-    if (data.job && !jobKeys.includes(data.job)) {
-      setEtcMode(true);
-      setEtcInput(data.job);
+  const isOtherSelected = data.jobs.includes('CLASS_ONBOARDING_OTHER');
+  const canProceed =
+    data.jobs.length > 0 &&
+    !!data.career &&
+    (!isOtherSelected || !!data.jobEtcText?.trim());
+
+  const toggleJob = (value: ClassOnboardingJob) => {
+    if (data.jobs.includes(value)) {
+      updateData(
+        'jobs',
+        data.jobs.filter((j) => j !== value),
+      );
+    } else {
+      updateData('jobs', [...data.jobs, value]);
     }
-  }, [jobs, data.job]);
-
-  const canProceed = !!data.job && !!data.career;
-  const isEtcActive = etcMode;
-
-  const handleJobSelect = (jobKey: string) => {
-    if (etcMode) {
-      setEtcMode(false);
-      setEtcInput('');
-    }
-    updateData('job', data.job === jobKey ? undefined : jobKey);
   };
 
   const handleEtcClick = () => {
-    updateData('job', undefined);
     setEtcMode(true);
+    if (!isOtherSelected) {
+      updateData('jobs', [...data.jobs, 'CLASS_ONBOARDING_OTHER']);
+    }
   };
 
   const handleEtcAdd = () => {
     if (!etcInput.trim()) return;
-    updateData('job', etcInput.trim());
+    updateData('jobEtcText', etcInput.trim());
     setEtcMode(false);
   };
 
   const handleEtcCancel = () => {
     setEtcMode(false);
     setEtcInput('');
-    const jobKeys = jobs.map((j: JobResponse) => j.job);
-    if (data.job && !jobKeys.includes(data.job)) updateData('job', undefined);
+    updateData(
+      'jobs',
+      data.jobs.filter((j) => j !== 'CLASS_ONBOARDING_OTHER'),
+    );
+    updateData('jobEtcText', '');
+  };
+
+  const handleNext = () => {
+    if (!canProceed || isPending || !data.career) return;
+    onSubmittingChange(true);
+    saveStep2(
+      {
+        jobs: data.jobs,
+        career: data.career,
+        ...(isOtherSelected && data.jobEtcText?.trim()
+          ? { jobEtcText: data.jobEtcText.trim() }
+          : {}),
+      },
+      {
+        onSuccess: () => {
+          onSubmittingChange(false);
+          onNext();
+        },
+        onError: () => {
+          onSubmittingChange(false);
+        },
+      },
+    );
   };
 
   return (
@@ -75,13 +105,13 @@ export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
           해당하는 직무를 선택해주세요.
         </p>
         <div className="flex flex-wrap items-center gap-150 pt-150">
-          {jobs.map((jobItem: JobResponse) => {
-            const selected = data.job === jobItem.job;
+          {JOB_OPTIONS.map((jobItem) => {
+            const selected = data.jobs.includes(jobItem.value);
             return (
               <button
-                key={jobItem.job}
+                key={jobItem.value}
                 type="button"
-                onClick={() => handleJobSelect(jobItem.job)}
+                onClick={() => toggleJob(jobItem.value)}
                 className={cn(
                   'rounded-full px-250 py-125 font-designer-16r transition-colors',
                   selected
@@ -89,7 +119,7 @@ export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
                     : 'border border-gray-300 text-gray-500 hover:border-rose-300',
                 )}
               >
-                {jobItem.description}
+                {jobItem.label}
               </button>
             );
           })}
@@ -98,7 +128,7 @@ export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
             onClick={handleEtcClick}
             className={cn(
               'rounded-full px-250 py-125 font-designer-16r transition-colors',
-              isEtcActive
+              isOtherSelected
                 ? 'border border-rose-500 text-rose-500'
                 : 'border border-gray-300 text-gray-500 hover:border-rose-300',
             )}
@@ -141,32 +171,31 @@ export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
           현재 개발 경력 수준을 선택해주세요.
         </p>
         <div className="flex flex-col gap-150 pt-150">
-          {careers.map((careerItem: CareerResponse) => (
+          {CAREER_OPTIONS.map((careerItem) => (
             <button
-              key={careerItem.career}
+              key={careerItem.value}
               type="button"
-              onClick={() => updateData('career', careerItem.career)}
+              onClick={() => updateData('career', careerItem.value)}
               className={cn(
                 'h-700 rounded-150 border px-188 text-left transition-all duration-200',
-                data.career === careerItem.career
+                data.career === careerItem.value
                   ? 'border-rose-500 font-designer-16b text-rose-500'
                   : 'border-gray-300 font-designer-16r text-gray-500 hover:border-rose-300',
               )}
             >
-              {careerItem.description}
+              {careerItem.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* CTA */}
       <button
         type="button"
-        onClick={onNext}
-        disabled={!canProceed}
+        onClick={handleNext}
+        disabled={!canProceed || isPending}
         className={cn(
           'h-700 w-full rounded-100 font-designer-16b transition-colors',
-          canProceed
+          canProceed && !isPending
             ? 'bg-rose-500 text-white hover:bg-rose-600'
             : 'cursor-not-allowed bg-gray-200 text-gray-400',
         )}

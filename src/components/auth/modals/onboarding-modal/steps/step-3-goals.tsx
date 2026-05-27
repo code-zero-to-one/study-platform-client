@@ -1,42 +1,70 @@
 'use client';
 
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-
-const GOAL_OPTIONS = [
-  { key: '내 포트폴리오 사이트', label: '내 포트폴리오 사이트' },
-  { key: '사이드 프로젝트 웹/앱', label: '사이드 프로젝트 웹/앱' },
-  { key: '업무 자동화 도구', label: '업무 자동화 도구' },
-  { key: '수익화 서비스(창업, 부업)', label: '수익화 서비스(창업, 부업)' },
-  { key: '기타', label: '기타(상세 내용 기재)' },
-] as const;
+import { useClassOnboardingStep3Mutation } from '@/hooks/queries/class-onboarding/use-class-onboarding-mutation';
+import {
+  INTEREST_OPTIONS,
+  type ClassOnboardingInterest,
+} from '@/types/api/class-onboarding.types';
 
 interface Step3Data {
-  goals: string[];
-  goalEtcText?: string;
+  interests: ClassOnboardingInterest[];
+  interestEtcText?: string;
 }
 
 interface Step3GoalsProps {
   data: Step3Data;
   updateData: (field: keyof Step3Data, value: unknown) => void;
   onNext: () => void;
+  onSubmittingChange: (v: boolean) => void;
 }
 
-export function Step3Goals({ data, updateData, onNext }: Step3GoalsProps) {
-  const goals = data.goals;
-  const isEtcSelected = goals.includes('기타');
-  const canProceed =
-    goals.length >= 1 && (!isEtcSelected || !!data.goalEtcText?.trim());
+export function Step3Goals({
+  data,
+  updateData,
+  onNext,
+  onSubmittingChange,
+}: Step3GoalsProps) {
+  const { mutate: saveStep3, isPending } = useClassOnboardingStep3Mutation();
 
-  const toggleGoal = (key: string) => {
-    if (goals.includes(key)) {
+  const interests = data.interests;
+  const isOtherSelected = interests.includes('OTHER');
+  const canProceed =
+    interests.length >= 1 &&
+    (!isOtherSelected || !!data.interestEtcText?.trim());
+
+  const toggleInterest = (value: ClassOnboardingInterest) => {
+    if (interests.includes(value)) {
       updateData(
-        'goals',
-        goals.filter((g) => g !== key),
+        'interests',
+        interests.filter((i) => i !== value),
       );
-      if (key === '기타') updateData('goalEtcText', '');
-    } else if (goals.length < 2) {
-      updateData('goals', [...goals, key]);
+      if (value === 'OTHER') updateData('interestEtcText', '');
+    } else if (interests.length < 2) {
+      updateData('interests', [...interests, value]);
     }
+  };
+
+  const handleNext = () => {
+    if (!canProceed || isPending) return;
+    onSubmittingChange(true);
+    saveStep3(
+      {
+        interests,
+        ...(isOtherSelected && data.interestEtcText?.trim()
+          ? { interestEtcText: data.interestEtcText.trim() }
+          : {}),
+      },
+      {
+        onSuccess: () => {
+          onSubmittingChange(false);
+          onNext();
+        },
+        onError: () => {
+          onSubmittingChange(false);
+        },
+      },
+    );
   };
 
   return (
@@ -51,16 +79,16 @@ export function Step3Goals({ data, updateData, onNext }: Step3GoalsProps) {
       </div>
 
       <div className="flex flex-col gap-160">
-        {GOAL_OPTIONS.map((option) => {
-          const selected = goals.includes(option.key);
-          const isDisabled = !selected && goals.length >= 2;
-          const isEtc = option.key === '기타';
+        {INTEREST_OPTIONS.map((option) => {
+          const selected = interests.includes(option.value);
+          const isDisabled = !selected && interests.length >= 2;
+          const isOtc = option.value === 'OTHER';
 
           return (
-            <div key={option.key} className="flex flex-col gap-150">
+            <div key={option.value} className="flex flex-col gap-150">
               <button
                 type="button"
-                onClick={() => toggleGoal(option.key)}
+                onClick={() => toggleInterest(option.value)}
                 disabled={isDisabled}
                 className={cn(
                   'h-700 rounded-150 border px-188 text-left transition-all duration-200',
@@ -73,10 +101,12 @@ export function Step3Goals({ data, updateData, onNext }: Step3GoalsProps) {
               >
                 {option.label}
               </button>
-              {isEtc && isEtcSelected && (
+              {isOtc && isOtherSelected && (
                 <textarea
-                  value={data.goalEtcText ?? ''}
-                  onChange={(e) => updateData('goalEtcText', e.target.value)}
+                  value={data.interestEtcText ?? ''}
+                  onChange={(e) =>
+                    updateData('interestEtcText', e.target.value)
+                  }
                   placeholder="내용을 입력해주세요."
                   rows={3}
                   className="resize-none rounded-150 border border-rose-500 px-188 py-200 font-designer-14r text-gray-800 outline-none placeholder:text-gray-500"
@@ -87,14 +117,13 @@ export function Step3Goals({ data, updateData, onNext }: Step3GoalsProps) {
         })}
       </div>
 
-      {/* CTA */}
       <button
         type="button"
-        onClick={onNext}
-        disabled={!canProceed}
+        onClick={handleNext}
+        disabled={!canProceed || isPending}
         className={cn(
           'h-700 w-full rounded-100 font-designer-16b transition-colors',
-          canProceed
+          canProceed && !isPending
             ? 'bg-rose-500 text-white hover:bg-rose-600'
             : 'cursor-not-allowed bg-gray-200 text-gray-400',
         )}

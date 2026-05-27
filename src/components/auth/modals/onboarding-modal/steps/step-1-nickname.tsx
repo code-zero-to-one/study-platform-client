@@ -5,38 +5,42 @@ import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useNicknameCheckQuery } from '@/hooks/queries/auth/use-nickname-check';
-import { useCareersQuery } from '@/hooks/queries/user/use-update-user-profile-mutation';
-import type { CareerResponse } from '@/types/api/my-page.types';
+import { useClassOnboardingStep1Mutation } from '@/hooks/queries/class-onboarding/use-class-onboarding-mutation';
+import {
+  VIBE_EXPERIENCE_OPTIONS,
+  type VibeCodingExperienceLevel,
+} from '@/types/api/class-onboarding.types';
 
 interface Step1Data {
   nickname: string;
   profileImageUrl?: string;
   profileImageFile?: File;
-  career?: string;
-  termsAgreed: boolean;
-  privacyAgreed: boolean;
-  marketingAgreed: boolean;
+  vibeCodingExperienceLevel?: VibeCodingExperienceLevel;
+  termsConsent: boolean;
+  privacyConsent: boolean;
+  marketingConsent: boolean;
 }
 
 interface Step1NicknameProps {
   data: Step1Data;
   updateData: (field: keyof Step1Data, value: unknown) => void;
   onNext: () => void;
+  onSubmittingChange: (v: boolean) => void;
 }
 
 const CONSENTS = [
   {
-    key: 'termsAgreed' as const,
+    key: 'termsConsent' as const,
     label: '[필수] 이용약관 동의',
     link: 'https://www.notion.so/gaan/29bfbb391d7980fba669f8d4de741021',
   },
   {
-    key: 'privacyAgreed' as const,
+    key: 'privacyConsent' as const,
     label: '[필수] 개인정보 처리방침 동의',
     link: 'https://www.notion.so/gaan/29bfbb391d7980fba669f8d4de741021',
   },
   {
-    key: 'marketingAgreed' as const,
+    key: 'marketingConsent' as const,
     label: '[선택] 마케팅 정보 수신 동의',
     link: 'https://www.notion.so/gaan/29bfbb391d7980fba669f8d4de741021',
   },
@@ -48,9 +52,12 @@ export function Step1Nickname({
   data,
   updateData,
   onNext,
+  onSubmittingChange,
 }: Step1NicknameProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCheckRequested, setIsCheckRequested] = useState(false);
+
+  const { mutate: saveStep1, isPending } = useClassOnboardingStep1Mutation();
 
   const isValidFormat = isValidNicknameFormat(data.nickname);
 
@@ -63,14 +70,12 @@ export function Step1Nickname({
   const showAvailable = isCheckRequested && !isChecking && isAvailable === true;
   const showTaken = isCheckRequested && !isChecking && isAvailable === false;
 
-  const { data: careers = [] } = useCareersQuery();
-
   const canProceed =
     isValidFormat &&
     showAvailable &&
-    data.termsAgreed &&
-    data.privacyAgreed &&
-    !!data.career;
+    data.termsConsent &&
+    data.privacyConsent &&
+    !!data.vibeCodingExperienceLevel;
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateData('nickname', e.target.value);
@@ -92,13 +97,42 @@ export function Step1Nickname({
     updateData('profileImageFile', file);
   };
 
-  const toggleConsent = (key: keyof Step1Data) => {
+  const toggleConsent = (
+    key: keyof Pick<
+      Step1Data,
+      'termsConsent' | 'privacyConsent' | 'marketingConsent'
+    >,
+  ) => {
     updateData(key, !data[key]);
+  };
+
+  const handleNext = () => {
+    if (!canProceed || isPending || !data.vibeCodingExperienceLevel) return;
+    onSubmittingChange(true);
+    saveStep1(
+      {
+        nickname: data.nickname,
+        privacyConsent: data.privacyConsent,
+        termsConsent: data.termsConsent,
+        marketingConsent: data.marketingConsent,
+        vibeCodingExperienceLevel: data.vibeCodingExperienceLevel,
+      },
+      {
+        onSuccess: () => {
+          onSubmittingChange(false);
+          onNext();
+        },
+        onError: () => {
+          onSubmittingChange(false);
+        },
+      },
+    );
   };
 
   return (
     <div className="flex flex-col gap-400 overflow-y-auto">
       {/* Profile image */}
+      {/* ⚠️ TODO: 프로필 이미지 업로드 엔드포인트 확인 후 처리 (v6 step-1에 포함 안 됨) */}
       <div className="flex flex-col items-center gap-200">
         <div className="relative">
           <div className="size-1600 overflow-hidden rounded-full bg-rose-50">
@@ -196,7 +230,7 @@ export function Step1Nickname({
           <div
             key={consent.key}
             className="flex cursor-pointer items-center gap-150"
-            onClick={() => toggleConsent(consent.key as keyof Step1Data)}
+            onClick={() => toggleConsent(consent.key)}
           >
             <div
               className={cn(
@@ -227,33 +261,40 @@ export function Step1Nickname({
         ))}
       </div>
 
-      {/* Career options */}
+      {/* Vibe coding experience */}
       <div className="flex flex-col gap-150">
-        {careers.map((careerResponse: CareerResponse) => (
-          <button
-            key={careerResponse.career}
-            type="button"
-            onClick={() => updateData('career', careerResponse.career)}
-            className={cn(
-              'h-700 rounded-150 border px-300 text-left font-designer-14m transition-all duration-200',
-              data.career === careerResponse.career
-                ? 'border-rose-500 bg-rose-50 text-rose-500'
-                : 'border-gray-300 bg-white text-gray-800 hover:border-rose-300',
-            )}
-          >
-            {careerResponse.description}
-          </button>
-        ))}
+        <p className="font-designer-16b text-gray-800">
+          바이브 코딩 경험이 어느 정도인가요?
+        </p>
+        <div className="flex flex-col gap-150">
+          {VIBE_EXPERIENCE_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() =>
+                updateData('vibeCodingExperienceLevel', option.value)
+              }
+              className={cn(
+                'rounded-150 border px-300 py-200 text-left font-designer-14m transition-all duration-200',
+                data.vibeCodingExperienceLevel === option.value
+                  ? 'border-rose-500 bg-rose-50 text-rose-500'
+                  : 'border-gray-300 bg-white text-gray-800 hover:border-rose-300',
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* CTA */}
       <button
         type="button"
-        onClick={onNext}
-        disabled={!canProceed}
+        onClick={handleNext}
+        disabled={!canProceed || isPending}
         className={cn(
           'h-700 w-full rounded-100 font-designer-16b transition-colors',
-          canProceed
+          canProceed && !isPending
             ? 'bg-rose-500 text-white hover:bg-rose-600'
             : 'cursor-not-allowed bg-gray-200 text-gray-400',
         )}
