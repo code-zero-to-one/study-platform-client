@@ -1,8 +1,10 @@
 'use client';
 
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
+import { saveClassOnboardingStep2 } from '@/api/endpoints/class-onboarding/class-onboarding';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useClassOnboardingStep2Mutation } from '@/hooks/queries/class-onboarding/use-class-onboarding-mutation';
+
 import {
   CAREER_OPTIONS,
   JOB_OPTIONS,
@@ -29,7 +31,9 @@ export function Step2Job({
   onNext,
   onSubmittingChange,
 }: Step2JobProps) {
-  const { mutate: saveStep2, isPending } = useClassOnboardingStep2Mutation();
+  const { mutate: saveStep2, isPending } = useMutation({
+    mutationFn: saveClassOnboardingStep2,
+  });
   const [etcInput, setEtcInput] = useState('');
   const [etcMode, setEtcMode] = useState(false);
 

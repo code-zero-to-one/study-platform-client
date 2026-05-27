@@ -1,11 +1,12 @@
 'use client';
 
+import { useMutation } from '@tanstack/react-query';
 import { Check, Loader2, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
+import { saveClassOnboardingStep1 } from '@/api/endpoints/class-onboarding/class-onboarding';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useNicknameCheckQuery } from '@/hooks/queries/auth/use-nickname-check';
-import { useClassOnboardingStep1Mutation } from '@/hooks/queries/class-onboarding/use-class-onboarding-mutation';
 import {
   VIBE_EXPERIENCE_OPTIONS,
   type VibeCodingExperienceLevel,
@@ -57,7 +58,9 @@ export function Step1Nickname({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCheckRequested, setIsCheckRequested] = useState(false);
 
-  const { mutate: saveStep1, isPending } = useClassOnboardingStep1Mutation();
+  const { mutate: saveStep1, isPending } = useMutation({
+    mutationFn: saveClassOnboardingStep1,
+  });
 
   const isValidFormat = isValidNicknameFormat(data.nickname);
 

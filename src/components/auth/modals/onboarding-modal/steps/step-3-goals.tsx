@@ -1,7 +1,8 @@
 'use client';
 
+import { useMutation } from '@tanstack/react-query';
+import { saveClassOnboardingStep3 } from '@/api/endpoints/class-onboarding/class-onboarding';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useClassOnboardingStep3Mutation } from '@/hooks/queries/class-onboarding/use-class-onboarding-mutation';
 import {
   INTEREST_OPTIONS,
   type ClassOnboardingInterest,
@@ -25,7 +26,9 @@ export function Step3Goals({
   onNext,
   onSubmittingChange,
 }: Step3GoalsProps) {
-  const { mutate: saveStep3, isPending } = useClassOnboardingStep3Mutation();
+  const { mutate: saveStep3, isPending } = useMutation({
+    mutationFn: saveClassOnboardingStep3,
+  });
 
   const interests = data.interests;
   const isOtherSelected = interests.includes('OTHER');

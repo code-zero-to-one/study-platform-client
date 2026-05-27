@@ -1,8 +1,9 @@
 'use client';
 
+import { useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useClassOnboardingCompleteMutation } from '@/hooks/queries/class-onboarding/use-class-onboarding-mutation';
+import { saveClassOnboardingComplete } from '@/api/endpoints/class-onboarding/class-onboarding';
 import { useOnboardingStore } from '@/stores/use-onboarding-store';
 
 interface Step4CompletionProps {
@@ -12,7 +13,12 @@ interface Step4CompletionProps {
 export function Step4Completion({ nickname }: Step4CompletionProps) {
   const { close } = useOnboardingStore();
   const router = useRouter();
-  const { mutate: complete, isPending } = useClassOnboardingCompleteMutation();
+  const { mutate: complete, isPending } = useMutation({
+    mutationFn: () =>
+      saveClassOnboardingComplete({
+        confirmedOnboardingCompletion: true,
+      }),
+  });
 
   const handleFinish = () => {
     complete(undefined, {
