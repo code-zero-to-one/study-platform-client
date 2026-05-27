@@ -23,7 +23,7 @@ function ProfileRow({
 }) {
   return (
     <div className="flex flex-col gap-100 sm:flex-row sm:gap-400">
-      <span className="font-designer-16b text-gray-800 sm:w-2125 sm:shrink-0 sm:pt-150">
+      <span className="font-designer-16r text-text-default sm:w-2500 sm:shrink-0 sm:pt-150">
         {label}
       </span>
       <div className="flex-1">{children}</div>
@@ -141,33 +141,35 @@ export default function MyPage() {
                 }}
                 maxLength={10}
                 placeholder="닉네임을 입력하세요 (2~10자)"
-                className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest flex-1 border px-200 py-150 outline-none"
+                className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest min-w-0 flex-1 border px-200 py-150 outline-none"
               />
-              <button
-                type="button"
-                disabled={
-                  isSameNickname ||
-                  nickname.length < 2 ||
-                  nickname.length > 10 ||
-                  checkingNickname
-                }
-                onClick={() => setNicknameToCheck(nickname)}
-                className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
-              >
-                {checkingNickname ? '확인 중...' : '중복 확인'}
-              </button>
-              <button
-                type="button"
-                disabled={
-                  isPending ||
-                  isSameNickname ||
-                  !(nicknameAvailable && nicknameToCheck === nickname)
-                }
-                onClick={handleSaveNickname}
-                className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
-              >
-                저장
-              </button>
+              <div className="flex gap-200">
+                <button
+                  type="button"
+                  disabled={
+                    isSameNickname ||
+                    nickname.length < 2 ||
+                    nickname.length > 10 ||
+                    checkingNickname
+                  }
+                  onClick={() => setNicknameToCheck(nickname)}
+                  className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
+                >
+                  {checkingNickname ? '확인 중...' : '중복 확인'}
+                </button>
+                <button
+                  type="button"
+                  disabled={
+                    isPending ||
+                    isSameNickname ||
+                    !(nicknameAvailable && nicknameToCheck === nickname)
+                  }
+                  onClick={handleSaveNickname}
+                  className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
+                >
+                  저장
+                </button>
+              </div>
             </div>
             {!isSameNickname &&
               nicknameAvailable &&
@@ -291,59 +293,81 @@ export default function MyPage() {
       <section className="flex flex-col gap-500">
         <h2 className="font-designer-18b text-text-default">기본 정보</h2>
 
-        <ProfileRow label="인증완료">
-          <span className="font-designer-14r text-text-default pt-150 block">
-            {profile?.isVerified ? '본인 인증 완료' : '미인증'}
-          </span>
-        </ProfileRow>
-
-        {/* TODO: email — not present in memberProfile API response */}
-        <ProfileRow label="이메일">
-          <div className="flex items-center gap-200">
-            <input
-              type="text"
-              disabled
-              placeholder="이메일 정보를 불러올 수 없습니다."
-              className="border-border-default rounded-100 font-designer-14r text-text-subtlest placeholder:text-text-subtlest flex-1 border bg-gray-50 px-200 py-150 outline-none"
-            />
-            <span className="font-designer-12r text-text-subtlest shrink-0">
-              변경 불가
+        <div className="flex flex-col gap-375">
+          <ProfileRow label="인증완료">
+            <span className="font-designer-16b text-text-default">
+              {profile?.isVerified ? '본인 인증 완료' : '미인증'}
             </span>
-          </div>
-        </ProfileRow>
+          </ProfileRow>
 
-        <ProfileRow label="휴대폰 번호">
-          <div className="flex gap-200">
-            <select className="border-border-default rounded-100 font-designer-14r text-text-default border px-200 py-150 outline-none">
-              <option value="82">+82</option>
-            </select>
-            <input
-              type="tel"
-              disabled
-              value={profile?.memberProfile.tel ?? ''}
-              placeholder="휴대폰 번호를 입력하세요."
-              className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest flex-1 border bg-gray-50 px-200 py-150 outline-none"
-            />
-            <button
-              type="button"
-              disabled
-              className="rounded-100 border border-gray-300 px-300 py-150 font-designer-14m text-gray-400"
-            >
-              인증하기
-            </button>
-          </div>
-        </ProfileRow>
+          {/* TODO: email — not present in memberProfile API response */}
+          <ProfileRow label="이메일">
+            <div className="flex items-center gap-125">
+              <span className="font-designer-16b text-text-default">
+                이메일 정보를 불러올 수 없습니다.
+              </span>
+              <span className="font-designer-14r text-text-subtlest shrink-0">
+                변경 불가
+              </span>
+            </div>
+          </ProfileRow>
+
+          <ProfileRow label="휴대폰 번호">
+            <div className="flex flex-col gap-125">
+              <div className="flex items-center justify-between rounded-100 border border-border-default px-125 py-125">
+                <span className="font-designer-14m text-text-subtle">
+                  대한민국 +82
+                </span>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  className="shrink-0 text-text-subtle"
+                >
+                  <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
+                </svg>
+              </div>
+              <div className="flex gap-125">
+                <input
+                  type="tel"
+                  disabled
+                  value={profile?.memberProfile.tel ?? ''}
+                  placeholder="휴대폰 번호를 입력해주세요."
+                  className="min-w-0 flex-1 rounded-100 border border-border-default bg-gray-50 px-125 py-125 font-designer-14r text-text-default placeholder:text-text-subtlest outline-none"
+                />
+                <button
+                  type="button"
+                  disabled
+                  className="shrink-0 rounded-100 bg-gray-200 px-125 py-125 font-designer-14r text-gray-500"
+                >
+                  인증하기
+                </button>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  disabled
+                  className="rounded-100 px-125 py-125 font-designer-14r text-text-default"
+                >
+                  취소하기
+                </button>
+              </div>
+            </div>
+          </ProfileRow>
+        </div>
       </section>
 
       <hr className="border-border-subtle" />
 
       {/* Section C: 배너 */}
-      <section className="flex gap-250">
+      <section className="flex flex-col gap-250 sm:flex-row">
         <a
           href="https://discord.gg/z66gzHnKp"
           target="_blank"
           rel="noopener noreferrer"
-          className="border-border-subtle rounded-200 flex flex-1 items-center justify-center gap-175 overflow-hidden border bg-gray-50 py-250 transition-colors hover:bg-gray-100"
+          className="border-[#D5D7DA] rounded-200 flex flex-1 items-center justify-center gap-175 overflow-hidden border bg-gray-50 py-250 transition-colors hover:bg-gray-100"
         >
           <div className="relative h-675 w-675 shrink-0 overflow-hidden rounded-150">
             <Image
