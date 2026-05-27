@@ -1,9 +1,69 @@
+'use client';
+
 import Image from 'next/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { BenefitScrollCharacter } from './benefit-scroll-character';
 
+const CARDS_COUNT = 4;
+const SCROLL_THROTTLE = 700;
+
 export function ClassDetailBenefitsSection() {
+  const [activeCard, setActiveCard] = useState(0);
+  const activeCardRef = useRef(0);
+  const isHovering = useRef(false);
+  const lastScrollTime = useRef(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const handleWheel = useCallback((e: WheelEvent) => {
+    const now = Date.now();
+    const cur = activeCardRef.current;
+
+    if (e.deltaY > 0) {
+      if (cur < CARDS_COUNT - 1) {
+        e.preventDefault();
+        if (now - lastScrollTime.current >= SCROLL_THROTTLE) {
+          lastScrollTime.current = now;
+          activeCardRef.current = cur + 1;
+          setActiveCard(cur + 1);
+        }
+      }
+    } else if (e.deltaY < 0) {
+      if (cur > 0) {
+        e.preventDefault();
+        if (now - lastScrollTime.current >= SCROLL_THROTTLE) {
+          lastScrollTime.current = now;
+          activeCardRef.current = cur - 1;
+          setActiveCard(cur - 1);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const onEnter = () => {
+      isHovering.current = true;
+    };
+    const onLeave = () => {
+      isHovering.current = false;
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (isHovering.current) handleWheel(e);
+    };
+    el.addEventListener('mouseenter', onEnter);
+    el.addEventListener('mouseleave', onLeave);
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      el.removeEventListener('mouseenter', onEnter);
+      el.removeEventListener('mouseleave', onLeave);
+      el.removeEventListener('wheel', onWheel);
+    };
+  }, [handleWheel]);
+
   return (
-    <section id="benefits">
+    <section id="benefits" ref={sectionRef}>
       <h2 className="font-designer-24b text-gray-800">
         ZERO-ONE에서 드리는 입문자 코스 혜택!
       </h2>
@@ -60,21 +120,21 @@ export function ClassDetailBenefitsSection() {
               '레슨마다 질문답변을 남길 수 있어요.\n운영진이 직접 답변해드립니다.\n다른 빌더들은 어떤 곳에서 막혔는지, 어떻게 해결했는지도 참고해보세요.'
             }
           </p>
-          <div className="relative mt-300 h-[150px]">
+          <div className="relative mt-300 h-1875">
             <div
-              className="absolute left-0 top-100 flex size-[85px] items-center justify-center"
+              className="absolute left-0 top-100 flex size-1062 items-center justify-center"
               style={{ transform: 'rotate(-20.32deg)' }}
             >
-              <div className="size-[66px] rounded-100 border border-purple-600 bg-purple-200/20" />
+              <div className="size-825 rounded-100 border border-purple-600 bg-purple-200/20" />
               <span className="absolute text-58 font-designer-36b leading-none text-grape-600">
                 Q
               </span>
             </div>
             <div
-              className="absolute left-750 top-500 flex size-[89px] items-center justify-center"
+              className="absolute left-750 top-500 flex size-1112 items-center justify-center"
               style={{ transform: 'rotate(27.01deg)' }}
             >
-              <div className="size-[66px] rounded-100 border border-yellow-500 bg-yellow-200/20" />
+              <div className="size-825 rounded-100 border border-yellow-500 bg-yellow-200/20" />
               <span className="absolute text-58 font-designer-36b leading-none text-yellow-300">
                 A
               </span>
@@ -91,7 +151,7 @@ export function ClassDetailBenefitsSection() {
               '완주 후 ZERO-ONE 오픈톡방에 초대됩니다.\n의지만땅 빌더분들과 소통하실 수 있어요.\n함께 협업하거나, 고민을 주고받고 같은 목표를 향해 달려나가보세요.'
             }
           </p>
-          <div className="absolute left-375 top-[178px]">
+          <div className="absolute left-375 top-2225">
             <svg
               width="108.575"
               height="64.48"
@@ -108,13 +168,13 @@ export function ClassDetailBenefitsSection() {
                 fill="#FF698C"
               />
             </svg>
-            <div className="absolute top-175 left-150 flex flex-col gap-[5px]">
+            <div className="absolute top-175 left-150 flex flex-col gap-62">
               <div className="h-30 w-800 rounded-full bg-gray-0" />
-              <div className="h-30 w-[42px] rounded-full bg-gray-0" />
-              <div className="h-30 w-[42px] rounded-full bg-gray-0" />
+              <div className="h-30 w-525 rounded-full bg-gray-0" />
+              <div className="h-30 w-525 rounded-full bg-gray-0" />
             </div>
           </div>
-          <div className="absolute top-[232px] left-800">
+          <div className="absolute top-2900 left-800">
             <svg
               width="86.948"
               height="54.02"
@@ -132,15 +192,15 @@ export function ClassDetailBenefitsSection() {
                 fill="#FFB5C6"
               />
             </svg>
-            <div className="absolute top-125 left-150 flex w-800 flex-col items-end gap-[5px]">
+            <div className="absolute top-125 left-150 flex w-800 flex-col items-end gap-62">
               <div className="h-30 w-full rounded-full bg-gray-0" />
-              <div className="h-30 w-[42px] rounded-full bg-gray-0" />
-              <div className="h-30 w-[42px] rounded-full bg-gray-0" />
+              <div className="h-30 w-525 rounded-full bg-gray-0" />
+              <div className="h-30 w-525 rounded-full bg-gray-0" />
             </div>
           </div>
         </div>
 
-        <BenefitScrollCharacter />
+        <BenefitScrollCharacter activeIndex={activeCard} />
       </div>
     </section>
   );
