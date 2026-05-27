@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     '인사이트',
     '주니어 개발자',
   ],
-  alternates: { canonical: 'https://www.zeroone.it.kr/' },
+  alternates: { canonical: 'https://www.zeroone.it.kr' },
   robots: {
     index: true,
     follow: true,
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    url: 'https://www.zeroone.it.kr/',
+    url: 'https://www.zeroone.it.kr',
     title: 'ZERO-ONE | 따라만 하면 완성되는 바이브 코딩',
     description: '코딩 몰라도 OK. 따라만 하면 나도 AI 시대의 경쟁력.',
     siteName: 'ZERO-ONE',
