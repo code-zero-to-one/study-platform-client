@@ -141,33 +141,35 @@ export default function MyPage() {
                 }}
                 maxLength={10}
                 placeholder="닉네임을 입력하세요 (2~10자)"
-                className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest flex-1 border px-200 py-150 outline-none"
+                className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest min-w-0 flex-1 border px-200 py-150 outline-none"
               />
-              <button
-                type="button"
-                disabled={
-                  isSameNickname ||
-                  nickname.length < 2 ||
-                  nickname.length > 10 ||
-                  checkingNickname
-                }
-                onClick={() => setNicknameToCheck(nickname)}
-                className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
-              >
-                {checkingNickname ? '확인 중...' : '중복 확인'}
-              </button>
-              <button
-                type="button"
-                disabled={
-                  isPending ||
-                  isSameNickname ||
-                  !(nicknameAvailable && nicknameToCheck === nickname)
-                }
-                onClick={handleSaveNickname}
-                className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
-              >
-                저장
-              </button>
+              <div className="flex gap-200">
+                <button
+                  type="button"
+                  disabled={
+                    isSameNickname ||
+                    nickname.length < 2 ||
+                    nickname.length > 10 ||
+                    checkingNickname
+                  }
+                  onClick={() => setNicknameToCheck(nickname)}
+                  className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
+                >
+                  {checkingNickname ? '확인 중...' : '중복 확인'}
+                </button>
+                <button
+                  type="button"
+                  disabled={
+                    isPending ||
+                    isSameNickname ||
+                    !(nicknameAvailable && nicknameToCheck === nickname)
+                  }
+                  onClick={handleSaveNickname}
+                  className="rounded-100 border border-border-brand px-300 py-150 font-designer-14m text-text-brand disabled:border-gray-300 disabled:text-gray-400"
+                >
+                  저장
+                </button>
+              </div>
             </div>
             {!isSameNickname &&
               nicknameAvailable &&
@@ -314,7 +316,7 @@ export default function MyPage() {
 
         <ProfileRow label="휴대폰 번호">
           <div className="flex gap-200">
-            <select className="border-border-default rounded-100 font-designer-14r text-text-default border px-200 py-150 outline-none">
+            <select className="border-border-default rounded-100 font-designer-14r text-text-default shrink-0 border px-200 py-150 outline-none">
               <option value="82">+82</option>
             </select>
             <input
@@ -322,12 +324,12 @@ export default function MyPage() {
               disabled
               value={profile?.memberProfile.tel ?? ''}
               placeholder="휴대폰 번호를 입력하세요."
-              className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest flex-1 border bg-gray-50 px-200 py-150 outline-none"
+              className="border-border-default rounded-100 font-designer-14r text-text-default placeholder:text-text-subtlest min-w-0 flex-1 border bg-gray-50 px-200 py-150 outline-none"
             />
             <button
               type="button"
               disabled
-              className="rounded-100 border border-gray-300 px-300 py-150 font-designer-14m text-gray-400"
+              className="rounded-100 shrink-0 whitespace-nowrap border border-gray-300 px-300 py-150 font-designer-14m text-gray-400"
             >
               인증하기
             </button>
@@ -338,7 +340,7 @@ export default function MyPage() {
       <hr className="border-border-subtle" />
 
       {/* Section C: 배너 */}
-      <section className="flex gap-250">
+      <section className="flex flex-col gap-250 sm:flex-row">
         <a
           href="https://discord.gg/z66gzHnKp"
           target="_blank"
