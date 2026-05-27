@@ -74,7 +74,7 @@ export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
         <p className="font-designer-14r text-gray-500">
           해당하는 직무를 선택해주세요.
         </p>
-        <div className="flex flex-wrap gap-150 pt-150">
+        <div className="flex flex-wrap items-center gap-150 pt-150">
           {jobs.map((jobItem: JobResponse) => {
             const selected = data.job === jobItem.job;
             return (
@@ -99,39 +99,39 @@ export function Step2Job({ data, updateData, onNext }: Step2JobProps) {
             className={cn(
               'rounded-full px-250 py-125 font-designer-16r transition-colors',
               isEtcActive
-                ? 'bg-rose-500 text-white'
+                ? 'border border-rose-500 text-rose-500'
                 : 'border border-gray-300 text-gray-500 hover:border-rose-300',
             )}
           >
             기타+
           </button>
+          {etcMode && (
+            <div className="flex items-center gap-125 rounded-500 border border-rose-500 px-250 py-100">
+              <input
+                type="text"
+                value={etcInput}
+                onChange={(e) => setEtcInput(e.target.value)}
+                placeholder="직무를 입력해주세요"
+                className="flex-1 border-none bg-transparent font-designer-14r text-gray-800 outline-none placeholder:text-gray-400"
+              />
+              <button
+                type="button"
+                onClick={handleEtcAdd}
+                disabled={!etcInput.trim()}
+                className="rounded-50 bg-rose-500 px-100 py-50 font-designer-13r text-white disabled:opacity-50"
+              >
+                추가
+              </button>
+              <button
+                type="button"
+                onClick={handleEtcCancel}
+                className="rounded-50 bg-rose-100 px-100 py-50 font-designer-13r text-rose-500"
+              >
+                취소
+              </button>
+            </div>
+          )}
         </div>
-        {etcMode && (
-          <div className="flex gap-150">
-            <input
-              type="text"
-              value={etcInput}
-              onChange={(e) => setEtcInput(e.target.value)}
-              placeholder="직무를 입력해주세요"
-              className="flex-1 rounded-150 border border-rose-500 px-250 py-125 font-designer-14r text-gray-800 outline-none placeholder:text-gray-500"
-            />
-            <button
-              type="button"
-              onClick={handleEtcAdd}
-              disabled={!etcInput.trim()}
-              className="rounded-150 bg-rose-500 px-200 py-125 font-designer-14m text-white disabled:opacity-50"
-            >
-              추가
-            </button>
-            <button
-              type="button"
-              onClick={handleEtcCancel}
-              className="rounded-150 bg-rose-50 px-200 py-125 font-designer-14m text-rose-500"
-            >
-              취소
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Career section */}
