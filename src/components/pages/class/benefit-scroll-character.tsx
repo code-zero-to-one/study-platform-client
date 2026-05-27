@@ -1,16 +1,21 @@
 'use client';
 
-import { motion, useSpring } from 'framer-motion';
+import { motion, useReducedMotion, useSpring } from 'framer-motion';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
-const CHAR_HEIGHT = 223;
+const CHAR_TOP_OFFSET = 38;
 
-export function BenefitScrollCharacter() {
+interface Props {
+  activeIndex: number;
+}
+
+export function BenefitScrollCharacter({ activeIndex }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLElement[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [cardYOffsets, setCardYOffsets] = useState<number[]>([]);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const reducedMotion = useReducedMotion();
 
   const springY = useSpring(0, { stiffness: 80, damping: 22 });
 
@@ -27,7 +32,7 @@ export function BenefitScrollCharacter() {
     cardsRef.current = cards;
 
     const computeOffsets = () =>
-      cards.map((card) => card.offsetTop + card.offsetHeight - CHAR_HEIGHT);
+      cards.map((card) => card.offsetTop + CHAR_TOP_OFFSET);
 
     const updateOffsets = () => setCardYOffsets(computeOffsets());
     updateOffsets();
@@ -35,29 +40,8 @@ export function BenefitScrollCharacter() {
     const ro = new ResizeObserver(updateOffsets);
     cards.forEach((card) => ro.observe(card));
 
-    const handleScroll = () => {
-      const viewportMid = window.innerHeight / 2;
-      let bestIdx = 0;
-      let bestDist = Infinity;
-
-      cardsRef.current.forEach((card, i) => {
-        const rect = card.getBoundingClientRect();
-        const dist = Math.abs(rect.top + rect.height / 2 - viewportMid);
-        if (dist < bestDist) {
-          bestDist = dist;
-          bestIdx = i;
-        }
-      });
-
-      setActiveIndex(bestIdx);
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
     return () => {
       ro.disconnect();
-      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -84,19 +68,48 @@ export function BenefitScrollCharacter() {
     };
   }, []);
 
+  // Pause on prefers-reduced-motion
+  useEffect(() => {
+    if (!videoRef.current) return;
+    if (reducedMotion) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [reducedMotion]);
+
+  // Pause when off-screen
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !videoRef.current) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!videoRef.current) return;
+        if (entry.isIntersecting) {
+          videoRef.current.play().catch(() => {});
+        } else {
+          videoRef.current.pause();
+        }
+      },
+      { threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 hidden pointer-events-none lg:block"
+      className="pointer-events-none absolute inset-0 hidden lg:block"
     >
       <motion.div
         style={{ y: springY }}
-        className="absolute right-0 top-0 pointer-events-none"
+        className="pointer-events-none absolute right-300 top-0"
       >
         {/* Left outer shadow */}
         <div
           className="absolute"
-          style={{ left: 50, top: 192, width: 90, height: 9 }}
+          style={{ left: 42, top: 290, width: 76, height: 9 }}
         >
           <div
             style={{
@@ -118,7 +131,7 @@ export function BenefitScrollCharacter() {
         {/* Left inner shadow */}
         <div
           className="absolute"
-          style={{ left: 67, top: 192, width: 56, height: 9 }}
+          style={{ left: 56, top: 290, width: 47, height: 9 }}
         >
           <div
             style={{
@@ -140,7 +153,7 @@ export function BenefitScrollCharacter() {
         {/* Right outer shadow */}
         <div
           className="absolute"
-          style={{ left: 158, top: 192, width: 90, height: 9 }}
+          style={{ left: 133, top: 290, width: 76, height: 9 }}
         >
           <div
             style={{
@@ -162,7 +175,7 @@ export function BenefitScrollCharacter() {
         {/* Right inner shadow */}
         <div
           className="absolute"
-          style={{ left: 175, top: 192, width: 56, height: 9 }}
+          style={{ left: 147, top: 290, width: 47, height: 9 }}
         >
           <div
             style={{
@@ -181,13 +194,19 @@ export function BenefitScrollCharacter() {
             />
           </div>
         </div>
-        <Image
-          src="/class/detail/character-cats.png"
-          alt=""
-          width={298}
-          height={223}
-          priority={false}
-        />
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          width={251}
+          height={337}
+          aria-hidden="true"
+          className="block"
+        >
+          <source src="/zerowoni_walk.webm" type="video/webm" />
+        </video>
       </motion.div>
     </div>
   );
