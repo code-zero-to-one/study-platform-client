@@ -30,9 +30,32 @@ jobs:
         with:
           fetch-depth: 1
 
+      # claude-code-action은 working dir의 .mcp.json을 enableAllProjectMcpServers로 자동 로드한다.
+      # repo에 .mcp.json을 두지 않고(로컬 환경 침범 방지) 워크플로우 실행 중에만 생성하여 Notion MCP를 등록.
+      # claude_args의 --mcp-config는 v1에서 무시되는 정황이 확인되어 자동 로드 경로를 사용.
+      - name: Generate .mcp.json for Notion MCP
+        run: |
+          cat > .mcp.json <<'JSON'
+          {
+            "mcpServers": {
+              "notion": {
+                "command": "npx",
+                "args": ["-y", "@notionhq/notion-mcp-server"]
+              }
+            }
+          }
+          JSON
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
+        env:
+          # Notion MCP 서버(@notionhq/notion-mcp-server)가 OpenAPI 호출 시 사용할 인증 헤더.
+          # npx 자식 프로세스가 step env를 자동 상속하므로 MCP config 파일에는 별도로 명시하지 않음.
+          # 토큰은 "스터디 플랫폼 : 코드 제로투원" 페이지에 connection된 integration의 권한 범위 내에서만 동작.
+          OPENAPI_MCP_HEADERS: '{"Authorization":"Bearer ${{ secrets.NOTION_TOKEN }}","Notion-Version":"2022-06-28"}'
+          # @notionhq/notion-mcp-server가 NOTION_TOKEN을 직접 읽는 케이스 fallback.
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
@@ -40,8 +63,8 @@ jobs:
           additional_permissions: |
             actions: read
 
-          # 프론트엔드 작업에 필요한 패키지 매니저 명령어 허용
-          claude_args: '--allowed-tools "Bash(npm *),Bash(yarn *),Bash(pnpm *),Bash(npx *)"'
+          # 자동 로드된 mcp__notion__*가 LLM에 노출되도록 + 프론트엔드 패키지 매니저 명령어 허용
+          claude_args: '--allowedTools "mcp__notion__*,Bash(npm *),Bash(yarn *),Bash(pnpm *),Bash(npx *),Edit,Write,Read,Glob,Grep,LS"'
 
       # Claude 응답 완료 시 프론트엔드 Slack 채널에 알림. 성공/실패 모두 통지하여 쿼터 소진 등 에러 상황도 추적 가능하게 함.
       - name: Notify Slack on Claude response

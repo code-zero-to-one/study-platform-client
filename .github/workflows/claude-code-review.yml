@@ -39,7 +39,8 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
-          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          # --comment: 리뷰 findings를 PR 인라인 코멘트로 게시. 미지정 시 automation 모드에서 결과가 모델 출력에만 남아 PR엔 안 보임(= success인데 리뷰 없음).
+          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }} --comment'
 
       # 자동 리뷰 완료 시 프론트엔드 Slack 채널에 알림. 기존 PR open 알림과는 별도 메시지로 구분.
       - name: Notify Slack on review complete
