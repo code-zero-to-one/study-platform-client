@@ -36,6 +36,17 @@ Local full run (`yarn e2e`) executes everything using `e2e/fixtures/auth.json`.
 
 **When auth.json expires:** re-run `yarn e2e:save-auth` and update the `E2E_AUTH_JSON` GitHub Secret.
 
+## Requirement Tag Convention (`@REQ-*`)
+
+When a test verifies a tracked requirement (a row in `docs/product-ssot/<domain>/traceability.md`), append the `@REQ-*` id to the `describe` title — same spot as `@auth`, both can coexist:
+
+```typescript
+// 추적표의 REQ-AUTH-007을 검증하는 테스트
+test.describe('세션 만료 후 로그인 모달 @auth @REQ-AUTH-007', () => { ... });
+```
+
+The id must match the row's `검증` cell exactly. `yarn trace:check` cross-checks the table against these tags (orphan = tag with no row, broken = row with no tag). Format and id rules: `docs/product-ssot/_shared/traceability-rules.md`.
+
 ## When to Write E2E Tests
 
 **Write E2E** for:

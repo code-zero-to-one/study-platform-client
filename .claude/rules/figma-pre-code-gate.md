@@ -85,6 +85,16 @@ Example: image card 682/860px wide at x=89 → code needs `mx-[10.35%]` or equiv
 
 ---
 
+## Gate F: Record Figma node-id in the traceability table
+
+If the screen/component you are implementing maps to a tracked requirement (a row in `docs/product-ssot/<domain>/traceability.md`), write the Figma **node-id** you just inspected into that row's `Figma node` cell. This is what surfaces a design change to code/QA later — the node-id is the link between the Figma frame and the implementing component.
+
+- Use the exact node-id (e.g. `42:2451`), not the full URL.
+- Multiple nodes for one row → comma-separate them.
+- No matching row yet → leave it; the `trace` skill / `_shared/traceability-rules.md` covers when to add one.
+
+---
+
 Related rules:
 - `figma-design.md` — what properties to read from Figma (run first)
 - `figma-verification.md` — visual diff and JS measurement (run after coding)

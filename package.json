@@ -31,7 +31,8 @@
     "e2e:ui": "playwright test --ui",
     "e2e:headed": "playwright test --headed",
     "e2e:save-auth": "playwright codegen https://test.zeroone.it.kr --save-storage=e2e/fixtures/auth.json",
-    "release:validate": "node scripts/release/validate-release-record.mjs releases"
+    "release:validate": "node scripts/release/validate-release-record.mjs releases",
+    "trace:check": "node scripts/trace-check.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

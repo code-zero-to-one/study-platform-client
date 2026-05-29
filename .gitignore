@@ -63,7 +63,9 @@ test-results/
 
 .claude/commands
 .claude/agents
-.claude/skills
+.claude/skills/*
+!.claude/skills/trace/
 .playwright-mcp
 .omc
-/docs
+/docs/*
+!/docs/product-ssot/

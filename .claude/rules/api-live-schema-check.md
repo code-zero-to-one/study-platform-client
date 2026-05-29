@@ -51,6 +51,13 @@ DTO 비교: CourseCurriculumLessonResponse
 
 Report mismatches **before writing any code**. Do not silently skip unmatched fields.
 
+## Record the endpoint in the traceability table
+
+After verifying an endpoint against the live schema, if the work maps to a tracked requirement (a row in `docs/product-ssot/<domain>/traceability.md`), write the verified endpoint into that row's `엔드포인트` cell as `METHOD /path` (e.g. `POST /api/v1/auth/access-token/refresh`). This keeps the requirement's backend contract visible alongside its screen and tests.
+
+- Only record endpoints you actually confirmed against the live schema — never a guessed path.
+- No matching row yet → leave it; `_shared/traceability-rules.md` covers when to add one.
+
 ## Staging URLs
 
 - API docs JSON: `https://test-api.zeroone.it.kr/v3/api-docs`
