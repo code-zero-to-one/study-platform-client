@@ -2,6 +2,7 @@
 name: builder-ticket
 status: backlog
 created: 2026-06-05T16:50:24Z
+updated: 2026-06-05T17:55:24Z
 progress: 0%
 prd: .claude/prds/builder-ticket.md
 github: https://github.com/code-zero-to-one/study-platform-client/issues/717
@@ -20,6 +21,8 @@ github: https://github.com/code-zero-to-one/study-platform-client/issues/717
 - **권한**: 어드민 발급/집계는 `(admin)` 라우트 그룹에 두어 기존 `ROLE_ADMIN` 미들웨어 게이트를 그대로 상속(신규 인가 로직 불필요).
 - **서버상태**: TanStack Query, queryKey 규약(`['builderTickets', ...]`) 준수. 사용 처리는 mutation + 관련 key invalidate.
 - **정합성**: 티켓 사용은 결제 승인과 한 흐름으로 묶고, 멱등 처리로 이중 차감을 방지(중복 USED 전이 무효).
+- **환불 처리**: Toss 환불 API 성공 응답 확인 후에만 티켓을 `ISSUED`로 원복한다. 환불 실패 시 티켓 상태 유지(원복 금지). 부분 환불은 범위 밖.
+- **결제 실패 재발송**: 실패 시 티켓 원복 + 알림 발송은 단일 트랜잭션으로 묶는다. 동일 티켓 재시도 횟수를 카운트해야 하므로 백엔드 retry_count 필드 필요.
 
 ## Technical Approach
 
@@ -35,6 +38,7 @@ github: https://github.com/code-zero-to-one/study-platform-client/issues/717
 
 - 신규 빌더 티켓 도메인 엔드포인트(발급/보유조회/적용·사용/캠페인집계) **미존재 → 신규 개발 필요**. 프론트는 확정 전까지 훅 내부에 `// TODO(builder-ticket API)` 플레이스홀더 유지.
 - 결제는 기존 Toss 승인 엔드포인트 재사용. 할인 후 금액 검증은 백엔드 권위(프론트 계산은 표시용).
+- **신규(PRD v2)**: 결제 실패 알림 발송 엔드포인트, Toss 환불 API 연동 엔드포인트, retry_count 필드 → 백엔드 추가 개발 필요. 프론트는 TODO 플레이스홀더.
 
 ### Infrastructure
 
@@ -53,8 +57,9 @@ github: https://github.com/code-zero-to-one/study-platform-client/issues/717
 2. **티켓 API 훅 스캐폴딩** — 발급/보유조회/적용·사용/집계 훅(`src/hooks/queries/builder-ticket-*.ts`), 백엔드 미정 시 TODO. (1 의존)
 3. `[P]` **마이페이지 보유 티켓 목록 UI** — 보유 조회 훅 연결. (2 의존)
 4. `[P]` **결제 페이지 티켓 적용 UI** — 적용 가능 필터 + 금액 재계산 표시. (2 의존)
-5. **결제 사용 처리 연동** — USED 전이·멱등·실패 원복을 Toss 승인 흐름에 결합. (4 의존)
+5. **결제 사용 처리 연동** — USED 전이·멱등·실패 원복+알림+재시도 3회 제한을 Toss 승인 흐름에 결합. (4 의존) *(PRD v2: 알림·재시도 추가)*
 6. `[P]` **어드민 캠페인 발급 화면** — ROLE_ADMIN 폼. (2 의존)
+9. **Toss 환불 연동 + 조건부 티켓 원복** — 환불 API 호출 → 성공 시에만 ISSUED 원복, 실패 시 상태 유지. (5 의존) *(PRD v2 신규)*
 7. **어드민 캠페인 집계 대시보드** — 발급/사용/전환율. (6 의존)
 8. **엣지케이스·QA** — 만료/대상외/이중차감/원복 시나리오 검증. (3–7 통합)
 
@@ -76,8 +81,8 @@ github: https://github.com/code-zero-to-one/study-platform-client/issues/717
 
 ## Estimated Effort
 
-- 8 태스크, 그중 3개 병렬 가능. 기반(1–2) 고정 후 화면 3종 병렬이면 캘린더 시간 단축.
-- 최대 불확실성은 **백엔드 스펙 확정 시점**(태스크 2의 실연결). UI/상태는 플레이스홀더로 선행 가능.
+- **9 태스크**(PRD v2: +1), 그중 3개 병렬 가능. 기반(1–2) 고정 후 화면 3종 병렬이면 캘린더 시간 단축.
+- 최대 불확실성은 **백엔드 스펙 확정 시점**(태스크 2·9의 실연결, 특히 Toss 환불 API·retry_count). UI/상태는 플레이스홀더로 선행 가능.
 
 ## Tasks Created
 - [ ] 001.md - 티켓 도메인 타입 + Zod 스키마 (parallel: true)
@@ -89,7 +94,9 @@ github: https://github.com/code-zero-to-one/study-platform-client/issues/717
 - [ ] 007.md - 어드민 캠페인 집계 대시보드 (parallel: true)
 - [ ] 008.md - 엣지케이스·QA (parallel: false)
 
-Total tasks: 8
+- [ ] 009.md - Toss 환불 연동 + 조건부 티켓 원복 (parallel: false) *(PRD v2 신규)*
+
+Total tasks: 9
 Parallel tasks: 5
-Sequential tasks: 3
-Estimated total effort: 50 hours
+Sequential tasks: 4
+Estimated total effort: 58 hours
