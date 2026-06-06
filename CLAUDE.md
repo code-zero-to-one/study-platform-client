@@ -40,6 +40,49 @@ yarn typecheck      # No type errors
 
 ZERO-ONE Study Platform — A 1:1 morning study platform to start every day together. Built on Next.js 15 (App Router), React 19, TypeScript 5, Tailwind CSS 4. Package manager: **Yarn 1.22+**, Node.js >=20 required.
 
+## CCPM (Claude Code Project Manager)
+
+이 레포는 **CCPM** 워크플로우를 사용합니다: PRD → 에픽 → GitHub 이슈 → 병렬 에이전트 → 코드.
+
+스킬 위치: `.claude/skills/ccpm/` — Claude Code 세션 시작 시 자동 로드됩니다.
+
+### 사전 요구사항 (GitHub Sync 단계에 필수)
+
+`gh issue create` / `gh sub-issue create` 등 GitHub 쓰기 작업을 실행하려면 **로컬 머신에 다음이 설치·인증된 상태**여야 합니다:
+
+```bash
+# 1. GitHub CLI 설치
+winget install --id GitHub.cli -e   # Windows
+brew install gh                      # macOS
+
+# 2. 인증 (브라우저 OAuth — 최초 1회)
+gh auth login
+# → GitHub.com / HTTPS / 브라우저 인증 선택
+
+# 3. 서브이슈 확장 설치 (부모-자식 이슈 연결에 필수)
+gh extension install yahsan2/gh-sub-issue
+
+# 4. 인증 확인
+gh auth status   # repo 스코프 포함 여부 확인
+```
+
+> **sync 단계 없이 로컬 작업만 할 경우** (PRD/에픽/태스크 작성) gh CLI 없이도 동작합니다.
+
+### 로컬 전용 파일 (gitignore)
+
+| 경로 | 설명 | 공유 여부 |
+|---|---|---|
+| `.claude/prds/` | CCPM이 생성하는 PRD 작업본 | 로컬 전용 (`.git/info/exclude`) |
+| `.claude/epics/` | 에픽·태스크 작업 파일 | 로컬 전용 (`.git/info/exclude`) |
+| `pm/prds/` | PRD 팀 공유본 | **커밋 대상** |
+| `pm/epics/` | 에픽·매핑 팀 공유본 | **커밋 대상** |
+
+새 클론 후 로컬 exclude 설정:
+```bash
+echo ".claude/prds/" >> .git/info/exclude
+echo ".claude/epics/" >> .git/info/exclude
+```
+
 ## Commands # hook 으로 빼기 (토큰아끼기)
 
 ```bash
