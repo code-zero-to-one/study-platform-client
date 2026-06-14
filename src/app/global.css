@@ -1384,6 +1384,38 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   margin: 16px 0;
 }
 
+.tiptap-editor .tiptap table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+  table-layout: fixed;
+}
+
+.tiptap-editor .tiptap table th,
+.tiptap-editor .tiptap table td {
+  border: 1px solid var(--color-border-subtle);
+  padding: 6px 8px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.tiptap-editor .tiptap table th {
+  background-color: var(--color-background-alternative);
+  font-weight: 700;
+}
+
+.tiptap-editor .tiptap table th p,
+.tiptap-editor .tiptap table td p {
+  margin-bottom: 0;
+}
+
+.tiptap-editor .tiptap table .selectedCell {
+  background-color: var(--color-background-brand-subtle);
+}
+
 .tiptap-editor .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;

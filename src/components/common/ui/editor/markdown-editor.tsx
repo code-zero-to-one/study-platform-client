@@ -50,6 +50,7 @@ import {
   LinkExitOnSpaceExtension,
   lowlight,
   MarkdownHistoryShortcutsExtension,
+  MarkdownTableExtensions,
   ResizableImageExtension,
   YouTubeEmbedExtension,
 } from './extensions';
@@ -63,8 +64,7 @@ import {
   toImageInputAccept,
 } from './image-utils';
 import {
-  convertHtmlTableToMarkdownTable,
-  convertTabularTextToMarkdownTable,
+  convertTabularTextToHtmlTable,
   isHtmlTableOnlyPaste,
 } from './markdown-table-utils';
 import { normalizeRichClipboardHtml } from './rich-clipboard-normalizer';
@@ -159,35 +159,17 @@ function MarkdownEditor({
       .run();
   };
 
-  const insertMarkdownTable = (
-    editorInstance: Editor,
-    markdownTable: string,
-  ) => {
-    const tableRows = markdownTable.split('\n').map((line) => ({
-      type: 'paragraph',
-      content: [
-        {
-          type: 'text',
-          text: line,
-        },
-      ],
-    }));
-
-    return editorInstance.chain().focus().insertContent(tableRows).run();
-  };
-
   const handleInsertTable = () => {
     const editorInstance = getValidEditorInstance();
     if (!editorInstance) {
       return;
     }
 
-    insertMarkdownTable(
-      editorInstance,
-      ['| 항목 | 설명 |', '| --- | --- |', '| 예시 | 내용을 입력하세요 |'].join(
-        '\n',
-      ),
-    );
+    editorInstance
+      .chain()
+      .focus()
+      .insertTable({ rows: 3, cols: 2, withHeaderRow: true })
+      .run();
   };
 
   const resolvedImageConfig = useMemo(() => {
@@ -332,6 +314,7 @@ function MarkdownEditor({
       MarkdownHistoryShortcutsExtension,
       LinkExitOnSpaceExtension,
       YouTubeEmbedExtension,
+      ...MarkdownTableExtensions,
       UnderlineExtension,
       LinkExtension.configure({
         openOnClick: false,
@@ -401,15 +384,18 @@ function MarkdownEditor({
 
         const pastedHtml = clipboardData.getData('text/html');
         const pastedText = clipboardData.getData('text/plain');
-        const markdownTable = isHtmlTableOnlyPaste(pastedHtml)
-          ? convertHtmlTableToMarkdownTable(pastedHtml)
+        // 표만 붙여넣는 경우 실제 표(WYSIWYG) 노드로 삽입한다.
+        // - HTML 표(엑셀/시트/Notion 등): 클립보드 HTML을 그대로 넣으면 TipTap이 표 노드로 파싱한다.
+        // - HTML 없는 탭 구분 텍스트: 실제 <table> HTML로 변환해 삽입한다.
+        const htmlTableToInsert = isHtmlTableOnlyPaste(pastedHtml)
+          ? pastedHtml
           : !pastedHtml.trim()
-            ? convertTabularTextToMarkdownTable(pastedText)
+            ? convertTabularTextToHtmlTable(pastedText)
             : undefined;
 
-        if (markdownTable) {
+        if (htmlTableToInsert) {
           event.preventDefault();
-          insertMarkdownTable(editorInstance, markdownTable);
+          editorInstance.chain().focus().insertContent(htmlTableToInsert).run();
           return true;
         }
 

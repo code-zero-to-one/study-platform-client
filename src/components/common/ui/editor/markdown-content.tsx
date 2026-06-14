@@ -1,21 +1,12 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
-import DOMPurify from 'dompurify';
-import { marked } from 'marked';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
-import { isHtmlContent } from '@/utils/markdown-content-shared';
-import { replaceEmoticonShortcodes } from './emoticon-shortcode';
-import hljs from './hljs-setup';
 import {
-  applyPostSanitizeAttributes,
-  SANITIZE_OPTIONS,
-} from './markdown-sanitizer';
-import { renderMarkdownTablesInHtml } from './markdown-table-utils';
-import { isMermaidCodeBlock, renderMermaidBlocks } from './mermaid-renderer';
-import { replaceStandaloneYouTubeLinksWithEmbeds } from './youtube-utils';
+  enhanceRenderedMarkdown,
+  renderMarkdownToSafeHtml,
+} from './markdown-render-pipeline';
 
 const MARKDOWN_CONTENT_BASE_STYLES = [
   'wrap-break-word',
@@ -58,39 +49,12 @@ function MarkdownContent({
   className,
   emptyMessage = '아직 작성된 소개가 없습니다.',
 }: MarkdownContentProps) {
-  const normalizedContent = normalizeMarkdownContent(content);
-  const hasContent = normalizedContent.length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const sanitizedHtml = useMemo(() => {
-    if (!hasContent) {
-      return '';
-    }
-
-    const isOriginalHtml = isHtmlContent(normalizedContent);
-    const normalizedContentWithEmbeds = replaceEmoticonShortcodes(
-      replaceStandaloneYouTubeLinksWithEmbeds(normalizedContent),
-    );
-
-    let html: string;
-
-    if (isOriginalHtml) {
-      html = renderMarkdownTablesInHtml(normalizedContentWithEmbeds);
-    } else {
-      const rendered = marked.parse(normalizedContentWithEmbeds, {
-        breaks: true,
-        gfm: true,
-      });
-      html = typeof rendered === 'string' ? rendered : '';
-    }
-
-    const sanitized = String(DOMPurify.sanitize(html, SANITIZE_OPTIONS));
-
-    return applyPostSanitizeAttributes({
-      originalHtml: html,
-      sanitizedHtml: sanitized,
-    });
-  }, [hasContent, normalizedContent]);
+  const sanitizedHtml = useMemo(
+    () => renderMarkdownToSafeHtml(content),
+    [content],
+  );
+  const hasContent = sanitizedHtml.length > 0;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -99,15 +63,7 @@ function MarkdownContent({
     }
 
     container.innerHTML = sanitizedHtml;
-    container.querySelectorAll('pre code').forEach((block) => {
-      if (isMermaidCodeBlock(block)) {
-        return;
-      }
-
-      hljs.highlightElement(block as HTMLElement);
-    });
-
-    renderMermaidBlocks(container).catch((): undefined => undefined);
+    enhanceRenderedMarkdown(container);
   }, [sanitizedHtml]);
 
   if (!hasContent) {
