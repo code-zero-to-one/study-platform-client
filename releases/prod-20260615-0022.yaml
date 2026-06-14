@@ -1,0 +1,50 @@
+release_id: prod-20260615-0022
+env: prod
+service_version: v1.2.0
+
+summary: "feat(rich-text): admin 에디터·미리보기·레슨 상세 렌더링 동기화 + WYSIWYG 표"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v1.2.0-533d2a4
+    commit: 533d2a4
+    version: v1.2.0
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.2-6826fcf
+    commit: 6826fcf
+    version: v1.0.2
+    changed: false
+
+database:
+  changed: false
+  migration_version: V56
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v1.1.0-c2ae7c2
+    backend: zeroone-backend:v1.0.2-6826fcf
+  db_rollback_note: "Verify compatibility before app rollback if DB changed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-06-15T00:22:28+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260615-0022-533d2a4
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: minor
+  bootstrap_mode: ""
