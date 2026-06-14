@@ -110,6 +110,28 @@ export const convertTabularTextToMarkdownTable = (text: string) => {
   ].join('\n');
 };
 
+/**
+ * 탭 구분 텍스트(스프레드시트 등에서 복사)를 실제 `<table>` HTML 문자열로 변환합니다.
+ * TipTap 에디터에 insertContent로 넣으면 실제 표 노드(WYSIWYG)로 파싱됩니다.
+ */
+export const convertTabularTextToHtmlTable = (
+  text: string,
+): string | undefined => {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  const markdown = convertTabularTextToMarkdownTable(text);
+  if (!markdown) {
+    return undefined;
+  }
+
+  const document = window.document.implementation.createHTMLDocument('');
+  const table = createTableElement(document, markdown.split('\n'));
+
+  return table.outerHTML;
+};
+
 export const convertHtmlTableElementToMarkdownTable = (table: Element) => {
   const rows = Array.from(table.querySelectorAll('tr'))
     .map((row) =>

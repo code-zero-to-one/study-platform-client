@@ -8,6 +8,12 @@ import {
 } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import ImageExtension from '@tiptap/extension-image';
+import {
+  Table as TableExtension,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from '@tiptap/extension-table';
 import type { Mark, Node as ProseMirrorNode } from '@tiptap/pm/model';
 import c from 'highlight.js/lib/languages/c';
 import cpp from 'highlight.js/lib/languages/cpp';
@@ -48,6 +54,18 @@ const LOWLIGHT_LANGUAGES = [
 LOWLIGHT_LANGUAGES.forEach(([name, language]) => {
   lowlight.register(name, language);
 });
+
+/**
+ * WYSIWYG 표 편집을 위한 TipTap 표 확장 묶음입니다.
+ * 컬럼 리사이즈는 비활성화해 저장 HTML에 colwidth/style 같은 추가 속성이 끼지 않도록 합니다
+ * (정화기 통과 및 미리보기/상세 렌더 일관성 유지).
+ */
+export const MarkdownTableExtensions = [
+  TableExtension.configure({ resizable: false }),
+  TableRow,
+  TableHeader,
+  TableCell,
+];
 
 const INSTANT_CODE_BLOCK_INPUT_REGEX = /^```$/;
 
