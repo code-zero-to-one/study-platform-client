@@ -1300,6 +1300,41 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   margin-bottom: var(--spacing-150);
 }
 
+/* 이모티콘은 본문 인라인 이미지로 표시(리사이즈 이미지와 별개) */
+.tiptap-editor .tiptap img.emoticon-inline,
+.tiptap-editor .tiptap img.emoticon-lg,
+.tiptap-editor .tiptap img.emoticon-xl,
+.tiptap-editor .tiptap img.emoticon-xxl {
+  display: inline-block;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  vertical-align: middle;
+  object-fit: contain;
+}
+
+.tiptap-editor .tiptap img.emoticon-inline {
+  height: 24px;
+  max-height: 24px;
+}
+
+.tiptap-editor .tiptap img.emoticon-lg {
+  height: 48px;
+  max-height: 48px;
+}
+
+.tiptap-editor .tiptap img.emoticon-xl {
+  height: 96px;
+  max-height: 96px;
+}
+
+.tiptap-editor .tiptap img.emoticon-xxl {
+  height: 150px;
+  max-height: 150px;
+}
+
 .tiptap-editor .tiptap .tiptap-resizable-image {
   position: relative;
   display: inline-block;
