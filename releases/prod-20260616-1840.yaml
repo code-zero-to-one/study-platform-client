@@ -1,0 +1,50 @@
+release_id: prod-20260616-1840
+env: prod
+service_version: v1.2.1
+
+summary: "fix(editor): 기존 파이프-텍스트 표를 에디터 로드 시 실제 표로 변환"
+
+components:
+  frontend:
+    repo: study-platform-client
+    image: zerooneitkr/zeroone-frontend:v1.2.1-f27f710
+    commit: f27f710
+    version: v1.2.1
+    changed: true
+
+  backend:
+    repo: study-platform-mvp
+    image: zeroone-backend:v1.0.2-6826fcf
+    commit: 6826fcf
+    version: v1.0.2
+    changed: false
+
+database:
+  changed: false
+  migration_version: V56
+  migration_files:
+    []
+
+rollback:
+  app_rollback_target:
+    frontend: zerooneitkr/zeroone-frontend:v1.2.0-533d2a4
+    backend: zeroone-backend:v1.0.2-6826fcf
+  db_rollback_note: "Verify compatibility before app rollback if DB changed."
+
+deploy_order:
+  - db_migration
+  - backend
+  - backend_health_check
+  - frontend
+  - e2e_check
+
+deployed_at: 2026-06-16T18:40:52+09:00
+deployed_by: github-actions
+status: success
+
+metadata:
+  frontend_deploy_id: frontend-prod-20260616-1840-f27f710
+  backend_deploy_id: ""
+  paired_backend_deploy_id: ""
+  release_intent: patch
+  bootstrap_mode: ""
