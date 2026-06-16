@@ -34,6 +34,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { extractImageUrls } from '@/utils/markdown-content-images';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
+import { isHtmlContent } from '@/utils/markdown-content-shared';
 import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
 import {
   hasRenderableMarkdownSyntax,
@@ -66,6 +67,7 @@ import {
 import {
   convertTabularTextToHtmlTable,
   isHtmlTableOnlyPaste,
+  renderMarkdownTablesInHtml,
 } from './markdown-table-utils';
 import { normalizeRichClipboardHtml } from './rich-clipboard-normalizer';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
@@ -122,6 +124,15 @@ function MarkdownEditor({
   >(undefined);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeContent(value);
+  // 기존 콘텐츠가 파이프-텍스트 표(`<p>| a | b |</p>` 등)로 저장돼 있으면 에디터 로드 시
+  // 실제 표(WYSIWYG)로 변환한다. 표가 없는 콘텐츠는 그대로 둔다(동작 불변).
+  const editorReadyValue = useMemo(
+    () =>
+      isHtmlContent(normalizedValue) && normalizedValue.includes('|')
+        ? renderMarkdownTablesInHtml(normalizedValue)
+        : normalizedValue,
+    [normalizedValue],
+  );
   const currentVisibleTextLength = useMemo(() => {
     return getRichContentVisibleTextLength(normalizedValue);
   }, [normalizedValue]);
@@ -328,7 +339,7 @@ function MarkdownEditor({
         placeholder: placeholder ?? '내용을 자유롭게 작성해주세요.',
       }),
     ],
-    content: normalizedValue || '',
+    content: editorReadyValue || '',
     onUpdate: ({ editor: updatedEditor }) => {
       isInternalUpdate.current = true;
       onChange?.(normalizeContent(updatedEditor.getHTML()));
@@ -529,9 +540,9 @@ function MarkdownEditor({
 
     const currentHtml = normalizeContent(editor.getHTML());
     if (currentHtml !== normalizedValue) {
-      editor.commands.setContent(normalizedValue || '', { emitUpdate: false });
+      editor.commands.setContent(editorReadyValue || '', { emitUpdate: false });
     }
-  }, [editor, normalizeContent, normalizedValue]);
+  }, [editor, editorReadyValue, normalizeContent, normalizedValue]);
 
   const handleToggleLink = () => {
     if (!editor) {
