@@ -27,6 +27,13 @@ import sql from 'highlight.js/lib/languages/sql';
 import swift from 'highlight.js/lib/languages/swift';
 import { common, createLowlight } from 'lowlight';
 import {
+  buildEmoticonToken,
+  EMOTICON_CATALOG,
+  emoticonNameFromSrc,
+  emoticonSizeClass,
+  emoticonSizeFromClass,
+} from './emoticon-shortcode';
+import {
   clampImageWidth,
   parseImageWidth,
   MARKDOWN_IMAGE_DEFAULT_WIDTH,
@@ -354,5 +361,82 @@ export const YouTubeEmbedExtension = Node.create({
     }
 
     return ['iframe', mergeAttributes(attrs)];
+  },
+});
+
+/**
+ * 사이트 공용 이모티콘을 에디터에서 실제 이미지로 보여주는 인라인 atom 노드입니다.
+ * - 본문 저장은 `:name:` shortcode로 유지(에디터 ↔ 저장 변환은 markdown-editor에서 처리)
+ * - 일반 이미지(ResizableImage)보다 우선 파싱되도록 priority를 높여, emoticon class img를
+ *   리사이즈 이미지가 아니라 이모티콘 노드로 인식한다.
+ */
+export const EmoticonExtension = Node.create({
+  name: 'emoticon',
+  group: 'inline',
+  inline: true,
+  atom: true,
+  selectable: true,
+  draggable: false,
+  priority: 200,
+
+  addAttributes() {
+    return {
+      name: { default: '' },
+      size: { default: '' },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'img[class*="emoticon-"]',
+        getAttrs: (node) => {
+          const element = node instanceof HTMLElement ? node : null;
+          if (!element) {
+            return false;
+          }
+
+          const alt = element.getAttribute('alt') ?? '';
+          const altMatch = alt.match(/^:([a-zA-Z][a-zA-Z0-9_-]*):$/);
+          const className = element.getAttribute('class') ?? '';
+          const size = emoticonSizeFromClass(className);
+
+          let name = '';
+          if (altMatch?.[1]) {
+            const sizeSuffix = altMatch[1].match(/^(.+?)_(?:lg|xl|xxl)$/);
+            name = (sizeSuffix?.[1] ?? altMatch[1]).toLowerCase();
+          } else {
+            name = emoticonNameFromSrc(element.getAttribute('src') ?? '');
+          }
+
+          if (!name || !EMOTICON_CATALOG[name]) {
+            return false;
+          }
+
+          return { name, size };
+        },
+      },
+    ];
+  },
+
+  renderHTML({ node }) {
+    const name = String(node.attrs.name ?? '').toLowerCase();
+    const size = String(node.attrs.size ?? '');
+    const fileName = EMOTICON_CATALOG[name];
+
+    if (!fileName) {
+      return ['span'];
+    }
+
+    return [
+      'img',
+      mergeAttributes({
+        src: `/emoticon/${fileName}`,
+        alt: `:${buildEmoticonToken(name, size)}:`,
+        class: emoticonSizeClass(size),
+        draggable: 'false',
+        contenteditable: 'false',
+      }),
+    ];
   },
 });

@@ -17,11 +17,13 @@ import {
   Loader2,
   Quote,
   Redo2,
+  Smile,
   Table2,
   Strikethrough,
   Underline as UnderlineIcon,
   Undo2,
 } from 'lucide-react';
+import Image from 'next/image';
 import {
   type FormEvent,
   memo,
@@ -47,6 +49,12 @@ import {
 } from './clipboard-utils';
 import EditorVisibleTextCounter from './editor-visible-text-counter';
 import {
+  EMOTICON_CATALOG,
+  replaceEmoticonShortcodes,
+  serializeEmoticonImagesToShortcodes,
+} from './emoticon-shortcode';
+import {
+  EmoticonExtension,
   InstantCodeBlockExtension,
   LinkExitOnSpaceExtension,
   lowlight,
@@ -116,6 +124,7 @@ function MarkdownEditor({
   const [, forceEditorRerender] = useState(0);
   const [isLinkInputOpen, setIsLinkInputOpen] = useState(false);
   const [linkInputValue, setLinkInputValue] = useState('');
+  const [isEmoticonPickerOpen, setIsEmoticonPickerOpen] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const editorContentWrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
@@ -124,15 +133,17 @@ function MarkdownEditor({
   >(undefined);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeContent(value);
-  // 기존 콘텐츠가 파이프-텍스트 표(`<p>| a | b |</p>` 등)로 저장돼 있으면 에디터 로드 시
-  // 실제 표(WYSIWYG)로 변환한다. 표가 없는 콘텐츠는 그대로 둔다(동작 불변).
-  const editorReadyValue = useMemo(
-    () =>
-      isHtmlContent(normalizedValue) && normalizedValue.includes('|')
-        ? renderMarkdownTablesInHtml(normalizedValue)
-        : normalizedValue,
-    [normalizedValue],
-  );
+  // 저장된 본문을 에디터에 로드하기 좋은 형태로 변환한다.
+  // - `:name:` 이모티콘 shortcode → 실제 emoticon <img>(EmoticonExtension이 이미지 노드로 인식)
+  // - 파이프-텍스트 표(`<p>| a | b |</p>` 등) → 실제 표(WYSIWYG)
+  // 해당 패턴이 없는 콘텐츠는 그대로 둔다(동작 불변).
+  const editorReadyValue = useMemo(() => {
+    const withEmoticons = replaceEmoticonShortcodes(normalizedValue);
+    if (isHtmlContent(withEmoticons) && withEmoticons.includes('|')) {
+      return renderMarkdownTablesInHtml(withEmoticons);
+    }
+    return withEmoticons;
+  }, [normalizedValue]);
   const currentVisibleTextLength = useMemo(() => {
     return getRichContentVisibleTextLength(normalizedValue);
   }, [normalizedValue]);
@@ -181,6 +192,20 @@ function MarkdownEditor({
       .focus()
       .insertTable({ rows: 3, cols: 2, withHeaderRow: true })
       .run();
+  };
+
+  const handleInsertEmoticon = (name: string) => {
+    const editorInstance = getValidEditorInstance();
+    if (!editorInstance) {
+      return;
+    }
+
+    editorInstance
+      .chain()
+      .focus()
+      .insertContent({ type: 'emoticon', attrs: { name, size: '' } })
+      .run();
+    setIsEmoticonPickerOpen(false);
   };
 
   const resolvedImageConfig = useMemo(() => {
@@ -325,6 +350,7 @@ function MarkdownEditor({
       MarkdownHistoryShortcutsExtension,
       LinkExitOnSpaceExtension,
       YouTubeEmbedExtension,
+      EmoticonExtension,
       ...MarkdownTableExtensions,
       UnderlineExtension,
       LinkExtension.configure({
@@ -342,7 +368,12 @@ function MarkdownEditor({
     content: editorReadyValue || '',
     onUpdate: ({ editor: updatedEditor }) => {
       isInternalUpdate.current = true;
-      onChange?.(normalizeContent(updatedEditor.getHTML()));
+      // 에디터에선 이모티콘을 이미지로 보여주지만 저장 본문은 `:name:` shortcode로 유지한다.
+      onChange?.(
+        serializeEmoticonImagesToShortcodes(
+          normalizeContent(updatedEditor.getHTML()),
+        ),
+      );
     },
     onTransaction: () => {
       forceEditorRerender((prev) => prev + 1);
@@ -538,7 +569,9 @@ function MarkdownEditor({
       return;
     }
 
-    const currentHtml = normalizeContent(editor.getHTML());
+    const currentHtml = serializeEmoticonImagesToShortcodes(
+      normalizeContent(editor.getHTML()),
+    );
     if (currentHtml !== normalizedValue) {
       editor.commands.setContent(editorReadyValue || '', { emitUpdate: false });
     }
@@ -757,6 +790,12 @@ function MarkdownEditor({
           onClick={handleToggleCodeBlock}
         />
         <ToolbarButton icon={Table2} label="표" onClick={handleInsertTable} />
+        <ToolbarButton
+          icon={Smile}
+          label="이모티콘"
+          isActive={isEmoticonPickerOpen}
+          onClick={() => setIsEmoticonPickerOpen((prev) => !prev)}
+        />
         {resolvedImageConfig && (
           <Button
             type="button"
@@ -816,6 +855,38 @@ function MarkdownEditor({
             취소
           </Button>
         </form>
+      )}
+
+      {isEmoticonPickerOpen && (
+        <div className="border-border-subtle border-b px-125 py-100">
+          <div className="flex flex-wrap gap-50">
+            {Object.entries(EMOTICON_CATALOG).map(([name, fileName]) => (
+              <button
+                key={name}
+                type="button"
+                title={`:${name}:`}
+                aria-label={`이모티콘 ${name} 삽입`}
+                onClick={() => handleInsertEmoticon(name)}
+                className={cn(
+                  'rounded-75 border-border-subtle hover:bg-background-alternative flex flex-col items-center gap-25 border p-50',
+                  'focus:outline-none focus:ring-2 focus:ring-border-brand',
+                )}
+              >
+                <Image
+                  src={`/emoticon/${fileName}`}
+                  alt={name}
+                  width={28}
+                  height={28}
+                  unoptimized
+                  className="object-contain"
+                />
+                <span className="font-designer-12r text-text-subtle">
+                  {name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {resolvedImageConfig && (
