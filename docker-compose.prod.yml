@@ -1,0 +1,25 @@
+# 운영환경(main branch)에서 사용하는 docker-compose.yml
+
+version: '3.8'
+
+services:
+  frontend:
+    container_name: frontend-prod
+    image: ${FRONTEND_IMAGE:-zerooneitkr/zeroone-frontend:prod}
+    # 도커허브에서 이미지 받아오니까 빌드과정은 빠짐
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.prod
+    ports:
+      - '13755:13755'
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - default
+      - backend-shared
+
+networks:
+  backend-shared:
+    name: ${BACKEND_SHARED_NETWORK:-zeroone-net-prod}
+    external: true

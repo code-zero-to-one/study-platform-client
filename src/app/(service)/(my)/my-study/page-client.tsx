@@ -1,0 +1,151 @@
+'use client';
+
+import { Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useMemo } from 'react';
+import Button from '@/components/common/ui/button';
+import { Skeleton } from '@/components/common/ui/loading-skeleton';
+import CompletedGroupStudyList from '@/components/home/lists/completed-group-study-list';
+import NotCompletedGroupStudyList from '@/components/home/lists/not-completed-group-study-list';
+import { useAuthReady } from '@/features/auth/model/use-auth';
+import { useMemberStudyListV2Query } from '@/hooks/queries/user/use-member-study-list-query';
+import type { MemberStudyItem } from '@/types/api/group-study.types';
+
+const GroupStudyFormModal = dynamic(
+  () => import('@/components/group-study/modals/group-study-form-modal'),
+  { ssr: false },
+);
+
+const PREVIEW_LIMIT = 9;
+
+interface MemberGroupStudyList extends MemberStudyItem {
+  type: 'GROUP_STUDY' | 'MENTOR_STUDY';
+}
+
+export default function MyStudy() {
+  const { memberId } = useAuthReady();
+
+  const { data: notCompletedData, isLoading: isLoadingNotCompleted } =
+    useMemberStudyListV2Query({
+      memberId,
+      studyType: 'BOTH',
+      studyStatus: 'NOT_COMPLETED',
+      pageSize: 50,
+    });
+
+  const { data: completedData, isLoading: isLoadingCompleted } =
+    useMemberStudyListV2Query({
+      memberId,
+      studyType: 'BOTH',
+      studyStatus: 'COMPLETED',
+      pageSize: 9,
+    });
+
+  const isLoading = isLoadingNotCompleted || isLoadingCompleted;
+
+  const { notCompletedStudyList, completedStudyList } = useMemo(() => {
+    const now = new Date();
+    const allNotCompleted = notCompletedData?.content ?? [];
+
+    const isEnded = (study: MemberStudyItem) =>
+      study.status === 'COMPLETED' ||
+      (study.endTime && new Date(study.endTime) < now);
+
+    const isGroupOrMentorStudy = (
+      study: MemberStudyItem,
+    ): study is MemberGroupStudyList =>
+      study.type === 'GROUP_STUDY' || study.type === 'MENTOR_STUDY';
+
+    const groupStudies = allNotCompleted.filter(isGroupOrMentorStudy);
+    const active = groupStudies.filter((s) => !isEnded(s));
+    const ended = groupStudies.filter(isEnded);
+
+    return {
+      notCompletedStudyList: active.slice(0, PREVIEW_LIMIT),
+      completedStudyList: [
+        ...(completedData?.content ?? []).filter(isGroupOrMentorStudy),
+        ...ended,
+      ].slice(0, PREVIEW_LIMIT),
+    };
+  }, [notCompletedData, completedData]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-300">
+        <div className="flex flex-row items-center justify-between">
+          <Skeleton className="h-300 w-[120px]" />
+          <Skeleton className="h-300 w-[130px]" />
+        </div>
+        <div className="flex flex-col gap-600">
+          {[0, 1].map((section) => (
+            <div key={section}>
+              <Skeleton className="mb-200 h-200 w-[100px]" />
+              <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <li key={i} className="flex flex-col gap-100">
+                    <Skeleton className="h-study-card rounded-100" />
+                    <Skeleton className="h-150 w-[60px]" />
+                    <Skeleton className="h-150 w-full" />
+                    <Skeleton className="h-100 w-4/5" />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-300">
+      <div className="flex flex-row items-center justify-between">
+        <h1 className="font-designer-20b">마이스터디</h1>
+        <GroupStudyFormModal
+          mode="create"
+          trigger={
+            <Button icon={<Plus className="text-text-inverse" />} size="medium">
+              스터디 개설하기
+            </Button>
+          }
+        />
+      </div>
+
+      <div className="flex flex-col gap-600">
+        <div>
+          <div className="mb-200 flex flex-row justify-between">
+            <h2 className="font-designer-16b text-text-default">
+              참여 중인 스터디
+            </h2>
+
+            <Link
+              href="/my-study/not-completed"
+              className="font-designer-14m text-text-subtlest"
+            >
+              전체보기
+            </Link>
+          </div>
+
+          <NotCompletedGroupStudyList studyList={notCompletedStudyList} />
+        </div>
+
+        <div>
+          <div className="mb-200 flex flex-row justify-between">
+            <h2 className="font-designer-16b text-text-default">
+              종료된 스터디
+            </h2>
+
+            <Link
+              href="/my-study/completed"
+              className="font-designer-14m text-text-subtlest"
+            >
+              전체보기
+            </Link>
+          </div>
+          <CompletedGroupStudyList studyList={completedStudyList} />
+        </div>
+      </div>
+    </div>
+  );
+}

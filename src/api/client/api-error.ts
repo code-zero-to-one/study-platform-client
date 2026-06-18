@@ -1,0 +1,44 @@
+class ApiError extends Error {
+  public name = 'ApiError';
+  public statusCode: number;
+  public errorCode: string;
+  public errorName: string;
+  public message: string;
+  public detail?: unknown;
+
+  public constructor({
+    statusCode,
+    errorCode,
+    errorName,
+    message,
+    detail,
+  }: {
+    statusCode: number;
+    errorCode: string;
+    errorName: string;
+    message: string;
+    detail?: unknown;
+  }) {
+    super(message);
+    this.statusCode = statusCode;
+    this.errorCode = errorCode;
+    this.errorName = errorName;
+    this.message = message;
+    this.detail = detail;
+  }
+}
+
+// API 에러인지 확인하는 함수
+const isApiError = (error: unknown): error is ApiError => {
+  return (
+    error instanceof ApiError ||
+    (typeof error === 'object' &&
+      error !== null &&
+      'statusCode' in error &&
+      'errorCode' in error &&
+      'errorName' in error &&
+      'message' in error)
+  );
+};
+
+export { ApiError, isApiError };

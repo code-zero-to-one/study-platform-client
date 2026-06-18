@@ -1,0 +1,10 @@
+import type { Metadata } from 'next';
+import PageClient from './page-client';
+
+export const metadata: Metadata = {
+  title: '수강 완료',
+};
+
+export default function Page() {
+  return <PageClient />;
+}

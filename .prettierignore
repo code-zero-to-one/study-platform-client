@@ -1,0 +1,10 @@
+dist/
+build/
+
+# OpenAPI auto-generated files
+src/api/openapi
+
+**/*.json
+
+# CodeRabbit config
+.coderabbit.yaml

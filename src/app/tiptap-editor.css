@@ -1,0 +1,204 @@
+/* Tiptap 리치 텍스트 에디터 스타일 */
+.tiptap-editor .tiptap {
+  outline: none;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: var(--color-text-default);
+}
+
+.tiptap-editor .tiptap p {
+  margin-bottom: 8px;
+}
+
+.tiptap-editor .tiptap h1 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 34px;
+  color: var(--color-text-strong);
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.tiptap-editor .tiptap h2 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 30px;
+  color: var(--color-text-strong);
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.tiptap-editor .tiptap h3 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 29px;
+  color: var(--color-text-default);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.tiptap-editor .tiptap ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-bottom: 12px;
+}
+
+.tiptap-editor .tiptap ol {
+  list-style-type: decimal;
+  padding-left: 20px;
+  margin-bottom: 12px;
+}
+
+.tiptap-editor .tiptap li {
+  margin-bottom: 4px;
+}
+
+.tiptap-editor .tiptap blockquote {
+  border-left: 4px solid var(--color-border-subtle);
+  background-color: var(--color-background-alternative);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+}
+
+.tiptap-editor .tiptap blockquote p {
+  color: var(--color-text-subtle);
+}
+
+.tiptap-editor .tiptap pre {
+  background-color: var(--color-background-alternative);
+  border-radius: 8px;
+  padding: 32px 10px 8px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+}
+
+.tiptap-editor .tiptap pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+}
+
+.tiptap-editor .tiptap code {
+  background-color: var(--color-background-alternative);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 13px;
+}
+
+.tiptap-editor .tiptap a {
+  color: var(--color-text-brand);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tiptap-editor .tiptap s,
+.tiptap-editor .tiptap del {
+  text-decoration: line-through;
+}
+
+.tiptap-editor .tiptap img {
+  display: block;
+  max-width: min(100%, 800px);
+  max-height: none;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-100);
+  border: 1px solid var(--color-border-subtle);
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: var(--spacing-150);
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image {
+  position: relative;
+  display: inline-block;
+  max-width: min(100%, 800px);
+  margin-bottom: var(--spacing-300);
+  line-height: 0;
+  vertical-align: top;
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image > img {
+  display: block;
+  width: 100% !important;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 0;
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image-handle {
+  position: absolute;
+  right: calc(var(--spacing-100) * -1);
+  bottom: calc(var(--spacing-100) * -1);
+  width: var(--spacing-200);
+  height: var(--spacing-200);
+  border: var(--spacing-25) solid var(--color-border-brand);
+  border-radius: var(--radius-50);
+  background: var(--color-background-default);
+  cursor: nwse-resize;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.tiptap-editor
+  .tiptap
+  .tiptap-resizable-image:hover
+  .tiptap-resizable-image-handle,
+.tiptap-editor
+  .tiptap
+  .tiptap-resizable-image-selected
+  .tiptap-resizable-image-handle {
+  opacity: 1;
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image-selected > img {
+  outline: var(--spacing-25) solid var(--color-border-brand);
+  outline-offset: var(--spacing-25);
+}
+
+.tiptap-editor .tiptap .tiptap-resizable-image-size {
+  position: absolute;
+  left: 0;
+  bottom: calc(var(--spacing-250) * -1);
+  color: var(--color-text-subtle);
+  font-size: 12px;
+  font-weight: var(--font-weight-regular);
+  line-height: 19px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.tiptap-editor .tiptap iframe.youtube-embed {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-100);
+  border: 1px solid var(--color-border-subtle);
+  margin-bottom: var(--spacing-150);
+}
+
+.tiptap-editor .tiptap img.ProseMirror-selectednode {
+  outline: var(--spacing-25) solid var(--color-border-brand);
+  outline-offset: var(--spacing-25);
+}
+
+.tiptap-editor .tiptap iframe.youtube-embed.ProseMirror-selectednode {
+  outline: var(--spacing-25) solid var(--color-border-brand);
+  outline-offset: var(--spacing-25);
+}
+
+.tiptap-editor .tiptap hr {
+  border-color: var(--color-border-subtle);
+  margin: 16px 0;
+}
+
+.tiptap-editor .tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-text-subtlest);
+  pointer-events: none;
+  height: 0;
+}

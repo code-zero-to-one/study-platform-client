@@ -1,0 +1,3 @@
+export const BALANCE_GAME_TAG_MAX_LEN = 40;
+export const BALANCE_GAME_TAG_MAX_COUNT = 3;
+export const BALANCE_GAME_TAG_MIN_QUERY_LEN = 1;
