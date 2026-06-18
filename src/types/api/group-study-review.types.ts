@@ -1,0 +1,71 @@
+export type ReviewSatisfaction = 'GOOD' | 'DISAPPOINTED';
+
+export interface SelectableReviewItem {
+  code?: string;
+  id?: number;
+  reviewSelection?: string;
+  label?: string;
+  satisfactionType?: string;
+}
+
+export interface SelectableReviewItemListResponse {
+  goodItems?: SelectableReviewItem[];
+  disappointedItems?: SelectableReviewItem[];
+}
+
+export interface GroupStudyExperienceReviewListItem {
+  reviewId?: number;
+  writerId?: number;
+  writerName?: string;
+  writerProfileImageUrl?: string;
+  satisfaction?: ReviewSatisfaction;
+  content?: string;
+  rating?: number;
+  createdAt?: string;
+}
+
+export interface GroupStudyReviewStatisticsItem {
+  id?: number;
+  label?: string;
+  count?: number;
+}
+
+export interface GroupStudyReviewStatistics {
+  goodCount?: number;
+  disappointedCount?: number;
+  totalCount?: number;
+  averageRating?: number;
+  goodItems?: GroupStudyReviewStatisticsItem[];
+  disappointedItems?: GroupStudyReviewStatisticsItem[];
+}
+
+export interface GroupStudyExperienceReviewDetail {
+  reviewId?: number;
+  groupStudyId?: number;
+  groupStudyTitle?: string;
+  writerId?: number;
+  writerName?: string;
+  satisfaction?: ReviewSatisfaction;
+  selectableReviewItems?: SelectableReviewItem[];
+  content?: string;
+  rating?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface GroupStudyExperienceReviewPageResponse {
+  content?: GroupStudyExperienceReviewListItem[];
+  page?: number;
+  size?: number;
+  totalElements?: number;
+  totalPages?: number;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
+}
+
+export interface GroupStudyExperienceReviewRequest {
+  satisfaction: ReviewSatisfaction;
+  selectableReviewItemCodes: string[];
+  content: string;
+  rating: number;
+}

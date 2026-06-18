@@ -1,0 +1,202 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  axiosInstanceForMultipartV5,
+  axiosInstanceV5,
+} from '@/api/client/axios';
+import type { AdminLessonDetailResponse } from '@/features/admin/course-management/model/admin-course-management-contract';
+import {
+  createAdminLessonsFromNotionZips,
+  getAdminLessonDetail,
+  importAdminLessonContentZip,
+  importAdminLessonNotionPage,
+} from './admin-course-management-api';
+
+vi.mock('@/api/client/axios', () => ({
+  axiosInstanceForMultipartV5: {
+    post: vi.fn(),
+  },
+  axiosInstanceV5: {
+    get: vi.fn(),
+    post: vi.fn(),
+  },
+}));
+
+const mockedGet = vi.mocked(axiosInstanceV5.get);
+const mockedPost = vi.mocked(axiosInstanceV5.post);
+const mockedMultipartPost = vi.mocked(axiosInstanceForMultipartV5.post);
+
+const lessonContent: AdminLessonDetailResponse = {
+  lessonId: 1,
+  chapterNumber: 1,
+  lessonNumber: 1,
+  title: '1일차 오리엔테이션',
+  description: null,
+  content: '<p>본문</p>',
+  estimatedMinutes: 30,
+  retrospectivePurpose: 'PRACTICAL' as const,
+  isFree: true,
+  isPublished: true,
+};
+
+describe('admin course management api', () => {
+  beforeEach(() => {
+    mockedGet.mockReset();
+    mockedPost.mockReset();
+    mockedMultipartPost.mockReset();
+  });
+
+  it('unwraps the standard Axios BaseResponse envelope for lesson detail', async () => {
+    mockedGet.mockResolvedValueOnce({
+      data: {
+        statusCode: 200,
+        timestamp: '2026-05-15T20:00:00',
+        content: lessonContent,
+        message: null,
+      },
+    });
+
+    await expect(getAdminLessonDetail(1)).resolves.toMatchObject({
+      lessonId: 1,
+      content: '<p>본문</p>',
+    });
+  });
+
+  it('also accepts an already-unwrapped BaseResponse after retry interceptors', async () => {
+    mockedGet.mockResolvedValueOnce({
+      statusCode: 200,
+      timestamp: '2026-05-15T20:00:00',
+      content: { ...lessonContent, content: undefined },
+      message: null,
+    });
+
+    await expect(getAdminLessonDetail(1)).resolves.toMatchObject({
+      lessonId: 1,
+      content: '',
+    });
+  });
+
+  it('imports a single Notion ZIP with the expected L-10A field name', async () => {
+    const file = new File(['zip'], 'lesson.zip', { type: 'application/zip' });
+    mockedMultipartPost.mockResolvedValueOnce({
+      data: {
+        statusCode: 200,
+        timestamp: '2026-05-18T10:00:00',
+        content: lessonContent,
+        message: null,
+      },
+    });
+
+    await expect(
+      importAdminLessonContentZip({ lessonId: 11, file }),
+    ).resolves.toMatchObject({ lessonId: 1 });
+
+    const [url, formData] = mockedMultipartPost.mock.calls[0];
+    expect(url).toBe('admin/lessons/11/imports/notion-zip');
+    expect(formData).toBeInstanceOf(FormData);
+    expect((formData as FormData).get('file')).toBe(file);
+  });
+
+  it('imports Notion page data by linking URL and syncing lesson content', async () => {
+    mockedPost
+      .mockResolvedValueOnce({
+        data: {
+          statusCode: 200,
+          timestamp: '2026-06-05T10:00:00',
+          content: {
+            lessonId: 11,
+            linked: true,
+            notionPageId: 'abcdef12-3456-7890-abcd-ef1234567890',
+            notionPageUrl: 'https://www.notion.so/workspace/page',
+            notionLastEditedTime: '2026-06-05T09:55:00',
+            lastSyncedAt: null,
+            lastSyncedChecksum: null,
+            syncStatus: 'LINKED',
+            lastErrorCode: null,
+            lastErrorMessage: null,
+            changedSinceLastSync: false,
+          },
+          message: null,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          statusCode: 200,
+          timestamp: '2026-06-05T10:00:01',
+          content: {
+            lessonId: 11,
+            changed: true,
+            syncedAt: '2026-06-05T10:00:01',
+            notionLastEditedTime: '2026-06-05T09:55:00',
+            checksum: 'sha256',
+            warnings: [],
+            lesson: {
+              ...lessonContent,
+              lessonId: 11,
+              content: '# Notion 본문',
+            },
+          },
+          message: null,
+        },
+      });
+
+    await expect(
+      importAdminLessonNotionPage({
+        lessonId: 11,
+        request: { notionPageUrl: 'https://www.notion.so/workspace/page' },
+      }),
+    ).resolves.toMatchObject({
+      lessonId: 11,
+      changed: true,
+      lesson: {
+        content: '# Notion 본문',
+      },
+    });
+
+    expect(mockedPost.mock.calls).toEqual([
+      [
+        'admin/lessons/11/notion-link',
+        { notionPageUrl: 'https://www.notion.so/workspace/page' },
+      ],
+      ['admin/lessons/11/notion-sync'],
+    ]);
+  });
+
+  it('creates lessons from multiple Notion ZIPs with repeated files fields', async () => {
+    const files = [
+      new File(['zip-a'], 'lesson-a.zip', { type: 'application/zip' }),
+      new File(['zip-b'], 'lesson-b.zip', { type: 'application/zip' }),
+    ];
+    mockedMultipartPost.mockResolvedValueOnce({
+      data: {
+        statusCode: 201,
+        timestamp: '2026-05-18T10:00:00',
+        content: {
+          lessonCount: 2,
+          lessons: [
+            {
+              lessonId: 101,
+              chapterNumber: 1,
+              lessonNumber: 4,
+              title: 'AI 공방 설치 I',
+            },
+            {
+              lessonId: 102,
+              chapterNumber: 1,
+              lessonNumber: 5,
+              title: 'AI 공방 설치 II',
+            },
+          ],
+        },
+        message: null,
+      },
+    });
+
+    await expect(
+      createAdminLessonsFromNotionZips({ courseId: 7, files }),
+    ).resolves.toMatchObject({ lessonCount: 2 });
+
+    const [url, formData] = mockedMultipartPost.mock.calls[0];
+    expect(url).toBe('admin/courses/7/lessons/imports/notion-zips');
+    expect((formData as FormData).getAll('files')).toEqual(files);
+  });
+});

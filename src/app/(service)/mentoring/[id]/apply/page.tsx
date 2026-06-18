@@ -1,0 +1,68 @@
+import { type Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import {
+  parseMentoringApplyRouteMentorId,
+  parseMentoringApplySelectedType,
+} from '@/features/mentoring/model/apply/mentoring-apply-route-contract';
+import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
+import { isMentoringApplyEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
+import MentoringApplyRouteClient from '@/features/mentoring/ui/apply/mentoring-apply-route-client';
+import type { MentoringMethodType } from '@/types/mentoring/domain';
+import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
+
+interface MentoringApplyRouteProps {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ type?: string }>;
+}
+
+const resolveMethod = (
+  type: MentoringMethodType | undefined,
+  fallbackType: MentoringMethodType,
+): MentoringMethodType => {
+  if (type) {
+    return type;
+  }
+
+  return fallbackType;
+};
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: MentoringApplyRouteProps): Promise<Metadata> {
+  const { id } = await params;
+  const rawSearchParams = await searchParams;
+  const selectedType = parseMentoringApplySelectedType(rawSearchParams.type);
+  const resolvedType = resolveMethod(selectedType, 'note');
+
+  return generateSEOMetadata({
+    title: '멘토링 신청',
+    description: `${getMethodLabel(resolvedType)} 신청 정보를 확인하세요.`,
+    path: `/mentoring/${id}/apply?type=${resolvedType}`,
+  });
+}
+
+export default async function MentoringApplyRoute({
+  params,
+  searchParams,
+}: MentoringApplyRouteProps) {
+  if (!isMentoringApplyEnabled()) {
+    notFound();
+  }
+
+  const { id } = await params;
+  const rawSearchParams = await searchParams;
+  const mentorId = parseMentoringApplyRouteMentorId(id);
+  const selectedType = parseMentoringApplySelectedType(rawSearchParams.type);
+
+  if (!mentorId) {
+    notFound();
+  }
+
+  return (
+    <MentoringApplyRouteClient
+      mentorId={mentorId}
+      selectedType={selectedType}
+    />
+  );
+}

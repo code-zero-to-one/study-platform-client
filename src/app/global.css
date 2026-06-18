@@ -1,0 +1,979 @@
+@import "tailwindcss";
+@import "highlight.js/styles/github.css";
+@import "./tiptap-editor.css";
+
+@plugin "tailwindcss-animate";
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--color-gray-200);
+  }
+  input,
+  button,
+  select,
+  textarea {
+    font-family: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+  }
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+  }
+  button,
+  select {
+    text-transform: none;
+  }
+  button,
+  [type="button"],
+  [type="reset"],
+  [type="submit"] {
+    -webkit-appearance: button;
+    background-color: transparent;
+    background-image: none;
+  }
+}
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  tailwind 4.0부터는 전역 변수를 여기서 설정 가능
+
+  4.0 달라진 설정:
+  https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%EB%9D%BC%EC%A1%8C%EB%82%98%EC%9A%94
+
+  예시:
+  @theme {
+    --font-display: 'Satoshi', 'sans-serif';
+    --breakpoint-3xl: 1920px;
+    ...
+  }
+*/
+
+@theme inline {
+  /* fonts */
+  --font-signature: var(--font-thesignature);
+  --font-corinthia: var(--font-corinthia);
+
+  /* colors */
+  --color-*: initial;
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  --color-gray-0: #ffffff;
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e9eaeb;
+  --color-gray-275: #d1d2d4;
+  --color-gray-300: #d5d7da;
+  --color-gray-400: #a4a7ae;
+  --color-gray-450: #999999;
+  --color-gray-500: #717680;
+  --color-gray-600: #535862;
+  --color-gray-700: #414651;
+  --color-gray-800: #252b37;
+  --color-gray-900: #181d27;
+  --color-gray-1000: #0a0d12;
+
+  /* Landing benefit-band gradient stop (Figma gradation/600, distinct from gray-600 #535862) */
+  --color-gradation-600: #575f70;
+
+  --color-red-50: #fef3f2;
+  --color-red-100: #fee4e2;
+  --color-red-200: #fecdca;
+  --color-red-400: #f97066;
+  --color-red-500: #f04438;
+  --color-red-600: #d92d20;
+
+  --color-rose-50: #fff1f3;
+  --color-rose-100: #ffe4e8;
+  --color-rose-150: #fadfe7;
+  --color-rose-200: #fecdd6;
+  --color-rose-300: #fea3b4;
+  --color-rose-400: #fd6f8e;
+  --color-rose-500: #f63d68;
+  --color-rose-600: #e31b54;
+  --color-rose-700: #c01048;
+  --color-rose-800: #a11043;
+  --color-rose-900: #89123e;
+
+  --color-pink-50: #fdf2fa;
+  --color-pink-100: #fce7f6;
+  --color-pink-300: #faa7e0;
+  --color-pink-400: #f670c7;
+  --color-pink-500: #ee46bc;
+  --color-pink-600: #dd2590;
+
+  --color-grape-600: #7f56d9;
+
+  --color-purple-50: #f4f3ff;
+  --color-purple-100: #ebe9fe;
+  --color-purple-150: #dfe1fa;
+  --color-purple-200: #d9d6fe;
+  --color-purple-400: #9b8afb;
+  --color-purple-500: #7a5af8;
+  --color-purple-600: #6938ef;
+
+  --color-indigo-50: #eef4ff;
+  --color-indigo-500: #6172f3;
+
+  --color-blue-50: #eff8ff;
+  --color-blue-100: #d1e9ff;
+  --color-blue-200: #b2ddff;
+  --color-blue-400: #53b1fd;
+  --color-blue-500: #2e90fa;
+  --color-blue-600: #1570ef;
+
+  --color-green-50: #ecfdf3;
+  --color-green-100: #d1fadf;
+  --color-green-400: #32d583;
+  --color-green-500: #12b76a;
+  --color-green-600: #039855;
+
+  --color-qna-answered: #02c76e;
+  --color-qna-answered-bg: #dafbe7;
+
+  --color-chip-positive: #02c76e;
+  --color-chip-positive-bg: #dafbe7;
+  --color-chip-negative: #ff4343;
+  --color-chip-negative-subtle: #f76363;
+  --color-chip-negative-bg: #fecdcd;
+
+  /* Instructor 기획팀 카드 배경 (Figma 클래스 상세) */
+  --color-mint-50: #ddf6f1;
+
+  --color-yellow-50: #fffaeb;
+  --color-yellow-100: #fef0c7;
+  --color-yellow-200: #fedf89;
+  --color-yellow-300: #fec84b;
+  --color-yellow-400: #fdb022;
+  --color-yellow-500: #f79009;
+  --color-yellow-600: #dc6803;
+
+  --color-orange-50: #fff6ed;
+  --color-orange-100: #ffead5;
+  --color-orange-400: #fd853a;
+  --color-orange-500: #fb6514;
+  --color-orange-600: #ec4a0a;
+
+  /* colors - semantic token */
+  --color-text-subtle: var(--color-gray-600);
+  --color-text-brand: var(--color-rose-500);
+  --color-text-default: var(--color-gray-800);
+  --color-text-disabled: var(--color-gray-300);
+  --color-text-disabled-strong: var(--color-gray-275);
+  --color-text-error: var(--color-red-500);
+  --color-text-strong: var(--color-gray-900);
+  --color-text-subtlest: var(--color-gray-400);
+  --color-text-success: var(--color-green-500);
+  --color-text-warning: var(--color-yellow-500);
+  --color-text-information: var(--color-blue-600);
+  --color-text-inverse: var(--color-gray-0);
+
+  --color-icon-brand: var(--color-rose-500);
+  --color-icon-default: var(--color-gray-800);
+  --color-icon-disabled: var(--color-gray-300);
+  --color-icon-error: var(--color-red-500);
+  --color-icon-strong: var(--color-gray-900);
+  --color-icon-subtlest: var(--color-gray-400);
+  --color-icon-information: var(--color-blue-500);
+  --color-icon-inverse: var(--color-gray-0);
+
+  --color-border-subtle: var(--color-gray-200);
+  --color-border-brand: var(--color-rose-500);
+  --color-border-default: var(--color-gray-300);
+  --color-border-disabled: var(--color-gray-100);
+  --color-border-error: var(--color-red-500);
+  --color-border-strong: var(--color-gray-800);
+  --color-border-subtlest: var(--color-gray-100);
+  --color-border-success: var(--color-green-500);
+  --color-border-warning: var(--color-yellow-500);
+  --color-border-information: var(--color-blue-500);
+  --color-border-inverse: var(--color-gray-0);
+
+  --color-background-alternative: var(--color-gray-50);
+  --color-background-default: var(--color-gray-0);
+  --color-background-dimmer: rgba(24, 29, 39, 0.8);
+  --color-background-disabled: var(--color-gray-100);
+
+  --color-background-danger-default: var(--color-red-500);
+
+  --color-background-brand-subtle: var(--color-rose-300);
+  --color-background-brand-default: var(--color-rose-500);
+
+  --color-background-neutral-subtle: var(--color-gray-200);
+  --color-background-neutral-strong: var(--color-gray-900);
+
+  --color-background-accent-blue-subtle: var(--color-blue-50);
+  --color-background-accent-blue-default: var(--color-blue-100);
+  --color-background-accent-blue-strong: var(--color-blue-600);
+  --color-background-accent-gray-subtle: var(--color-gray-100);
+  --color-background-accent-gray-default: var(--color-gray-50);
+  --color-background-accent-gray-strong: var(--color-gray-600);
+  --color-background-accent-green-subtle: var(--color-green-50);
+  --color-background-accent-indigo-subtle: var(--color-indigo-50);
+  --color-background-accent-orange-subtle: var(--color-orange-100);
+  --color-background-accent-orange-strong: var(--color-orange-600);
+  --color-background-accent-pink-subtle: var(--color-pink-50);
+  --color-background-accent-purple-subtle: var(--color-purple-50);
+  --color-background-accent-purple-strong: var(--color-purple-600);
+  --color-background-accent-red-subtle: var(--color-red-50);
+  --color-background-accent-rose-subtle: var(--color-rose-50);
+  --color-background-accent-rose-strong: var(--color-rose-600);
+  --color-background-accent-yellow-subtle: var(--color-yellow-50);
+
+  --color-fill-brand-default-default: var(--color-rose-500);
+  --color-fill-brand-default-hover: var(--color-rose-600);
+  --color-fill-brand-default-pressed: var(--color-rose-700);
+  --color-fill-brand-strong-default: var(--color-rose-900);
+  --color-fill-brand-subtle-default: var(--color-rose-50);
+  --color-fill-brand-subtle-hover: var(--color-rose-200);
+
+  --color-fill-danger-default-default: var(--color-red-500);
+  --color-fill-danger-subtle-default: var(--color-red-50);
+
+  --color-fill-information-default-default: var(--color-blue-500);
+  --color-fill-information-subtle-default: var(--color-blue-50);
+  --color-fill-information-subtle-hover: var(--color-blue-100);
+  --color-fill-information-subtle-pressed: var(--color-blue-200);
+
+  --color-fill-neutral-default-default: var(--color-gray-100);
+  --color-fill-neutral-default-hover: var(--color-gray-200);
+  --color-fill-neutral-default-pressed: var(--color-gray-300);
+  --color-fill-neutral-strong-default: var(--color-gray-900);
+  --color-fill-neutral-subtle-default: var(--color-gray-0);
+  --color-fill-neutral-subtle-hover: var(--color-gray-50);
+  --color-fill-neutral-subtle-pressed: var(--color-gray-100);
+
+  --color-fill-success-default-default: var(--color-green-500);
+  --color-fill-success-subtle-default: var(--color-green-50);
+
+  --color-fill-warning-default-default: var(--color-yellow-500);
+  --color-fill-warning-subtle-default: var(--color-yellow-50);
+
+  /* button */
+
+  /* font weight */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* radius */
+  --radius-*: initial;
+  --radius-25: 2px;
+  --radius-50: 4px;
+  --radius-75: 6px;
+  --radius-100: 8px;
+  --radius-125: 10px;
+  --radius-150: 12px;
+  --radius-175: 14px;
+  --radius-200: 16px;
+  --radius-250: 20px;
+  --radius-300: 24px;
+  --radius-375: 30px;
+  --radius-500: 40px;
+  --radius-750: 60px;
+  --radius-2000: 160px;
+
+  /* spacing */
+  --spacing-*: initial;
+  --spacing-0: 0px;
+  --spacing-25: 2px;
+  --spacing-30: 3px;
+  --spacing-50: 4px;
+  --spacing-62: 5px;
+  --spacing-75: 6px;
+  --spacing-100: 8px;
+  --spacing-112: 9px;
+  --spacing-125: 10px;
+  --spacing-150: 12px;
+  --spacing-160: 13px;
+  --spacing-175: 14px;
+  --spacing-188: 15px;
+  --spacing-200: 16px;
+  --spacing-225: 18px;
+  --spacing-250: 20px;
+  --spacing-275: 22px;
+  --spacing-300: 24px;
+  --spacing-325: 26px;
+  --spacing-350: 28px;
+  --spacing-375: 30px;
+  --spacing-400: 32px;
+  --spacing-425: 34px;
+  --spacing-450: 36px;
+  --spacing-500: 40px;
+  --spacing-525: 42px;
+  --spacing-550: 44px;
+  --spacing-575: 46px;
+  --spacing-587: 47px;
+  --spacing-600: 48px;
+  --spacing-625: 50px;
+  --spacing-650: 52px;
+  --spacing-675: 54px;
+  --spacing-700: 56px;
+  --spacing-750: 60px;
+  --spacing-775: 62px;
+  --spacing-800: 64px;
+  --spacing-825: 66px;
+  --spacing-875: 70px;
+  --spacing-950: 76px;
+  --spacing-1000: 80px;
+  --spacing-1062: 85px;
+  --spacing-1112: 89px;
+  --spacing-1125: 90px;
+  --spacing-1200: 96px;
+  --spacing-1250: 100px;
+  --spacing-1375: 110px;
+  --spacing-1400: 112px;
+  --spacing-1425: 114px;
+  --spacing-1500: 120px;
+  --spacing-1600: 128px;
+  --spacing-1625: 130px;
+  --spacing-1662: 133px;
+  --spacing-1750: 140px;
+  --spacing-1837: 147px;
+  --spacing-1875: 150px;
+  --spacing-2000: 160px;
+  --spacing-2125: 170px;
+  --spacing-2325: 186px;
+  --spacing-2413: 193px;
+  --spacing-2500: 200px;
+  --spacing-2525: 202px;
+  --spacing-2650: 212px;
+  --spacing-2850: 228px;
+  --spacing-3000: 240px;
+  --spacing-3050: 244px;
+  --spacing-3400: 272px;
+  --spacing-3500: 280px;
+  --spacing-3625: 290px;
+  --spacing-3650: 292px;
+  --spacing-3725: 298px;
+  --spacing-3750: 300px;
+  --spacing-3875: 310px;
+  --spacing-4000: 320px;
+  --spacing-4250: 340px;
+  --spacing-4500: 360px;
+  --spacing-4600: 368px;
+  --spacing-4875: 390px;
+  --spacing-5000: 400px;
+  --spacing-5250: 420px;
+  --spacing-5500: 440px;
+  --spacing-5950: 476px;
+  --spacing-6000: 480px;
+  --spacing-6750: 540px;
+  --spacing-7000: 560px;
+  --spacing-7125: 570px;
+  --spacing-7250: 580px;
+  --spacing-7500: 600px;
+  --spacing-7850: 628px;
+  --spacing-7925: 634px;
+  --spacing-8288: 663px;
+  --spacing-8875: 710px;
+  --spacing-9175: 734px;
+  --spacing-9250: 740px;
+  --spacing-10000: 800px;
+  --spacing-10150: 812px;
+  --spacing-10250: 820px;
+  --spacing-10500: 840px;
+  --spacing-10700: 856px;
+  --spacing-17500: 1400px;
+  /* layout max-width tokens */
+
+  /* shadow */
+  --shadow-*: initial;
+  --shadow-1: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);
+  --shadow-2: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
+  --shadow-brand-card: 4px 4px 20px 0px var(--color-rose-600);
+  --shadow-3:
+    0px 0px 8px 0px rgba(0, 0, 0, 0.08),
+    0px 8px 16px 0px rgba(0, 0, 0, 0.08),
+    0px 16px 20px 0px rgba(0, 0, 0, 0.12);
+  --shadow-4:
+    0px 4px 32px rgba(0, 0, 0, 0.24), 0px 10px 10px rgba(0, 0, 0, 0.24);
+}
+
+/* fluid layout — utility 미생성, raw var()로만 사용 */
+:root {
+  --min-h-hero-section: clamp(260px, 30.2vw, 580px);
+}
+
+@layer base {
+  /* body {
+    @apply bg-background text-foreground font-sans;
+  } */
+  button,
+  a,
+  [role="button"],
+  label,
+  select {
+    cursor: pointer;
+  }
+}
+
+/* liquid-glass — SVG feDisplacementMap refracts the live backdrop (Chromium).
+   Safari ignores url() in backdrop-filter, so it degrades to frost-only blur.
+   Gated to sm+ : mobile bar stays solid (out of Figma desktop scope). */
+@media (min-width: 640px) {
+  .liquid-glass {
+    /* Safari/iOS/Firefox: url() backdrop-filter unsupported → degrade to frost blur */
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  /* Chromium only: refraction (#liquid-glass) filter + frost. Only engines that
+     support url() pass this gate → others keep the blur(6px) above (progressive enhancement). */
+  @supports (backdrop-filter: url(#liquid-glass)) {
+    .liquid-glass {
+      backdrop-filter: url(#liquid-glass) blur(6px);
+    }
+  }
+}
+
+/* typography */
+
+@utility h-500px {
+  height: 500px;
+}
+
+@utility text-58px {
+  font-size: 58px;
+}
+
+@utility w-140px {
+  width: 140px;
+}
+
+@utility w-320px {
+  width: 320px;
+}
+
+@utility w-360px {
+  width: 360px;
+}
+
+@utility min-h-280px {
+  min-height: 280px;
+}
+
+@utility min-h-260px {
+  min-height: 260px;
+}
+
+@utility h-study-card {
+  height: 244px;
+}
+
+@utility max-w-page {
+  max-width: 1280px;
+}
+
+@utility max-w-130px {
+  max-width: 130px;
+}
+
+@utility max-w-240px {
+  max-width: 240px;
+}
+
+@utility no-number-spin {
+  appearance: textfield;
+  &::-webkit-inner-spin-button {
+    appearance: none;
+  }
+  &::-webkit-outer-spin-button {
+    appearance: none;
+  }
+}
+
+@utility max-w-study-content {
+  max-width: 1164px;
+}
+
+@utility max-w-1496 {
+  max-width: 1496px;
+}
+
+@utility max-h-modal {
+  max-height: 90vh;
+}
+
+@utility grid-cols-content-sidebar-360 {
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+@utility grid-cols-fluid-120 {
+  grid-template-columns: minmax(0, 1fr) 120px;
+}
+
+@utility top-panel-offset {
+  top: var(--panel-top-offset);
+}
+
+@utility right-panel-offset {
+  right: var(--panel-right-offset);
+}
+
+@utility h-panel-height {
+  height: var(--panel-height);
+}
+
+@utility translate-y-panel {
+  transform: translate3d(0, var(--panel-translate-y, 0px), 0);
+}
+
+@utility max-h-rich-text-image {
+  max-height: none;
+}
+
+@utility max-w-rich-text-image {
+  max-width: min(100%, 800px);
+}
+
+@utility font-display-headings4 {
+  font-size: 52px;
+  font-weight: var(--font-weight-bold);
+  line-height: 78px;
+  letter-spacing: 0;
+}
+
+@utility font-display-headings5 {
+  font-size: 48px;
+  font-weight: var(--font-weight-bold);
+  line-height: 72px;
+  letter-spacing: 0;
+}
+
+@utility font-display-headings6 {
+  font-size: 40px;
+  font-weight: var(--font-weight-bold);
+  line-height: 60px;
+  letter-spacing: 0;
+}
+
+@utility font-bold-h4 {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  line-height: 36px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-62b {
+  font-size: 62px;
+  font-weight: var(--font-weight-bold);
+  line-height: 87px;
+  letter-spacing: -1.178px;
+}
+
+@utility font-designer-36b {
+  font-size: 36px;
+  font-weight: var(--font-weight-bold);
+  line-height: 54px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-32b {
+  font-size: 32px;
+  font-weight: var(--font-weight-bold);
+  line-height: 48px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-30b {
+  font-size: 30px;
+  font-weight: var(--font-weight-bold);
+  line-height: 45px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-28b {
+  font-size: 28px;
+  font-weight: var(--font-weight-bold);
+  line-height: 42px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-24m {
+  font-size: 24px;
+  font-weight: var(--font-weight-medium);
+  line-height: 37px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-24b {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  line-height: 37px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-24sb {
+  font-size: 24px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 37px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-22m {
+  font-size: 22px;
+  font-weight: var(--font-weight-medium);
+  line-height: 33px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-20r {
+  font-size: 20px;
+  font-weight: var(--font-weight-regular);
+  line-height: 30px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-20m {
+  font-size: 20px;
+  font-weight: var(--font-weight-medium);
+  line-height: 30px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-20sb {
+  font-size: 20px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 30px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-20b {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  line-height: 30px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-18r {
+  font-size: 18px;
+  font-weight: var(--font-weight-regular);
+  line-height: 29px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-18m {
+  font-size: 18px;
+  font-weight: var(--font-weight-medium);
+  line-height: 29px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-18b {
+  font-size: 18px;
+  font-weight: var(--font-weight-bold);
+  line-height: 29px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-16r {
+  font-size: 16px;
+  font-weight: var(--font-weight-regular);
+  line-height: 25px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-16m {
+  font-size: 16px;
+  font-weight: var(--font-weight-medium);
+  line-height: 25px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-16b {
+  font-size: 16px;
+  font-weight: var(--font-weight-bold);
+  line-height: 25px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-16sb {
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 25px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-15r {
+  font-size: 15px;
+  font-weight: var(--font-weight-regular);
+  line-height: 23px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-15m {
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  line-height: 23px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-15b {
+  font-size: 15px;
+  font-weight: var(--font-weight-bold);
+  line-height: 23px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-14r {
+  font-size: 14px;
+  font-weight: var(--font-weight-regular);
+  line-height: 22px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-14m {
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  line-height: 22px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-14sb {
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 22px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-14b {
+  font-size: 14px;
+  font-weight: var(--font-weight-bold);
+  line-height: 22px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-13r {
+  font-size: 13px;
+  font-weight: var(--font-weight-regular);
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-13m {
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-13b {
+  font-size: 13px;
+  font-weight: var(--font-weight-bold);
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-12r {
+  font-size: 12px;
+  font-weight: var(--font-weight-regular);
+  line-height: 19px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-12m {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  line-height: 19px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-12b {
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  line-height: 19px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-11r {
+  font-size: 11px;
+  font-weight: var(--font-weight-regular);
+  line-height: 18px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-11m {
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  line-height: 18px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-11b {
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  line-height: 18px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-10r {
+  font-size: 10px;
+  font-weight: var(--font-weight-regular);
+  line-height: 17px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-10m {
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  line-height: 17px;
+  letter-spacing: 0;
+}
+
+@utility font-designer-10b {
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  line-height: 17px;
+  letter-spacing: 0;
+}
+
+@utility max-h-markdown-img {
+  max-height: none;
+}
+
+@utility max-w-markdown-img {
+  max-width: min(100%, 800px);
+}
+
+@utility max-w-youtube-embed {
+  max-width: min(100%, 600px);
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+  }
+}
+
+/* 은은한 펄스 애니메이션 (1:1스터디 신청하기 버튼시 사용) */
+@keyframes subtle-pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 20px 0 rgba(37, 99, 235, 0.25);
+  }
+}
+
+@utility hover-lift-neutral {
+  transform: translateY(0) scale(1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  will-change: transform, box-shadow;
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    transform 300ms ease,
+    box-shadow 300ms ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--shadow-1);
+    background-color: var(--color-background-alternative);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+@utility hover-lift-brand {
+  transform: translateY(0) scale(1);
+  box-shadow: 0 0 0 0 rgba(246, 61, 104, 0);
+  will-change: transform, box-shadow;
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    transform 300ms ease,
+    box-shadow 300ms ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 20px 0 rgba(246, 61, 104, 0.25);
+    background-color: var(--color-fill-brand-subtle-hover);
+  }
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* 실시간 미리보기: 폼 변경 시 해당 섹션 강조 애니메이션 */
+@keyframes preview-section-highlight {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  20%,
+  80% {
+    background-color: var(--color-fill-brand-subtle-default);
+  }
+}
+
+@layer utilities {
+  .preview-section-highlight {
+    animation: preview-section-highlight 1.4s ease-in-out;
+  }
+
+  .toast-enter {
+    animation: toast-enter 300ms ease-out forwards;
+  }
+
+  .toast-exit {
+    animation: toast-exit 200ms ease-in forwards;
+  }
+}

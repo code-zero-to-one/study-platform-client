@@ -1,0 +1,97 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import UserAvatar from '@/components/common/ui/avatar';
+import TabMenu from '@/components/common/ui/tab-menu';
+import { useAuthReady } from '@/features/auth/model/use-auth';
+import { useUserProfileQuery } from '@/hooks/queries/user/use-user-profile-query';
+import OutIcon from 'public/icons/out.svg';
+
+export default function AdminSideBar() {
+  const { memberId } = useAuthReady();
+  const { data: profile } = useUserProfileQuery(memberId ?? 0);
+  const pathname = usePathname();
+  const router = useRouter();
+  const isSalesManagementPath = pathname.startsWith('/admin/sales-management');
+  const isMentoringManagementPath = pathname.startsWith('/admin/mentoring');
+  const isMatchingManagementPath = pathname.startsWith('/admin/matching');
+  const isCourseManagementPath = pathname.startsWith('/admin/courses');
+  const isAlerttalkManagementPath = pathname.startsWith('/admin/alerttalk');
+
+  return (
+    <aside className="border-border-subtle h-screen w-fit border-r p-200">
+      <div className="border-border-subtle flex items-center gap-150 border-b py-200">
+        {profile && (
+          <UserAvatar
+            size={40}
+            image={
+              profile.memberProfile?.profileImage?.resizedImages[0]
+                .resizedImageUrl
+            }
+          />
+        )}
+
+        <div className="min-w-0 flex-1">
+          <p className="font-designer-14m text-text-default">
+            {profile?.memberProfile.memberName}
+          </p>
+        </div>
+
+        <Link href="/">
+          <OutIcon />
+        </Link>
+      </div>
+
+      <nav className="mt-200 flex min-w-0 flex-col gap-100">
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin')}
+        >
+          <TabMenu active={pathname === '/admin'}>사용자 관리</TabMenu>
+        </button>
+
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/courses')}
+        >
+          <TabMenu active={isCourseManagementPath}>클래스 관리</TabMenu>
+        </button>
+
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/sales-management/payment-refund')}
+        >
+          <TabMenu active={isSalesManagementPath}>매출 관리</TabMenu>
+        </button>
+
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/mentoring/dashboard')}
+        >
+          <TabMenu active={isMentoringManagementPath}>멘토링 관리</TabMenu>
+        </button>
+
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/matching')}
+        >
+          <TabMenu active={isMatchingManagementPath}>1:1 매칭 관리</TabMenu>
+        </button>
+
+        <button
+          className="w-full text-left"
+          type="button"
+          onClick={() => router.push('/admin/alerttalk/templates')}
+        >
+          <TabMenu active={isAlerttalkManagementPath}>알림톡 관리</TabMenu>
+        </button>
+      </nav>
+    </aside>
+  );
+}

@@ -1,0 +1,30 @@
+import { type MentoringMethodType } from '@/types/mentoring/domain';
+
+const MENTOR_WRITE_ROLES = ['ROLE_MEMBER', 'ROLE_ADMIN'] as const;
+
+export const hasMentorWritePermission = (
+  roleIds: readonly string[] | undefined,
+) => {
+  if (!roleIds) {
+    return false;
+  }
+
+  return MENTOR_WRITE_ROLES.some((role) => roleIds.includes(role));
+};
+
+export const MENTORING_METHOD_TYPES: readonly MentoringMethodType[] = [
+  'note',
+  'simple',
+  'deep',
+  'offline',
+];
+
+export const isMentoringMethodType = (
+  value: string | undefined,
+): value is MentoringMethodType => {
+  if (!value) {
+    return false;
+  }
+
+  return MENTORING_METHOD_TYPES.includes(value as MentoringMethodType);
+};
