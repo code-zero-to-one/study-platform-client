@@ -1,11 +1,7 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
-import LinkExtension from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
-import UnderlineExtension from '@tiptap/extension-underline';
 import { type Editor, EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import {
   Bold,
   Code2,
@@ -41,14 +37,7 @@ import {
   isClipboardImageOnly,
 } from './clipboard-utils';
 import EditorVisibleTextCounter from './editor-visible-text-counter';
-import {
-  InstantCodeBlockExtension,
-  LinkExitOnSpaceExtension,
-  lowlight,
-  MarkdownHistoryShortcutsExtension,
-  ResizableImageExtension,
-  YouTubeEmbedExtension,
-} from './extensions';
+import { buildLessonEditorExtensions } from './extensions';
 import {
   type MarkdownEditorImageConfig,
   MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS,
@@ -58,11 +47,13 @@ import {
   toFileFromBlob,
   toImageInputAccept,
 } from './image-utils';
+import { serializeEditorToMarkdown } from './markdown-serializer';
 import {
   convertHtmlTableToMarkdownTable,
   convertTabularTextToMarkdownTable,
   isHtmlTableOnlyPaste,
 } from './markdown-table-utils';
+import { markdownToEditorHtml } from './markdown-to-editor-html';
 import { normalizeRichClipboardHtml } from './rich-clipboard-normalizer';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
 import { useActiveCodeBlockControl } from './use-active-code-block-control';
@@ -80,6 +71,12 @@ interface MarkdownEditorProps {
   placeholder?: string;
   uploadImage?: (file: File) => Promise<string>;
   normalizeContent?: (content: unknown) => string;
+  /**
+   * 저장/로드 포맷. 기본 'html'(기존 동작 유지). 'markdown'이면 저장 시
+   * 마크다운으로 직렬화하고 로드 시 마크다운을 파싱한다(레슨 본문 전용 opt-in).
+   * 작성자의 WYSIWYG 편집 경험은 동일하다.
+   */
+  outputFormat?: 'html' | 'markdown';
   imageConfig?: MarkdownEditorImageConfig;
   visibleTextCounter?: {
     helperText?: string;
@@ -102,11 +99,23 @@ function MarkdownEditor({
   placeholder,
   uploadImage,
   normalizeContent = normalizeMarkdownContent,
+  outputFormat = 'html',
   imageConfig,
   visibleTextCounter,
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedBy,
 }: MarkdownEditorProps) {
+  const isMarkdownOutput = outputFormat === 'markdown';
+
+  /** 저장 값(html 또는 markdown)을 에디터가 파싱할 HTML로 변환한다. */
+  const toEditorContent = (rawValue: string): string =>
+    isMarkdownOutput ? markdownToEditorHtml(rawValue) : rawValue;
+
+  /** 에디터 문서를 저장 포맷(html 또는 markdown) 문자열로 직렬화한다. */
+  const fromEditor = (editorInstance: Editor): string =>
+    isMarkdownOutput
+      ? serializeEditorToMarkdown(editorInstance)
+      : editorInstance.getHTML();
   const [, forceEditorRerender] = useState(0);
   const [isLinkInputOpen, setIsLinkInputOpen] = useState(false);
   const [linkInputValue, setLinkInputValue] = useState('');
@@ -316,35 +325,11 @@ function MarkdownEditor({
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [
-      StarterKit.configure({
-        heading: { levels: [1, 2, 3] },
-        codeBlock: false,
-      }),
-      InstantCodeBlockExtension.configure({
-        lowlight,
-        defaultLanguage: 'plaintext',
-      }),
-      MarkdownHistoryShortcutsExtension,
-      LinkExitOnSpaceExtension,
-      YouTubeEmbedExtension,
-      UnderlineExtension,
-      LinkExtension.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          rel: 'noreferrer',
-          target: '_blank',
-        },
-      }),
-      ResizableImageExtension,
-      Placeholder.configure({
-        placeholder: placeholder ?? '내용을 자유롭게 작성해주세요.',
-      }),
-    ],
-    content: normalizedValue || '',
+    extensions: buildLessonEditorExtensions({ placeholder }),
+    content: toEditorContent(normalizedValue) || '',
     onUpdate: ({ editor: updatedEditor }) => {
       isInternalUpdate.current = true;
-      onChange?.(normalizeContent(updatedEditor.getHTML()));
+      onChange?.(normalizeContent(fromEditor(updatedEditor)));
     },
     onTransaction: () => {
       forceEditorRerender((prev) => prev + 1);
@@ -522,9 +507,11 @@ function MarkdownEditor({
       return;
     }
 
-    const currentHtml = normalizeContent(editor.getHTML());
-    if (currentHtml !== normalizedValue) {
-      editor.commands.setContent(normalizedValue || '', { emitUpdate: false });
+    const currentValue = normalizeContent(fromEditor(editor));
+    if (currentValue !== normalizedValue) {
+      editor.commands.setContent(toEditorContent(normalizedValue) || '', {
+        emitUpdate: false,
+      });
     }
   }, [editor, normalizeContent, normalizedValue]);
 

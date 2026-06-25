@@ -1,21 +1,12 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
-import DOMPurify from 'dompurify';
-import { marked } from 'marked';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { renderLessonContentToSafeHtml } from '@/lib/rich-text/render-lesson-content';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
-import { isHtmlContent } from '@/utils/markdown-content-shared';
-import { replaceEmoticonShortcodes } from './emoticon-shortcode';
 import hljs from './hljs-setup';
-import {
-  applyPostSanitizeAttributes,
-  SANITIZE_OPTIONS,
-} from './markdown-sanitizer';
-import { renderMarkdownTablesInHtml } from './markdown-table-utils';
 import { isMermaidCodeBlock, renderMermaidBlocks } from './mermaid-renderer';
-import { replaceStandaloneYouTubeLinksWithEmbeds } from './youtube-utils';
 
 const MARKDOWN_CONTENT_BASE_STYLES = [
   'wrap-break-word',
@@ -67,29 +58,7 @@ function MarkdownContent({
       return '';
     }
 
-    const isOriginalHtml = isHtmlContent(normalizedContent);
-    const normalizedContentWithEmbeds = replaceEmoticonShortcodes(
-      replaceStandaloneYouTubeLinksWithEmbeds(normalizedContent),
-    );
-
-    let html: string;
-
-    if (isOriginalHtml) {
-      html = renderMarkdownTablesInHtml(normalizedContentWithEmbeds);
-    } else {
-      const rendered = marked.parse(normalizedContentWithEmbeds, {
-        breaks: true,
-        gfm: true,
-      });
-      html = typeof rendered === 'string' ? rendered : '';
-    }
-
-    const sanitized = String(DOMPurify.sanitize(html, SANITIZE_OPTIONS));
-
-    return applyPostSanitizeAttributes({
-      originalHtml: html,
-      sanitizedHtml: sanitized,
-    });
+    return renderLessonContentToSafeHtml(normalizedContent);
   }, [hasContent, normalizedContent]);
 
   useEffect(() => {

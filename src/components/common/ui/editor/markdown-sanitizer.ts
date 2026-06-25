@@ -120,6 +120,9 @@ export const applyPostSanitizeAttributes = ({
   const sanitizedImages = Array.from(document.querySelectorAll('img'));
 
   sanitizedImages.forEach((imageElement, index) => {
+    imageElement.setAttribute('loading', 'lazy');
+    imageElement.setAttribute('decoding', 'async');
+
     const originalImage = originalImages[index];
     if (!originalImage) {
       return;

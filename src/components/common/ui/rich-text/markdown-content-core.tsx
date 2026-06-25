@@ -1,7 +1,6 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
-import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify';
 import hljs from 'highlight.js/lib/core';
 import bash from 'highlight.js/lib/languages/bash';
 import c from 'highlight.js/lib/languages/c';
@@ -20,15 +19,13 @@ import sql from 'highlight.js/lib/languages/sql';
 import swift from 'highlight.js/lib/languages/swift';
 import typescript from 'highlight.js/lib/languages/typescript';
 import xml from 'highlight.js/lib/languages/xml';
-import { marked } from 'marked';
 import { useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { replaceEmoticonShortcodes } from '@/components/common/ui/editor/emoticon-shortcode';
 import {
-  applyYouTubeIframeAttributes,
-  replaceStandaloneYouTubeLinksWithEmbeds,
-} from '@/components/common/ui/editor/youtube-utils';
-import { isHtmlContent } from '@/lib/rich-text/markdown-utils';
+  isMermaidCodeBlock,
+  renderMermaidBlocks,
+} from '@/components/common/ui/editor/mermaid-renderer';
+import { renderLessonContentToSafeHtml } from '@/lib/rich-text/render-lesson-content';
 
 hljs.registerLanguage('kotlin', kotlin);
 hljs.registerLanguage('sql', sql);
@@ -56,150 +53,19 @@ export interface MarkdownContentCoreProps {
   content: string;
   className?: string;
   emptyMessage?: string;
+  /**
+   * mermaid 코드펜스를 다이어그램으로 렌더할지 여부.
+   * 레슨 본문은 켜고(미리보기=학생 보장), 커뮤니티/피드 등은 기존 코드블록
+   * 동작을 유지하기 위해 기본 비활성화한다.
+   */
+  enableMermaid?: boolean;
 }
-
-const SANITIZE_OPTIONS: DOMPurifyConfig = {
-  ALLOWED_TAGS: [
-    'a',
-    'blockquote',
-    'br',
-    'code',
-    'del',
-    'em',
-    'h1',
-    'h2',
-    'h3',
-    'hr',
-    'iframe',
-    'img',
-    'li',
-    'ol',
-    'p',
-    'pre',
-    'span',
-    'strong',
-    'u',
-    'ul',
-  ],
-  ALLOWED_ATTR: [
-    'allow',
-    'allowfullscreen',
-    'alt',
-    'class',
-    'frameborder',
-    'height',
-    'href',
-    'loading',
-    'referrerpolicy',
-    'src',
-    'title',
-    'width',
-  ],
-  ALLOW_DATA_ATTR: false,
-  ALLOWED_URI_REGEXP:
-    /^(?:https?:\/\/|mailto:|tel:|\/images\/|\/emoticon\/|#)/i,
-};
-
-const IMAGE_WIDTH_MIN = 80;
-const IMAGE_WIDTH_MAX = 400;
-
-const parseSanitizedImageWidth = (
-  value: string | undefined,
-): number | undefined => {
-  if (!value) {
-    return undefined;
-  }
-
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    return undefined;
-  }
-
-  const clamped = Math.min(
-    IMAGE_WIDTH_MAX,
-    Math.max(IMAGE_WIDTH_MIN, Math.round(parsed)),
-  );
-
-  return clamped;
-};
-
-const applyPostSanitizeAttributes = ({
-  originalHtml,
-  sanitizedHtml,
-}: {
-  originalHtml: string;
-  sanitizedHtml: string;
-}) => {
-  if (typeof window === 'undefined') {
-    return sanitizedHtml;
-  }
-
-  const originalDocument = new window.DOMParser().parseFromString(
-    originalHtml,
-    'text/html',
-  );
-  const widthBucketsBySrc = new Map<string, number[]>();
-
-  originalDocument.querySelectorAll('img[src]').forEach((imageElement) => {
-    const src = imageElement.getAttribute('src')?.trim();
-    if (!src) {
-      return;
-    }
-
-    const width = parseSanitizedImageWidth(
-      imageElement.getAttribute('width') ?? undefined,
-    );
-    if (width === undefined) {
-      return;
-    }
-
-    const bucket = widthBucketsBySrc.get(src) ?? [];
-    bucket.push(width);
-    widthBucketsBySrc.set(src, bucket);
-  });
-
-  const document = new window.DOMParser().parseFromString(
-    sanitizedHtml,
-    'text/html',
-  );
-  const anchors = document.querySelectorAll('a[href]');
-
-  anchors.forEach((anchor) => {
-    anchor.setAttribute('target', '_blank');
-    anchor.setAttribute('rel', 'noreferrer');
-  });
-
-  document.querySelectorAll('img[src]').forEach((imageElement) => {
-    const src = imageElement.getAttribute('src')?.trim();
-    if (!src) {
-      return;
-    }
-
-    imageElement.setAttribute('loading', 'lazy');
-    imageElement.setAttribute('decoding', 'async');
-
-    const bucket = widthBucketsBySrc.get(src);
-    if (!bucket || bucket.length === 0) {
-      return;
-    }
-
-    const width = bucket.shift();
-    if (width === undefined) {
-      return;
-    }
-
-    imageElement.setAttribute('width', String(width));
-  });
-
-  applyYouTubeIframeAttributes(document);
-
-  return document.body.innerHTML;
-};
 
 export default function MarkdownContentCore({
   content,
   className,
   emptyMessage = '아직 작성된 내용이 없습니다.',
+  enableMermaid = false,
 }: MarkdownContentCoreProps) {
   const hasContent = content.trim().length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -209,29 +75,7 @@ export default function MarkdownContentCore({
       return '';
     }
 
-    const isOriginalHtml = isHtmlContent(content);
-    const contentWithEmbeds = replaceEmoticonShortcodes(
-      replaceStandaloneYouTubeLinksWithEmbeds(content),
-    );
-
-    let html: string;
-
-    if (isOriginalHtml) {
-      html = contentWithEmbeds;
-    } else {
-      const rendered = marked.parse(contentWithEmbeds, {
-        breaks: true,
-        gfm: true,
-      });
-      html = typeof rendered === 'string' ? rendered : '';
-    }
-
-    const sanitized = DOMPurify.sanitize(html, SANITIZE_OPTIONS);
-
-    return applyPostSanitizeAttributes({
-      originalHtml: html,
-      sanitizedHtml: sanitized,
-    });
+    return renderLessonContentToSafeHtml(content);
   }, [content, hasContent]);
 
   useEffect(() => {
@@ -242,9 +86,19 @@ export default function MarkdownContentCore({
     const codeBlocks = containerRef.current.querySelectorAll('pre code');
 
     codeBlocks.forEach((block) => {
+      if (enableMermaid && isMermaidCodeBlock(block)) {
+        return;
+      }
+
       hljs.highlightElement(block as HTMLElement);
     });
-  }, [sanitizedHtml]);
+
+    if (enableMermaid) {
+      renderMermaidBlocks(containerRef.current).catch(
+        (): undefined => undefined,
+      );
+    }
+  }, [sanitizedHtml, enableMermaid]);
 
   if (!hasContent) {
     return (
@@ -269,6 +123,12 @@ export default function MarkdownContentCore({
         '[&_blockquote]:rounded-100 [&_blockquote]:bg-background-alternative [&_blockquote]:border-border-subtle [&_blockquote]:mb-150 [&_blockquote]:border-l-4 [&_blockquote]:px-150 [&_blockquote]:py-125',
         '[&_blockquote_p]:font-designer-16r [&_blockquote_p]:text-text-subtle [&_blockquote_p]:leading-relaxed',
         '[&_a]:text-text-brand [&_a]:underline',
+        '[&_s]:line-through [&_del]:line-through',
+        '[&_table]:border-border-subtle [&_table]:mb-150 [&_table]:w-full [&_table]:border-collapse [&_table]:overflow-hidden [&_table]:rounded-100 [&_table]:border',
+        '[&_th]:bg-background-alternative [&_th]:font-designer-13b [&_th]:text-text-default [&_th]:border-border-subtle [&_th]:border [&_th]:px-100 [&_th]:py-75 [&_th]:text-left',
+        '[&_td]:font-designer-13r [&_td]:text-text-default [&_td]:border-border-subtle [&_td]:border [&_td]:px-100 [&_td]:py-75',
+        '[&_.mermaid-rendered-diagram]:border-border-subtle [&_.mermaid-rendered-diagram]:bg-background-default [&_.mermaid-rendered-diagram]:mb-150 [&_.mermaid-rendered-diagram]:overflow-auto [&_.mermaid-rendered-diagram]:rounded-100 [&_.mermaid-rendered-diagram]:border [&_.mermaid-rendered-diagram]:p-125',
+        '[&_.mermaid-render-error]:border-border-error [&_.mermaid-render-error]:bg-background-error-subtle [&_.mermaid-render-error]:text-text-error [&_.mermaid-render-error]:font-designer-13r [&_.mermaid-render-error]:mb-150 [&_.mermaid-render-error]:rounded-100 [&_.mermaid-render-error]:border [&_.mermaid-render-error]:p-125',
         '[&_iframe.youtube-embed]:mb-150 [&_iframe.youtube-embed]:block [&_iframe.youtube-embed]:aspect-video [&_iframe.youtube-embed]:w-full [&_iframe.youtube-embed]:max-w-full [&_iframe.youtube-embed]:rounded-100 [&_iframe.youtube-embed]:border [&_iframe.youtube-embed]:border-border-subtle',
         '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-150 [&_img]:block [&_img]:h-auto [&_img]:max-h-rich-text-image [&_img]:max-w-rich-text-image [&_img]:border [&_img]:object-contain',
         '[&_img.emoticon-inline]:!inline-block [&_img.emoticon-inline]:!h-[24px] [&_img.emoticon-inline]:!w-auto [&_img.emoticon-inline]:!max-h-[24px] [&_img.emoticon-inline]:!max-w-none [&_img.emoticon-inline]:!border-0 [&_img.emoticon-inline]:!rounded-none [&_img.emoticon-inline]:!my-0 [&_img.emoticon-inline]:!mb-0 [&_img.emoticon-inline]:!align-middle',

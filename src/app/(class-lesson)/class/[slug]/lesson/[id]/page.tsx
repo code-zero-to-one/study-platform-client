@@ -255,7 +255,10 @@ export default function LessonPage({
               className="mt-300 min-h-[964px] rounded-150 bg-background-default p-500"
             >
               {lesson?.contentMarkdown ? (
-                <MarkdownContentCore content={lesson.contentMarkdown} />
+                <MarkdownContentCore
+                  content={lesson.contentMarkdown}
+                  enableMermaid
+                />
               ) : (
                 <p className="font-designer-16r text-gray-500">
                   본문이 준비 중입니다.
