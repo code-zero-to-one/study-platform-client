@@ -542,6 +542,7 @@ export function AdminLessonManagementContent({
               editorStateKey={lessonEditorStateKey}
               lessonId={editingLessonId}
               value={lessonForm.content}
+              outputFormat="markdown"
               helper="긴 레슨 본문은 마크다운/리치 텍스트 에디터로 작성합니다. 저장 값은 그대로 public 레슨 상세에 노출됩니다."
               isHydrating={isLessonFormLocked}
               hydratingText={
