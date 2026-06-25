@@ -64,11 +64,13 @@ import {
   toFileFromBlob,
   toImageInputAccept,
 } from './image-utils';
+import { serializeEditorToMarkdown } from './markdown-serializer';
 import {
   convertTabularTextToHtmlTable,
   isHtmlTableOnlyPaste,
   renderMarkdownTablesInHtml,
 } from './markdown-table-utils';
+import { markdownToEditorHtml } from './markdown-to-editor-html';
 import { normalizeRichClipboardHtml } from './rich-clipboard-normalizer';
 import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
 import { useActiveCodeBlockControl } from './use-active-code-block-control';
@@ -86,6 +88,12 @@ interface MarkdownEditorProps {
   placeholder?: string;
   uploadImage?: (file: File) => Promise<string>;
   normalizeContent?: (content: unknown) => string;
+  /**
+   * 저장/로드 포맷. 기본 'html'(기존 동작 유지). 'markdown'이면 저장 시
+   * 마크다운으로 직렬화하고 로드 시 마크다운을 파싱한다(레슨 본문 전용 opt-in).
+   * 작성자의 WYSIWYG 편집 경험은 동일하다.
+   */
+  outputFormat?: 'html' | 'markdown';
   imageConfig?: MarkdownEditorImageConfig;
   visibleTextCounter?: {
     helperText?: string;
@@ -108,11 +116,18 @@ function MarkdownEditor({
   placeholder,
   uploadImage,
   normalizeContent = normalizeMarkdownContent,
+  outputFormat = 'html',
   imageConfig,
   visibleTextCounter,
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedBy,
 }: MarkdownEditorProps) {
+  const isMarkdownOutput = outputFormat === 'markdown';
+  /** 에디터 문서를 저장 포맷(html 또는 markdown) 문자열로 직렬화한다. */
+  const fromEditor = (editorInstance: Editor): string =>
+    isMarkdownOutput
+      ? serializeEditorToMarkdown(editorInstance)
+      : editorInstance.getHTML();
   const [, forceEditorRerender] = useState(0);
   const [isLinkInputOpen, setIsLinkInputOpen] = useState(false);
   const [linkInputValue, setLinkInputValue] = useState('');
@@ -126,13 +141,16 @@ function MarkdownEditor({
   const normalizedValue = normalizeContent(value);
   // 기존 콘텐츠가 파이프-텍스트 표(`<p>| a | b |</p>` 등)로 저장돼 있으면 에디터 로드 시
   // 실제 표(WYSIWYG)로 변환한다. 표가 없는 콘텐츠는 그대로 둔다(동작 불변).
-  const editorReadyValue = useMemo(
-    () =>
-      isHtmlContent(normalizedValue) && normalizedValue.includes('|')
-        ? renderMarkdownTablesInHtml(normalizedValue)
-        : normalizedValue,
-    [normalizedValue],
-  );
+  const editorReadyValue = useMemo(() => {
+    // 마크다운 모드: 저장값이 마크다운이므로 에디터 HTML로 파싱(표는 실제 표로).
+    if (isMarkdownOutput) {
+      return markdownToEditorHtml(normalizedValue);
+    }
+    // HTML 모드(기본): 파이프-텍스트 표(`<p>| a | b |</p>`)면 실제 표로 변환.
+    return isHtmlContent(normalizedValue) && normalizedValue.includes('|')
+      ? renderMarkdownTablesInHtml(normalizedValue)
+      : normalizedValue;
+  }, [isMarkdownOutput, normalizedValue]);
   const currentVisibleTextLength = useMemo(() => {
     return getRichContentVisibleTextLength(normalizedValue);
   }, [normalizedValue]);
@@ -342,7 +360,7 @@ function MarkdownEditor({
     content: editorReadyValue || '',
     onUpdate: ({ editor: updatedEditor }) => {
       isInternalUpdate.current = true;
-      onChange?.(normalizeContent(updatedEditor.getHTML()));
+      onChange?.(normalizeContent(fromEditor(updatedEditor)));
     },
     onTransaction: () => {
       forceEditorRerender((prev) => prev + 1);
@@ -538,8 +556,8 @@ function MarkdownEditor({
       return;
     }
 
-    const currentHtml = normalizeContent(editor.getHTML());
-    if (currentHtml !== normalizedValue) {
+    const currentValue = normalizeContent(fromEditor(editor));
+    if (currentValue !== normalizedValue) {
       editor.commands.setContent(editorReadyValue || '', { emitUpdate: false });
     }
   }, [editor, editorReadyValue, normalizeContent, normalizedValue]);

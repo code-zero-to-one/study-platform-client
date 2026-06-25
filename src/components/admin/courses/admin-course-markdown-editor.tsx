@@ -11,6 +11,7 @@ import {
   ADMIN_COURSE_MARKDOWN_MAX_IMAGE_FILE_SIZE,
   normalizeAdminCourseMarkdownContent,
 } from '@/features/admin/course-management/model/admin-course-markdown';
+import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 
 const formatByteSize = (bytes: number) => {
   if (bytes < 1024 * 1024) {
@@ -26,6 +27,7 @@ interface AdminCourseMarkdownEditorProps {
   value: string;
   onChange: (next: string) => void;
   placeholder?: string;
+  outputFormat?: 'html' | 'markdown';
 }
 
 function AdminCourseMarkdownEditor({
@@ -34,8 +36,15 @@ function AdminCourseMarkdownEditor({
   value,
   onChange,
   placeholder,
+  outputFormat = 'html',
 }: AdminCourseMarkdownEditorProps) {
-  const normalizedValue = normalizeAdminCourseMarkdownContent(value);
+  // 마크다운 모드에서는 HTML 속성 strip 없이 마크다운을 그대로 보존한다.
+  // (admin normalize는 HTML 본문 전용 — 마크다운에 적용하면 본문이 손상됨)
+  const normalizeContent =
+    outputFormat === 'markdown'
+      ? normalizeMarkdownContent
+      : normalizeAdminCourseMarkdownContent;
+  const normalizedValue = normalizeContent(value);
   const lastSourceValueRef = useRef(normalizedValue);
 
   const [draftValue, setDraftValue] = useState(() => normalizedValue);
@@ -69,7 +78,8 @@ function AdminCourseMarkdownEditor({
           onChange(next);
         }}
         placeholder={placeholder}
-        normalizeContent={normalizeAdminCourseMarkdownContent}
+        normalizeContent={normalizeContent}
+        outputFormat={outputFormat}
         imageConfig={
           lessonId
             ? {

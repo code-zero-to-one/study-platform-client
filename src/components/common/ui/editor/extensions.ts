@@ -1,4 +1,5 @@
 import {
+  type AnyExtension,
   type Editor,
   Extension,
   Node,
@@ -8,13 +9,17 @@ import {
 } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import ImageExtension from '@tiptap/extension-image';
+import LinkExtension from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
 import {
   Table as TableExtension,
   TableCell,
   TableHeader,
   TableRow,
 } from '@tiptap/extension-table';
+import UnderlineExtension from '@tiptap/extension-underline';
 import type { Mark, Node as ProseMirrorNode } from '@tiptap/pm/model';
+import StarterKit from '@tiptap/starter-kit';
 import c from 'highlight.js/lib/languages/c';
 import cpp from 'highlight.js/lib/languages/cpp';
 import dart from 'highlight.js/lib/languages/dart';
@@ -356,3 +361,41 @@ export const YouTubeEmbedExtension = Node.create({
     return ['iframe', mergeAttributes(attrs)];
   },
 });
+
+const DEFAULT_EDITOR_PLACEHOLDER = '내용을 자유롭게 작성해주세요.';
+
+/**
+ * 레슨 에디터의 표준 확장 세트를 만든다.
+ *
+ * 에디터 본체(`MarkdownEditor`)와 헤드리스 변환(마크다운 직렬화기·레거시
+ * 마이그레이션·round-trip 테스트)이 **동일한 스키마**를 공유하도록 단일 정의로
+ * 추출했다. `markdown-editor.tsx`의 인라인 확장 배열과 항상 일치해야 한다.
+ */
+export const buildLessonEditorExtensions = (options?: {
+  placeholder?: string;
+}): AnyExtension[] => [
+  StarterKit.configure({
+    heading: { levels: [1, 2, 3] },
+    codeBlock: false,
+  }),
+  InstantCodeBlockExtension.configure({
+    lowlight,
+    defaultLanguage: 'plaintext',
+  }),
+  MarkdownHistoryShortcutsExtension,
+  LinkExitOnSpaceExtension,
+  YouTubeEmbedExtension,
+  ...MarkdownTableExtensions,
+  UnderlineExtension,
+  LinkExtension.configure({
+    openOnClick: false,
+    HTMLAttributes: {
+      rel: 'noreferrer',
+      target: '_blank',
+    },
+  }),
+  ResizableImageExtension,
+  Placeholder.configure({
+    placeholder: options?.placeholder ?? DEFAULT_EDITOR_PLACEHOLDER,
+  }),
+];

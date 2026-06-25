@@ -10,6 +10,7 @@ interface AdminCourseMarkdownFieldProps {
   editorStateKey?: string;
   isHydrating?: boolean;
   hydratingText?: string;
+  outputFormat?: 'html' | 'markdown';
 }
 
 export default function AdminCourseMarkdownField({
@@ -21,6 +22,7 @@ export default function AdminCourseMarkdownField({
   editorStateKey,
   isHydrating = false,
   hydratingText = '본문을 불러오는 중입니다.',
+  outputFormat = 'html',
 }: AdminCourseMarkdownFieldProps) {
   return (
     <AdminCourseField label="본문" helper={helper}>
@@ -36,6 +38,7 @@ export default function AdminCourseMarkdownField({
             value={value}
             placeholder={placeholder}
             onChange={onChange}
+            outputFormat={outputFormat}
           />
         )}
       </div>
