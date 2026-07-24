@@ -2,6 +2,8 @@
 
 This is the shared production release-record contract between `study-platform-mvp` backend and `study-platform-client` frontend.
 
+Direct pushes to `main` without a PR and its `release:major|minor|patch` label are not valid production release inputs.
+
 It fixes two schemas:
 
 1. the backend-to-frontend release payload schema, and
@@ -132,6 +134,7 @@ The frontend script also accepts the inner `client_payload` object directly when
 
 - `summary`
 - `metadata.previous_deploy_image` - backend Jenkins resolves the image behind the registry `latest-prod`/`prod` pointer before the new deploy
+- The release record is still the audit trail; the registry pointer only helps backend Jenkins recover the previous immutable backend image before dispatch.
 - `metadata.pull_request_number`
 - `metadata.pull_request_labels`
 

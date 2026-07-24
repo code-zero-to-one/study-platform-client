@@ -105,6 +105,7 @@ The frontend workflow that receives this event is:
 
 - `summary`
 - `metadata.previous_deploy_image` - backend Jenkins resolves the image behind the registry `latest-prod`/`prod` pointer before the new deploy
+- When the registry pointer is missing or no canonical digest match exists, backend deployment must stop or require explicit bootstrap approval.
 - `metadata.pull_request_number`
 - `metadata.pull_request_labels`
 

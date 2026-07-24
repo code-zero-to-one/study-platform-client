@@ -4,6 +4,8 @@ This document is the frontend repository source of truth for ZERO-ONE production
 
 This document follows the shared FE/BE contract in `ops/release-record-shared-contract.md`.
 
+- Do not direct-push commits to `main` or bypass the PR path. Production deploy/release recording depends on the PR and its `release:major|minor|patch` label.
+
 ## Responsibility
 
 - `study-platform-client` owns the final production release record because it is the user-facing application and the running product depends on a compatible frontend/backend/database combination.
